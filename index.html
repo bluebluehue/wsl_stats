@@ -1376,11 +1376,14 @@
                             </select>
                         </label>
 
-                        <label class="text-xs font-semibold text-gray-600 min-w-[150px]">Min Pairing
-                            <div class="flex items-center gap-2 mt-1">
+                        <label class="text-xs font-semibold text-gray-600 min-w-[210px]">Min Pairing %
+                            <div class="mt-1 flex items-center gap-2 h-[38px] px-2 bg-white border border-gray-300 rounded-md shadow-sm">
+                                <span class="text-[10px] text-gray-400">0</span>
                                 <input id="pairings-min-pct" type="range" min="0" max="100" step="5" value="75"
-                                    class="w-28 accent-indigo-600">
-                                <span id="pairings-min-pct-value" class="text-sm font-bold text-gray-800 w-10 text-right">75%</span>
+                                    class="w-32 accent-indigo-600 cursor-pointer">
+                                <span class="text-[10px] text-gray-400">100</span>
+                                <span id="pairings-min-pct-value"
+                                    class="inline-flex items-center justify-center min-w-[46px] px-2 py-1 rounded-full bg-indigo-50 text-indigo-700 text-xs font-bold">75%</span>
                             </div>
                         </label>
                     </div>
@@ -3296,17 +3299,62 @@
                             value: Number(player.Value || 0),
                             selected: Number(player['Selected Percentage'] || 0),
                             previousPoints: Number(player['Previous Season Points'] || 0),
-                            availability: String(player['Availability Description'] || '')
+                            availability: Number(player['Availability Status'] ?? 1),
+                            active: player['Is Active'] !== false
                         });
                     }
                 });
 
+                // Project the likeliest starting GK within each club.
+                // Club-relative preseason heuristic:
+                //   50% prior-season fantasy points
+                //   30% current price
+                //   20% ownership
+                // Unavailable/inactive GKs are excluded when possible.
+                // If prior-season evidence is absent, price/ownership naturally
+                // become the fallback rather than simply choosing the cheapest GK.
                 playerClubMeta.forEach(meta => {
-                    meta.goalkeepers.sort((a, b) => {
-                        if (a.value !== b.value) return b.value - a.value;
-                        if (a.previousPoints !== b.previousPoints) return b.previousPoints - a.previousPoints;
+                    const eligible = meta.goalkeepers.filter(g => g.active && g.availability !== 0);
+                    const pool = eligible.length ? eligible : meta.goalkeepers;
+
+                    const maxPrev = Math.max(0, ...pool.map(g => g.previousPoints));
+                    const maxValue = Math.max(0, ...pool.map(g => g.value));
+                    const maxSelected = Math.max(0, ...pool.map(g => g.selected));
+
+                    pool.forEach(g => {
+                        const prevNorm = maxPrev > 0 ? g.previousPoints / maxPrev : 0;
+                        const valueNorm = maxValue > 0 ? g.value / maxValue : 0;
+                        const selectedNorm = maxSelected > 0 ? g.selected / maxSelected : 0;
+
+                        g.starterScore =
+                            (0.50 * prevNorm)
+                            + (0.30 * valueNorm)
+                            + (0.20 * selectedNorm);
+                    });
+
+                    pool.sort((a, b) => {
+                        if (b.starterScore !== a.starterScore) return b.starterScore - a.starterScore;
+                        if (b.value !== a.value) return b.value - a.value;
                         return b.selected - a.selected;
                     });
+
+                    const top = pool[0];
+                    const second = pool[1];
+
+                    if (top) {
+                        const gap = second ? top.starterScore - second.starterScore : 1;
+                        top.starterConfidence =
+                            gap >= 0.30 ? 'High'
+                            : gap >= 0.12 ? 'Medium'
+                            : 'Low';
+
+                        top.starterEvidence =
+                            maxPrev > 0
+                                ? 'prior points + price + ownership'
+                                : 'price + ownership';
+                    }
+
+                    meta.goalkeepers = pool;
                 });
 
                 function ensureClub(club) {
@@ -3780,7 +3828,7 @@
 
             $('#pairings-from-gw, #pairings-to-gw, #pairings-mode').on('change', renderPairings);
             $('#pairings-min-pct').on('input change', function() {
-                $('#pairings-min-pct-value').text(`${$(this).val()}%`);
+                $('#pairings-min-pct-value').text(`${Number($(this).val()).toFixed(0)}%`);
                 renderPairings();
             });
 
