@@ -1403,7 +1403,8 @@
                             <th class="text-center px-3 py-2">Pairing %</th>
                             <th class="text-center px-3 py-2">Coverage</th>
                             <th class="text-center px-3 py-2">Separation</th>
-                            <th class="text-center px-3 py-2" title="Average goalkeeper/defensive fixture opportunity across the selected gameweeks. Higher = better. Based primarily on opponent attacking strength, plus own defensive strength and venue.">Avg GK Fix</th>
+                            <th class="text-center px-3 py-2" title="Average clean-sheet environment across the selected gameweeks. Higher = better.">Avg CS Fix</th>
+                            <th class="text-center px-3 py-2" title="Average overall goalkeeper fantasy environment: clean-sheet opportunity + save opportunity + projected keeper quality. Higher = better.">Avg GK Fix</th>
                             <th class="text-left px-3 py-2" id="pairings-extra-header">GK Pair</th>
                         </tr>
                     </thead>
@@ -1498,10 +1499,12 @@
         // --- GLOBALS FOR CHARTING ---
         const PLAYER_HISTORY_PATH = 'player_history.json'; 
         const TRANSFORMED_DATA_PATH = 'transformed_data.json';
-        const FIXTURES_PATH = 'fixtures.json'; 
+        const FIXTURES_PATH = 'fixtures.json';
+        const GK_MODEL_INPUTS_PATH = 'gk_model_inputs.json'; 
         
         let playerHistoryData = {};
-        let fullFixtureData = []; 
+        let fullFixtureData = [];
+        let gkModelInputs = {teams:{}, keepers:{}, manual_keeper_adjustments:{}}; 
         let myChart = null; 
         // --- NEW GLOBALS ---
 
@@ -3422,7 +3425,8 @@
                             kickoff: f.kick_off_time || '',
                             opponent: away || f.away_short_name || f.away_name || 'TBD',
                             location: 'H',
-                            defensiveOpportunity: Number(f.home_defensive_opportunity ?? NaN)
+                            csOpportunity: Number(f.home_cs_opportunity ?? f.home_defensive_opportunity ?? NaN),
+                                saveOpportunity: Number(f.home_save_opportunity ?? NaN)
                         });
 
                         addFixture(ensureClub(away), {
@@ -3433,7 +3437,8 @@
                             kickoff: f.kick_off_time || '',
                             opponent: home || f.home_short_name || f.home_name || 'TBD',
                             location: 'A',
-                            defensiveOpportunity: Number(f.away_defensive_opportunity ?? NaN)
+                            csOpportunity: Number(f.away_cs_opportunity ?? f.away_defensive_opportunity ?? NaN),
+                                saveOpportunity: Number(f.away_save_opportunity ?? NaN)
                         });
                     });
                 }
@@ -3473,6 +3478,26 @@
                 return Math.abs(Math.round((b - a) / 86400000));
             }
 
+            function projectedKeeperQuality(gk) {
+                if (!gk) return 50;
+                const row = (gkModelInputs.keepers || {})[gk.name] || {};
+                const manual = ((gkModelInputs.manual_keeper_adjustments || {})[gk.name] || {}).quality_adjustment || 0;
+                if (row.keeper_save_pct === null || row.keeper_save_pct === undefined) {
+                    return Math.max(25, Math.min(75, 50 + Number(manual || 0)));
+                }
+                return Math.max(25, Math.min(75, 50 + (Number(row.keeper_save_pct) - 70) * 2 + Number(manual || 0)));
+            }
+
+            function fixtureGkFix(fixture, projectedGk) {
+                if (!fixture) return null;
+                const cs = Number(fixture.csOpportunity);
+                const saves = Number(fixture.saveOpportunity);
+                if (!Number.isFinite(cs)) return null;
+                const saveScore = Number.isFinite(saves) ? saves : 50;
+                const quality = projectedKeeperQuality(projectedGk);
+                return 0.65 * cs + 0.25 * saveScore + 0.10 * quality;
+            }
+
             function buildAllPairings(data, league, fromGw, toGw) {
                 const clubs = clubFixtureMapForPairings(data, league, fromGw, toGw);
                 const names = Array.from(clubs.keys()).sort();
@@ -3482,6 +3507,8 @@
                     for (let j = i + 1; j < names.length; j++) {
                         const a = clubs.get(names[i]);
                         const b = clubs.get(names[j]);
+                        const gkA = a.goalkeepers[0] || null;
+                        const gkB = b.goalkeepers[0] || null;
 
                         let comparable = 0;
                         let different = 0;
@@ -3493,10 +3520,12 @@
                         let tbdWeeks = 0;
                         let doubleWeeks = 0;
 
-                        let defensiveTotalA = 0;
-                        let defensiveTotalB = 0;
-                        let defensiveCountA = 0;
-                        let defensiveCountB = 0;
+                        let csTotalA = 0;
+                        let csTotalB = 0;
+                        let gkTotalA = 0;
+                        let gkTotalB = 0;
+                        let ratingCountA = 0;
+                        let ratingCountB = 0;
 
                         const details = [];
 
@@ -3530,13 +3559,17 @@
                             comparable++;
                             if (sa.status === 'DOUBLE' || sb.status === 'DOUBLE') doubleWeeks++;
 
-                            if (Number.isFinite(fa.defensiveOpportunity)) {
-                                defensiveTotalA += fa.defensiveOpportunity;
-                                defensiveCountA++;
+                            if (Number.isFinite(fa.csOpportunity)) {
+                                csTotalA += fa.csOpportunity;
+                                const gfA = fixtureGkFix(fa, gkA);
+                                if (Number.isFinite(gfA)) gkTotalA += gfA;
+                                ratingCountA++;
                             }
-                            if (Number.isFinite(fb.defensiveOpportunity)) {
-                                defensiveTotalB += fb.defensiveOpportunity;
-                                defensiveCountB++;
+                            if (Number.isFinite(fb.csOpportunity)) {
+                                csTotalB += fb.csOpportunity;
+                                const gfB = fixtureGkFix(fb, gkB);
+                                if (Number.isFinite(gfB)) gkTotalB += gfB;
+                                ratingCountB++;
                             }
 
                             const isDifferent = fa.date !== fb.date;
@@ -3566,19 +3599,14 @@
                         const coveragePct = selectedWindowWeeks ? (comparable / selectedWindowWeeks) * 100 : 0;
                         const avgSeparation = different ? separationPoints / different : 0;
 
-                        const gkA = a.goalkeepers[0] || null;
-                        const gkB = b.goalkeepers[0] || null;
                         const combinedGkPrice = gkA && gkB ? gkA.value + gkB.value : null;
 
-                        const avgDefA = defensiveCountA ? defensiveTotalA / defensiveCountA : null;
-                        const avgDefB = defensiveCountB ? defensiveTotalB / defensiveCountB : null;
-                        const combinedDefAvg = (
-                            Number.isFinite(avgDefA) && Number.isFinite(avgDefB)
-                                ? (avgDefA + avgDefB) / 2
-                                : Number.isFinite(avgDefA) ? avgDefA
-                                : Number.isFinite(avgDefB) ? avgDefB
-                                : null
-                        );
+                        const avgCsA = ratingCountA ? csTotalA / ratingCountA : null;
+                        const avgCsB = ratingCountB ? csTotalB / ratingCountB : null;
+                        const combinedCsAvg = Number.isFinite(avgCsA) && Number.isFinite(avgCsB) ? (avgCsA + avgCsB) / 2 : null;
+                        const avgGkA = ratingCountA ? gkTotalA / ratingCountA : null;
+                        const avgGkB = ratingCountB ? gkTotalB / ratingCountB : null;
+                        const combinedGkAvg = Number.isFinite(avgGkA) && Number.isFinite(avgGkB) ? (avgGkA + avgGkB) / 2 : null;
 
                         pairs.push({
                             a,
@@ -3595,9 +3623,8 @@
                             clubBlankWeeks,
                             tbdWeeks,
                             doubleWeeks,
-                            avgDefA,
-                            avgDefB,
-                            combinedDefAvg,
+                            avgCsA, avgCsB, combinedCsAvg,
+                            avgGkA, avgGkB, combinedGkAvg,
                             details,
                             gkA,
                             gkB,
@@ -3611,9 +3638,9 @@
                     if (y.coveragePct !== x.coveragePct) return y.coveragePct - x.coveragePct;
                     if (y.different !== x.different) return y.different - x.different;
 
-                    const xDef = Number.isFinite(x.combinedDefAvg) ? x.combinedDefAvg : -1;
-                    const yDef = Number.isFinite(y.combinedDefAvg) ? y.combinedDefAvg : -1;
-                    if (yDef !== xDef) return yDef - xDef;
+                    const xGk = Number.isFinite(x.combinedGkAvg) ? x.combinedGkAvg : -1;
+                    const yGk = Number.isFinite(y.combinedGkAvg) ? y.combinedGkAvg : -1;
+                    if (yGk !== xGk) return yGk - xGk;
 
                     if (y.separationPoints !== x.separationPoints) return y.separationPoints - x.separationPoints;
 
@@ -3636,10 +3663,10 @@
             function pairingFixtureLabel(fixture) {
                 if (!fixture) return '<span class="text-gray-400">No fixture</span>';
                 const loc = fixture.location ? ` ${fixture.location}` : '';
-                const def = Number.isFinite(fixture.defensiveOpportunity)
-                    ? ` · Def ${fixture.defensiveOpportunity.toFixed(0)}`
+                const cs = Number.isFinite(fixture.csOpportunity)
+                    ? ` · CS ${fixture.csOpportunity.toFixed(0)}`
                     : '';
-                return `${fixture.day || '?'} · ${fixture.opponent}${loc}${def}`;
+                return `${fixture.day || '?'} · ${fixture.opponent}${loc}${cs}`;
             }
 
             function pairingDetailHtml(pair) {
@@ -3717,7 +3744,7 @@
                 const $body = $('#pairings-table-body').empty();
 
                 if (!shown.length) {
-                    $body.html('<tr><td colspan="9" class="px-3 py-8 text-center text-gray-500">No pairings meet this minimum pairing percentage for the selected window.</td></tr>');
+                    $body.html('<tr><td colspan="10" class="px-3 py-8 text-center text-gray-500">No pairings meet this minimum pairing percentage for the selected window.</td></tr>');
                     return;
                 }
 
@@ -3765,17 +3792,15 @@
                                 <div class="text-xs text-gray-400">day-gap pts</div>
                             </td>
                             <td class="px-3 py-2 text-center">
-                                ${
-                                    Number.isFinite(pair.combinedDefAvg)
-                                        ? `<div class="font-semibold">${pair.combinedDefAvg.toFixed(1)}</div>
-                                           <div class="text-xs text-gray-400">${pair.a.club} ${pair.avgDefA.toFixed(0)} · ${pair.b.club} ${pair.avgDefB.toFixed(0)}</div>`
-                                        : '<span class="text-gray-400">—</span>'
-                                }
+                                ${Number.isFinite(pair.combinedCsAvg) ? `<div class="font-semibold">${pair.combinedCsAvg.toFixed(1)}</div><div class="text-xs text-gray-400">${pair.a.club} ${pair.avgCsA.toFixed(0)} · ${pair.b.club} ${pair.avgCsB.toFixed(0)}</div>` : '<span class="text-gray-400">—</span>'}
+                            </td>
+                            <td class="px-3 py-2 text-center">
+                                ${Number.isFinite(pair.combinedGkAvg) ? `<div class="font-semibold">${pair.combinedGkAvg.toFixed(1)}</div><div class="text-xs text-gray-400">${pair.a.club} ${pair.avgGkA.toFixed(0)} · ${pair.b.club} ${pair.avgGkB.toFixed(0)}</div>` : '<span class="text-gray-400">—</span>'}
                             </td>
                             <td class="px-3 py-2">${extra}</td>
                         </tr>
                         <tr id="${rowId}" class="pairing-detail-row hidden">
-                            <td colspan="9" class="px-3 py-3">
+                            <td colspan="10" class="px-3 py-3">
                                 <div class="flex flex-wrap gap-2">${pairingDetailHtml(pair)}</div>
                             </td>
                         </tr>
@@ -3846,10 +3871,11 @@
                 try {
                     const cacheBuster = '?t=' + new Date().getTime();
 
-                    const [transformedResponse, historyResponse, fixturesResponse] = await Promise.all([
+                    const [transformedResponse, historyResponse, fixturesResponse, gkModelResponse] = await Promise.all([
                         fetch(TRANSFORMED_DATA_PATH + cacheBuster),
                         fetch(PLAYER_HISTORY_PATH + cacheBuster),
-                        fetch(FIXTURES_PATH + cacheBuster)
+                        fetch(FIXTURES_PATH + cacheBuster),
+                        fetch(GK_MODEL_INPUTS_PATH + cacheBuster)
                     ]);
 
                     if (!transformedResponse.ok) {
@@ -3874,6 +3900,14 @@
                     } catch (fixtureError) {
                         console.warn('Could not parse fixtures.json. Pairings will fall back to the player feed.', fixtureError);
                         fullFixtureData = [];
+                    }
+
+                    try {
+                        if (gkModelResponse.ok) gkModelInputs = await gkModelResponse.json();
+                        else gkModelInputs = {teams:{},keepers:{},manual_keeper_adjustments:{}};
+                    } catch (gkModelError) {
+                        console.warn('Could not parse gk_model_inputs.json.', gkModelError);
+                        gkModelInputs = {teams:{},keepers:{},manual_keeper_adjustments:{}};
                     }
 
                     try {
