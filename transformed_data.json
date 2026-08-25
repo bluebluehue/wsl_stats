@@ -1,7 +1,7 @@
 {
   "metadata": {
     "source": "WSL Fantasy public JSON feeds used by create-team UI",
-    "generated_at_utc": "2026-08-25T21:03:10+00:00",
+    "generated_at_utc": "2026-08-25T23:37:49+00:00",
     "matchday_id": 1,
     "tour_id": 1,
     "player_count": 713,
@@ -381,6 +381,144 @@
         "fixture_count": 7
       }
     ],
+    "gk_fixture_model": {
+      "version": "team-cs-save-v1",
+      "note": "GK modeling is separated from defender fantasy opportunity. CS Fix uses team-level goals against, opponent attacking threat, promotion mapping and venue. Save Opportunity uses opponent shot/attack volume and defensive environment. Player-specific GK Fix = 65% CS Fix + 25% Save Opportunity + 10% verified keeper quality when available.",
+      "weights": {
+        "cs_fix": 0.65,
+        "save_opportunity": 0.25,
+        "keeper_quality": 0.1
+      },
+      "team_priors": {
+        "ARS": {
+          "cs_defense_prior": 90.0,
+          "attack_threat_prior": 80.4,
+          "ga_per_game": 0.636,
+          "gf_per_game": 2.409,
+          "sot_for_per90": 7.0,
+          "prior_league": "WSL",
+          "promoted": false
+        },
+        "AVL": {
+          "cs_defense_prior": 15.0,
+          "attack_threat_prior": 33.2,
+          "ga_per_game": 2.182,
+          "gf_per_game": 1.273,
+          "sot_for_per90": 4.0,
+          "prior_league": "WSL",
+          "promoted": false
+        },
+        "BHA": {
+          "cs_defense_prior": 59.1,
+          "attack_threat_prior": 34.3,
+          "ga_per_game": 1.273,
+          "gf_per_game": 1.227,
+          "sot_for_per90": 4.32,
+          "prior_league": "WSL",
+          "promoted": false
+        },
+        "CHE": {
+          "cs_defense_prior": 76.8,
+          "attack_threat_prior": 63.0,
+          "ga_per_game": 0.909,
+          "gf_per_game": 2.0,
+          "sot_for_per90": 5.86,
+          "prior_league": "WSL",
+          "promoted": false
+        },
+        "EVE": {
+          "cs_defense_prior": 39.3,
+          "attack_threat_prior": 24.1,
+          "ga_per_game": 1.682,
+          "gf_per_game": 1.136,
+          "sot_for_per90": 3.14,
+          "prior_league": "WSL",
+          "promoted": false
+        },
+        "LCL": {
+          "cs_defense_prior": 43.7,
+          "attack_threat_prior": 34.4,
+          "ga_per_game": 1.591,
+          "gf_per_game": 1.273,
+          "sot_for_per90": 4.18,
+          "prior_league": "WSL",
+          "promoted": false
+        },
+        "LIV": {
+          "cs_defense_prior": 45.9,
+          "attack_threat_prior": 16.1,
+          "ga_per_game": 1.545,
+          "gf_per_game": 0.955,
+          "sot_for_per90": 2.59,
+          "prior_league": "WSL",
+          "promoted": false
+        },
+        "MCI": {
+          "cs_defense_prior": 79.0,
+          "attack_threat_prior": 89.7,
+          "ga_per_game": 0.864,
+          "gf_per_game": 2.818,
+          "sot_for_per90": 6.95,
+          "prior_league": "WSL",
+          "promoted": false
+        },
+        "MUN": {
+          "cs_defense_prior": 72.4,
+          "attack_threat_prior": 51.6,
+          "ga_per_game": 1.0,
+          "gf_per_game": 1.727,
+          "sot_for_per90": 5.14,
+          "prior_league": "WSL",
+          "promoted": false
+        },
+        "TOT": {
+          "cs_defense_prior": 37.1,
+          "attack_threat_prior": 42.5,
+          "ga_per_game": 1.727,
+          "gf_per_game": 1.591,
+          "sot_for_per90": 4.27,
+          "prior_league": "WSL",
+          "promoted": false
+        },
+        "WHU": {
+          "cs_defense_prior": 21.6,
+          "attack_threat_prior": 17.8,
+          "ga_per_game": 2.045,
+          "gf_per_game": 0.909,
+          "sot_for_per90": 3.0,
+          "prior_league": "WSL",
+          "promoted": false
+        },
+        "BIR": {
+          "cs_defense_prior": 38.0,
+          "attack_threat_prior": 45.0,
+          "ga_per_game": 1.091,
+          "gf_per_game": 2.091,
+          "sot_for_per90": null,
+          "prior_league": "WSL2",
+          "promoted": true
+        },
+        "CRY": {
+          "cs_defense_prior": 30.0,
+          "attack_threat_prior": 42.3,
+          "ga_per_game": 1.182,
+          "gf_per_game": 2.0,
+          "sot_for_per90": null,
+          "prior_league": "WSL2",
+          "promoted": true
+        },
+        "CHA": {
+          "cs_defense_prior": 50.0,
+          "attack_threat_prior": 25.0,
+          "ga_per_game": 0.955,
+          "gf_per_game": 1.409,
+          "sot_for_per90": null,
+          "prior_league": "WSL2",
+          "promoted": true
+        }
+      },
+      "input_file": "gk_model_inputs.json"
+    },
     "fantasy_calendar_model": {
       "version": "calendar-cluster-v1",
       "note": "Canonical Fantasy GWs are shared across WSL and WSL2 and are assigned chronologically from published league fixture dates. Competition-specific matchday numbers are preserved separately as league_game_week. A one-league-only window is flagged free_hit_eligible.",
