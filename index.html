@@ -3287,16 +3287,47 @@
                         playerClubMeta.get(club).goalkeepers.push({
                             name: player.Name,
                             value: Number(player.Value || 0),
-                            selected: Number(player['Selected Percentage'] || 0)
+                            selected: Number(player['Selected Percentage'] || 0),
+                            previousPoints: Number(player['Previous Season Points'] || 0),
+                            availability: Number(player['Availability Status'] ?? 1),
+                            active: player['Is Active'] !== false
                         });
                     }
                 });
 
+                // Project the likeliest starting GK within each club. This is deliberately
+                // a club-relative preseason heuristic: 50% previous-season fantasy points,
+                // 30% current price, 20% ownership. If there is no useful prior-season
+                // evidence, price/ownership take over, making the most expensive GK the
+                // natural fallback rather than the cheapest.
                 playerClubMeta.forEach(meta => {
-                    meta.goalkeepers.sort((a, b) => {
-                        if (a.value !== b.value) return a.value - b.value;
+                    const eligible = meta.goalkeepers.filter(g => g.active && g.availability !== 0);
+                    const pool = eligible.length ? eligible : meta.goalkeepers;
+                    const maxPrev = Math.max(0, ...pool.map(g => g.previousPoints));
+                    const maxValue = Math.max(0, ...pool.map(g => g.value));
+                    const maxSelected = Math.max(0, ...pool.map(g => g.selected));
+
+                    pool.forEach(g => {
+                        const prevNorm = maxPrev > 0 ? g.previousPoints / maxPrev : 0;
+                        const valueNorm = maxValue > 0 ? g.value / maxValue : 0;
+                        const selectedNorm = maxSelected > 0 ? g.selected / maxSelected : 0;
+                        g.starterScore = (0.50 * prevNorm) + (0.30 * valueNorm) + (0.20 * selectedNorm);
+                    });
+
+                    pool.sort((a, b) => {
+                        if (b.starterScore !== a.starterScore) return b.starterScore - a.starterScore;
+                        if (b.value !== a.value) return b.value - a.value;
                         return b.selected - a.selected;
                     });
+
+                    const top = pool[0];
+                    const second = pool[1];
+                    if (top) {
+                        const gap = second ? top.starterScore - second.starterScore : 1;
+                        top.starterConfidence = gap >= 0.30 ? 'High' : gap >= 0.12 ? 'Medium' : 'Low';
+                        top.starterEvidence = maxPrev > 0 ? 'prior points + price + ownership' : 'price + ownership';
+                    }
+                    meta.goalkeepers = pool;
                 });
 
                 function ensureClub(club) {
@@ -3572,7 +3603,7 @@
                 const pairs = buildAllPairings(fullPlayerData, league, fromGw, toGw);
                 const shown = limitValue === 'all' ? pairs : pairs.slice(0, Number(limitValue));
 
-                $('#pairings-extra-header').text(mode === 'gk' ? 'Cheapest GK Pair' : 'Day Pattern');
+                $('#pairings-extra-header').text(mode === 'gk' ? 'Projected GK Pair' : 'Day Pattern');
 
                 const leagueLabel = league || 'WSL + WSL2';
                 $('#pairings-summary').html(
@@ -3596,6 +3627,7 @@
                             extra = `
                                 <div class="font-medium text-gray-800">${pair.gkA.name} + ${pair.gkB.name}</div>
                                 <div class="text-xs text-gray-500">£${pair.gkA.value.toFixed(1)}m + £${pair.gkB.value.toFixed(1)}m = £${pair.combinedGkPrice.toFixed(1)}m</div>
+                                <div class="text-xs text-gray-400">Starter confidence: ${pair.gkA.starterConfidence || 'Low'} / ${pair.gkB.starterConfidence || 'Low'}</div>
                             `;
                         } else {
                             extra = '<span class="text-gray-400">GK data unavailable</span>';
