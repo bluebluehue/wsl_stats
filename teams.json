@@ -1,0 +1,210 @@
+[
+  {
+    "team_id": "wpll::Football_Team::01a4c985f18f41f9a744ac28bb26a10f",
+    "provider_id": "wpll::Football_Team::01a4c985f18f41f9a744ac28bb26a10f",
+    "competition_id": "wpll::Football_Competition::e32284e8a1214f1ca83a3245d690b336",
+    "name": "Tottenham Hotspur",
+    "short_name": "Spurs",
+    "acronym": "TOT"
+  },
+  {
+    "team_id": "wpll::Football_Team::0bec335ff1ea4a7886c493d497aacf11",
+    "provider_id": "wpll::Football_Team::0bec335ff1ea4a7886c493d497aacf11",
+    "competition_id": "wpll::Football_Competition::422757a2c70d450eba118ad97bed5222",
+    "name": "Sunderland",
+    "short_name": "Sunderland",
+    "acronym": "SUN"
+  },
+  {
+    "team_id": "wpll::Football_Team::0dd7e73d08ae4d3da51fc32c900cf648",
+    "provider_id": "wpll::Football_Team::0dd7e73d08ae4d3da51fc32c900cf648",
+    "competition_id": "wpll::Football_Competition::e32284e8a1214f1ca83a3245d690b336",
+    "name": "Arsenal",
+    "short_name": "Arsenal",
+    "acronym": "ARS"
+  },
+  {
+    "team_id": "wpll::Football_Team::208be19164f54988a9f179d376f6892c",
+    "provider_id": "wpll::Football_Team::208be19164f54988a9f179d376f6892c",
+    "competition_id": "wpll::Football_Competition::e32284e8a1214f1ca83a3245d690b336",
+    "name": "Aston Villa",
+    "short_name": "Aston Villa",
+    "acronym": "AVL"
+  },
+  {
+    "team_id": "wpll::Football_Team::3d56dc9ecbaf4a72a6f54e11ddf6043b",
+    "provider_id": "wpll::Football_Team::3d56dc9ecbaf4a72a6f54e11ddf6043b",
+    "competition_id": "wpll::Football_Competition::422757a2c70d450eba118ad97bed5222",
+    "name": "Nottingham Forest",
+    "short_name": "Forest",
+    "acronym": "NFO"
+  },
+  {
+    "team_id": "wpll::Football_Team::400e25437be04010bbc2b288ccb2abbe",
+    "provider_id": "wpll::Football_Team::400e25437be04010bbc2b288ccb2abbe",
+    "competition_id": "wpll::Football_Competition::422757a2c70d450eba118ad97bed5222",
+    "name": "Southampton",
+    "short_name": "Southampton",
+    "acronym": "SOU"
+  },
+  {
+    "team_id": "wpll::Football_Team::44c47df89024425d985cb6502f26ad79",
+    "provider_id": "wpll::Football_Team::44c47df89024425d985cb6502f26ad79",
+    "competition_id": "wpll::Football_Competition::422757a2c70d450eba118ad97bed5222",
+    "name": "Durham",
+    "short_name": "Durham",
+    "acronym": "DUR"
+  },
+  {
+    "team_id": "wpll::Football_Team::568c63ac456e413aa16d1398709f1718",
+    "provider_id": "wpll::Football_Team::568c63ac456e413aa16d1398709f1718",
+    "competition_id": "wpll::Football_Competition::e32284e8a1214f1ca83a3245d690b336",
+    "name": "Birmingham City",
+    "short_name": "Birmingham",
+    "acronym": "BIR"
+  },
+  {
+    "team_id": "wpll::Football_Team::653328a20fb24a76958b7f1f7d53f04f",
+    "provider_id": "wpll::Football_Team::653328a20fb24a76958b7f1f7d53f04f",
+    "competition_id": "wpll::Football_Competition::e32284e8a1214f1ca83a3245d690b336",
+    "name": "Chelsea",
+    "short_name": "Chelsea",
+    "acronym": "CHE"
+  },
+  {
+    "team_id": "wpll::Football_Team::773d224707984cf0b3bcbcca97224deb",
+    "provider_id": "wpll::Football_Team::773d224707984cf0b3bcbcca97224deb",
+    "competition_id": "wpll::Football_Competition::422757a2c70d450eba118ad97bed5222",
+    "name": "Leicester City",
+    "short_name": "Leicester",
+    "acronym": "LEI"
+  },
+  {
+    "team_id": "wpll::Football_Team::77e239bb340245fc9682c24ec6eb04c8",
+    "provider_id": "wpll::Football_Team::77e239bb340245fc9682c24ec6eb04c8",
+    "competition_id": "wpll::Football_Competition::e32284e8a1214f1ca83a3245d690b336",
+    "name": "Brighton & Hove Albion",
+    "short_name": "Brighton",
+    "acronym": "BHA"
+  },
+  {
+    "team_id": "wpll::Football_Team::796e0cbc0b11486381905b49449a1bc4",
+    "provider_id": "wpll::Football_Team::796e0cbc0b11486381905b49449a1bc4",
+    "competition_id": "wpll::Football_Competition::e32284e8a1214f1ca83a3245d690b336",
+    "name": "Crystal Palace",
+    "short_name": "Crystal Palace",
+    "acronym": "CRY"
+  },
+  {
+    "team_id": "wpll::Football_Team::7d87adcc2e7a4f1bac2f370ef62e7c1c",
+    "provider_id": "wpll::Football_Team::7d87adcc2e7a4f1bac2f370ef62e7c1c",
+    "competition_id": "wpll::Football_Competition::422757a2c70d450eba118ad97bed5222",
+    "name": "Sheffield United",
+    "short_name": "Sheff Utd",
+    "acronym": "SHU"
+  },
+  {
+    "team_id": "wpll::Football_Team::81c8d721b83d4133a34f068fff8f474f",
+    "provider_id": "wpll::Football_Team::81c8d721b83d4133a34f068fff8f474f",
+    "competition_id": "wpll::Football_Competition::e32284e8a1214f1ca83a3245d690b336",
+    "name": "West Ham United",
+    "short_name": "West Ham",
+    "acronym": "WHU"
+  },
+  {
+    "team_id": "wpll::Football_Team::95f086568c2343068cd71ba5111b9498",
+    "provider_id": "wpll::Football_Team::95f086568c2343068cd71ba5111b9498",
+    "competition_id": "wpll::Football_Competition::422757a2c70d450eba118ad97bed5222",
+    "name": "Bristol City",
+    "short_name": "Bristol City",
+    "acronym": "BRC"
+  },
+  {
+    "team_id": "wpll::Football_Team::9c259ee665104c388ab23a585c5dda18",
+    "provider_id": "wpll::Football_Team::9c259ee665104c388ab23a585c5dda18",
+    "competition_id": "wpll::Football_Competition::422757a2c70d450eba118ad97bed5222",
+    "name": "Ipswich Town",
+    "short_name": "Ipswich",
+    "acronym": "IPS"
+  },
+  {
+    "team_id": "wpll::Football_Team::a6be4327cedc4975beab334ce6e20c04",
+    "provider_id": "wpll::Football_Team::a6be4327cedc4975beab334ce6e20c04",
+    "competition_id": "wpll::Football_Competition::e32284e8a1214f1ca83a3245d690b336",
+    "name": "London City Lionesses",
+    "short_name": "London City",
+    "acronym": "LCL"
+  },
+  {
+    "team_id": "wpll::Football_Team::a9a4327724174bb59a0b2896af13abba",
+    "provider_id": "wpll::Football_Team::a9a4327724174bb59a0b2896af13abba",
+    "competition_id": "wpll::Football_Competition::422757a2c70d450eba118ad97bed5222",
+    "name": "Newcastle United",
+    "short_name": "Newcastle",
+    "acronym": "NEW"
+  },
+  {
+    "team_id": "wpll::Football_Team::ac1c251da6b54d04a422d5435323bb46",
+    "provider_id": "wpll::Football_Team::ac1c251da6b54d04a422d5435323bb46",
+    "competition_id": "wpll::Football_Competition::e32284e8a1214f1ca83a3245d690b336",
+    "name": "Manchester United",
+    "short_name": "Man Utd",
+    "acronym": "MNU"
+  },
+  {
+    "team_id": "wpll::Football_Team::b002321b94ab4eedb683dbaef0026e37",
+    "provider_id": "wpll::Football_Team::b002321b94ab4eedb683dbaef0026e37",
+    "competition_id": "wpll::Football_Competition::422757a2c70d450eba118ad97bed5222",
+    "name": "Watford",
+    "short_name": "Watford",
+    "acronym": "WAT"
+  },
+  {
+    "team_id": "wpll::Football_Team::b245489a704d42a9a62dcac0281ff12b",
+    "provider_id": "wpll::Football_Team::b245489a704d42a9a62dcac0281ff12b",
+    "competition_id": "wpll::Football_Competition::e32284e8a1214f1ca83a3245d690b336",
+    "name": "Charlton Athletic",
+    "short_name": "Charlton",
+    "acronym": "CHA"
+  },
+  {
+    "team_id": "wpll::Football_Team::b25884c0c4324d6db7c5f6b57bb1945a",
+    "provider_id": "wpll::Football_Team::b25884c0c4324d6db7c5f6b57bb1945a",
+    "competition_id": "wpll::Football_Competition::422757a2c70d450eba118ad97bed5222",
+    "name": "Wolverhampton",
+    "short_name": "Wolves",
+    "acronym": "WOL"
+  },
+  {
+    "team_id": "wpll::Football_Team::c834bcf0e12046ecbce4d4c27930d6d7",
+    "provider_id": "wpll::Football_Team::c834bcf0e12046ecbce4d4c27930d6d7",
+    "competition_id": "wpll::Football_Competition::e32284e8a1214f1ca83a3245d690b336",
+    "name": "Manchester City",
+    "short_name": "Man City",
+    "acronym": "MCI"
+  },
+  {
+    "team_id": "wpll::Football_Team::cdb9623af5dc4f718220787deaa5092b",
+    "provider_id": "wpll::Football_Team::cdb9623af5dc4f718220787deaa5092b",
+    "competition_id": "wpll::Football_Competition::e32284e8a1214f1ca83a3245d690b336",
+    "name": "Liverpool",
+    "short_name": "Liverpool",
+    "acronym": "LIV"
+  },
+  {
+    "team_id": "wpll::Football_Team::e17812f03cbe4cf5a81678207044e0b3",
+    "provider_id": "wpll::Football_Team::e17812f03cbe4cf5a81678207044e0b3",
+    "competition_id": "wpll::Football_Competition::e32284e8a1214f1ca83a3245d690b336",
+    "name": "Everton",
+    "short_name": "Everton",
+    "acronym": "EVE"
+  },
+  {
+    "team_id": "wpll::Football_Team::e84181a1ca0e49f78069e981cf4ddd61",
+    "provider_id": "wpll::Football_Team::e84181a1ca0e49f78069e981cf4ddd61",
+    "competition_id": "wpll::Football_Competition::422757a2c70d450eba118ad97bed5222",
+    "name": "Burnley",
+    "short_name": "Burnley",
+    "acronym": "BUR"
+  }
+]

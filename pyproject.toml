@@ -1,0 +1,8 @@
+[project]
+name = "wsl-stats"
+version = "0.1.0"
+description = "WSL Fantasy stats parser"
+requires-python = ">=3.11"
+dependencies = [
+    "requests>=2.32.0",
+]

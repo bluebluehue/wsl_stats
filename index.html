@@ -1,0 +1,2725 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WSL Fantasy Player Stats</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/2.3.4/css/dataTables.dataTables.min.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+        xintegrity="sha512-SnH5WK+bZxgPHs44uWIX+LLMDJdZ-Atu5QfK4xV/JdFv2k1K/H2v4Q5h+E5nB2R8oD+6Z6XqU/G1wGk+Q6QzQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <style>
+        /* ------------------------------------------------------------------ */
+        /* --- CUSTOM TOOLTIP STYLES --- */
+        /* ------------------------------------------------------------------ */
+        .custom-tooltip-container {
+            position: relative;
+            /* Essential for positioning the tooltip content */
+            display: inline-block;
+            cursor: help;
+        }
+
+        .custom-tooltip-content {
+            visibility: hidden;
+            opacity: 0;
+            /* Basic style */
+            background-color: #1f2937;
+            /* Dark background */
+            color: #fff;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.375rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+
+            /* CRITICAL FIX: Use fixed position to stop affecting table layout/scrollbars */
+            position: fixed;
+            z-index: 100;
+            /* Ensure it's above other elements */
+            width: max-content;
+            white-space: pre-wrap;
+            /* Better line break handling, helps fix the blank line */
+
+            /* Animation */
+            transition: opacity 0.15s ease-in-out, transform 0.15s ease-in-out;
+            pointer-events: none;
+            /* Allows clicks to go through to elements behind */
+
+            /* Initial state for transition */
+            transform: translateY(-5px);
+        }
+
+        /* Show the tooltip on hover */
+        .custom-tooltip-container:hover .custom-tooltip-content {
+            visibility: visible;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Custom styling for better presentation */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+        body {
+            background-color: #f3f4f6;
+            font-family: 'Inter', sans-serif;
+            padding: 0px;
+        }
+
+        .table-scroll-container {
+            width: 100%;
+            max-width: 100%;
+            overflow-x: auto !important;
+            overflow-y: visible;
+            background: white;
+            padding: 0.3rem;
+            border-radius: 0.3rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 
+                        0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .dataTables_wrapper .dataTables_filter,
+        .dataTables_wrapper .dataTables_length,
+        .dataTables_wrapper .dataTables_info,
+        .dataTables_wrapper .dataTables_paginate {
+            /* Set margin to a very small amount, overriding defaults */
+            margin-top: 0.25rem !important;
+            margin-bottom: 0.25rem !important;
+        }
+
+        /* Ensure the wrapper around the table itself is also tight */
+        .dataTables_scrollBody,
+        .dataTables_scrollHead {
+            margin-top: 0 !important;
+            margin-bottom: 0 !important;
+        }
+
+        /* Custom styling for DataTables controls */
+        .dataTables_wrapper .dataTables_filter,
+        .dataTables_wrapper .dataTables_length {
+            /* Reduce space below the search and length dropdown */
+            margin-bottom: 0.5rem !important;
+        }
+
+        .dataTables_wrapper .dataTables_info,
+        .dataTables_wrapper .dataTables_paginate {
+            /* Reduce space above the pagination and info */
+            margin-top: 0.5rem !important;
+        }
+
+        /* ADD/REPLACE THESE RULES in your existing <style> block */
+        .dataTables_wrapper .dataTables_filter,
+        .dataTables_wrapper .dataTables_length,
+        .dataTables_wrapper .dataTables_info,
+        .dataTables_wrapper .dataTables_paginate {
+            /* Set margin to a minimum, overriding all defaults */
+            margin-top: 0.25rem !important;
+            margin-bottom: 0.25rem !important;
+            padding: 0 !important;
+            /* Ensure no padding is added either */
+        }
+
+        /* Eliminate the space below the main heading */
+        .dataTables_wrapper>h1 {
+            margin-bottom: 0 !important;
+            padding-bottom: 0 !important;
+        }
+
+        /* TARGET THE MAIN DATATABLES WRAPPER AND ALL ITS DIRECT CONTROLS */
+        .dataTables_wrapper {
+            /* Set all vertical margins/padding to zero for the tightest fit */
+            margin-top: 0 !important;
+            margin-bottom: 0 !important;
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+        }
+
+        /* *** TARGETED FIX FOR DATATABLES 2.x LAYOUT SPACING *** */
+
+        /* Target the container row and eliminate its vertical space */
+        .dt-layout-row {
+            margin-top: 0 !important;
+            margin-bottom: 0 !important;
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+        }
+
+        /* Target the individual cells within the row */
+        .dt-layout-cell {
+            /* Set margin to a very small amount to keep a slight visual break, 
+            but you can use '0 !important' if you want it completely flush */
+            margin-top: 0.25rem !important;
+            margin-bottom: 0.25rem !important;
+            padding: 0 !important;
+        }
+
+        /* Ensure the length/search inputs themselves don't add extra space */
+        .dt-length,
+        .dt-search {
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+
+        /* TIGHTEN the main content container (re-apply from earlier) */
+        .container.mx-auto {
+            padding-top: 0.5rem !important;
+            padding-bottom: 0.5rem !important;
+        }
+
+        /* Ensure the elements inside the wrapper are also tight */
+        .dataTables_wrapper .dataTables_filter,
+        .dataTables_wrapper .dataTables_length,
+        .dataTables_wrapper .dataTables_info,
+        .dataTables_wrapper .dataTables_paginate {
+            margin: 0.25rem 0 !important;
+            /* Minimal top/bottom margin */
+            padding: 0 !important;
+        }
+
+        /* Eliminate the margin below the H1 heading to close the gap at the very top */
+        h1.text-3xl {
+            margin-bottom: 0.5rem !important;
+            /* Adjust this number (e.g., to 0) if 0.5rem is still too much */
+        }
+
+        /* TIGHTEN the main content container */
+        .container.mx-auto {
+            /* Reduce the overall vertical space */
+            padding-top: 0.5rem !important;
+            padding-bottom: 0.5rem !important;
+        }
+
+        /* DataTables Row Clickability Styling */
+        #myTable tbody tr {
+            cursor: pointer;
+            transition: background-color 0.15s;
+        }
+
+        #myTable tbody tr:hover {
+            background-color: #fef3c7;
+            /* Light yellow hover for feedback */
+        }
+
+        /* 1. MAX SQUEEZE: Drastically reduced overall padding on all cells */
+        table.dataTable th,
+        table.dataTable td {
+            padding: 0.1rem 0.1rem !important;
+        }
+
+        table.dataTable th,
+        table.dataTable td {
+            white-space: nowrap;
+        }
+
+        /* NEW RULE: Increase right padding on ALL headers to leave space for the sort arrow */
+        table.dataTable thead th {
+            padding-right: 0.75rem !important;
+        }
+
+        /* ------------------------------------------------------------------ */
+        /* --- NAME COLUMN ALIGNMENT FIXES --- */
+        /* ------------------------------------------------------------------ */
+
+        table.dataTable thead th.player-name-header {
+            text-align: left !important;
+            padding-left: 0.2rem !important;
+            min-width: 1px !important;
+            width: 1% !important;
+        }
+
+        table.dataTable td.player-name-content {
+            text-align: left !important;
+            white-space: nowrap;
+            padding-left: 0.2rem !important;
+            min-width: 1px !important;
+            width: 1% !important;
+        }
+
+        /* Custom color for players with Visionary: true */
+        .visionary-text {
+            /* color: #0d996d; */
+            font-weight: bold;
+        }
+
+        /* Icon size and alignment container */
+        .visionary-icon {
+            display: inline-block;
+            width: 14px;
+            /* Adjust size as needed */
+            height: 14px;
+            margin-right: 4px;
+            vertical-align: middle;
+        }
+
+        /* Ensure centered data columns are actually centered */
+        table.dataTable td.dt-center {
+            text-align: center !important;
+        }
+
+
+        /* ------------------------------------------------------------------ */
+        /* --- HEADER ALIGNMENT AND ARROW FIXES --- */
+        /* ------------------------------------------------------------------ */
+
+        /* 5. FORCE HEADER CENTERING (for all non-name headers) */
+        table.dataTable thead th {
+            position: relative !important;
+            background-image: none !important;
+            background: none !important;
+
+            &:not(.player-name-header) {
+                text-align: center !important;
+            }
+
+            display: table-cell;
+            vertical-align: middle;
+        }
+
+        table.dataTable thead th .abbrev-header {
+            display: inline-block;
+            width: 100%;
+        }
+
+
+        /* 6. Remove built-in DataTables sort indicators */
+        table.dataTable thead th .dt-column-order {
+            display: none !important;
+        }
+
+        /* 7. Hide all custom pseudo-elements by default */
+        table.dataTable thead th::after {
+            content: none !important;
+        }
+
+        /* 8. Show custom UP arrow only on ASC sorted column */
+        table.dataTable thead th.dt-ordering-asc::after {
+            content: "▲" !important;
+            position: absolute;
+            right: 0.3rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.65rem;
+            color: #4b5563;
+        }
+
+        /* 9. Show custom DOWN arrow only on DESC sorted column */
+        table.dataTable thead th.dt-ordering-desc::after {
+            content: "▼" !important;
+            position: absolute;
+            right: 0.3rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.65rem;
+            color: #4b5563;
+        }
+
+        /* ------------------------------------------------------------------ */
+        /* --- ICON STYLING (For Font Awesome) --- */
+        /* ------------------------------------------------------------------ */
+
+        /* Common style for all FA icons used in the header */
+        .fa-header-icon {
+            vertical-align: middle;
+            display: inline-block;
+            line-height: 1;
+            padding-bottom: 2px;
+            /* Slight bottom padding to align with text */
+        }
+
+        /* Specific icon colors using Tailwind classes */
+        .icon-green {
+            color: #10B981;
+        }
+
+        /* Goals (Volleyball) */
+        .icon-yellow {
+            color: #F59E0B;
+        }
+
+        /* Bonus (Star), Yellow Card (Square) */
+        .icon-red {
+            color: #EF4444;
+        }
+
+        /* Red Card (Square) */
+
+        /* ------------------------------------------------------------------ */
+        /* --- FONT SIZE ADJUSTMENT --- */
+        /* ------------------------------------------------------------------ */
+
+        table.dataTable th {
+            font-size: 0.80em;
+            font-weight: 600;
+        }
+
+        table.dataTable td {
+            font-size: 0.9em;
+        }
+
+        #club-filter-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        /* Ensure the DataTables search/info bars look good */
+        div.dt-container div.dt-layout-row {
+            padding: 0.5rem 0;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .dt-search,
+        .dt-info,
+        .dt-paging {
+            padding: 0.5rem 0;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+
+        @media (min-width: 640px) {
+
+            .dt-search,
+            .dt-info,
+            .dt-paging {
+                width: auto;
+                justify-content: flex-start;
+            }
+
+            .dt-search {
+                order: 1;
+            }
+
+            .dt-info {
+                order: 2;
+            }
+
+            .dt-paging {
+                order: 3;
+            }
+        }
+
+        /* Abbreviated header style for better tooltips */
+        .abbrev-header {
+            cursor: help;
+        }
+
+        table.dataTable td.player-name-content span.news-text {
+            /* Use !important to guarantee this color wins */
+            color: #DC2626 !important;
+        }
+
+        /* Keep your other color definitions simple */
+        .visionary-text {
+            color: #4F46E5;
+            /* Purple */
+            font-weight: bold;
+        }
+
+        /* Modal Backdrop */
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.75);
+            z-index: 50;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Modal Content */
+        .modal-content {
+            background-color: white;
+            border-radius: 0.75rem;
+            /* Slightly larger radius */
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+            /* Stronger shadow */
+            max-width: 90%;
+            width: 500px;
+            /* Fixed max width for card feel */
+            max-height: 90%;
+            overflow-y: auto;
+            position: relative;
+            animation: fadeInScale 0.2s ease-out;
+        }
+
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.95) translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        /* Tooltip specific styling - helps ensure \n are rendered as line breaks */
+        /* Applied to the span inside the GW column cells */
+        .dt-container table.dataTable td.gw-col span {
+            display: block;
+            /* Important for the title attribute to apply to a block element */
+        }
+
+        /* Custom styles for team badge (pill style) */
+        .team-badge {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            border-radius: 9999px;
+            /* Tailwind's rounded-full */
+            font-weight: 600;
+            /* Tailwind's font-semibold */
+            font-size: 0.85rem;
+            line-height: 1;
+            text-align: center;
+            min-width: 40px;
+            /* Ensure badges are consistent width */
+        }
+
+        /* ... existing styles ... */
+
+        /* Custom styles for team badge (pill style) */
+        .team-badge {
+            display: inline-block;
+            padding: 0.2rem 0.0rem;
+            border-radius: 9999px;
+            /* Tailwind's rounded-full */
+            font-weight: 600;
+            /* Tailwind's font-semibold */
+            font-size: 0.85rem;
+            line-height: 1;
+            text-align: center;
+            width: 45px;
+        }
+
+        /* Team Color Definitions (WSL 2024/2025 typical colors) */
+        .badge-ARS {
+            background-color: #db0007;
+            color: #ffffff;
+        }
+
+        /* Arsenal Red */
+        .badge-AVL {
+            background-color: #a3c5e9;
+            color: #7b003a;
+        }
+
+        /* Aston Villa Blue/Claret Text */
+        .badge-BHA {
+            background-color: #2986cc;
+            color: #ffffff;
+        }
+
+        /* Brighton Blue */
+        .badge-CHE {
+            background-color: #034694;
+            color: #ffffff;
+        }
+
+        /* Chelsea Blue */
+        .badge-EVE {
+            background-color: #003399;
+            color: #ffffff;
+        }
+
+        /* Everton Blue */
+        .badge-LEI {
+            background-color: #003090;
+            color: #ffffff;
+        }
+
+        /* Leicester Blue */
+        .badge-LIV {
+            background-color: #d00027;
+            color: #ffffff;
+        }
+
+        /* Liverpool Red */
+        .badge-LCL {
+            background-color: #88D1AA;
+            color: #FFFFFF;
+        }
+
+        /* London City Lionesses (Light Aqua/Green Tinge) */
+        .badge-MCI {
+            background-color: #6cabdd;
+            color: #ffffff;
+        }
+
+        /* Man City Blue */
+        .badge-MUN {
+            background-color: #DA020E;
+            color: #ffffff;
+        }
+
+        /* Man United Red */
+        .badge-TOT {
+            background-color: #0A1C56;
+            color: #ffffff;
+        }
+
+        /* Tottenham Navy */
+        .badge-WHU {
+            background-color: #7c2c3b;
+            color: #1bb1e7;
+        }
+
+        /* West Ham Claret/Light Blue Text */
+
+        /* Custom styles for position badge - RECTANGULAR STYLE */
+        .pos-badge {
+            display: inline-block;
+            padding: 0.3rem 0.2rem;
+            border-radius: 0.2rem;
+            /* Small radius for a rectangular look */
+            font-weight: 600;
+            /* Slightly bolder font for impact */
+            font-size: 0.7rem;
+            line-height: 1;
+            text-align: center;
+            min-width: 35px;
+            /* Slightly wider for better text fit */
+            /* Optional: Add a light shadow or border to lift it off the row */
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Position Color Definitions (Colors are unchanged from last suggestion) */
+        .badge-GK {
+            background-color: #4CAF50;
+            color: #FFFFFF;
+        }
+
+        /* Goalkeeper: Green */
+        .badge-DEF {
+            background-color: #9C27B0;
+            color: #FFFFFF;
+        }
+
+        /* Defender: Deep Purple */
+        .badge-MID {
+            background-color: #FFC107;
+            color: #000000;
+        }
+
+        /* Midfielder: Amber */
+        .badge-FOR {
+            background-color: #FF715b;
+            color: #FFFFFF;
+        }
+
+        /* Forward: Deep Orange */
+
+        /* Style for the currently sorted column (Header) */
+        table.dataTable thead .sorting_asc,
+        table.dataTable thead .sorting_desc {
+            background-color: #f0f0f0;
+            /* Very light grey for a subtle highlight */
+            /* Optionally add a slight shadow or border for depth */
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Style for the currently sorted column (Data Cells) */
+        table.dataTable tbody tr>.sorting_1 {
+            background-color: #f7f7f7 !important;
+            /* Slightly lighter than the header, uses !important to override row-specific styling */
+        }
+
+        /* Tidy up the background of the data cell when the row is hovered (optional but recommended) */
+        table.dataTable tbody tr:hover>.sorting_1 {
+            background-color: #eaeaea !important;
+            /* Keep a subtle background even on hover */
+        }
+
+        /* FIX: Prevents horizontal scrollbar from appearing due to minor overflow, 
+        which resolves the right column clipping issue. */
+        body {
+            overflow-x: auto;
+        }
+
+        /* Optional: Ensure the main container maxes out at 100% */
+        .dt-container {
+            max-width: 100%;
+        }
+
+        /* Ensure no horizontal scrollbar appears due to dynamic content */
+        body {
+            overflow-x: auto !important;
+            /* Use !important for maximum enforcement */
+        }
+
+        /* Ensure no horizontal scrollbar appears due to dynamic content */
+        body {
+            overflow-x: auto !important;
+        }
+
+        /* Check your CSS for the tooltip */
+        .custom-tooltip-content {
+            /* Ensure this is set correctly for viewport calculation */
+            position: fixed;
+            z-index: 9999;
+        }
+
+        /* Custom Tailwind/CSS classes for the tab buttons */
+        .tab-button {
+            padding: 0.75rem 1rem;
+            border-bottom: 2px solid transparent;
+            font-weight: 500;
+            color: #4B5563;
+            /* text-gray-600 */
+            transition: all 0.15s ease-in-out;
+            cursor: pointer;
+        }
+
+        .tab-button:hover {
+            color: #111827;
+            /* text-gray-900 */
+        }
+
+        .tab-button.active {
+            color: #4F46E5;
+            /* text-indigo-600 */
+            border-bottom-color: #4F46E5;
+            font-weight: 600;
+        }
+
+        /* --- MY TEAM / WATCHLIST ROW COLORS --- */
+        
+        .my-team-row td {
+            background-color: #dbeafe !important;
+        }
+        
+        .watchlist-row td {
+            background-color: #fef9c3 !important;
+        }
+
+        #myTable,
+        table.dataTable {
+            width: max-content !important;
+            min-width: 100% !important;
+        }
+
+        .table-scroll-container table,
+        .table-scroll-container .dataTable,
+        #myTable {
+            width: max-content !important;
+            min-width: 100% !important;
+        }
+
+        /* --- FREEZE FIRST COLUMN --- */
+
+        #myTable th:first-child,
+        #myTable td:first-child {
+            position: sticky;
+            left: 0;
+            z-index: 2;
+            background: white;
+        }
+        
+        #myTable th:first-child {
+            z-index: 3;
+        }
+
+        #myTable tr.my-team-row td:first-child {
+            background-color: #dbeafe !important;
+        }
+        
+        #myTable tr.watchlist-row td:first-child {
+            background-color: #fef9c3 !important;
+        }
+        
+        #myTable tbody tr:hover td:first-child {
+            background-color: #fef3c7 !important;
+        }
+
+        @media (max-width: 768px) {
+            .dt-container {
+                overflow-x: auto !important;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            table.dataTable,
+            #myTable {
+                width: max-content !important;
+                min-width: 100% !important;
+            }
+
+            table.dataTable th,
+            table.dataTable td {
+                white-space: nowrap;
+            }
+        
+            .dataTables_wrapper {
+                overflow-x: auto !important;
+            }
+        
+            .dataTables_scrollBody {
+                overflow-x: auto !important;
+            }
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <div class="max-w-full mx-auto pt-2 px-4 pb-4">
+        <div class="flex items-center justify-between">
+            <!-- <a href="https://www.buymeacoffee.com/spannerj" target="_blank"
+                class="flex items-center text-sm font-medium text-gray-700 hover:text-gray-900 border border-gray-300 rounded-md px-2 py-1 bg-white hover:bg-gray-50 transition duration-150 ease-in-out">
+
+                <img src="https://img.buymeacoffee.com/button-api/?text=Buy%20me%20a%20coffee&slug=spannerj&button_colour=FFDD00&font_colour=000000&font_family=Inter&coffee_colour=ffffff"
+                    alt="Buy Me A Coffee" style="height: 36px; width: auto;" class="h-12 w-auto">
+            </a> -->
+
+            <div class="flex justify-center w-full">
+                <h2 class="text-2xl font-bold leading-tight text-gray-600">
+                    WSL Fantasy Player Statistics
+                </h2>
+            </div>
+
+            <!-- <div class="invisible">
+                <a href="https://www.buymeacoffee.com/spannerj" target="_blank"
+                    class="flex items-center text-sm font-medium text-gray-700 border border-gray-300 rounded-md px-3 py-1 bg-white"
+                    style="opacity: 0;">
+                    <img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&slug=spannerj&button_colour=FFDD00&font_colour=000000&font_family=Inter&coffee_colour=ffffff&height=20"
+                        alt="Buy Me A Coffee" style="height: 20px !important;width: auto !important;">
+                </a>
+            </div> -->
+        </div>
+
+
+        <div
+            class="flex flex-col md:flex-row justify-between items-end md:items-center mb-4 space-y-2 md:space-y-0 md:space-x-4">
+
+            <div class="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+                <button id="show-key-button"
+                    class="w-full md:w-auto px-3 py-2 bg-indigo-600 text-white border border-indigo-700 rounded-md shadow-lg text-sm font-medium hover:bg-indigo-700 transition duration-150">
+                    <i class="fa-solid fa-circle-question mr-2"></i> Show Key / Glossary
+                </button>
+
+                <button id="export-current-button"
+                    class="w-full md:w-auto px-3 py-2 bg-white text-gray-700 border border-gray-300 rounded-md shadow-sm text-sm font-medium hover:bg-gray-50 transition duration-150">
+                    <i class="fa-solid fa-file-csv mr-2"></i> Export Current View
+                </button>
+
+                <button id="export-all-button"
+                    class="w-full md:w-auto px-3 py-2 bg-white text-gray-700 border border-gray-300 rounded-md shadow-sm text-sm font-medium hover:bg-gray-50 transition duration-150">
+                    <i class="fa-solid fa-download mr-2"></i> Export All Players
+                </button>
+            </div>
+
+            <div class="flex flex-col w-full md:w-auto md:items-end space-y-2">
+
+                <!-- Row 1 -->
+                <div class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-4 w-full md:w-auto md:justify-end items-end md:items-center">
+            
+                    <div class="relative w-full sm:w-auto">
+                        <button id="club-dropdown-toggle"
+                            class="w-full sm:w-36 px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 flex justify-between items-center"
+                            aria-expanded="false" aria-haspopup="true">
+                            <span id="club-display-text">Clubs (All)</span>
+                            <svg class="h-5 w-5 ml-2 -mr-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                                fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd"
+                                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                        </button>
+            
+                        <div id="club-dropdown-menu"
+                            class="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10 hidden transform origin-top-right">
+                            <div class="py-1" role="menu" aria-orientation="vertical"
+                                aria-labelledby="club-dropdown-toggle">
+                                <div class="flex justify-between p-2 border-b border-gray-200">
+                                    <button id="select-all-clubs"
+                                        class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 focus:outline-none">Select
+                                        All</button>
+                                    <button id="unselect-all-clubs"
+                                        class="text-xs font-semibold text-red-600 hover:text-red-800 focus:outline-none">Unselect
+                                        All</button>
+                                </div>
+                                <div id="club-filter-list" class="p-2 space-y-1">
+                                    <p class="text-center text-xs text-gray-500">No clubs loaded...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+            
+                    <div class="flex items-center space-x-2 w-full sm:w-auto">
+                        <label for="position-filter" class="text-sm font-medium text-gray-700 whitespace-nowrap">
+                            Positon Filter:
+                        </label>
+                        <select id="position-filter"
+                            class="w-full sm:w-36 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm">
+                            <option value="">All</option>
+                            <option value="GK">Goalkeepers</option>
+                            <option value="DEF">Defenders</option>
+                            <option value="MID">Midfielders</option>
+                            <option value="FOR">Forwards</option>
+                        </select>
+                    </div>
+                        
+                    <div class="flex items-center space-x-2 w-full sm:w-auto">
+                        <label for="delta-mode-filter" class="text-sm font-medium text-gray-700 whitespace-nowrap">
+                            Delta Mode:
+                        </label>
+                        <select id="delta-mode-filter"
+                            class="w-full sm:w-48 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm">
+                            <option value="Selected Percentage Change 1W">Last 7 Days</option>
+                            <option value="Selected Percentage Change Since Last Global Price Change">Since Last Price Change</option>
+                        </select>
+                    </div>
+
+                </div>
+
+                <!-- Row 2: numeric thresholds -->
+                <div class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-4 w-full md:w-auto md:justify-end items-end md:items-center">
+                    <div class="flex items-center space-x-2 w-full sm:w-auto">
+                        <label for="max-value-filter" class="text-sm font-medium text-gray-700 whitespace-nowrap">
+                            Max Value:
+                        </label>
+                        <input type="number" step="0.1" id="max-value-filter"
+                            class="w-full sm:w-24 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                            placeholder="e.g. 7.5">
+                    </div>
+
+                    <div class="flex items-center space-x-2 w-full sm:w-auto">
+                        <label for="min-decision-filter" class="text-sm font-medium text-gray-700 whitespace-nowrap">
+                            Min Decision:
+                        </label>
+                        <input type="number" min="0" max="100" step="1" id="min-decision-filter"
+                            class="w-full sm:w-20 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                            placeholder="e.g. 80">
+                    </div>
+
+                    <div class="flex items-center space-x-2 w-full sm:w-auto">
+                        <label for="min-fixture-filter" class="text-sm font-medium text-gray-700 whitespace-nowrap">
+                            Min Fix:
+                        </label>
+                        <input type="number" min="0" max="100" step="1" id="min-fixture-filter"
+                            class="w-full sm:w-20 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                            placeholder="e.g. 75">
+                    </div>
+
+                    <div class="flex items-center space-x-2 w-full sm:w-auto">
+                        <label for="min-following-fixture-filter" class="text-sm font-medium text-gray-700 whitespace-nowrap">
+                            Min Fix+1:
+                        </label>
+                        <input type="number" min="0" max="100" step="1" id="min-following-fixture-filter"
+                            class="w-full sm:w-20 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                            placeholder="e.g. 70">
+                    </div>
+
+                    <div class="flex items-center space-x-2 w-full sm:w-auto">
+                        <label for="min-form-filter" class="text-sm font-medium text-gray-700 whitespace-nowrap">
+                            Min Form:
+                        </label>
+                        <input type="number" min="0" max="100" step="1" id="min-form-filter"
+                            class="w-full sm:w-20 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                            placeholder="e.g. 80">
+                    </div>
+                </div>
+
+                <!-- Row 3: toggles -->
+                <div class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-6 w-full md:w-auto md:justify-end items-end md:items-center">
+                    <div class="flex items-center space-x-2 w-full sm:w-auto">
+                        <input type="checkbox" id="visionary-filter"
+                            class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+                        <label for="visionary-filter" class="text-sm font-medium text-gray-700 whitespace-nowrap">
+                            Visionaries Only
+                        </label>
+                    </div>
+
+                    <div class="flex items-center space-x-2 w-full sm:w-auto">
+                        <input type="checkbox" id="hot-pick-filter"
+                            class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+                        <label for="hot-pick-filter" class="text-sm font-medium text-gray-700 whitespace-nowrap">
+                            Hot Picks Only
+                        </label>
+                    </div>
+
+                    <div class="flex items-center space-x-2 w-full sm:w-auto">
+                        <input type="checkbox" id="recently-active-filter"
+                            class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+                        <label for="recently-active-filter" class="text-sm font-medium text-gray-700 whitespace-nowrap"
+                            title="Hide players who have not appeared in either of the two most recent gameweeks in the data.">
+                            Played in Last 2 GWs
+                        </label>
+                    </div>
+
+                    <div class="flex items-center space-x-2 w-full sm:w-auto">
+                        <input type="checkbox" id="my-team-filter"
+                            class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+                        <label for="my-team-filter" class="text-sm font-medium text-gray-700 whitespace-nowrap">
+                            My Team Only
+                        </label>
+                    </div>
+
+                    <div class="flex items-center space-x-2 w-full sm:w-auto">
+                        <input type="checkbox" id="watchlist-filter"
+                            class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+                        <label for="watchlist-filter" class="text-sm font-medium text-gray-700 whitespace-nowrap">
+                            Watchlist Only
+                        </label>
+                    </div>
+
+                    <div id="delta-reference-note" class="text-sm text-gray-600 whitespace-nowrap ml-2"></div>
+                </div>
+            
+            </div>
+            
+        </div>
+        <div class="table-scroll-container">
+            <p id="loading-message" class="text-center text-xl p-8 text-gray-600">
+                Loading data...
+            </p>
+            <table id="myTable" class="display compact nowrap hidden" cellspacing="0"></table>
+        </div>
+
+    </div>
+
+    <div id="glossary-modal" class="modal-backdrop hidden" onclick="closeModal('glossary')">
+        <div class="modal-content p-6 w-full max-w-lg" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-center border-b pb-3 mb-4">
+                <h3 class="text-xl font-bold text-gray-900">Table Key / Glossary</h3>
+                <button onclick="closeModal('glossary')" class="text-gray-400 hover:text-gray-600 transition">
+                    <i class="fa-solid fa-xmark text-2xl"></i>
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3" id="glossary-content">
+                <p class="col-span-2 text-center text-gray-500">Loading key...</p>
+            </div>
+
+            <p class="text-xs text-gray-500 mt-4 pt-2 border-t text-center">
+                Click outside or press the 'X' to close this window.
+            </p>
+        </div>
+    </div>
+
+    <div id="player-details-modal" class="modal-backdrop hidden" onclick="closeModal('player')">
+        <div class="modal-content p-6 w-full max-w-lg" onclick="event.stopPropagation()">
+
+            <button onclick="closeModal('player')"
+                class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 transition z-20">
+                <i class="fa-solid fa-xmark text-2xl"></i>
+            </button>
+
+            <div class="text-center border-b pb-2 mb-4">
+                <h3 id="modal-player-name" class="text-2xl font-bold text-gray-900"></h3>
+                <div id="modal-player-info" class="text-sm text-gray-500 mt-1">
+                    <span id="modal-player-pos"></span> &bull; <span id="modal-player-club"></span> &bull; <span
+                        id="modal-player-value" class="font-semibold text-gray-700"></span>
+                </div>
+                <span id="modal-player-nat" class="text-sm text-gray-500 mt-1"></span>
+                <div id="modal-news-container"></div>
+            </div>
+
+            <div class="border-b border-gray-200 mb-4">
+                <nav class="-mb-px flex space-x-4" aria-label="Tabs">
+                    <a href="#" id="details-tab" onclick="switchTab('details')" class="tab-button active">
+                        Stats & Fixtures
+                    </a>
+                    <a href="#" id="history-tab" onclick="switchTab('history')" class="tab-button">
+                        Value & Selection History
+                    </a>
+                </nav>
+            </div>
+            <div id="modal-tab-content">
+                <div id="tab-details" class="tab-pane">
+                    <div id="modal-stats-grid" class="grid grid-cols-2 gap-2">
+                    </div>
+
+                    <div class="mt-6 pt-4 border-t">
+                        <h4 class="text-xl font-semibold text-indigo-700 mb-3 flex items-center">
+                            <i class="fa-solid fa-calendar-alt mr-2"></i> Upcoming Matches
+                        </h4>
+                        <div id="modal-fixtures-list" class="space-y-3">
+                            <p class="text-gray-500 text-sm italic">Loading fixtures...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-history" class="tab-pane hidden">
+                    <div class="relative h-64 md:h-80 w-full">
+                        <canvas id="playerChart" class="w-full h-full"></canvas>
+                    </div>
+                    <div id="chartLoadingMessage" class="text-center text-sm text-gray-500 mt-3 hidden">Loading chart
+                        data...</div>
+                    <div id="chartNoDataMessage" class="text-center text-sm text-gray-500 mt-3 hidden">Historical data
+                        not found for this player.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.datatables.net/2.3.4/js/dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/3.0.7/js/dataTables.responsive.js"></script>
+    <script src="https://cdn.datatables.net/responsive/3.0.7/js/responsive.dataTables.js"></script>
+
+<script>    
+        // --- GLOBALS FOR CHARTING ---
+        const PLAYER_HISTORY_PATH = 'player_history.json'; 
+        const TRANSFORMED_DATA_PATH = 'transformed_data.json'; 
+        
+        let playerHistoryData = {}; 
+        let myChart = null; 
+        // --- NEW GLOBALS ---
+
+        const VISIONARY_SVG_LARGE = `
+        <svg class="visionary-icon w-6 h-6 align-top relative -top-1" viewBox="0 0 100 100" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <path fill="#0d996d"
+                d="M62.0583 23.8654C62.5588 21.8379 65.4412 21.8379 65.9417 23.8654L70.0291 40.4225C72.1656 49.0771 78.923 55.8344 87.5775 57.9709L104.135 62.0583C106.162 62.5588 106.162 65.4412 104.135 65.9417L87.5775 70.0291C78.9229 72.1656 72.1656 78.923 70.0291 87.5775L65.9417 104.135C65.4412 106.162 62.5588 106.162 62.0583 104.135L57.9709 87.5775C55.8344 78.9229 49.0770 72.1656 40.4225 70.0291L23.8654 65.9417C21.8379 65.4412 21.8379 62.5588 23.8654 62.0583L40.4225 57.9709C49.0771 55.8344 55.8344 49.0770 57.9709 40.4225L62.0583 23.8654ZM31.0291 19.9327C31.2794 18.9189 32.7206 18.9189 32.9709 19.9327L33.2859 21.2088C34.4432 25.8966 38.1034 29.5568 42.7912 30.7141L44.0673 31.0291C45.0811 31.2794 45.0811 32.7206 44.0673 32.9709L42.7912 33.2859C38.1034 34.4432 34.4432 38.1034 33.2859 42.7912L32.9709 44.0673C32.7206 45.0811 31.2794 45.0811 31.0291 44.0673L30.7141 42.7912C29.5568 38.1034 25.8966 34.4432 21.2088 33.2859L19.9327 32.9709C18.9189 32.7206 18.9189 31.2794 19.9327 31.0291L21.2088 30.7141C25.8966 29.5568 29.5568 25.8966 30.7141 21.2088L31.0291 19.9327Z"
+            />
+        </svg>
+    `;
+        const VISIONARY_SVG_SMALL = `
+        <svg class="visionary-icon" viewBox="0 0 100 100" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <path fill="#0d996d"
+                d="M62.0583 23.8654C62.5588 21.8379 65.4412 21.8379 65.9417 23.8654L70.0291 40.4225C72.1656 49.0771 78.923 55.8344 87.5775 57.9709L104.135 62.0583C106.162 62.5588 106.162 65.4412 104.135 65.9417L87.5775 70.0291C78.9229 72.1656 72.1656 78.923 70.0291 87.5775L65.9417 104.135C65.4412 106.162 62.5588 106.162 62.0583 104.135L57.9709 87.5775C55.8344 78.9229 49.0770 72.1656 40.4225 70.0291L23.8654 65.9417C21.8379 65.4412 21.8379 62.5588 23.8654 62.0583L40.4225 57.9709C49.0771 55.8344 55.8344 49.0770 57.9709 40.4225L62.0583 23.8654ZM31.0291 19.9327C31.2794 18.9189 32.7206 18.9189 32.9709 19.9327L33.2859 21.2088C34.4432 25.8966 38.1034 29.5568 42.7912 30.7141L44.0673 31.0291C45.0811 31.2794 45.0811 32.7206 44.0673 32.9709L42.7912 33.2859C38.1034 34.4432 34.4432 38.1034 33.2859 42.7912L32.9709 44.0673C32.7206 45.0811 31.2794 45.0811 31.0291 44.0673L30.7141 42.7912C29.5568 38.1034 25.8966 34.4432 21.2088 33.2859L19.9327 32.9709C18.9189 32.7206 18.9189 31.2794 19.9327 31.0291L21.2088 30.7141C25.8966 29.5568 29.5568 25.8966 30.7141 21.2088L31.0291 19.9327Z"
+            />
+        </svg>
+    `;
+        
+        /**
+         * Enhanced cleaning of player names for consistent lookup.
+         * This handles casing, leading/trailing spaces, and removes punctuation.
+         * @param {string} name 
+         * @returns {string} The normalized key (trimmed, lowercased, punctuation-free, single-space separated).
+         */
+        function normalizeKey(name) {
+            if (name === null || name === undefined) return "";
+            
+            let normalized = name.toString().toLowerCase().trim();
+            
+            // 1. Remove all non-alphabetic/non-space characters (periods, hyphens, etc.)
+            normalized = normalized.replace(/[^a-z\s]/g, ''); 
+            
+            // 2. Condense multiple spaces into a single space (e.g., "  " -> " ")
+            normalized = normalized.replace(/\s+/g, ' '); 
+            
+            return normalized;
+        }
+
+        $(document).ready(function () {
+
+            const STORAGE_KEYS = {
+                myTeam: 'wsl_my_team',
+                watchlist: 'wsl_watchlist'
+            };
+            
+            function getStoredList(key) {
+                return JSON.parse(localStorage.getItem(key) || '[]');
+            }
+            
+            function saveStoredList(key, list) {
+                localStorage.setItem(key, JSON.stringify(list));
+            }
+            
+            function isMyTeamPlayer(name) {
+                return getStoredList(STORAGE_KEYS.myTeam).includes(name);
+            }
+            
+            function isWatchlistPlayer(name) {
+                return getStoredList(STORAGE_KEYS.watchlist).includes(name);
+            }
+            
+            window.toggleMyTeam = function(name) {
+                let myTeam = getStoredList(STORAGE_KEYS.myTeam);
+            
+                if (myTeam.includes(name)) {
+                    myTeam = myTeam.filter(n => n !== name);
+                } else {
+                    myTeam.push(name);
+            
+                    // remove from watchlist if adding to team
+                    let watchlist = getStoredList(STORAGE_KEYS.watchlist)
+                        .filter(n => n !== name);
+            
+                    saveStoredList(STORAGE_KEYS.watchlist, watchlist);
+                }
+            
+                saveStoredList(STORAGE_KEYS.myTeam, myTeam);
+            
+                if (dataTableInstance) {
+                    dataTableInstance.rows().invalidate().draw(false);
+                }
+            };
+            
+            window.toggleWatchlist = function(name) {
+                // don't allow watchlisting if already on team
+                if (isMyTeamPlayer(name)) return;
+            
+                let watchlist = getStoredList(STORAGE_KEYS.watchlist);
+            
+                if (watchlist.includes(name)) {
+                    watchlist = watchlist.filter(n => n !== name);
+                } else {
+                    watchlist.push(name);
+                }
+            
+                saveStoredList(STORAGE_KEYS.watchlist, watchlist);
+            
+                if (dataTableInstance) {
+                    dataTableInstance.rows().invalidate().draw(false);
+                }
+            };
+
+            const RECENT_GAMES_COUNT = 4;
+            let dataTableInstance = null;
+            let fullPlayerData = [];
+            let uniqueClubs = [];
+            let selectedDeltaField = 'Selected Percentage Change 1W';
+            const isMobileView = window.innerWidth <= 768;
+
+            function formatDisplayDate(isoDateString) {
+                if (!isoDateString) return null;
+            
+                const d = new Date(isoDateString + 'T00:00:00');
+                if (isNaN(d)) return isoDateString;
+            
+                return d.toLocaleDateString('en-GB', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric'
+                });
+            }
+            
+            function updateDeltaReferenceNote(metadata) {
+                const $note = $('#delta-reference-note');
+            
+                if (selectedDeltaField === 'Selected Percentage Change 1W') {
+                    $note.html('<span class="font-medium">Delta mode:</span> Last 7 Days');
+                    return;
+                }
+            
+                if (selectedDeltaField === 'Selected Percentage Change Since Last Global Price Change') {
+                    const formattedDate = formatDisplayDate(metadata.last_global_price_change_date);
+                    if (formattedDate) {
+                        $note.html(`<span class="font-medium">Delta mode:</span> Since Last Price Change <span class="text-gray-500">(reference date: ${formattedDate})</span>`);
+                    } else {
+                        $note.html('<span class="font-medium">Delta mode:</span> Since Last Price Change');
+                    }
+                    return;
+                }
+            
+                $note.text('');
+            }
+
+            // --- Tab Switching Logic (Tailwind version of Bootstrap tabs) ---
+            window.switchTab = function (tabName) {
+                $('.tab-button').removeClass('active');
+                $('.tab-pane').addClass('hidden');
+
+                $(`#${tabName}-tab`).addClass('active');
+                $(`#tab-${tabName}`).removeClass('hidden');
+
+                if (tabName === 'history') {
+                    const playerName = $('#player-details-modal').data('player-name'); 
+                    $('#chartLoadingMessage').removeClass('hidden'); 
+                    
+                    setTimeout(() => {
+                        renderChart(playerName);
+                        $('#chartLoadingMessage').addClass('hidden');
+                    }, 50);
+                }
+            }
+
+            // --- GLOBAL MODAL FUNCTIONS ---
+            window.showModal = function (type, data = null) {
+                if (type === 'glossary') {
+                    generateGlossaryContent(dataTableInstance ? dataTableInstance.settings()[0].aoColumns : []);
+                    $('#glossary-modal').removeClass('hidden');
+                } else if (type === 'player' && data) {
+                    populatePlayerDetails(data);
+                    
+                    $('#player-details-modal').data('player-name', data.Name);
+                    switchTab('details'); 
+
+                    $('#player-details-modal').removeClass('hidden');
+                }
+            };
+
+            window.closeModal = function (type) {
+                if (type === 'glossary') {
+                    $('#glossary-modal').addClass('hidden');
+                } else if (type === 'player') {
+                    $('#player-details-modal').addClass('hidden');
+                    if (myChart) {
+                        myChart.destroy();
+                        myChart = null;
+                    }
+                }
+            };
+
+            $('#show-key-button').on('click', () => showModal('glossary'));
+
+            function csvEscape(value) {
+                if (value === null || value === undefined) return '';
+
+                let text;
+                if (typeof value === 'object') {
+                    if (Object.prototype.hasOwnProperty.call(value, 'points')) {
+                        text = value.points === null || value.points === undefined ? '' : String(value.points);
+                    } else {
+                        text = JSON.stringify(value);
+                    }
+                } else {
+                    text = String(value);
+                }
+
+                if (/[",\n\r]/.test(text)) {
+                    return '"' + text.replace(/"/g, '""') + '"';
+                }
+                return text;
+            }
+
+            function getExportColumns(rows) {
+                const preferred = [
+                    'Name', 'Club', 'Position', 'Value', 'Decision Rating', 'Form Rating',
+                    'Total Points', 'Points Per Game', 'Selected Percentage',
+                    'Selected Percentage Change 1W',
+                    'Selected Percentage Change Since Last Global Price Change',
+                    'Next Fixture Rating', 'Following Fixture Rating',
+                    'Next Fixture Score', 'Following Fixture Score',
+                    'Next Fixture Rating Tooltip', 'Following Fixture Rating Tooltip',
+                    'Total Goals', 'Total Assists', 'Total Clean Sheet',
+                    'Total Games Played', 'Total Over 4 Gameweeks',
+                    'Points Per Million Over 4 Gameweeks', 'Recommendation'
+                ];
+
+                const allKeys = new Set();
+                rows.forEach(row => Object.keys(row || {}).forEach(key => allKeys.add(key)));
+
+                const gameweekKeys = Array.from(allKeys)
+                    .filter(key => /^\d+$/.test(key))
+                    .sort((a, b) => Number(b) - Number(a));
+
+                const remaining = Array.from(allKeys)
+                    .filter(key => !preferred.includes(key) && !gameweekKeys.includes(key))
+                    .sort((a, b) => a.localeCompare(b));
+
+                return [
+                    ...preferred.filter(key => allKeys.has(key)),
+                    ...gameweekKeys,
+                    ...remaining
+                ];
+            }
+
+            function downloadPlayersCsv(rows, filename) {
+                if (!rows || rows.length === 0) {
+                    alert('There are no players to export with the current selection.');
+                    return;
+                }
+
+                const columns = getExportColumns(rows);
+                const lines = [columns.map(csvEscape).join(',')];
+
+                rows.forEach(row => {
+                    lines.push(columns.map(column => csvEscape(row[column])).join(','));
+                });
+
+                const csv = '\uFEFF' + lines.join('\r\n');
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = filename;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+            }
+
+            $('#export-current-button').on('click', function () {
+                if (!dataTableInstance) return;
+
+                // DataTables returns exactly the rows surviving the active filters/search,
+                // in the table's current sort order, across all pagination pages.
+                const rows = dataTableInstance
+                    .rows({ search: 'applied', order: 'applied' })
+                    .data()
+                    .toArray();
+
+                const date = new Date().toISOString().slice(0, 10);
+                downloadPlayersCsv(rows, `wsl-current-view-${date}.csv`);
+            });
+
+            $('#export-all-button').on('click', function () {
+                const date = new Date().toISOString().slice(0, 10);
+                downloadPlayersCsv(fullPlayerData, `wsl-all-players-${date}.csv`);
+            });
+            // --- END GLOBAL MODAL FUNCTIONS ---
+
+            // --- PLAYER DETAILS FUNCTION ---
+            function populatePlayerDetails(player) {
+                const nameEl = $('#modal-player-name');
+                const posEl = $('#modal-player-pos');
+                const clubEl = $('#modal-player-club');
+                const valueEl = $('#modal-player-value');
+                const natEl = $('#modal-player-nat');
+                const statsGrid = $('#modal-stats-grid');
+                const fixturesListEl = $('#modal-fixtures-list'); 
+
+                if (player.Visionary) {
+                    nameEl.html(`${player.Name} ${VISIONARY_SVG_LARGE}`);
+                } else {
+                    nameEl.text(player.Name);
+                }
+                posEl.text(player.Position);
+                clubEl.text(player.Club);
+                natEl.text(player.Nationality);
+                valueEl.html(`&pound;${safeToFixed(player.Value, 1)}M`);
+
+                const newsContainerEl = $('#modal-news-container');
+
+                newsContainerEl.html('');
+                const playerNews = player.News;
+
+                if (playerNews && playerNews.trim() !== "") {
+                    const newsHtml = `<div class="text-sm font-semibold text-red-600 mb-1">${playerNews}</div>`;
+                    newsContainerEl.html(newsHtml);
+                }
+                
+                const statKeys = [
+                    { "label": "Total Points (P)", "key": "Total Points", "unit": "" },
+                    { "label": "Points Per Game (PG)", "key": "Points Per Game", "unit": "", "calc": true }, 
+                    { "label": "Selection Rate (S%)", "key": "Selected Percentage", "unit": "%", "raw_unit": true },
+                    { "label": "Selection Change", "key": "Ownership Delta", "unit": "", "raw_unit": true, "delta": true },
+                    { "label": "Next Fixture Score (0-100)", "key": "Next Fixture Rating", "unit": "", "raw_unit": true },
+                    <!-- { "label": "Recommendation", "key": "Recommendation", "unit": "", "raw_unit": true }, -->
+                    { "label": "Goals Scored", "key": "Total Goals", "unit": "" },
+                    { "label": "Assists", "key": "Total Assists", "unit": "" },
+                    { "label": "Clean Sheets (CS)", "key": "Total Clean Sheet", "unit": "" },
+                    { "label": "Points Last 4 GWs (P4)", "key": "Total Over 4 Gameweeks", "unit": "" },
+                    { "label": "Points/M Last 4 GWs (PM4)", "key": "Points Per Million Over 4 Gameweeks", "unit": "", "raw_unit": true }, 
+                ];
+                let detailsHTML = '';
+
+                statKeys.forEach(stat => {
+                    let displayValue = '-';
+
+                    if (stat.calc) {
+                        const totalPoints = player["Total Points"];
+                        const gamesPlayed = player["Total Games Played"];
+                        displayValue = gamesPlayed > 0 ? safeToFixed(totalPoints / gamesPlayed, 1) : '-';
+                    } else if (stat.key === "Ownership Delta") {
+                        displayValue = player[selectedDeltaField];
+                    } else if (player[stat.key] !== undefined && player[stat.key] !== null) {
+                        displayValue = player[stat.key];
+                    }
+                    if (stat.delta) {
+                        displayValue = formatOwnershipDelta(displayValue);
+                    } else if (typeof displayValue === 'number' && !stat.raw_unit) {
+                        displayValue = safeToFixed(displayValue, 0); 
+                    } else if (typeof displayValue === 'number' && (stat.key === 'Selected Percentage' || stat.key === 'Points Per Million Over 4 Gameweeks')) {
+                        displayValue = safeToFixed(displayValue, 1);
+                    }
+                    
+                    detailsHTML += `
+                    <div class="flex flex-col p-1 bg-gray-50 rounded-lg shadow-sm border border-gray-200">
+                        <span class="text-xs font-medium text-gray-500 uppercase tracking-wider">${stat.label}</span>
+                        <span class="text-xl font-extrabold text-indigo-600 mt-1">
+                            ${displayValue}${stat.raw_unit ? '' : stat.unit}
+                        </span>
+                    </div>
+                `;
+                });
+
+                statsGrid.html(detailsHTML);
+
+                const fixtures = player.upcoming_fixtures || [];
+                const playerClubCode = player.Club;
+                let fixturesHTML = '';
+
+                if (fixtures.length === 0) {
+                    fixturesHTML = '<p class="text-gray-500 text-sm italic">No upcoming fixtures found.</p>';
+                } else {
+                    let listHTML = '';
+
+                    fixtures.forEach(fixture => {
+                        const homeTeamCode = fixture.home_id;
+                        const awayTeamCode = fixture.away_id;
+                        const isHome = homeTeamCode === playerClubCode;
+
+                        const opponentCode = isHome ? fixture.away_short_name : fixture.home_short_name;
+                        const location = isHome ? ' (Home)' : ' (Away)';
+                        const displayOpponentCode = opponentCode || '???';
+
+                        const opponentClass = isHome
+                            ? 'font-bold text-gray-900'
+                            : 'font-medium text-gray-600';
+
+                        listHTML += `
+                        <div class="flex justify-between items-center text-sm border-b border-gray-100 pb-2">
+                            <div class="flex items-center space-x-2">
+                                <span class="text-xs font-bold text-gray-600 w-[130px] flex-shrink-0">Game Week ${fixture.game_week}</span>
+                                <span class="${opponentClass}">${displayOpponentCode}${location}</span>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <span class="font-medium text-gray-900">${fixture.game_date} @ ${fixture.kick_off_time}</span>
+                            </div>
+                        </div>
+                    `;
+                    });
+
+                    fixturesHTML = `<div class="space-y-3">${listHTML}</div>`;
+                }
+
+                fixturesListEl.html(fixturesHTML);
+            }
+            // --- END PLAYER DETAILS FUNCTION ---
+
+            // --- CHARTING LOGIC ---
+
+            function renderChart(playerName) {
+                // 1. Get the key and perform lookup
+                const historyKey = normalizeKey(playerName);
+                const history = playerHistoryData[historyKey];
+
+                
+                $('#chartLoadingMessage').addClass('hidden');
+                $('#chartNoDataMessage').addClass('hidden');
+
+                // 2. Check for data validity (exists and has at least two points)
+                if (!history || history.length < 2) {
+                    
+                    $('#chartNoDataMessage').removeClass('hidden'); 
+                    
+                    if (myChart) {
+                        myChart.destroy();
+                        myChart = null;
+                    }
+                    return;
+                }
+                
+                // 3. Prepare data for chart
+                const dates = history.map(item => new Date(item.timestamp).toLocaleDateString('en-GB')); 
+                const values = history.map(item => item.value);
+                const selectionPercentages = history.map(item => item.selected_by_percent);
+                const formRatings = history.map(item => item.form_rating);
+                
+                // 4. Calculate dynamic min/max for Selection % 
+                const minSelection = Math.min(...selectionPercentages);
+                const maxSelection = Math.max(...selectionPercentages);
+                
+                // Add a buffer (e.g., 5 points) to the min and max for padding
+                const padding = 5;
+                let ySelectMin = Math.max(0, Math.floor(minSelection) - padding); 
+                let ySelectMax = Math.ceil(maxSelection) + padding; 
+
+                // Ensure the scale is not too tight if min/max are close
+                if (ySelectMax - ySelectMin < 10) {
+                    ySelectMax = ySelectMax + (10 - (ySelectMax - ySelectMin));
+                }
+
+                // If the lowest value is 0, keep the min at 0
+                if (minSelection === 0) {
+                    ySelectMin = 0;
+                }
+                
+                // 5. Render the chart
+                const ctx = document.getElementById('playerChart').getContext('2d');
+
+                if (myChart) {
+                    myChart.destroy();
+                }
+
+                myChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: dates,
+                        datasets: [
+                            {
+                                label: 'Value (£m)',
+                                data: values,
+                                borderColor: 'rgb(79, 70, 229)', 
+                                backgroundColor: 'rgba(79, 70, 229, 0.2)',
+                                fill: false,
+                                yAxisID: 'y-value',
+                                lineTension: 0.1,
+                                pointRadius: 4,
+                            },
+                            {
+                                label: 'Selection %',
+                                data: selectionPercentages,
+                                borderColor: 'rgb(245, 158, 11)', 
+                                backgroundColor: 'rgba(245, 158, 11, 0.2)',
+                                fill: false,
+                                yAxisID: 'y-select',
+                                lineTension: 0.1,
+                                pointRadius: 4,
+                            },
+                            {
+                                label: 'Form Rating',
+                                data: formRatings,
+                                borderColor: 'rgb(16, 185, 129)',
+                                backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                                fill: false,
+                                yAxisID: 'y-form',
+                                lineTension: 0.1,
+                                pointRadius: 4,
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        title: {
+                            display: false,
+                        },
+                        legend: {
+                            position: 'bottom',
+                        },
+                        scales: {
+                            xAxes: [{
+                                display: true,
+                                scaleLabel: {
+                                    display: true,
+                                    labelString: 'Date'
+                                }
+                            }],
+                            yAxes: [
+                                {
+                                    id: 'y-value',
+                                    type: 'linear',
+                                    position: 'left',
+                                    scaleLabel: {
+                                        display: true,
+                                        labelString: 'Value (£m)'
+                                    },
+                                    gridLines: {
+                                        drawOnChartArea: false, 
+                                    },
+                                    ticks: {
+                                        callback: function(value, index, values) {
+                                            return '£' + value.toFixed(1) + 'm';
+                                        }
+                                    }
+                                },
+                                {
+                                    id: 'y-select',
+                                    type: 'linear',
+                                    position: 'right',
+                                    scaleLabel: {
+                                        display: true,
+                                        labelString: 'Selection (%)'
+                                    },
+                                    ticks: {
+                                        // *** DYNAMIC SCALE CALCULATED ABOVE ***
+                                        min: ySelectMin, 
+                                        max: ySelectMax, 
+                                        callback: function(value, index, values) {
+                                            return value + '%';
+                                        }
+                                    }
+                                },
+                                {
+                                    id: 'y-form',
+                                    type: 'linear',
+                                    position: 'right',
+                                    display: false,
+                                    ticks: {
+                                        min: 0,
+                                        max: 100
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                });
+            }
+
+            // --- END CHARTING LOGIC ---
+
+            // Helper function to create the abbreviated header with a tooltip (No Change)
+            function createHeader(abbr, fullTitle) {
+                return `<div class="custom-tooltip-container"><span class="custom-tooltip-points">${abbr}</span><div class="custom-tooltip-content">${fullTitle.replace(/\n/g, '<br>')}</div></div>`;
+            }
+
+            // Helper function to safely format data, returning '-' for missing values (No Change)
+            function safeToFixed(data, decimals) {
+                if (data === null || data === undefined || isNaN(data) || !isFinite(data) || data === '-') {
+                    return '-';
+                }
+                return parseFloat(data).toFixed(decimals);
+            }
+
+            function formatDisplayDate(isoDateString) {
+                if (!isoDateString) return null;
+            
+                const d = new Date(isoDateString + 'T00:00:00');
+                if (isNaN(d)) return isoDateString;
+            
+                return d.toLocaleDateString('en-GB', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric'
+                });
+            }
+            
+            function updateDeltaReferenceNote(metadata) {
+                const $note = $('#delta-reference-note');
+            
+                if (selectedDeltaField === 'Selected Percentage Change 1W') {
+                    $note.html('<span class="font-medium">Delta mode:</span> Last 7 Days');
+                    return;
+                }
+            
+                if (selectedDeltaField === 'Selected Percentage Change Since Last Global Price Change') {
+                    const formattedDate = formatDisplayDate(metadata.last_global_price_change_date);
+                    if (formattedDate) {
+                        $note.html(`<span class="font-medium">Delta mode:</span> Since Last Price Change <span class="text-gray-500">(reference date: ${formattedDate})</span>`);
+                    } else {
+                        $note.html('<span class="font-medium">Delta mode:</span> Since Last Price Change');
+                    }
+                    return;
+                }
+            
+                $note.text('');
+            }
+            
+            function formatOwnershipDelta(data) {
+                if (data === null || data === undefined || data === '' || data === '-') {
+                    return '-';
+                }
+            
+                const num = parseFloat(data);
+                if (isNaN(num) || !isFinite(num)) {
+                    return '-';
+                }
+            
+                if (num > 0) {
+                    return `+${num.toFixed(1)}`;
+                }
+                return num.toFixed(1);
+            }
+            
+            // --- Mapped column definitions for STATIC data (No Change) ---
+            const STATIC_COLUMN_MAP = {
+                "Name": {
+                    abbr: 'Name',
+                    full: 'Player Name',
+                    type: 'string',
+                    className: 'font-bold player-name-content',
+
+                    render: function (data, type, row) {
+                        if (type === 'display') {
+                            const isVisionary = row.Visionary === true;
+                            const playerNews = row.news || row.News;
+                            const hasNews = playerNews && playerNews.trim() !== "";
+                            let classString = 'font-bold';
+                            let finalContent;
+
+                            if (hasNews) {
+                                classString += ' news-text'; 
+                            } else if (isVisionary) {
+                                classString += ' visionary-text'; 
+                            } else {
+                                classString += ' text-gray-800';
+                            }
+
+                            const nameSpan = `<span class="${classString}">${data}</span>`;
+
+                            const hotPickIcon = row["Hot Pick"] === true
+                                ? `<span class="ml-1" title="Hot Pick">🔥</span>`
+                                : '';
+
+                            const myTeamIcon = isMyTeamPlayer(data)
+                                ? `<span class="ml-1 cursor-pointer" title="Remove from Current Team"
+                                    onclick="event.stopPropagation(); toggleMyTeam('${data.replace(/'/g, "\\'")}')">⭐</span>`
+                                : `<span class="ml-1 opacity-40 hover:opacity-100 cursor-pointer"
+                                    title="Add to Current Team"
+                                    onclick="event.stopPropagation(); toggleMyTeam('${data.replace(/'/g, "\\'")}')">☆</span>`;
+                            
+                            const watchlistIcon = isMyTeamPlayer(data)
+                                ? ''
+                                : isWatchlistPlayer(data)
+                                    ? `<span class="ml-1 cursor-pointer" title="Remove from Watchlist"
+                                        onclick="event.stopPropagation(); toggleWatchlist('${data.replace(/'/g, "\\'")}')">👀</span>`
+                                    : `<span class="ml-1 opacity-40 hover:opacity-100 cursor-pointer"
+                                        title="Add to Watchlist"
+                                        onclick="event.stopPropagation(); toggleWatchlist('${data.replace(/'/g, "\\'")}')">⭘</span>`;
+
+                            if (isVisionary) {
+                                finalContent = `<div class="flex items-center">
+                                                ${nameSpan}
+                                                ${VISIONARY_SVG_SMALL}
+                                                ${hotPickIcon}
+                                                ${myTeamIcon}
+                                                ${watchlistIcon}
+                                            </div>`;
+                            } else {
+                                finalContent = `<div class="flex items-center">
+                                                ${nameSpan}
+                                                ${hotPickIcon}
+                                                ${myTeamIcon}
+                                                ${watchlistIcon}
+                                            </div>`;
+                            }
+
+                            if (hasNews) {
+                                const tooltipHtml = playerNews.replace(/\n/g, '<br>');
+
+                                return `<div class="custom-tooltip-container">${finalContent}<span class="custom-tooltip-content">${tooltipHtml}</span></div>`;
+                            }
+
+                            return finalContent;
+                        }
+                        return data;
+                    }
+                },
+
+                "Club": {
+                    abbr: 'Club',
+                    full: 'Player\'s Club',
+                    type: 'string',
+                    className: 'whitespace-nowrap dt-center',
+                    render: function (data, type, row) {
+                        if (type === 'display') {
+                            const teamCode = data; 
+                            return `<span class="team-badge badge-${teamCode}">${teamCode}</span>`;
+                        }
+                        return data;
+                    }
+                },
+                "Decision Rating": {
+                    abbr: 'Decision',
+                    full: 'Overall Decision Rating (0-100). Position-specific blend of next-GW fixture opportunity and recent form: GK 85/15, DEF 65/35, MID 35/65, FWD 25/75.',
+                    type: 'num',
+                    render: function (data, type, row) {
+                        const numericRating = (data === null || data === undefined || data === "")
+                            ? null
+                            : parseFloat(data);
+
+                        if (type !== 'display') {
+                            return numericRating === null || isNaN(numericRating) ? -1 : numericRating;
+                        }
+
+                        if (numericRating === null || isNaN(numericRating)) {
+                            return '<span class="text-gray-400">-</span>';
+                        }
+
+                        let classes = 'px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap inline-block min-w-[48px] text-center';
+                        if (numericRating >= 80) {
+                            classes += ' bg-green-600 text-white';
+                        } else if (numericRating >= 65) {
+                            classes += ' bg-green-200 text-green-900';
+                        } else if (numericRating >= 50) {
+                            classes += ' bg-gray-200 text-gray-800';
+                        } else if (numericRating >= 35) {
+                            classes += ' bg-red-200 text-red-900';
+                        } else {
+                            classes += ' bg-red-600 text-white';
+                        }
+
+                        const pos = row["Position"] || '';
+                        const form = parseFloat(row["Form Rating"] || 0);
+                        const fixture = parseFloat(row["Next Fixture Rating"] || 0);
+                        const weights = {
+                            GK: [85, 15],
+                            DEF: [65, 35],
+                            MID: [35, 65],
+                            FOR: [25, 75]
+                        };
+                        const w = weights[pos] || [50, 50];
+                        const tooltipHtml = `Decision ${numericRating.toFixed(1)}/100<br>${pos}: ${w[0]}% next fixture + ${w[1]}% form<br>Fixture: ${fixture.toFixed(1)} | Form: ${form.toFixed(0)}`;
+
+                        return `
+                            <div class="custom-tooltip-container">
+                                <span class="${classes}">${numericRating.toFixed(1)}</span>
+                                <span class="custom-tooltip-content">${tooltipHtml}</span>
+                            </div>
+                        `;
+                    },
+                    className: 'dt-center'
+                },
+
+                "Next Fixture Score": {
+                    abbr: 'Fix',
+                    full: 'Next gameweek fixture opportunity from 0-100 (higher = better). Uses ASA xG, recent form, opponent strength, venue, and gameweek volume.',
+                    type: 'num',
+                    render: function (data, type, row) {
+                        const rating = row["Next Fixture Rating"];
+                        const numericRating = (rating === null || rating === undefined || rating === "")
+                            ? null
+                            : parseFloat(rating);
+
+                        if (type !== 'display') {
+                            return numericRating === null || isNaN(numericRating) ? -1 : numericRating;
+                        }
+
+                        if (numericRating === null || isNaN(numericRating)) {
+                            return '<span class="text-gray-400">-</span>';
+                        }
+
+                        let classes = 'px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap inline-block min-w-[48px] text-center';
+
+                        if (numericRating >= 80) {
+                            classes += ' bg-green-600 text-white';
+                        } else if (numericRating >= 65) {
+                            classes += ' bg-green-200 text-green-900';
+                        } else if (numericRating >= 45) {
+                            classes += ' bg-gray-200 text-gray-800';
+                        } else if (numericRating >= 25) {
+                            classes += ' bg-red-200 text-red-900';
+                        } else {
+                            classes += ' bg-red-600 text-white';
+                        }
+
+                        const tooltipText = row["Next Fixture Details"] || "";
+                        const tooltipHtml = tooltipText
+                            .replace(/&/g, '&amp;')
+                            .replace(/</g, '&lt;')
+                            .replace(/>/g, '&gt;')
+                            .replace(/\n/g, '<br>');
+
+                        return `
+                            <div class="custom-tooltip-container">
+                                <span class="${classes}">${numericRating.toFixed(1)}</span>
+                                <span class="custom-tooltip-content">${tooltipHtml}</span>
+                            </div>
+                        `;
+                    },
+                    className: 'dt-center'
+                },
+                "Following Fixture Score": {
+                    abbr: 'Fix+1',
+                    full: 'Following gameweek fixture opportunity from 0-100 (higher = better). Uses ASA xG, recent form, opponent strength, venue, and gameweek volume.',
+                    type: 'num',
+                    render: function (data, type, row) {
+                        const rating = row["Following Fixture Rating"];
+                        const numericRating = (rating === null || rating === undefined || rating === "")
+                            ? null
+                            : parseFloat(rating);
+
+                        if (type !== 'display') {
+                            return numericRating === null || isNaN(numericRating) ? -1 : numericRating;
+                        }
+
+                        if (numericRating === null || isNaN(numericRating)) {
+                            return '<span class="text-gray-400">-</span>';
+                        }
+
+                        let classes = 'px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap inline-block min-w-[48px] text-center';
+
+                        if (numericRating >= 80) {
+                            classes += ' bg-green-600 text-white';
+                        } else if (numericRating >= 65) {
+                            classes += ' bg-green-200 text-green-900';
+                        } else if (numericRating >= 45) {
+                            classes += ' bg-gray-200 text-gray-800';
+                        } else if (numericRating >= 25) {
+                            classes += ' bg-red-200 text-red-900';
+                        } else {
+                            classes += ' bg-red-600 text-white';
+                        }
+
+                        const tooltipText = row["Following Fixture Details"] || "";
+                        const tooltipHtml = tooltipText
+                            .replace(/&/g, '&amp;')
+                            .replace(/</g, '&lt;')
+                            .replace(/>/g, '&gt;')
+                            .replace(/\n/g, '<br>');
+
+                        return `
+                            <div class="custom-tooltip-container">
+                                <span class="${classes}">${numericRating.toFixed(1)}</span>
+                                <span class="custom-tooltip-content">${tooltipHtml}</span>
+                            </div>
+                        `;
+                    },
+                    className: 'dt-center'
+                },
+
+                "Form Rating": {
+                    abbr: 'Form',
+                    full: 'Recent form rating from 0-100, based on last 4 games: recent points, consistency, and bonus involvement',
+                    type: 'num',
+                    render: function (data, type, row) {
+                        if (type !== 'display') {
+                            return data === null || data === undefined ? 0 : data;
+                        }
+                
+                        if (data === null || data === undefined) {
+                            return '<span class="text-gray-400">-</span>';
+                        }
+                
+                        const score = parseInt(data, 10);
+                
+                        let classes = 'px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap inline-block min-w-[42px] text-center';
+                
+                        if (score >= 80) {
+                            classes += ' bg-green-600 text-white';
+                        } else if (score >= 65) {
+                            classes += ' bg-green-200 text-green-900';
+                        } else if (score >= 50) {
+                            classes += ' bg-gray-200 text-gray-800';
+                        } else if (score >= 35) {
+                            classes += ' bg-red-200 text-red-900';
+                        } else {
+                            classes += ' bg-red-600 text-white';
+                        }
+                
+                        return `<span class="${classes}">${score}</span>`;
+                    },
+                    className: 'dt-center'
+                },
+                "Position": {
+                    abbr: 'Pos',
+                    full: 'Player Position',
+                    type: 'string',
+                    className: 'dt-center',
+                    render: function (data, type, row) {
+                        if (type === 'display') {
+                            const posCode = data;
+                            return `<span class="pos-badge badge-${posCode}">${posCode}</span>`;
+                        }
+                        return data;
+                    }
+                },
+                "Value": {
+                    abbr: 'Val',
+                    full: 'Player Value (millions)',
+                    type: 'num',
+                    render: (data) => `${safeToFixed(data, 1)}`,
+                    className: 'font-bold dt-center bg-yellow-100'
+                },
+
+                "Selected Percentage": {
+                    abbr: 'S%',
+                    full: 'Percentage of people selecting this player',
+                    type: 'num',
+                    render: function (data, type, row) {
+                        if (type === 'display') {
+                            const formattedData = safeToFixed(data, 1);
+                            return `<div style="padding-left: 8px; padding-right: 8px;">${formattedData}</div>`;
+                        }
+                        return data;
+                    },
+
+                    className: 'dt-center'
+                },
+               
+                "Ownership Delta": {
+                    data: null,
+                    defaultContent: '-',
+                    abbr: 'ΔS%',
+                    full: 'Change in selection percentage for the chosen delta mode',
+                    type: 'num',
+                    render: function (data, type, row) {
+                        const value = row[selectedDeltaField];
+                
+                        if (type === 'sort' || type === 'type') {
+                            if (value === null || value === undefined || value === '' || value === '-') {
+                                return -9999;
+                            }
+                            const num = parseFloat(value);
+                            return isNaN(num) ? -9999 : num;
+                        }
+                
+                        if (type === 'display') {
+                            const formatted = formatOwnershipDelta(value);
+                
+                            if (formatted === '-') {
+                                return '<div style="padding-left: 8px; padding-right: 8px;">-</div>';
+                            }
+                
+                            let colorClass = 'text-gray-700';
+                            if (parseFloat(value) > 0) {
+                                colorClass = 'text-green-600 font-semibold';
+                            } else if (parseFloat(value) < 0) {
+                                colorClass = 'text-red-600 font-semibold';
+                            }
+                
+                            return `<div class="${colorClass}" style="padding-left: 8px; padding-right: 8px;">${formatted}</div>`;
+                        }
+                
+                        return value;
+                    },
+                    className: 'dt-center'
+                },
+
+                "Total Points": {
+                    abbr: `P`,
+                    full: 'Points for the season',
+                    type: 'num',
+                    className: 'font-bold dt-center'
+                },
+
+                "Total Games Played": { abbr: 'G', full: 'Games played this season (Total appearances)', type: 'num', className: 'dt-center' },
+
+                "Points Per Game": {
+                    data: null,
+                    abbr: 'PG',
+                    full: 'Points per game over the season (Points / Appearances)',
+                    type: 'num',
+                    render: (data, type, row) => {
+                        const totalPoints = row["Total Points"];
+                        const gamesPlayed = row["Total Games Played"];
+
+                        if (type === 'sort' || type === 'type') {
+                            return gamesPlayed > 0 ? (totalPoints / gamesPlayed) : 0;
+                        }
+                        return gamesPlayed > 0 ? safeToFixed(totalPoints / gamesPlayed, 1) : '-';
+                    },
+                    className: 'dt-center'
+                },
+
+                "Points Per Million": {
+                    abbr: 'PM',
+                    full: 'Points scored per million pounds spent (Total season)',
+                    type: 'num',
+                    render: (data, type, row) => {
+                        const totalPoints = row["Total Points"];
+                        const value = row["Value"];
+
+                        if (type === 'sort' || type === 'type') {
+                            return value > 0 ? (totalPoints / value) : 0;
+                        }
+                        return value > 0 ? safeToFixed(totalPoints / value, 1) : '-';
+                    },
+                    className: 'dt-center'
+                },
+
+                "Total Over 4 Gameweeks": {
+                    abbr: `P${RECENT_GAMES_COUNT}`,
+                    full: `Total points over last ${RECENT_GAMES_COUNT} gameweeks`,
+                    type: 'num',
+                    className: 'dt-center'
+                },
+
+                "Games Played Over 4 Gameweeks": {
+                    abbr: `G${RECENT_GAMES_COUNT}`,
+                    full: `Games participated in (appeared) over last ${RECENT_GAMES_COUNT} gameweeks`,
+                    type: 'num',
+                    className: 'dt-center'
+                },
+
+                "Points Per Game Over 4 Gameweeks": {
+                    abbr: `PG${RECENT_GAMES_COUNT}`,
+                    full: `Points per available gameweek (PPG over ${RECENT_GAMES_COUNT} weeks - uses 4 as divisor)`,
+                    type: 'num',
+                    render: (data) => safeToFixed(data, 1), 
+                    className: 'dt-center'
+                },
+
+                "Points Per Million Over 4 Gameweeks": {
+                    abbr: `PM${RECENT_GAMES_COUNT}`,
+                    full: `Points per million over last ${RECENT_GAMES_COUNT} gameweeks`,
+                    type: 'num',
+                    render: (data) => safeToFixed(data, 1), 
+                    className: 'dt-center'
+                },
+
+                "Total Goals": {
+                    abbr: `<i class="fa-solid fa-volleyball icon-green text-base fa-header-icon"></i>`,
+                    full: 'Goals scored ',
+                    type: 'num',
+                    className: 'dt-center'
+                },
+
+                "Total Assists": {
+                    abbr: `A`,
+                    full: 'Assists this season',
+                    type: 'num',
+                    className: 'dt-center'
+                },
+
+                "Total Goals + Assists": {
+                    abbr: `G+A`,
+                    full: 'Goals plus assists this season',
+                    type: 'num',
+                    className: 'dt-center font-semibold'
+                },
+
+                "Total Clean Sheet": {
+                    abbr: `CS`,
+                    full: 'Clean sheets this season',
+                    type: 'num',
+                    className: 'dt-center'
+                },
+
+                "Total Bonus Points": {
+                    abbr: `<i class="fa-solid fa-star icon-yellow text-base fa-header-icon"></i>`,
+                    full: 'Bonus points won this season',
+                    type: 'num',
+                    className: 'dt-center'
+                },
+
+                "Total Bonus Games": {
+                    abbr: `B+`,
+                    full: 'Number of games where the player received bonus points',
+                    type: 'num',
+                    className: 'dt-center'
+                },
+                
+                "Total Yellow Cards": {
+                    abbr: `<i class="fa-solid fa-square icon-yellow text-base fa-header-icon"></i>`,
+                    full: 'Yellow cards this season',
+                    type: 'num',
+                    className: 'dt-center'
+                },
+
+                "Total Red Cards": {
+                    abbr: `<i class="fa-solid fa-square icon-red text-base fa-header-icon"></i>`,
+                    full: 'Red cards this season',
+                    type: 'num',
+                    className: 'dt-center'
+                },
+
+                "Total Missed Penalties": {
+                    abbr: `MP`,
+                    full: 'Missed penalties this season',
+                    type: 'num',
+                    className: 'dt-center'
+                },
+                "Total Clearances": { abbr: 'CL', full: 'Goal line clearances this season', type: 'num', className: 'dt-center' },
+                "Total Conceeded": { abbr: 'GC', full: 'Points lost for goals conceded (-1 per 2 goals conceeded)', type: 'num', className: 'dt-center' },
+
+                "Total Saves": {
+                    abbr: `S`,
+                    full: 'Save points awarded (Goalkeepers, 1 pt per 3 saves)',
+                    type: 'num',
+                    className: 'dt-center'
+                },
+
+                "Total Own Goals": {
+                    abbr: `OG`,
+                    full: 'Own goals scored this season (-2 points each)',
+                    type: 'num',
+                    className: 'dt-center'
+                },
+                "Total 1 min Appearances": { abbr: 'P1', full: 'Games with at least 1 minute played (1pt)', type: 'num', className: 'dt-center' },
+                "Total 60 min Appearances": { abbr: '60', full: 'Games with at least 60 minutes played (1pt)', type: 'num', className: 'dt-center border-r-4 border-gray-400' }
+            };
+
+            const STATIC_KEYS_SET = new Set(Object.keys(STATIC_COLUMN_MAP));
+
+            // --- Other helper functions (No Change) ---
+            function generateGlossaryContent(columns) {
+                let html = '';
+                Object.keys(STATIC_COLUMN_MAP).forEach(key => {
+                    const config = STATIC_COLUMN_MAP[key];
+                    const abbrText = $('<div>').html(config.abbr).text().trim() || config.abbr;
+
+                    html += `
+                    <div class="flex items-center space-x-2">
+                        <span class="font-bold text-sm text-indigo-600 w-12 flex-shrink-0">${abbrText}:</span>
+                        <span class="text-xs text-gray-700">${config.full}</span>
+                    </div>
+                `;
+                });
+
+                if (columns.length > 0) {
+                    const gwColumn = columns.find(col => col.data && /^\d+$/.test(col.data));
+
+                    if (gwColumn) {
+                        html += `
+                        <div class="flex items-center space-x-2">
+                            <span class="font-bold text-sm text-indigo-600 w-12 flex-shrink-0">GW:</span>
+                            <span class="text-xs text-gray-700">Gameweek Points (Dynamic columns are labeled with their Gameweek number, hover for fixture detail)</span>
+                        </div>
+                    `;
+                    }
+                }
+
+                if (html === '') {
+                    html = '<p class="col-span-2 text-center text-gray-500">No column definitions available.</p>';
+                }
+
+                $('#glossary-content').html(html);
+            }
+
+            function updateClubDisplayText() {
+                const selectedCount = $('#club-filter-list input[type="checkbox"]:checked').length;
+                const totalCount = uniqueClubs.length;
+
+                let text = "Clubs (None)";
+                if (selectedCount === totalCount) {
+                    text = "Clubs (All)";
+                } else if (selectedCount > 0) {
+                    text = `Clubs (${selectedCount}/${totalCount})`;
+                }
+                $('#club-display-text').text(text);
+            }
+
+            function toggleClubDropdown() {
+                $('#club-dropdown-menu').toggleClass('hidden');
+                $('#club-dropdown-toggle').attr('aria-expanded', function (_, attr) {
+                    return attr === 'true' ? 'false' : 'true';
+                });
+            }
+
+            function populateClubFilters(data) {
+                const clubs = new Set();
+                data.forEach(player => clubs.add(player.Club));
+                uniqueClubs = Array.from(clubs).sort();
+
+                const $clubList = $('#club-filter-list');
+                $clubList.empty();
+
+                if (uniqueClubs.length === 0) {
+                    $clubList.append('<p class="text-center text-xs text-gray-500">No clubs found in data.</p>');
+                    return;
+                }
+
+                uniqueClubs.forEach(club => {
+                    const checkboxHtml = `
+                    <div class="flex items-center">
+                        <input id="club-${club}" name="club-filter" type="checkbox" value="${club}" checked 
+                               class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 club-checkbox">
+                        <label for="club-${club}" class="ml-3 text-sm text-gray-700">${club}</label>
+                    </div>
+                `;
+                    $clubList.append(checkboxHtml);
+                });
+
+                updateClubDisplayText();
+            }
+
+            $.fn.dataTable.ext.search.push(
+                function (settings, data, dataIndex, rowData) {
+                    if (settings.nTable.id !== 'myTable') {
+                        return true;
+                    }
+
+                    // Maximum player value
+                    const maxValueInput = parseFloat($('#max-value-filter').val());
+                    const playerValue = parseFloat(rowData["Value"]);
+                    if (!isNaN(maxValueInput) && !isNaN(playerValue) && playerValue > maxValueInput) {
+                        return false;
+                    }
+
+                    // Minimum overall / Decision Rating (0-100)
+                    const minDecision = parseFloat($('#min-decision-filter').val());
+                    const decisionRating = parseFloat(rowData["Decision Rating"]);
+                    if (!isNaN(minDecision)) {
+                        if (isNaN(decisionRating) || decisionRating < minDecision) {
+                            return false;
+                        }
+                    }
+
+                    // Minimum next-GW fixture opportunity (0-100, higher is better)
+                    const minFixture = parseFloat($('#min-fixture-filter').val());
+                    const nextFixture = parseFloat(rowData["Next Fixture Rating"]);
+                    if (!isNaN(minFixture)) {
+                        if (isNaN(nextFixture) || nextFixture < minFixture) {
+                            return false;
+                        }
+                    }
+
+                    // Minimum following-GW fixture opportunity
+                    const minFollowingFixture = parseFloat($('#min-following-fixture-filter').val());
+                    const followingFixture = parseFloat(rowData["Following Fixture Rating"]);
+                    if (!isNaN(minFollowingFixture)) {
+                        if (isNaN(followingFixture) || followingFixture < minFollowingFixture) {
+                            return false;
+                        }
+                    }
+
+                    // Minimum player form rating
+                    const minForm = parseFloat($('#min-form-filter').val());
+                    const playerForm = parseFloat(rowData["Form Rating"]);
+                    if (!isNaN(minForm)) {
+                        if (isNaN(playerForm) || playerForm < minForm) {
+                            return false;
+                        }
+                    }
+
+                    // Position
+                    const selectedPosition = $('#position-filter').val();
+                    if (selectedPosition && rowData["Position"] !== selectedPosition) {
+                        return false;
+                    }
+
+                    // Clubs
+                    const selectedClubs = $('#club-filter-list input[type="checkbox"]:checked').map(function () {
+                        return this.value;
+                    }).get();
+                    if (selectedClubs.length === 0 || !selectedClubs.includes(rowData["Club"])) {
+                        return false;
+                    }
+
+                    // Visionary / hot-pick filters
+                    const visionaryChecked = $('#visionary-filter').is(':checked');
+                    const isVisionary = rowData.Visionary === true || rowData.Visionary === "true";
+                    if (visionaryChecked && !isVisionary) {
+                        return false;
+                    }
+
+                    const hotPickChecked = $('#hot-pick-filter').is(':checked');
+                    const isHotPick = rowData["Hot Pick"] === true || rowData["Hot Pick"] === "true";
+                    if (hotPickChecked && !isHotPick) {
+                        return false;
+                    }
+
+                    // Hide stale bench/injured players: require an appearance in at least
+                    // one of the two most recent gameweeks represented in the dataset.
+                    if ($('#recently-active-filter').is(':checked')) {
+                        const recentGwKeys = Object.keys(rowData)
+                            .filter(key => /^\d+$/.test(key))
+                            .map(Number)
+                            .sort((a, b) => b - a)
+                            .slice(0, 2)
+                            .map(String);
+
+                        const playedRecently = recentGwKeys.some(gwKey => {
+                            const gwValue = rowData[gwKey];
+                            return (
+                                gwValue &&
+                                typeof gwValue === 'object' &&
+                                Object.prototype.hasOwnProperty.call(gwValue, 'points')
+                            );
+                        });
+
+                        if (!playedRecently) {
+                            return false;
+                        }
+                    }
+
+                    // My Team / Watchlist
+                    const myTeamChecked = $('#my-team-filter').is(':checked');
+                    const watchlistChecked = $('#watchlist-filter').is(':checked');
+                    const isMyTeam = isMyTeamPlayer(rowData.Name);
+                    const isWatchlist = isWatchlistPlayer(rowData.Name);
+
+                    if (myTeamChecked && watchlistChecked) {
+                        if (!isMyTeam && !isWatchlist) return false;
+                    } else if (myTeamChecked && !isMyTeam) {
+                        return false;
+                    } else if (watchlistChecked && !isWatchlist) {
+                        return false;
+                    }
+
+                    return true;
+                }
+            );
+
+            // --- initializeTable (No Change) ---
+            function initializeTable(data) {
+                if (!data || data.length === 0) {
+                    $('#loading-message').text('No player data available to display. Please ensure your data is loaded correctly.');
+                    return;
+                }
+
+                $('#loading-message').addClass('hidden');
+                $('#myTable').removeClass('hidden');
+
+                populateClubFilters(data);
+                
+
+                let columns = [];
+                let headerRow = '<tr>';
+
+                const STATIC_KEYS_ORDERED = Object.keys(STATIC_COLUMN_MAP);
+
+                STATIC_KEYS_ORDERED.forEach(key => {
+                    const config = STATIC_COLUMN_MAP[key];
+
+                    columns.push({
+                        data: config.data !== undefined ? config.data : key,
+                        title: createHeader(config.abbr, config.full),
+                        className: config.className || 'dt-center',
+                        type: config.type === 'num' ? 'num-fmt' : 'string',
+                        render: config.render
+                    });
+
+                    const headerClass = key === "Name" ? 'player-name-header' : '';
+                    headerRow += `<th class="dt-head-center ${headerClass}">${createHeader(config.abbr, config.full)}</th>`;
+                });
+
+                const firstPlayer = data[0];
+                const gameweekKeys = Object.keys(firstPlayer).filter(key => {
+                    return !STATIC_KEYS_SET.has(key) && /^\d+$/.test(key);
+                }).sort((a, b) => {
+                    return parseInt(b) - parseInt(a);
+                });
+
+                gameweekKeys.forEach(gwKey => {
+                    columns.push({
+                        data: gwKey,
+                        title: createHeader(gwKey, `GW${gwKey}`),
+                        className: 'gw-col dt-center',
+                        type: 'num-fmt',
+                        render: function (data, type, row) {
+                            if (typeof data === 'object' && data !== null && data.hasOwnProperty('points')) {
+                                const points = data.points === null || data.points === undefined ? '-' : data.points;
+
+                                const tooltip = data.tooltip ? data.tooltip.trim() : '';
+
+                                if (type === 'sort' || type === 'type') {
+                                    return data.points;
+                                }
+
+                                return `<div class="custom-tooltip-container"><span class="custom-tooltip-points">${points}</span><div class="custom-tooltip-content">${tooltip.replace(/\n/g, '<br>')}</div></div>`;
+                            }
+
+                            return '-';
+                        }
+                    });
+                    headerRow += `<th class="dt-head-center gw-col">${createHeader(gwKey, `Gameweek ${gwKey} Points`)}</th>`;
+                });
+
+                headerRow += '</tr>';
+
+                $('#myTable').empty();
+                $('#myTable').append(`<thead>${headerRow}</thead>`);
+
+                dataTableInstance = $('#myTable').DataTable({
+                    data: data,
+                    columns: columns,
+                    paging: true,
+                    searching: true,
+                    scrollX: false,
+                    autoWidth: false,
+                    order: [[4, 'desc']],
+                    responsive: false,
+                    info: true,
+
+                    rowCallback: function(row, data) {
+                    
+                        $(row).removeClass('my-team-row watchlist-row');
+                    
+                        if (isMyTeamPlayer(data.Name)) {
+                            $(row).addClass('my-team-row');
+                        } else if (isWatchlistPlayer(data.Name)) {
+                            $(row).addClass('watchlist-row');
+                        }
+                    },
+
+                    lengthMenu: [
+                        [10, 15, 25, 50, 100, -1],
+                        ['10', '15', '25', '50', '100', 'All']
+                    ],
+                    pageLength: 15,
+
+                    columnDefs: [
+                        { orderSequence: ['desc', 'asc'], targets: '_all' }
+                    ],
+
+                    language: {
+                        search: "Search:",
+                        info: "Showing _START_ to _END_ of _TOTAL_ entries",
+                    }
+                });
+
+                setTimeout(() => {
+                    if (dataTableInstance) {
+                        dataTableInstance.columns.adjust();
+                        dataTableInstance.draw(false);
+                        dataTableInstance.columns.adjust(); // 🔥 second pass fixes mobile
+                    }
+                }, 250);
+
+                $('#myTable tbody').on('click', 'tr', function () {
+                    if (dataTableInstance) {
+                        const rowData = dataTableInstance.row(this).data();
+                        if (rowData) {
+                            showModal('player', rowData);
+                        }
+                    }
+                });
+
+                $('#myTable').on('mouseenter', '.custom-tooltip-container', function () {
+                    const $container = $(this);
+                    const $tooltip = $container.find('.custom-tooltip-content');
+
+                    const containerRect = $container[0].getBoundingClientRect();
+                    const tooltipWidth = $tooltip.outerWidth();
+                    const tooltipHeight = $tooltip.outerHeight();
+
+                    let top, left;
+
+                    const margin = 5; 
+                    const windowWidth = $(window).width();
+
+                    const spaceBelow = $(window).height() - containerRect.bottom;
+                    const spaceAbove = containerRect.top;
+
+                    if (spaceBelow < tooltipHeight + 10 && spaceAbove > tooltipHeight) {
+                        top = containerRect.top - tooltipHeight - margin; 
+                    } else {
+                        top = containerRect.bottom + margin; 
+                    }
+
+                    const maxLeft = windowWidth - tooltipWidth - margin;
+                    const preferredLeft = containerRect.left;
+
+                    let finalLeft = Math.min(preferredLeft, maxLeft);
+                    left = Math.max(finalLeft, margin);
+
+
+                    $tooltip.css({
+                        top: top + 'px',
+                        left: left + 'px',
+                        right: 'auto', 
+                        bottom: 'auto'
+                    });
+                });
+
+                $('#myTable').on('mouseleave', '.custom-tooltip-container', function () {
+                    const $tooltip = $(this).find('.custom-tooltip-content');
+                    $tooltip.css({
+                        top: '',
+                        left: '',
+                        right: '',
+                        bottom: ''
+                    });
+                });
+                
+                $('#visionary-filter, #hot-pick-filter, #recently-active-filter, #my-team-filter, #watchlist-filter').on('change', function () {
+                    if (dataTableInstance) {
+                        dataTableInstance.draw();
+                    }
+                });
+
+                $('#max-value-filter, #min-decision-filter, #min-fixture-filter, #min-following-fixture-filter, #min-form-filter, #position-filter').on('keyup change input', function () {
+                    if (dataTableInstance) {
+                        dataTableInstance.draw();
+                    }
+                });
+                $('#delta-mode-filter').on('change', function () {
+                    selectedDeltaField = $(this).val();
+                
+                    if (window.transformedMetadataForUI) {
+                        updateDeltaReferenceNote(window.transformedMetadataForUI);
+                    }
+                
+                    if (dataTableInstance) {
+                        dataTableInstance.rows().invalidate().draw(false);
+                    }
+                });
+
+                $('#club-dropdown-toggle').on('click', function (e) {
+                    e.stopPropagation();
+                    toggleClubDropdown();
+                });
+
+                $(document).on('click', function (e) {
+                    if (!$('#club-dropdown-menu').hasClass('hidden') &&
+                        !$(e.target).closest('#club-dropdown-menu').length &&
+                        !$(e.target).closest('#club-dropdown-toggle').length) {
+                        $('#club-dropdown-menu').addClass('hidden');
+                        $('#club-dropdown-toggle').attr('aria-expanded', 'false');
+                    }
+                });
+
+                $('#club-filter-list').on('change', '.club-checkbox', function () {
+                    updateClubDisplayText();
+                    if (dataTableInstance) {
+                        dataTableInstance.draw();
+                    }
+                });
+
+                $('#select-all-clubs, #unselect-all-clubs').on('click', function () {
+                    const isSelectAll = this.id === 'select-all-clubs';
+                    $('#club-filter-list input[type="checkbox"]').prop('checked', isSelectAll).trigger('change');
+                });
+            }
+
+            async function fetchData() {
+                try {
+                    const cacheBuster = '?t=' + new Date().getTime();
+
+                    const [transformedResponse, historyResponse] = await Promise.all([
+                        fetch(TRANSFORMED_DATA_PATH + cacheBuster),
+                        fetch(PLAYER_HISTORY_PATH + cacheBuster)
+                    ]);
+
+                    if (!transformedResponse.ok) {
+                         throw new Error(`Transformed data network response was not ok: ${transformedResponse.statusText}`);
+                    }
+                    
+                    const transformedPayload = await transformedResponse.json();
+                    const playerData = transformedPayload.players || [];
+                    const transformedMetadata = transformedPayload.metadata || {};
+                    window.transformedMetadataForUI = transformedMetadata;
+                    
+                    try {
+                        let historyObject = {};
+                        if (historyResponse.ok) {
+                            historyObject = await historyResponse.json();
+                        } else {
+                            console.warn(`Player history data network response was not ok: ${historyResponse.statusText}. Chart will show no data.`);
+                        }
+                        
+                        if (typeof historyObject === 'object' && historyObject !== null && Object.keys(historyObject).length > 0) { 
+                             
+                            playerHistoryData = {}; 
+                            let totalEntries = 0;
+
+                            for (const playerName in historyObject) {
+                                if (historyObject.hasOwnProperty(playerName)) {
+                                    const normalizedKey = normalizeKey(playerName);
+                                    
+                                    const historyByDate = historyObject[playerName];
+                                    const historyArray = [];
+
+                                    for (const date in historyByDate) {
+                                        if (historyByDate.hasOwnProperty(date)) {
+                                            historyArray.push({
+                                                timestamp: date, 
+                                                value: historyByDate[date].Value,
+                                                selected_by_percent: historyByDate[date]["Selected Percentage"],
+                                                form_rating: historyByDate[date]["Form Rating"]
+                                            });
+                                        }
+                                    }
+
+                                    historyArray.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+                                    playerHistoryData[normalizedKey] = historyArray; 
+                                    totalEntries++;
+                                }
+                            }
+                        } else {
+                             playerHistoryData = {}; 
+                        }
+
+                    } catch (e) {
+                        console.error("Error processing player history JSON. Chart will show no data. Ensure history data is a valid JSON object.", e);
+                        playerHistoryData = {}; 
+                    }
+
+                    fullPlayerData = playerData.slice();
+                    initializeTable(playerData);
+                    updateDeltaReferenceNote(transformedMetadata);
+                    
+                } catch (error) {
+                    console.error('Error loading data:', error);
+                    $('#loading-message').text('Failed to load player data. Check console for error details.');
+                }
+            }
+            // --- END MODIFIED DATA FETCHING FUNCTION ---
+
+            fetchData();
+            
+            $(window).on('resize orientationchange', function () {
+                if (dataTableInstance) {
+                    setTimeout(() => {
+                        dataTableInstance.columns.adjust().draw(false);
+                    }, 200);
+                }
+            });
+        });
+    </script>
+    
+    <center><a href="https://spannerj.github.io/wsl_stats/">Adapted for Fantasy WSL from spannerj's original Fantasy WSL stats project.</a></center>
+
+</body>
+
+</html>
