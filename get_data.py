@@ -27,6 +27,7 @@ ROOT = Path(__file__).resolve().parent
 HISTORY_PATH = ROOT / "player_history.json"
 TRANSFORMED_PATH = ROOT / "transformed_data.json"
 FIXTURES_PATH = ROOT / "fixtures.json"
+GK_MODEL_INPUTS_PATH = ROOT / "gk_model_inputs.json"
 TEAMS_PATH = ROOT / "teams.json"
 RAW_DIR = ROOT / "raw_feeds"
 
@@ -255,6 +256,104 @@ def assign_canonical_fantasy_gameweeks(
 
     return windows
 
+
+
+
+def load_gk_model_inputs() -> dict[str, Any]:
+    if not GK_MODEL_INPUTS_PATH.exists():
+        return {"teams": {}, "keepers": {}, "manual_team_adjustments": {}, "manual_keeper_adjustments": {}}
+    try:
+        return json.loads(GK_MODEL_INPUTS_PATH.read_text(encoding="utf-8"))
+    except Exception as exc:
+        print(f"Warning: could not load {GK_MODEL_INPUTS_PATH.name}: {exc}")
+        return {"teams": {}, "keepers": {}, "manual_team_adjustments": {}, "manual_keeper_adjustments": {}}
+
+
+def minmax_rank_score(value: float, values: list[float], higher_is_better: bool = True) -> float:
+    vals = [safe_float(v) for v in values if v is not None]
+    if not vals:
+        return 50.0
+    lo, hi = min(vals), max(vals)
+    score = 50.0 if abs(hi-lo) < 1e-9 else 100.0*(safe_float(value)-lo)/(hi-lo)
+    if not higher_is_better:
+        score = 100.0-score
+    return max(0.0,min(100.0,score))
+
+
+def build_gk_team_priors(model_inputs: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    teams=model_inputs.get("teams",{}) or {}
+    manual=model_inputs.get("manual_team_adjustments",{}) or {}
+    wsl=[c for c,x in teams.items() if x.get("prior_league")=="WSL"]
+    prom=[c for c,x in teams.items() if x.get("promoted")]
+    wsl_ga=[safe_float(teams[c].get("ga"))/max(1,safe_float(teams[c].get("mp"),22)) for c in wsl]
+    wsl_gf=[safe_float(teams[c].get("gf"))/max(1,safe_float(teams[c].get("mp"),22)) for c in wsl]
+    wsl_sot=[safe_float(teams[c].get("sot_for_per90")) for c in wsl if teams[c].get("sot_for_per90") is not None]
+    prom_ga=[safe_float(teams[c].get("ga"))/max(1,safe_float(teams[c].get("mp"),22)) for c in prom]
+    prom_gf=[safe_float(teams[c].get("gf"))/max(1,safe_float(teams[c].get("mp"),22)) for c in prom]
+    out={}
+    for code,row in teams.items():
+        mp=max(1.0,safe_float(row.get("mp"),22))
+        ga90=safe_float(row.get("ga"))/mp
+        gf90=safe_float(row.get("gf"))/mp
+        sot=row.get("sot_for_per90")
+        if row.get("prior_league")=="WSL":
+            d=minmax_rank_score(ga90,wsl_ga,False)
+            ga= minmax_rank_score(gf90,wsl_gf,True)
+            if sot is not None and wsl_sot:
+                sa=minmax_rank_score(safe_float(sot),wsl_sot,True)
+                a=.60*ga+.40*sa
+            else:
+                a=ga
+            defense=15+.75*d
+            attack=15+.75*a
+        elif row.get("promoted"):
+            d=minmax_rank_score(ga90,prom_ga,False)
+            a=minmax_rank_score(gf90,prom_gf,True)
+            defense=30+.20*d
+            attack=25+.20*a
+        else:
+            defense=attack=50
+        m=manual.get(code) or {}
+        defense += safe_float(m.get("defense_adjustment"),0)
+        attack += safe_float(m.get("attack_adjustment"),0)
+        out[code]={
+            "cs_defense_prior":round(max(5,min(95,defense)),1),
+            "attack_threat_prior":round(max(5,min(95,attack)),1),
+            "ga_per_game":round(ga90,3),"gf_per_game":round(gf90,3),
+            "sot_for_per90":safe_float(sot) if sot is not None else None,
+            "prior_league":row.get("prior_league"),"promoted":bool(row.get("promoted"))
+        }
+    return out
+
+
+def keeper_quality_score(player_name: str|None, model_inputs: dict[str,Any]) -> tuple[float,dict[str,Any]]:
+    name=str(player_name or '')
+    row=(model_inputs.get('keepers',{}) or {}).get(name,{}) or {}
+    manual=(model_inputs.get('manual_keeper_adjustments',{}) or {}).get(name,{}) or {}
+    sp=row.get('keeper_save_pct')
+    adj=safe_float(manual.get('quality_adjustment'),0)
+    if sp is None:
+        q=50+adj; evidence='neutral (no verified save-rate input)'
+    else:
+        q=50+(safe_float(sp)-70)*2+adj; evidence=f"save% {safe_float(sp):.1f}"
+    return round(max(25,min(75,q)),1),{"save_pct":safe_float(sp) if sp is not None else None,"evidence":evidence}
+
+
+def gk_fixture_scores(own_team:str|None, opponent:str|None, location:str|None, priors:dict[str,dict[str,Any]], keeper_name:str|None, inputs:dict[str,Any]) -> dict[str,Any]:
+    own=priors.get(str(own_team or '').upper(),{})
+    opp=priors.get(str(opponent or '').upper(),{})
+    own_def=safe_float(own.get('cs_defense_prior'),50)
+    opp_att=safe_float(opp.get('attack_threat_prior'),50)
+    venue=5 if location=='H' else -5 if location=='A' else 0
+    cs=50+(own_def-50)*.55+(50-opp_att)*.75+venue
+    cs=round(max(5,min(95,cs)),1)
+    sot=opp.get('sot_for_per90')
+    shot=50+(safe_float(sot)-4.5)*10 if sot is not None else opp_att
+    save=.75*shot+.25*(100-own_def)
+    save=round(max(10,min(90,save)),1)
+    quality,qd=keeper_quality_score(keeper_name,inputs)
+    gk=round(max(5,min(95,.65*cs+.25*save+.10*quality)),1)
+    return {"cs_fix":cs,"save_opportunity":save,"keeper_quality":quality,"gk_fix":gk,"own_cs_prior":own_def,"opponent_attack_prior":opp_att,"opponent_sot_per90":safe_float(sot) if sot is not None else None,"venue_adjustment":venue,"keeper_quality_detail":qd}
 
 
 def normalize_fixture(fixture: dict[str, Any]) -> dict[str, Any]:
@@ -1150,6 +1249,8 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
 
     fixture_calibration = build_competition_fixture_calibration(players_raw)
     team_strength = build_team_strength_priors(players_raw)
+    gk_model_inputs = load_gk_model_inputs()
+    gk_team_priors = build_gk_team_priors(gk_model_inputs)
     team_unit_strength = build_team_unit_priors(players_raw, team_strength)
     players = [transform_player(p, fixture_calibration, team_strength) for p in players_raw]
     history = update_history(players)
@@ -1165,37 +1266,21 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
     fixtures = [normalize_fixture(f) for f in fixtures_raw]
     fantasy_gameweeks = assign_canonical_fantasy_gameweeks(fixtures)
 
-    # Full-schedule GK/defensive fixture opportunity for each side.
-    # This is a true defensive matchup model: opponent attacking strength is
-    # dominant, with own defensive strength and venue also contributing.
+    # Full-schedule goalkeeper model: clean-sheet environment and save opportunity.
     for fixture in fixtures:
-        home_rating, home_detail = defensive_fixture_opportunity(
-            fixture.get("home_id"),
-            fixture.get("away_id"),
-            "H",
-            team_unit_strength,
-        )
-        away_rating, away_detail = defensive_fixture_opportunity(
-            fixture.get("away_id"),
-            fixture.get("home_id"),
-            "A",
-            team_unit_strength,
-        )
-
-        fixture["home_defensive_opportunity"] = home_rating
-        fixture["away_defensive_opportunity"] = away_rating
-
-        fixture["home_defense_strength_index"] = home_detail.get("own_defense_strength_index")
-        fixture["away_defense_strength_index"] = away_detail.get("own_defense_strength_index")
-        fixture["home_opponent_attack_strength_index"] = home_detail.get("opponent_attack_strength_index")
-        fixture["away_opponent_attack_strength_index"] = away_detail.get("opponent_attack_strength_index")
-
-        fixture["home_defensive_transition_note"] = home_detail.get("own_defense_transition_note")
-        fixture["away_defensive_transition_note"] = away_detail.get("own_defense_transition_note")
-        fixture["home_opponent_attack_transition_note"] = home_detail.get("opponent_attack_transition_note")
-        fixture["away_opponent_attack_transition_note"] = away_detail.get("opponent_attack_transition_note")
-
-        fixture["defensive_rating_model"] = "unit-strength-defense-v6"
+        hs = gk_fixture_scores(fixture.get("home_id"), fixture.get("away_id"), "H", gk_team_priors, None, gk_model_inputs)
+        aws = gk_fixture_scores(fixture.get("away_id"), fixture.get("home_id"), "A", gk_team_priors, None, gk_model_inputs)
+        fixture["home_cs_opportunity"] = hs["cs_fix"]
+        fixture["away_cs_opportunity"] = aws["cs_fix"]
+        fixture["home_save_opportunity"] = hs["save_opportunity"]
+        fixture["away_save_opportunity"] = aws["save_opportunity"]
+        fixture["home_gk_opportunity_neutral"] = hs["gk_fix"]
+        fixture["away_gk_opportunity_neutral"] = aws["gk_fix"]
+        fixture["home_cs_prior"] = hs["own_cs_prior"]
+        fixture["away_cs_prior"] = aws["own_cs_prior"]
+        fixture["home_opponent_attack_prior"] = hs["opponent_attack_prior"]
+        fixture["away_opponent_attack_prior"] = aws["opponent_attack_prior"]
+        fixture["gk_rating_model"] = "team-cs-save-v1"
 
     teams = [normalize_team(t) for t in teams_raw]
 
@@ -1208,6 +1293,13 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
         "fixture_count": len(fixtures),
         "team_count": len(teams),
         "fantasy_gameweeks": fantasy_gameweeks,
+        "gk_fixture_model": {
+            "version": "team-cs-save-v1",
+            "note": "GK modeling is separated from defender fantasy opportunity. CS Fix uses team-level goals against, opponent attacking threat, promotion mapping and venue. Save Opportunity uses opponent shot/attack volume and defensive environment. Player-specific GK Fix = 65% CS Fix + 25% Save Opportunity + 10% verified keeper quality when available.",
+            "weights": {"cs_fix": 0.65, "save_opportunity": 0.25, "keeper_quality": 0.10},
+            "team_priors": gk_team_priors,
+            "input_file": GK_MODEL_INPUTS_PATH.name,
+        },
         "fantasy_calendar_model": {
             "version": "calendar-cluster-v1",
             "note": "Canonical Fantasy GWs are shared across WSL and WSL2 and are assigned chronologically from published league fixture dates. Competition-specific matchday numbers are preserved separately as league_game_week. A one-league-only window is flagged free_hit_eligible.",
