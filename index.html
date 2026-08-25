@@ -824,6 +824,59 @@
         }
 
         /* ------------------------------------------------------------------ */
+        /* --- TEAM DAY PAIRINGS --- */
+        /* ------------------------------------------------------------------ */
+        .pairing-row {
+            cursor: pointer;
+        }
+
+        .pairing-row:hover td {
+            background: #f9fafb;
+        }
+
+        .pairing-detail-row td {
+            background: #fafafa;
+        }
+
+        .pairing-percent {
+            display: inline-flex;
+            min-width: 3.6rem;
+            justify-content: center;
+            padding: 0.2rem 0.45rem;
+            border-radius: 9999px;
+            font-weight: 700;
+            font-size: 0.75rem;
+        }
+
+        .pairing-percent-high {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .pairing-percent-mid {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .pairing-percent-low {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .pairing-gw-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.2rem 0.45rem;
+            border-radius: 0.35rem;
+            background: white;
+            border: 1px solid #e5e7eb;
+            font-size: 0.72rem;
+            white-space: nowrap;
+        }
+
+
+        /* ------------------------------------------------------------------ */
         /* --- COMPACT DESKTOP HEADER --- */
         /* ------------------------------------------------------------------ */
         .stats-topbar {
@@ -1020,6 +1073,9 @@
                 </button>
                 <button id="planner-view-tab" class="view-tab px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-md text-sm font-semibold shadow-sm">
                     <i class="fa-solid fa-calendar-days mr-2"></i>Matchweek Planner
+                </button>
+                <button id="pairings-view-tab" class="view-tab px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-md text-sm font-semibold shadow-sm">
+                    <i class="fa-solid fa-shuffle mr-2"></i>Team Pairings
                 </button>
             </div>
         </div>
@@ -1283,6 +1339,73 @@
                 <div id="planner-summary" class="mt-3 text-xs text-gray-600"></div>
             </div>
             <div id="planner-columns" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3"></div>
+        </section>
+
+        <section id="pairings-view" class="hidden">
+            <div class="bg-white border border-gray-200 rounded-lg p-3 mb-3 shadow-sm">
+                <div class="flex flex-wrap gap-3 items-end justify-between">
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-800">Team Day Pairings</h3>
+                        <p class="text-xs text-gray-500 mt-1">
+                            Automatically rank every club pair by how often they play on different days across your selected gameweek window.
+                            This is especially useful for goalkeeper rotation under manual-sub rules.
+                        </p>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2 items-end">
+                        <label class="text-xs font-semibold text-gray-600">From GW
+                            <select id="pairings-from-gw" class="block mt-1 px-2 py-2 border border-gray-300 rounded-md text-sm bg-white"></select>
+                        </label>
+
+                        <label class="text-xs font-semibold text-gray-600">Through GW
+                            <select id="pairings-to-gw" class="block mt-1 px-2 py-2 border border-gray-300 rounded-md text-sm bg-white"></select>
+                        </label>
+
+                        <label class="text-xs font-semibold text-gray-600">League
+                            <select id="pairings-league" class="block mt-1 px-2 py-2 border border-gray-300 rounded-md text-sm bg-white">
+                                <option value="">WSL + WSL2</option>
+                                <option value="WSL" selected>WSL only</option>
+                                <option value="WSL2">WSL2 only</option>
+                            </select>
+                        </label>
+
+                        <label class="text-xs font-semibold text-gray-600">Mode
+                            <select id="pairings-mode" class="block mt-1 px-2 py-2 border border-gray-300 rounded-md text-sm bg-white">
+                                <option value="gk" selected>Goalkeepers</option>
+                                <option value="teams">Teams</option>
+                            </select>
+                        </label>
+
+                        <label class="text-xs font-semibold text-gray-600">Show
+                            <select id="pairings-limit" class="block mt-1 px-2 py-2 border border-gray-300 rounded-md text-sm bg-white">
+                                <option value="25">Top 25</option>
+                                <option value="50" selected>Top 50</option>
+                                <option value="100">Top 100</option>
+                                <option value="all">All pairs</option>
+                            </select>
+                        </label>
+                    </div>
+                </div>
+
+                <div id="pairings-summary" class="mt-3 text-xs text-gray-600"></div>
+            </div>
+
+            <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-x-auto">
+                <table class="min-w-full text-sm" id="pairings-table">
+                    <thead class="bg-gray-50 text-gray-600 text-xs uppercase tracking-wide">
+                        <tr>
+                            <th class="text-left px-3 py-2">#</th>
+                            <th class="text-left px-3 py-2">Pair</th>
+                            <th class="text-center px-3 py-2">Different Days</th>
+                            <th class="text-center px-3 py-2">Same Day</th>
+                            <th class="text-center px-3 py-2">Pairing %</th>
+                            <th class="text-center px-3 py-2">Separation</th>
+                            <th class="text-left px-3 py-2" id="pairings-extra-header">GK Pair</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pairings-table-body"></tbody>
+                </table>
+            </div>
         </section>
 
     </div>
@@ -2081,7 +2204,7 @@
                             }
 
                             if (hasNews) {
-                                const tooltipHtml = playerNews.replace(/\n/g, '<br>');
+                                const tooltipHtml = playerNews.replace(/\\n/g, '<br>').replace(/\n/g, '<br>');
 
                                 return `<div class="custom-tooltip-container">${finalContent}<span class="custom-tooltip-content">${tooltipHtml}</span></div>`;
                             }
@@ -2205,7 +2328,7 @@
                             .replace(/&/g, '&amp;')
                             .replace(/</g, '&lt;')
                             .replace(/>/g, '&gt;')
-                            .replace(/\n/g, '<br>');
+                            .replace(/\\n/g, '<br>').replace(/\n/g, '<br>');
 
                         return `
                             <div class="custom-tooltip-container">
@@ -2253,7 +2376,7 @@
                             .replace(/&/g, '&amp;')
                             .replace(/</g, '&lt;')
                             .replace(/>/g, '&gt;')
-                            .replace(/\n/g, '<br>');
+                            .replace(/\\n/g, '<br>').replace(/\n/g, '<br>');
 
                         return `
                             <div class="custom-tooltip-container">
@@ -2797,7 +2920,7 @@
                                     return data.points;
                                 }
 
-                                return `<div class="custom-tooltip-container"><span class="custom-tooltip-points">${points}</span><div class="custom-tooltip-content">${tooltip.replace(/\n/g, '<br>')}</div></div>`;
+                                return `<div class="custom-tooltip-container"><span class="custom-tooltip-points">${points}</span><div class="custom-tooltip-content">${tooltip.replace(/\\n/g, '<br>').replace(/\n/g, '<br>')}</div></div>`;
                             }
 
                             return '-';
@@ -2923,7 +3046,9 @@
                     if (this.id === 'league-filter') {
                         saveLeaguePreference($(this).val());
                         $('#planner-league').val($(this).val());
+                        $('#pairings-league').val($(this).val());
                         if (!$('#planner-view').hasClass('hidden')) renderPlanner();
+                        if (!$('#pairings-view').hasClass('hidden')) renderPairings();
                     }
 
                     if (dataTableInstance) {
@@ -3096,28 +3221,360 @@
                 });
             }
 
+
+            function getAvailableGameweeks(data) {
+                const gameweeks = new Set();
+                data.forEach(player => {
+                    (player.upcoming_fixtures || []).forEach(f => {
+                        if (f.game_week !== null && f.game_week !== undefined && f.game_week !== '') {
+                            gameweeks.add(Number(f.game_week));
+                        }
+                    });
+                });
+                return Array.from(gameweeks).filter(Number.isFinite).sort((a, b) => a - b);
+            }
+
+            function populatePairingsControls(data, preferredGw) {
+                const gws = getAvailableGameweeks(data);
+                const $from = $('#pairings-from-gw').empty();
+                const $to = $('#pairings-to-gw').empty();
+
+                gws.forEach(gw => {
+                    $from.append(`<option value="${gw}">GW${gw}</option>`);
+                    $to.append(`<option value="${gw}">GW${gw}</option>`);
+                });
+
+                if (!gws.length) return;
+
+                const preferred = Number(preferredGw);
+                const startGw = gws.includes(preferred) ? preferred : gws[0];
+                const startIndex = Math.max(0, gws.indexOf(startGw));
+                const defaultEndIndex = Math.min(gws.length - 1, startIndex + 7);
+
+                $from.val(String(gws[startIndex]));
+                $to.val(String(gws[defaultEndIndex]));
+            }
+
+            function clubFixtureMapForPairings(data, league, fromGw, toGw) {
+                const clubs = new Map();
+
+                data.forEach(player => {
+                    if (league && player.League !== league) return;
+                    const club = player.Club;
+                    if (!club) return;
+
+                    if (!clubs.has(club)) {
+                        clubs.set(club, {
+                            club,
+                            league: player.League || '',
+                            fixtures: new Map(),
+                            goalkeepers: []
+                        });
+                    }
+
+                    const clubInfo = clubs.get(club);
+
+                    if (player.Position === 'GK') {
+                        clubInfo.goalkeepers.push({
+                            name: player.Name,
+                            value: Number(player.Value || 0),
+                            selected: Number(player['Selected Percentage'] || 0)
+                        });
+                    }
+
+                    (player.upcoming_fixtures || []).forEach(f => {
+                        const gw = Number(f.game_week);
+                        if (!Number.isFinite(gw) || gw < fromGw || gw > toGw) return;
+
+                        const date = f.fixture_date_iso || '';
+                        if (!date) return;
+
+                        if (!clubInfo.fixtures.has(gw)) {
+                            clubInfo.fixtures.set(gw, {
+                                gw,
+                                date,
+                                day: f.fixture_day_short || (f.fixture_day || '').slice(0, 3).toUpperCase(),
+                                dayFull: f.fixture_day || '',
+                                kickoff: f.kick_off_time || '',
+                                opponent: f.opponent_id || f.opponent_short_name || f.opponent_name || 'TBD',
+                                location: f.location || ''
+                            });
+                        }
+                    });
+                });
+
+                clubs.forEach(info => {
+                    info.goalkeepers.sort((a, b) => {
+                        if (a.value !== b.value) return a.value - b.value;
+                        return b.selected - a.selected;
+                    });
+                });
+
+                return clubs;
+            }
+
+            function dateDifferenceDays(dateA, dateB) {
+                const a = new Date(`${dateA}T00:00:00Z`);
+                const b = new Date(`${dateB}T00:00:00Z`);
+                if (isNaN(a) || isNaN(b)) return 0;
+                return Math.abs(Math.round((b - a) / 86400000));
+            }
+
+            function buildAllPairings(data, league, fromGw, toGw) {
+                const clubs = clubFixtureMapForPairings(data, league, fromGw, toGw);
+                const names = Array.from(clubs.keys()).sort();
+                const pairs = [];
+
+                for (let i = 0; i < names.length; i++) {
+                    for (let j = i + 1; j < names.length; j++) {
+                        const a = clubs.get(names[i]);
+                        const b = clubs.get(names[j]);
+
+                        let comparable = 0;
+                        let different = 0;
+                        let same = 0;
+                        let separationPoints = 0;
+                        const details = [];
+
+                        for (let gw = fromGw; gw <= toGw; gw++) {
+                            const fa = a.fixtures.get(gw);
+                            const fb = b.fixtures.get(gw);
+
+                            if (!fa || !fb) {
+                                details.push({ gw, comparable: false, a: fa || null, b: fb || null });
+                                continue;
+                            }
+
+                            comparable++;
+                            const isDifferent = fa.date !== fb.date;
+                            const gap = isDifferent ? dateDifferenceDays(fa.date, fb.date) : 0;
+
+                            if (isDifferent) {
+                                different++;
+                                separationPoints += gap;
+                            } else {
+                                same++;
+                            }
+
+                            details.push({
+                                gw,
+                                comparable: true,
+                                different: isDifferent,
+                                gap,
+                                a: fa,
+                                b: fb
+                            });
+                        }
+
+                        if (!comparable) continue;
+
+                        const pct = (different / comparable) * 100;
+                        const avgSeparation = different ? separationPoints / different : 0;
+
+                        const gkA = a.goalkeepers[0] || null;
+                        const gkB = b.goalkeepers[0] || null;
+                        const combinedGkPrice = gkA && gkB ? gkA.value + gkB.value : null;
+
+                        pairs.push({
+                            a,
+                            b,
+                            comparable,
+                            different,
+                            same,
+                            pct,
+                            separationPoints,
+                            avgSeparation,
+                            details,
+                            gkA,
+                            gkB,
+                            combinedGkPrice
+                        });
+                    }
+                }
+
+                pairs.sort((x, y) => {
+                    if (y.pct !== x.pct) return y.pct - x.pct;
+                    if (y.different !== x.different) return y.different - x.different;
+                    if (y.separationPoints !== x.separationPoints) return y.separationPoints - x.separationPoints;
+
+                    const xPrice = x.combinedGkPrice ?? 999;
+                    const yPrice = y.combinedGkPrice ?? 999;
+                    if (xPrice !== yPrice) return xPrice - yPrice;
+
+                    return `${x.a.club}-${x.b.club}`.localeCompare(`${y.a.club}-${y.b.club}`);
+                });
+
+                return pairs;
+            }
+
+            function pairingPercentClass(pct) {
+                if (pct >= 80) return 'pairing-percent pairing-percent-high';
+                if (pct >= 60) return 'pairing-percent pairing-percent-mid';
+                return 'pairing-percent pairing-percent-low';
+            }
+
+            function pairingFixtureLabel(fixture) {
+                if (!fixture) return '<span class="text-gray-400">No fixture</span>';
+                const loc = fixture.location ? ` ${fixture.location}` : '';
+                return `${fixture.day || '?'} · ${fixture.opponent}${loc}`;
+            }
+
+            function pairingDetailHtml(pair) {
+                return pair.details.map(d => {
+                    if (!d.comparable) {
+                        return `<span class="pairing-gw-chip text-gray-400">GW${d.gw}: incomplete schedule</span>`;
+                    }
+
+                    const mark = d.different ? '✓' : '✕';
+                    const markClass = d.different ? 'text-green-700' : 'text-red-700';
+                    const gapText = d.different && d.gap ? ` · ${d.gap}d apart` : '';
+
+                    return `<span class="pairing-gw-chip">
+                        <strong>GW${d.gw}</strong>
+                        <span>${pairingFixtureLabel(d.a)}</span>
+                        <span class="text-gray-400">/</span>
+                        <span>${pairingFixtureLabel(d.b)}</span>
+                        <span class="${markClass} font-bold">${mark}</span>
+                        <span class="text-gray-400">${gapText}</span>
+                    </span>`;
+                }).join('');
+            }
+
+            function renderPairings() {
+                if (!fullPlayerData || !fullPlayerData.length) return;
+
+                let fromGw = Number($('#pairings-from-gw').val());
+                let toGw = Number($('#pairings-to-gw').val());
+                const league = $('#pairings-league').val();
+                const mode = $('#pairings-mode').val() || 'gk';
+                const limitValue = $('#pairings-limit').val() || '50';
+
+                if (!Number.isFinite(fromGw) || !Number.isFinite(toGw)) return;
+                if (fromGw > toGw) {
+                    [fromGw, toGw] = [toGw, fromGw];
+                    $('#pairings-from-gw').val(String(fromGw));
+                    $('#pairings-to-gw').val(String(toGw));
+                }
+
+                const pairs = buildAllPairings(fullPlayerData, league, fromGw, toGw);
+                const shown = limitValue === 'all' ? pairs : pairs.slice(0, Number(limitValue));
+
+                $('#pairings-extra-header').text(mode === 'gk' ? 'Cheapest GK Pair' : 'Day Pattern');
+
+                const leagueLabel = league || 'WSL + WSL2';
+                $('#pairings-summary').html(
+                    `<span class="font-semibold">${leagueLabel}, GW${fromGw}–GW${toGw}:</span> `
+                    + `${pairs.length} club pairs ranked. `
+                    + `<span class="text-gray-500">Primary rank = different-day percentage; ties favor more different-day weeks, then greater day separation.</span>`
+                );
+
+                const $body = $('#pairings-table-body').empty();
+
+                if (!shown.length) {
+                    $body.html('<tr><td colspan="7" class="px-3 py-8 text-center text-gray-500">No pairings available for this window.</td></tr>');
+                    return;
+                }
+
+                shown.forEach((pair, idx) => {
+                    let extra = '';
+
+                    if (mode === 'gk') {
+                        if (pair.gkA && pair.gkB) {
+                            extra = `
+                                <div class="font-medium text-gray-800">${pair.gkA.name} + ${pair.gkB.name}</div>
+                                <div class="text-xs text-gray-500">£${pair.gkA.value.toFixed(1)}m + £${pair.gkB.value.toFixed(1)}m = £${pair.combinedGkPrice.toFixed(1)}m</div>
+                            `;
+                        } else {
+                            extra = '<span class="text-gray-400">GK data unavailable</span>';
+                        }
+                    } else {
+                        const distinctPatterns = pair.details
+                            .filter(d => d.comparable)
+                            .map(d => `${d.a.day || '?'} / ${d.b.day || '?'}`)
+                            .join(' · ');
+                        extra = `<span class="text-xs text-gray-600">${distinctPatterns}</span>`;
+                    }
+
+                    const rowId = `pair-detail-${idx}`;
+                    $body.append(`
+                        <tr class="pairing-row border-t border-gray-100" data-detail-id="${rowId}">
+                            <td class="px-3 py-2 text-gray-500">${idx + 1}</td>
+                            <td class="px-3 py-2">
+                                <div class="font-bold text-gray-900">${pair.a.club} + ${pair.b.club}</div>
+                                <div class="text-xs text-gray-500">${pair.a.league}${pair.a.league !== pair.b.league ? ` + ${pair.b.league}` : ''}</div>
+                            </td>
+                            <td class="px-3 py-2 text-center font-semibold">${pair.different}/${pair.comparable}</td>
+                            <td class="px-3 py-2 text-center">${pair.same}/${pair.comparable}</td>
+                            <td class="px-3 py-2 text-center"><span class="${pairingPercentClass(pair.pct)}">${pair.pct.toFixed(0)}%</span></td>
+                            <td class="px-3 py-2 text-center">
+                                <div class="font-semibold">${pair.separationPoints}</div>
+                                <div class="text-xs text-gray-400">day-gap pts</div>
+                            </td>
+                            <td class="px-3 py-2">${extra}</td>
+                        </tr>
+                        <tr id="${rowId}" class="pairing-detail-row hidden">
+                            <td colspan="7" class="px-3 py-3">
+                                <div class="flex flex-wrap gap-2">${pairingDetailHtml(pair)}</div>
+                            </td>
+                        </tr>
+                    `);
+                });
+
+                $('#pairings-table-body .pairing-row').on('click', function() {
+                    const id = $(this).attr('data-detail-id');
+                    $('#' + id).toggleClass('hidden');
+                });
+            }
+
             function setMainView(view) {
                 const planner = view === 'planner';
-                $('#table-view').toggleClass('hidden', planner);
+                const pairings = view === 'pairings';
+                const table = !planner && !pairings;
+
+                $('#table-view').toggleClass('hidden', !table);
                 $('#planner-view').toggleClass('hidden', !planner);
-                $('#table-view-tab').toggleClass('active', !planner);
+                $('#pairings-view').toggleClass('hidden', !pairings);
+
+                $('#table-view-tab').toggleClass('active', table);
                 $('#planner-view-tab').toggleClass('active', planner);
-                if (planner) renderPlanner();
-                else if (dataTableInstance) setTimeout(() => dataTableInstance.columns.adjust().draw(false), 50);
+                $('#pairings-view-tab').toggleClass('active', pairings);
+
+                if (planner) {
+                    renderPlanner();
+                } else if (pairings) {
+                    renderPairings();
+                } else if (dataTableInstance) {
+                    setTimeout(() => dataTableInstance.columns.adjust().draw(false), 50);
+                }
             }
 
             $('#table-view-tab').on('click', () => setMainView('table'));
             $('#planner-view-tab').on('click', () => setMainView('planner'));
+            $('#pairings-view-tab').on('click', () => setMainView('pairings'));
             $('#planner-gameweek, #planner-position, #planner-club, #planner-sort, #planner-my-team').on('change', renderPlanner);
 
             $('#planner-league').on('change', function() {
                 const value = $(this).val();
                 saveLeaguePreference(value);
                 $('#league-filter').val(value);
+                $('#pairings-league').val(value);
                 if (dataTableInstance) dataTableInstance.draw(false);
                 renderPlanner();
+                renderPairings();
             });
             $('#planner-search').on('input', renderPlanner);
+
+            $('#pairings-from-gw, #pairings-to-gw, #pairings-mode, #pairings-limit').on('change', renderPairings);
+
+            $('#pairings-league').on('change', function() {
+                const value = $(this).val();
+                saveLeaguePreference(value);
+                $('#league-filter').val(value);
+                $('#planner-league').val(value);
+                if (dataTableInstance) dataTableInstance.draw(false);
+                renderPlanner();
+                renderPairings();
+            });
 
             async function fetchData() {
                 try {
@@ -3188,11 +3645,17 @@
                     const initialLeaguePreference = getStoredLeaguePreference();
                     $('#league-filter').val(initialLeaguePreference);
                     $('#planner-league').val(initialLeaguePreference);
+                    $('#pairings-league').val(initialLeaguePreference);
 
                     initializeTable(playerData);
                     populatePlannerControls(playerData, transformedMetadata.matchday_id);
+                    populatePairingsControls(playerData, transformedMetadata.matchday_id);
+
                     $('#planner-league').val(initialLeaguePreference);
+                    $('#pairings-league').val(initialLeaguePreference);
+
                     renderPlanner();
+                    renderPairings();
                     updateDeltaReferenceNote(transformedMetadata);
                     
                 } catch (error) {
