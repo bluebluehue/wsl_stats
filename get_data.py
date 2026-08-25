@@ -1,3918 +1,1293 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WSL Fantasy Player Stats</title>
-
-    <script src="https://cdn.tailwindcss.com"></script>
-
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
-
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/2.3.4/css/dataTables.dataTables.min.css">
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
-        xintegrity="sha512-SnH5WK+bZxgPHs44uWIX+LLMDJdZ-Atu5QfK4xV/JdFv2k1K/H2v4Q5h+E5nB2R8oD+6Z6XqU/G1wGk+Q6QzQ=="
-        crossorigin="anonymous" referrerpolicy="no-referrer" />
-
-    <style>
-        /* ------------------------------------------------------------------ */
-        /* --- CUSTOM TOOLTIP STYLES --- */
-        /* ------------------------------------------------------------------ */
-        .custom-tooltip-container {
-            position: relative;
-            /* Essential for positioning the tooltip content */
-            display: inline-block;
-            cursor: help;
-        }
-
-        .custom-tooltip-content {
-            visibility: hidden;
-            opacity: 0;
-            /* Basic style */
-            background-color: #1f2937;
-            /* Dark background */
-            color: #fff;
-            padding: 0.5rem 0.75rem;
-            border-radius: 0.375rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
-
-            /* CRITICAL FIX: Use fixed position to stop affecting table layout/scrollbars */
-            position: fixed;
-            z-index: 100;
-            /* Ensure it's above other elements */
-            width: max-content;
-            white-space: pre-wrap;
-            /* Better line break handling, helps fix the blank line */
-
-            /* Animation */
-            transition: opacity 0.15s ease-in-out, transform 0.15s ease-in-out;
-            pointer-events: none;
-            /* Allows clicks to go through to elements behind */
-
-            /* Initial state for transition */
-            transform: translateY(-5px);
-        }
-
-        /* Show the tooltip on hover */
-        .custom-tooltip-container:hover .custom-tooltip-content {
-            visibility: visible;
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        /* Custom styling for better presentation */
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-
-        body {
-            background-color: #f3f4f6;
-            font-family: 'Inter', sans-serif;
-            padding: 0px;
-        }
-
-        .table-scroll-container {
-            width: 100%;
-            max-width: 100%;
-            overflow-x: auto !important;
-            overflow-y: visible;
-            background: white;
-            padding: 0.3rem;
-            border-radius: 0.3rem;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 
-                        0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .dataTables_wrapper .dataTables_filter,
-        .dataTables_wrapper .dataTables_length,
-        .dataTables_wrapper .dataTables_info,
-        .dataTables_wrapper .dataTables_paginate {
-            /* Set margin to a very small amount, overriding defaults */
-            margin-top: 0.25rem !important;
-            margin-bottom: 0.25rem !important;
-        }
-
-        /* Ensure the wrapper around the table itself is also tight */
-        .dataTables_scrollBody,
-        .dataTables_scrollHead {
-            margin-top: 0 !important;
-            margin-bottom: 0 !important;
-        }
-
-        /* Custom styling for DataTables controls */
-        .dataTables_wrapper .dataTables_filter,
-        .dataTables_wrapper .dataTables_length {
-            /* Reduce space below the search and length dropdown */
-            margin-bottom: 0.5rem !important;
-        }
-
-        .dataTables_wrapper .dataTables_info,
-        .dataTables_wrapper .dataTables_paginate {
-            /* Reduce space above the pagination and info */
-            margin-top: 0.5rem !important;
-        }
-
-        /* ADD/REPLACE THESE RULES in your existing <style> block */
-        .dataTables_wrapper .dataTables_filter,
-        .dataTables_wrapper .dataTables_length,
-        .dataTables_wrapper .dataTables_info,
-        .dataTables_wrapper .dataTables_paginate {
-            /* Set margin to a minimum, overriding all defaults */
-            margin-top: 0.25rem !important;
-            margin-bottom: 0.25rem !important;
-            padding: 0 !important;
-            /* Ensure no padding is added either */
-        }
-
-        /* Eliminate the space below the main heading */
-        .dataTables_wrapper>h1 {
-            margin-bottom: 0 !important;
-            padding-bottom: 0 !important;
-        }
-
-        /* TARGET THE MAIN DATATABLES WRAPPER AND ALL ITS DIRECT CONTROLS */
-        .dataTables_wrapper {
-            /* Set all vertical margins/padding to zero for the tightest fit */
-            margin-top: 0 !important;
-            margin-bottom: 0 !important;
-            padding-top: 0 !important;
-            padding-bottom: 0 !important;
-        }
-
-        /* *** TARGETED FIX FOR DATATABLES 2.x LAYOUT SPACING *** */
-
-        /* Target the container row and eliminate its vertical space */
-        .dt-layout-row {
-            margin-top: 0 !important;
-            margin-bottom: 0 !important;
-            padding-top: 0 !important;
-            padding-bottom: 0 !important;
-        }
-
-        /* Target the individual cells within the row */
-        .dt-layout-cell {
-            /* Set margin to a very small amount to keep a slight visual break, 
-            but you can use '0 !important' if you want it completely flush */
-            margin-top: 0.25rem !important;
-            margin-bottom: 0.25rem !important;
-            padding: 0 !important;
-        }
-
-        /* Ensure the length/search inputs themselves don't add extra space */
-        .dt-length,
-        .dt-search {
-            padding: 0 !important;
-            margin: 0 !important;
-        }
-
-        /* TIGHTEN the main content container (re-apply from earlier) */
-        .container.mx-auto {
-            padding-top: 0.5rem !important;
-            padding-bottom: 0.5rem !important;
-        }
-
-        /* Ensure the elements inside the wrapper are also tight */
-        .dataTables_wrapper .dataTables_filter,
-        .dataTables_wrapper .dataTables_length,
-        .dataTables_wrapper .dataTables_info,
-        .dataTables_wrapper .dataTables_paginate {
-            margin: 0.25rem 0 !important;
-            /* Minimal top/bottom margin */
-            padding: 0 !important;
-        }
-
-        /* Eliminate the margin below the H1 heading to close the gap at the very top */
-        h1.text-3xl {
-            margin-bottom: 0.5rem !important;
-            /* Adjust this number (e.g., to 0) if 0.5rem is still too much */
-        }
-
-        /* TIGHTEN the main content container */
-        .container.mx-auto {
-            /* Reduce the overall vertical space */
-            padding-top: 0.5rem !important;
-            padding-bottom: 0.5rem !important;
-        }
-
-        /* DataTables Row Clickability Styling */
-        #myTable tbody tr {
-            cursor: pointer;
-            transition: background-color 0.15s;
-        }
-
-        #myTable tbody tr:hover {
-            background-color: #fef3c7;
-            /* Light yellow hover for feedback */
-        }
-
-        /* 1. MAX SQUEEZE: Drastically reduced overall padding on all cells */
-        table.dataTable th,
-        table.dataTable td {
-            padding: 0.1rem 0.1rem !important;
-        }
-
-        table.dataTable th,
-        table.dataTable td {
-            white-space: nowrap;
-        }
-
-        /* NEW RULE: Increase right padding on ALL headers to leave space for the sort arrow */
-        table.dataTable thead th {
-            padding-right: 0.75rem !important;
-        }
-
-        /* ------------------------------------------------------------------ */
-        /* --- NAME COLUMN ALIGNMENT FIXES --- */
-        /* ------------------------------------------------------------------ */
-
-        table.dataTable thead th.player-name-header {
-            text-align: left !important;
-            padding-left: 0.2rem !important;
-            min-width: 1px !important;
-            width: 1% !important;
-        }
-
-        table.dataTable td.player-name-content {
-            text-align: left !important;
-            white-space: nowrap;
-            padding-left: 0.2rem !important;
-            min-width: 1px !important;
-            width: 1% !important;
-        }
-
-        /* Custom color for players with Visionary: true */
-        .visionary-text {
-            /* color: #0d996d; */
-            font-weight: bold;
-        }
-
-        /* Icon size and alignment container */
-        .visionary-icon {
-            display: inline-block;
-            width: 14px;
-            /* Adjust size as needed */
-            height: 14px;
-            margin-right: 4px;
-            vertical-align: middle;
-        }
-
-        /* Ensure centered data columns are actually centered */
-        table.dataTable td.dt-center {
-            text-align: center !important;
-        }
-
-
-        /* ------------------------------------------------------------------ */
-        /* --- HEADER ALIGNMENT AND ARROW FIXES --- */
-        /* ------------------------------------------------------------------ */
-
-        /* 5. FORCE HEADER CENTERING (for all non-name headers) */
-        table.dataTable thead th {
-            position: relative !important;
-            background-image: none !important;
-            background: none !important;
-
-            &:not(.player-name-header) {
-                text-align: center !important;
-            }
-
-            display: table-cell;
-            vertical-align: middle;
-        }
-
-        table.dataTable thead th .abbrev-header {
-            display: inline-block;
-            width: 100%;
-        }
-
-
-        /* 6. Remove built-in DataTables sort indicators */
-        table.dataTable thead th .dt-column-order {
-            display: none !important;
-        }
-
-        /* 7. Hide all custom pseudo-elements by default */
-        table.dataTable thead th::after {
-            content: none !important;
-        }
-
-        /* 8. Show custom UP arrow only on ASC sorted column */
-        table.dataTable thead th.dt-ordering-asc::after {
-            content: "▲" !important;
-            position: absolute;
-            right: 0.3rem;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 0.65rem;
-            color: #4b5563;
-        }
-
-        /* 9. Show custom DOWN arrow only on DESC sorted column */
-        table.dataTable thead th.dt-ordering-desc::after {
-            content: "▼" !important;
-            position: absolute;
-            right: 0.3rem;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 0.65rem;
-            color: #4b5563;
-        }
-
-        /* ------------------------------------------------------------------ */
-        /* --- ICON STYLING (For Font Awesome) --- */
-        /* ------------------------------------------------------------------ */
-
-        /* Common style for all FA icons used in the header */
-        .fa-header-icon {
-            vertical-align: middle;
-            display: inline-block;
-            line-height: 1;
-            padding-bottom: 2px;
-            /* Slight bottom padding to align with text */
-        }
-
-        /* Specific icon colors using Tailwind classes */
-        .icon-green {
-            color: #10B981;
-        }
-
-        /* Goals (Volleyball) */
-        .icon-yellow {
-            color: #F59E0B;
-        }
-
-        /* Bonus (Star), Yellow Card (Square) */
-        .icon-red {
-            color: #EF4444;
-        }
-
-        /* Red Card (Square) */
-
-        /* ------------------------------------------------------------------ */
-        /* --- FONT SIZE ADJUSTMENT --- */
-        /* ------------------------------------------------------------------ */
-
-        table.dataTable th {
-            font-size: 0.80em;
-            font-weight: 600;
-        }
-
-        table.dataTable td {
-            font-size: 0.9em;
-        }
-
-        #club-filter-list {
-            max-height: 200px;
-            overflow-y: auto;
-        }
-
-        /* Ensure the DataTables search/info bars look good */
-        div.dt-container div.dt-layout-row {
-            padding: 0.5rem 0;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .dt-search,
-        .dt-info,
-        .dt-paging {
-            padding: 0.5rem 0;
-            width: 100%;
-            display: flex;
-            justify-content: center;
-        }
-
-        @media (min-width: 640px) {
-
-            .dt-search,
-            .dt-info,
-            .dt-paging {
-                width: auto;
-                justify-content: flex-start;
-            }
-
-            .dt-search {
-                order: 1;
-            }
-
-            .dt-info {
-                order: 2;
-            }
-
-            .dt-paging {
-                order: 3;
-            }
-        }
-
-        /* Abbreviated header style for better tooltips */
-        .abbrev-header {
-            cursor: help;
-        }
-
-        table.dataTable td.player-name-content span.news-text {
-            /* Use !important to guarantee this color wins */
-            color: #DC2626 !important;
-        }
-
-        /* Keep your other color definitions simple */
-        .visionary-text {
-            color: #4F46E5;
-            /* Purple */
-            font-weight: bold;
-        }
-
-        /* Modal Backdrop */
-        .modal-backdrop {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.75);
-            z-index: 50;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        /* Modal Content */
-        .modal-content {
-            background-color: white;
-            border-radius: 0.75rem;
-            /* Slightly larger radius */
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
-            /* Stronger shadow */
-            max-width: 90%;
-            width: 500px;
-            /* Fixed max width for card feel */
-            max-height: 90%;
-            overflow-y: auto;
-            position: relative;
-            animation: fadeInScale 0.2s ease-out;
-        }
-
-        @keyframes fadeInScale {
-            from {
-                opacity: 0;
-                transform: scale(0.95) translateY(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: scale(1) translateY(0);
-            }
-        }
-
-        /* Tooltip specific styling - helps ensure \n are rendered as line breaks */
-        /* Applied to the span inside the GW column cells */
-        .dt-container table.dataTable td.gw-col span {
-            display: block;
-            /* Important for the title attribute to apply to a block element */
-        }
-
-        /* Custom styles for team badge (pill style) */
-        .team-badge {
-            display: inline-block;
-            padding: 0.2rem 0.6rem;
-            border-radius: 9999px;
-            /* Tailwind's rounded-full */
-            font-weight: 600;
-            /* Tailwind's font-semibold */
-            font-size: 0.85rem;
-            line-height: 1;
-            text-align: center;
-            min-width: 40px;
-            /* Ensure badges are consistent width */
-        }
-
-        /* ... existing styles ... */
-
-        /* Custom styles for team badge (pill style) */
-        .team-badge {
-            display: inline-block;
-            padding: 0.2rem 0.0rem;
-            border-radius: 9999px;
-            /* Tailwind's rounded-full */
-            font-weight: 600;
-            /* Tailwind's font-semibold */
-            font-size: 0.85rem;
-            line-height: 1;
-            text-align: center;
-            width: 45px;
-        }
-
-        /* Team Color Definitions (WSL 2024/2025 typical colors) */
-        .badge-ARS {
-            background-color: #db0007;
-            color: #ffffff;
-        }
-
-        /* Arsenal Red */
-        .badge-AVL {
-            background-color: #a3c5e9;
-            color: #7b003a;
-        }
-
-        /* Aston Villa Blue/Claret Text */
-        .badge-BHA {
-            background-color: #2986cc;
-            color: #ffffff;
-        }
-
-        /* Brighton Blue */
-        .badge-CHE {
-            background-color: #034694;
-            color: #ffffff;
-        }
-
-        /* Chelsea Blue */
-        .badge-EVE {
-            background-color: #003399;
-            color: #ffffff;
-        }
-
-        /* Everton Blue */
-        .badge-LEI {
-            background-color: #003090;
-            color: #ffffff;
-        }
-
-        /* Leicester Blue */
-        .badge-LIV {
-            background-color: #d00027;
-            color: #ffffff;
-        }
-
-        /* Liverpool Red */
-        .badge-LCL {
-            background-color: #88D1AA;
-            color: #FFFFFF;
-        }
-
-        /* London City Lionesses (Light Aqua/Green Tinge) */
-        .badge-MCI {
-            background-color: #6cabdd;
-            color: #ffffff;
-        }
-
-        /* Man City Blue */
-        .badge-MUN {
-            background-color: #DA020E;
-            color: #ffffff;
-        }
-
-        /* Man United Red */
-        .badge-TOT {
-            background-color: #0A1C56;
-            color: #ffffff;
-        }
-
-        /* Tottenham Navy */
-        .badge-WHU {
-            background-color: #7c2c3b;
-            color: #1bb1e7;
-        }
-
-        /* West Ham Claret/Light Blue Text */
-
-        /* Custom styles for position badge - RECTANGULAR STYLE */
-        .pos-badge {
-            display: inline-block;
-            padding: 0.3rem 0.2rem;
-            border-radius: 0.2rem;
-            /* Small radius for a rectangular look */
-            font-weight: 600;
-            /* Slightly bolder font for impact */
-            font-size: 0.7rem;
-            line-height: 1;
-            text-align: center;
-            min-width: 35px;
-            /* Slightly wider for better text fit */
-            /* Optional: Add a light shadow or border to lift it off the row */
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-        }
-
-        /* Position Color Definitions (Colors are unchanged from last suggestion) */
-        .badge-GK {
-            background-color: #4CAF50;
-            color: #FFFFFF;
-        }
-
-        /* Goalkeeper: Green */
-        .badge-DEF {
-            background-color: #9C27B0;
-            color: #FFFFFF;
-        }
-
-        /* Defender: Deep Purple */
-        .badge-MID {
-            background-color: #FFC107;
-            color: #000000;
-        }
-
-        /* Midfielder: Amber */
-        .badge-FOR {
-            background-color: #FF715b;
-            color: #FFFFFF;
-        }
-
-        /* Forward: Deep Orange */
-
-        /* Style for the currently sorted column (Header) */
-        table.dataTable thead .sorting_asc,
-        table.dataTable thead .sorting_desc {
-            background-color: #f0f0f0;
-            /* Very light grey for a subtle highlight */
-            /* Optionally add a slight shadow or border for depth */
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-        }
-
-        /* Style for the currently sorted column (Data Cells) */
-        table.dataTable tbody tr>.sorting_1 {
-            background-color: #f7f7f7 !important;
-            /* Slightly lighter than the header, uses !important to override row-specific styling */
-        }
-
-        /* Tidy up the background of the data cell when the row is hovered (optional but recommended) */
-        table.dataTable tbody tr:hover>.sorting_1 {
-            background-color: #eaeaea !important;
-            /* Keep a subtle background even on hover */
-        }
-
-        /* FIX: Prevents horizontal scrollbar from appearing due to minor overflow, 
-        which resolves the right column clipping issue. */
-        body {
-            overflow-x: auto;
-        }
-
-        /* Optional: Ensure the main container maxes out at 100% */
-        .dt-container {
-            max-width: 100%;
-        }
-
-        /* Ensure no horizontal scrollbar appears due to dynamic content */
-        body {
-            overflow-x: auto !important;
-            /* Use !important for maximum enforcement */
-        }
-
-        /* Ensure no horizontal scrollbar appears due to dynamic content */
-        body {
-            overflow-x: auto !important;
-        }
-
-        /* Check your CSS for the tooltip */
-        .custom-tooltip-content {
-            /* Ensure this is set correctly for viewport calculation */
-            position: fixed;
-            z-index: 9999;
-        }
-
-        /* Custom Tailwind/CSS classes for the tab buttons */
-        .tab-button {
-            padding: 0.75rem 1rem;
-            border-bottom: 2px solid transparent;
-            font-weight: 500;
-            color: #4B5563;
-            /* text-gray-600 */
-            transition: all 0.15s ease-in-out;
-            cursor: pointer;
-        }
-
-        .tab-button:hover {
-            color: #111827;
-            /* text-gray-900 */
-        }
-
-        .tab-button.active {
-            color: #4F46E5;
-            /* text-indigo-600 */
-            border-bottom-color: #4F46E5;
-            font-weight: 600;
-        }
-
-        /* --- MY TEAM / WATCHLIST ROW COLORS --- */
-        
-        .my-team-row td {
-            background-color: #dbeafe !important;
-        }
-        
-        .watchlist-row td {
-            background-color: #fef9c3 !important;
-        }
+"""Build WSL Fantasy player data in the same broad shape as the NWSL stats project.
+
+This script reads the public JSON feeds used by the WSL Fantasy create-team UI
+and writes transformed_data.json for the included static table viewer.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import math
+import os
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any
+from urllib.parse import urljoin
+from zoneinfo import ZoneInfo
+
+import requests
+
+BASE_URL = "https://gaming.wslfootball.com"
+TOUR_ID = 1
+LANGUAGE = "en"
+MATCHDAY_ID = int(os.getenv("WSL_MATCHDAY_ID", "1"))
+
+ROOT = Path(__file__).resolve().parent
+HISTORY_PATH = ROOT / "player_history.json"
+TRANSFORMED_PATH = ROOT / "transformed_data.json"
+FIXTURES_PATH = ROOT / "fixtures.json"
+TEAMS_PATH = ROOT / "teams.json"
+RAW_DIR = ROOT / "raw_feeds"
+
+URLS = {
+    "config": f"/feeds/config/web/configurations.json",
+    "tour": f"/feeds/tour/details/{TOUR_ID}.json",
+    "teams": f"/feeds/filters/teams/competition/{LANGUAGE}_{TOUR_ID}.json",
+    "fixtures": f"/feeds/fixtures/fixtures_{LANGUAGE}_{TOUR_ID}.json?v=3",
+    "players": f"/feeds/players/matchday_{LANGUAGE}_{TOUR_ID}_{MATCHDAY_ID}.json?v=3",
+}
+
+POSITION_MAP = {
+    "gk": "GK",
+    "def": "DEF",
+    "mid": "MID",
+    "fwd": "FOR",
+    "for": "FOR",
+}
+
+# The NWSL viewer expects numbered week columns. WSL/WSL2 regular season should
+# fit inside 22 matchdays, but keeping 30 avoids breaking if cup/double-week
+# structures appear later.
+MAX_MATCHDAY_COLUMNS = int(os.getenv("WSL_MAX_MATCHDAYS", "30"))
+UK_TZ = ZoneInfo("Europe/London")
+
+WSL_COMPETITION_ID = "wpll::Football_Competition::e32284e8a1214f1ca83a3245d690b336"
+WSL2_COMPETITION_ID = "wpll::Football_Competition::422757a2c70d450eba118ad97bed5222"
+COMPETITION_LABELS = {
+    WSL_COMPETITION_ID: "WSL",
+    WSL2_COMPETITION_ID: "WSL2",
+}
+
+
+# 2026/27 cross-division transition layer.
+PROMOTED_TO_WSL = {"BIR", "CRY", "CHA"}
+RELEGATED_TO_WSL2 = {"LEI"}
+
+# Fixture Model v5. The WSL source rating remains useful, but it is now only
+# one input. The independent team-matchup prior gets the larger weight.
+SOURCE_RATING_WEIGHT = 0.35
+TEAM_MATCHUP_WEIGHT = 0.65
+HOME_ADVANTAGE_POINTS = 4.0
+AWAY_DISADVANTAGE_POINTS = -4.0
+
+
+def fetch_json(path: str, cache_name: str | None = None, from_local: bool = False) -> dict[str, Any]:
+    """Fetch one WSL JSON feed, optionally from raw_feeds for offline testing."""
+    RAW_DIR.mkdir(exist_ok=True)
+    local_path = RAW_DIR / (cache_name or Path(path.split("?", 1)[0]).name)
+
+    if from_local and local_path.exists():
+        return json.loads(local_path.read_text(encoding="utf-8"))
+
+    url = urljoin(BASE_URL, path)
+    response = requests.get(
+        url,
+        timeout=30,
+        headers={
+            "User-Agent": "Mozilla/5.0 WSL fantasy stats parser",
+            "Accept": "application/json,text/plain,*/*",
+            "Referer": "https://www.wslfootball.com/fantasy/create-team",
+        },
+    )
+    response.raise_for_status()
+    data = response.json()
+    local_path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+    return data
+
+
+def value_of(feed: dict[str, Any]) -> Any:
+    return feed.get("Data", {}).get("Value")
+
 
-        #myTable,
-        table.dataTable {
-            width: max-content !important;
-            min-width: 100% !important;
-        }
-
-        .table-scroll-container table,
-        .table-scroll-container .dataTable,
-        #myTable {
-            width: max-content !important;
-            min-width: 100% !important;
-        }
-
-        /* --- FREEZE FIRST COLUMN --- */
-
-        #myTable th:first-child,
-        #myTable td:first-child {
-            position: sticky;
-            left: 0;
-            z-index: 2;
-            background: white;
-        }
-        
-        #myTable th:first-child {
-            z-index: 3;
-        }
-
-        #myTable tr.my-team-row td:first-child {
-            background-color: #dbeafe !important;
-        }
-        
-        #myTable tr.watchlist-row td:first-child {
-            background-color: #fef9c3 !important;
-        }
-        
-        #myTable tbody tr:hover td:first-child {
-            background-color: #fef3c7 !important;
-        }
-
-        @media (max-width: 768px) {
-            .dt-container {
-                overflow-x: auto !important;
-                -webkit-overflow-scrolling: touch;
-            }
-
-            table.dataTable,
-            #myTable {
-                width: max-content !important;
-                min-width: 100% !important;
-            }
-
-            table.dataTable th,
-            table.dataTable td {
-                white-space: nowrap;
-            }
-        
-            .dataTables_wrapper {
-                overflow-x: auto !important;
-            }
-        
-            .dataTables_scrollBody {
-                overflow-x: auto !important;
-            }
-        }
-
-        /* ------------------------------------------------------------------ */
-        /* --- MATCHWEEK DAY PLANNER --- */
-        /* ------------------------------------------------------------------ */
-        .view-tab.active {
-            background: #4f46e5;
-            color: #fff;
-            border-color: #4338ca;
-        }
-        .planner-day-column {
-            min-width: 0;
-        }
-        .planner-player-card {
-            background: #fff;
-            border: 1px solid #e5e7eb;
-            border-left: 4px solid #6366f1;
-            border-radius: 0.5rem;
-            padding: 0.65rem 0.75rem;
-            cursor: pointer;
-            transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
-        }
-        .planner-player-card:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-            border-color: #a5b4fc;
-        }
-        .planner-day-fri { border-top: 4px solid #60a5fa; }
-        .planner-day-sat { border-top: 4px solid #a78bfa; }
-        .planner-day-sun { border-top: 4px solid #f59e0b; }
-        .planner-day-other { border-top: 4px solid #9ca3af; }
-        .day-pill {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            min-width: 2.75rem;
-            padding: 0.1rem 0.4rem;
-            border-radius: 9999px;
-            font-size: 0.7rem;
-            font-weight: 700;
-            letter-spacing: 0.04em;
-            background: #eef2ff;
-            color: #3730a3;
-        }
-        .sub-flex-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.2rem;
-            padding: 0.1rem 0.4rem;
-            border-radius: 9999px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            background: #ecfdf5;
-            color: #047857;
-        }
-
-        /* ------------------------------------------------------------------ */
-        /* --- TEAM DAY PAIRINGS --- */
-        /* ------------------------------------------------------------------ */
-        .pairing-row {
-            cursor: pointer;
-        }
-
-        .pairing-row:hover td {
-            background: #f9fafb;
-        }
-
-        .pairing-detail-row td {
-            background: #fafafa;
-        }
-
-        .pairing-percent {
-            display: inline-flex;
-            min-width: 3.6rem;
-            justify-content: center;
-            padding: 0.2rem 0.45rem;
-            border-radius: 9999px;
-            font-weight: 700;
-            font-size: 0.75rem;
-        }
-
-        .pairing-percent-high {
-            background: #dcfce7;
-            color: #166534;
-        }
-
-        .pairing-percent-mid {
-            background: #fef3c7;
-            color: #92400e;
-        }
-
-        .pairing-percent-low {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        .pairing-gw-chip {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.3rem;
-            padding: 0.2rem 0.45rem;
-            border-radius: 0.35rem;
-            background: white;
-            border: 1px solid #e5e7eb;
-            font-size: 0.72rem;
-            white-space: nowrap;
-        }
-
-
-        /* ------------------------------------------------------------------ */
-        /* --- COMPACT DESKTOP HEADER --- */
-        /* ------------------------------------------------------------------ */
-        .stats-topbar {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.75rem;
-            margin-bottom: 0.45rem;
-            flex-wrap: wrap;
-        }
-
-        .stats-title {
-            margin: 0 !important;
-            line-height: 1.05;
-        }
-
-        #view-tabs {
-            margin-bottom: 0 !important;
-        }
-
-        #view-tabs .view-tab {
-            padding: 0.45rem 0.75rem;
-            line-height: 1.1;
-        }
-
-        .table-controls-shell {
-            margin-bottom: 0.45rem !important;
-            gap: 0.45rem !important;
-            align-items: center !important;
-        }
-
-        .table-action-buttons {
-            gap: 0.35rem !important;
-            flex-wrap: wrap;
-        }
-
-        .table-action-buttons button {
-            padding-top: 0.45rem !important;
-            padding-bottom: 0.45rem !important;
-            box-shadow: none !important;
-        }
-
-        .filter-stack {
-            gap: 0.35rem !important;
-        }
-
-        .filter-row {
-            gap: 0.6rem !important;
-        }
-
-        .filter-row select,
-        .filter-row input[type="number"] {
-            padding-top: 0.4rem !important;
-            padding-bottom: 0.4rem !important;
-        }
-
-        .filter-toggle-row {
-            gap: 0.8rem !important;
-            min-height: 1.7rem;
-        }
-
-        .filter-toggle-row label,
-        .filter-toggle-row #delta-reference-note {
-            font-size: 0.78rem !important;
-        }
-
-        .table-scroll-container {
-            margin-top: 0 !important;
-        }
-
-        @media (min-width: 1100px) {
-            .stats-topbar {
-                min-height: 32px;
-                margin-bottom: 0.3rem !important;
-            }
-
-            .table-controls-shell {
-                display: grid !important;
-                grid-template-columns: auto minmax(0, 1fr);
-                grid-template-rows: auto auto auto;
-                column-gap: 0.55rem !important;
-                row-gap: 0.25rem !important;
-                align-items: center !important;
-                margin-bottom: 0.3rem !important;
-            }
-
-            .table-action-buttons {
-                grid-column: 1;
-                grid-row: 1;
-                flex-direction: row !important;
-                align-items: center !important;
-                width: auto !important;
-                gap: 0.3rem !important;
-                align-self: center;
-            }
-
-            .table-action-buttons button {
-                width: auto !important;
-                white-space: nowrap;
-                padding: 0.38rem 0.58rem !important;
-                min-height: 34px;
-                font-size: 0.82rem !important;
-            }
-
-            .filter-stack {
-                display: contents !important;
-            }
-
-            .filter-stack > .filter-row:nth-of-type(1) {
-                grid-column: 2;
-                grid-row: 1;
-            }
-
-            .filter-stack > .filter-row:nth-of-type(2) {
-                grid-column: 1 / -1;
-                grid-row: 2;
-            }
-
-            .filter-stack > .filter-toggle-row {
-                grid-column: 1 / -1;
-                grid-row: 3;
-            }
-
-            .filter-row,
-            .filter-toggle-row {
-                justify-content: flex-end !important;
-                flex-wrap: nowrap !important;
-                gap: 0.45rem !important;
-                width: 100% !important;
-            }
-
-            .filter-row > div,
-            .filter-toggle-row > div {
-                flex: 0 0 auto;
-            }
-
-            #club-dropdown-toggle {
-                width: 8.1rem !important;
-                padding-top: 0.38rem !important;
-                padding-bottom: 0.38rem !important;
-            }
-
-            #league-filter {
-                width: 7.2rem !important;
-            }
+def safe_float(value: Any, default: float = 0.0) -> float:
+    if value is None or value == "":
+        return default
+    try:
+        if isinstance(value, str):
+            value = value.replace("%", "").replace("£", "").replace("m", "")
+        return float(value)
+    except (TypeError, ValueError):
+        return default
 
-            #position-filter {
-                width: 8.2rem !important;
-            }
-
-            #fixture-day-filter {
-                width: 6.1rem !important;
-            }
-
-            #delta-mode-filter {
-                width: 11rem !important;
-            }
-
-            .filter-row select,
-            .filter-row input[type="number"] {
-                padding-top: 0.38rem !important;
-                padding-bottom: 0.38rem !important;
-            }
-
-            .filter-row label {
-                font-size: 0.8rem !important;
-            }
-
-            .filter-toggle-row {
-                min-height: 1.45rem !important;
-            }
-
-            .filter-toggle-row label,
-            .filter-toggle-row #delta-reference-note {
-                font-size: 0.75rem !important;
-            }
-        }
-
-    </style>
-
-</head>
-
-<body>
-
-    <div class="max-w-full mx-auto pt-2 px-4 pb-4">
-        <div class="stats-topbar">
-            <h2 class="stats-title text-2xl font-bold text-gray-600">
-                WSL Fantasy Player Statistics
-            </h2>
-
-            <div class="flex flex-wrap justify-center gap-2" id="view-tabs">
-                <button id="table-view-tab" class="view-tab active px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-md text-sm font-semibold shadow-sm">
-                    <i class="fa-solid fa-table mr-2"></i>Player Table
-                </button>
-                <button id="planner-view-tab" class="view-tab px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-md text-sm font-semibold shadow-sm">
-                    <i class="fa-solid fa-calendar-days mr-2"></i>Matchweek Planner
-                </button>
-                <button id="pairings-view-tab" class="view-tab px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-md text-sm font-semibold shadow-sm">
-                    <i class="fa-solid fa-shuffle mr-2"></i>Team Pairings
-                </button>
-            </div>
-        </div>
-
-        <div id="table-view">
-        <div
-            class="table-controls-shell flex flex-col md:flex-row justify-between items-end md:items-center mb-2 space-y-2 md:space-y-0 md:space-x-3">
-
-            <div class="table-action-buttons flex flex-col sm:flex-row gap-2 w-full md:w-auto">
-                <button id="show-key-button"
-                    class="w-full md:w-auto px-3 py-2 bg-indigo-600 text-white border border-indigo-700 rounded-md shadow-lg text-sm font-medium hover:bg-indigo-700 transition duration-150">
-                    <i class="fa-solid fa-circle-question mr-2"></i> Key
-                </button>
-
-                <button id="export-current-button"
-                    class="w-full md:w-auto px-3 py-2 bg-white text-gray-700 border border-gray-300 rounded-md shadow-sm text-sm font-medium hover:bg-gray-50 transition duration-150">
-                    <i class="fa-solid fa-file-csv mr-2"></i> Export Current
-                </button>
-
-                <button id="export-all-button"
-                    class="w-full md:w-auto px-3 py-2 bg-white text-gray-700 border border-gray-300 rounded-md shadow-sm text-sm font-medium hover:bg-gray-50 transition duration-150">
-                    <i class="fa-solid fa-download mr-2"></i> Export All
-                </button>
-            </div>
-
-            <div class="filter-stack flex flex-col w-full md:w-auto md:items-end space-y-1">
-
-                <!-- Row 1 -->
-                <div class="filter-row flex flex-col md:flex-row space-y-2 md:space-y-0 w-full md:w-auto md:justify-end items-end md:items-center">
-            
-                    <div class="relative w-full sm:w-auto">
-                        <button id="club-dropdown-toggle"
-                            class="w-full sm:w-36 px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 flex justify-between items-center"
-                            aria-expanded="false" aria-haspopup="true">
-                            <span id="club-display-text">Clubs (All)</span>
-                            <svg class="h-5 w-5 ml-2 -mr-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-                                fill="currentColor" aria-hidden="true">
-                                <path fill-rule="evenodd"
-                                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                        </button>
-            
-                        <div id="club-dropdown-menu"
-                            class="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10 hidden transform origin-top-right">
-                            <div class="py-1" role="menu" aria-orientation="vertical"
-                                aria-labelledby="club-dropdown-toggle">
-                                <div class="flex justify-between p-2 border-b border-gray-200">
-                                    <button id="select-all-clubs"
-                                        class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 focus:outline-none">Select
-                                        All</button>
-                                    <button id="unselect-all-clubs"
-                                        class="text-xs font-semibold text-red-600 hover:text-red-800 focus:outline-none">Unselect
-                                        All</button>
-                                </div>
-                                <div id="club-filter-list" class="p-2 space-y-1">
-                                    <p class="text-center text-xs text-gray-500">No clubs loaded...</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-            
-                    <div class="flex items-center space-x-2 w-full sm:w-auto">
-                        <label for="league-filter" class="text-sm font-medium text-gray-700 whitespace-nowrap">
-                            League:
-                        </label>
-                        <select id="league-filter"
-                            class="w-full sm:w-28 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm">
-                            <option value="">WSL + WSL2</option>
-                            <option value="WSL" selected>WSL only</option>
-                            <option value="WSL2">WSL2 only</option>
-                        </select>
-                    </div>
-
-                    <div class="flex items-center space-x-2 w-full sm:w-auto">
-                        <label for="position-filter" class="text-sm font-medium text-gray-700 whitespace-nowrap">
-                            Pos:
-                        </label>
-                        <select id="position-filter"
-                            class="w-full sm:w-36 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm">
-                            <option value="">All</option>
-                            <option value="GK">Goalkeepers</option>
-                            <option value="DEF">Defenders</option>
-                            <option value="MID">Midfielders</option>
-                            <option value="FOR">Forwards</option>
-                        </select>
-                    </div>
-                        
-                    <div class="flex items-center space-x-2 w-full sm:w-auto">
-                        <label for="fixture-day-filter" class="text-sm font-medium text-gray-700 whitespace-nowrap">
-                            Day:
-                        </label>
-                        <select id="fixture-day-filter"
-                            class="w-full sm:w-28 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm">
-                            <option value="">All</option>
-                            <option value="FRI">Friday</option>
-                            <option value="SAT">Saturday</option>
-                            <option value="SUN">Sunday</option>
-                        </select>
-                    </div>
-
-                    <div class="flex items-center space-x-2 w-full sm:w-auto">
-                        <label for="delta-mode-filter" class="text-sm font-medium text-gray-700 whitespace-nowrap">
-                            Delta:
-                        </label>
-                        <select id="delta-mode-filter"
-                            class="w-full sm:w-48 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm">
-                            <option value="Selected Percentage Change 1W">Last 7 Days</option>
-                            <option value="Selected Percentage Change Since Last Global Price Change">Since Last Price Change</option>
-                        </select>
-                    </div>
-
-                </div>
-
-                <!-- Row 2: numeric thresholds -->
-                <div class="filter-row flex flex-col md:flex-row space-y-2 md:space-y-0 w-full md:w-auto md:justify-end items-end md:items-center">
-                    <div class="flex items-center space-x-2 w-full sm:w-auto">
-                        <label for="max-value-filter" class="text-sm font-medium text-gray-700 whitespace-nowrap">
-                            Max Value:
-                        </label>
-                        <input type="number" step="0.1" id="max-value-filter"
-                            class="w-full sm:w-24 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm"
-                            placeholder="e.g. 7.5">
-                    </div>
-
-                    <div class="flex items-center space-x-2 w-full sm:w-auto">
-                        <label for="min-decision-filter" class="text-sm font-medium text-gray-700 whitespace-nowrap">
-                            Min Decision:
-                        </label>
-                        <input type="number" min="0" max="100" step="1" id="min-decision-filter"
-                            class="w-full sm:w-20 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm"
-                            placeholder="e.g. 80">
-                    </div>
-
-                    <div class="flex items-center space-x-2 w-full sm:w-auto">
-                        <label for="min-fixture-filter" class="text-sm font-medium text-gray-700 whitespace-nowrap">
-                            Min Fix:
-                        </label>
-                        <input type="number" min="0" max="100" step="1" id="min-fixture-filter"
-                            class="w-full sm:w-20 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm"
-                            placeholder="e.g. 75">
-                    </div>
-
-                    <div class="flex items-center space-x-2 w-full sm:w-auto">
-                        <label for="min-following-fixture-filter" class="text-sm font-medium text-gray-700 whitespace-nowrap">
-                            Min Fix+1:
-                        </label>
-                        <input type="number" min="0" max="100" step="1" id="min-following-fixture-filter"
-                            class="w-full sm:w-20 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm"
-                            placeholder="e.g. 70">
-                    </div>
-
-                    <div class="flex items-center space-x-2 w-full sm:w-auto">
-                        <label for="min-form-filter" class="text-sm font-medium text-gray-700 whitespace-nowrap">
-                            Min Form:
-                        </label>
-                        <input type="number" min="0" max="100" step="1" id="min-form-filter"
-                            class="w-full sm:w-20 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm"
-                            placeholder="e.g. 80">
-                    </div>
-                </div>
-
-                <!-- Row 3: toggles -->
-                <div class="filter-toggle-row flex flex-col md:flex-row space-y-2 md:space-y-0 w-full md:w-auto md:justify-end items-end md:items-center">
-                    <div class="flex items-center space-x-2 w-full sm:w-auto">
-                        <input type="checkbox" id="visionary-filter"
-                            class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
-                        <label for="visionary-filter" class="text-sm font-medium text-gray-700 whitespace-nowrap">
-                            Visionaries
-                        </label>
-                    </div>
-
-                    <div class="flex items-center space-x-2 w-full sm:w-auto">
-                        <input type="checkbox" id="hot-pick-filter"
-                            class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
-                        <label for="hot-pick-filter" class="text-sm font-medium text-gray-700 whitespace-nowrap">
-                            Hot Picks
-                        </label>
-                    </div>
-
-                    <div class="flex items-center space-x-2 w-full sm:w-auto">
-                        <input type="checkbox" id="recently-active-filter"
-                            class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
-                        <label for="recently-active-filter" class="text-sm font-medium text-gray-700 whitespace-nowrap"
-                            title="Hide players who have not appeared in either of the two most recent gameweeks in the data.">
-                            Played in Last 2 GWs
-                        </label>
-                    </div>
-
-                    <div class="flex items-center space-x-2 w-full sm:w-auto">
-                        <input type="checkbox" id="my-team-filter"
-                            class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
-                        <label for="my-team-filter" class="text-sm font-medium text-gray-700 whitespace-nowrap">
-                            My Team
-                        </label>
-                    </div>
-
-                    <div class="flex items-center space-x-2 w-full sm:w-auto">
-                        <input type="checkbox" id="watchlist-filter"
-                            class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
-                        <label for="watchlist-filter" class="text-sm font-medium text-gray-700 whitespace-nowrap">
-                            Watchlist
-                        </label>
-                    </div>
-
-                    <div id="delta-reference-note" class="text-sm text-gray-600 whitespace-nowrap ml-2"></div>
-                </div>
-            
-            </div>
-            
-        </div>
-        <div class="table-scroll-container">
-            <p id="loading-message" class="text-center text-xl p-8 text-gray-600">
-                Loading data...
-            </p>
-            <table id="myTable" class="display compact nowrap hidden" cellspacing="0"></table>
-        </div>
-        </div><!-- /table-view -->
-
-        <section id="planner-view" class="hidden">
-            <div class="bg-white border border-gray-200 rounded-lg p-3 mb-3 shadow-sm">
-                <div class="flex flex-wrap gap-3 items-end justify-between">
-                    <div>
-                        <h3 class="text-lg font-bold text-gray-800">Matchweek Day Planner</h3>
-                        <p class="text-xs text-gray-500 mt-1">Use later-playing bench players to preserve manual-sub flexibility after earlier scores are known.</p>
-                    </div>
-                    <div class="flex flex-wrap gap-2 items-end">
-                        <label class="text-xs font-semibold text-gray-600">Gameweek
-                            <select id="planner-gameweek" class="block mt-1 px-2 py-2 border border-gray-300 rounded-md text-sm bg-white"></select>
-                        </label>
-                        <label class="text-xs font-semibold text-gray-600">League
-                            <select id="planner-league" class="block mt-1 px-2 py-2 border border-gray-300 rounded-md text-sm bg-white">
-                                <option value="">WSL + WSL2</option><option value="WSL" selected>WSL only</option><option value="WSL2">WSL2 only</option>
-                            </select>
-                        </label>
-                        <label class="text-xs font-semibold text-gray-600">Position
-                            <select id="planner-position" class="block mt-1 px-2 py-2 border border-gray-300 rounded-md text-sm bg-white">
-                                <option value="">All</option><option>GK</option><option>DEF</option><option>MID</option><option>FOR</option>
-                            </select>
-                        </label>
-                        <label class="text-xs font-semibold text-gray-600">Club
-                            <select id="planner-club" class="block mt-1 px-2 py-2 border border-gray-300 rounded-md text-sm bg-white"><option value="">All</option></select>
-                        </label>
-                        <label class="text-xs font-semibold text-gray-600">Sort
-                            <select id="planner-sort" class="block mt-1 px-2 py-2 border border-gray-300 rounded-md text-sm bg-white">
-                                <option value="decision">Decision</option>
-                                <option value="fixture">Fixture</option>
-                                <option value="value">Price</option>
-                                <option value="ownership">Ownership</option>
-                                <option value="kickoff">Kickoff</option>
-                            </select>
-                        </label>
-                        <label class="text-xs font-semibold text-gray-600">Search
-                            <input id="planner-search" type="search" placeholder="Player..." class="block mt-1 px-2 py-2 border border-gray-300 rounded-md text-sm w-36">
-                        </label>
-                        <label class="flex items-center gap-2 px-2 py-2 text-sm font-medium text-gray-700">
-                            <input id="planner-my-team" type="checkbox" class="h-4 w-4 text-indigo-600 border-gray-300 rounded"> My Team only
-                        </label>
-                    </div>
-                </div>
-                <div id="planner-summary" class="mt-3 text-xs text-gray-600"></div>
-            </div>
-            <div id="planner-columns" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3"></div>
-        </section>
-
-        <section id="pairings-view" class="hidden">
-            <div class="bg-white border border-gray-200 rounded-lg p-3 mb-3 shadow-sm">
-                <div class="flex flex-wrap gap-3 items-end justify-between">
-                    <div>
-                        <h3 class="text-lg font-bold text-gray-800">Team Day Pairings</h3>
-                        <p class="text-xs text-gray-500 mt-1">
-                            Automatically rank every club pair by how often they play on different days across your selected gameweek window.
-                            This is especially useful for goalkeeper rotation under manual-sub rules.
-                        </p>
-                    </div>
-
-                    <div class="flex flex-wrap gap-2 items-end">
-                        <label class="text-xs font-semibold text-gray-600">From GW
-                            <select id="pairings-from-gw" class="block mt-1 px-2 py-2 border border-gray-300 rounded-md text-sm bg-white"></select>
-                        </label>
-
-                        <label class="text-xs font-semibold text-gray-600">Through GW
-                            <select id="pairings-to-gw" class="block mt-1 px-2 py-2 border border-gray-300 rounded-md text-sm bg-white"></select>
-                        </label>
-
-                        <label class="text-xs font-semibold text-gray-600">League
-                            <select id="pairings-league" class="block mt-1 px-2 py-2 border border-gray-300 rounded-md text-sm bg-white">
-                                <option value="">WSL + WSL2</option>
-                                <option value="WSL" selected>WSL only</option>
-                                <option value="WSL2">WSL2 only</option>
-                            </select>
-                        </label>
-
-                        <label class="text-xs font-semibold text-gray-600">Mode
-                            <select id="pairings-mode" class="block mt-1 px-2 py-2 border border-gray-300 rounded-md text-sm bg-white">
-                                <option value="gk" selected>Goalkeepers</option>
-                                <option value="teams">Teams</option>
-                            </select>
-                        </label>
-
-                        <label class="text-xs font-semibold text-gray-600 min-w-[150px]">Min Pairing
-                            <div class="flex items-center gap-2 mt-1">
-                                <input id="pairings-min-pct" type="range" min="0" max="100" step="5" value="75"
-                                    class="w-28 accent-indigo-600">
-                                <span id="pairings-min-pct-value" class="text-sm font-bold text-gray-800 w-10 text-right">75%</span>
-                            </div>
-                        </label>
-                    </div>
-                </div>
-
-                <div id="pairings-summary" class="mt-3 text-xs text-gray-600"></div>
-            </div>
-
-            <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-x-auto">
-                <table class="min-w-full text-sm" id="pairings-table">
-                    <thead class="bg-gray-50 text-gray-600 text-xs uppercase tracking-wide">
-                        <tr>
-                            <th class="text-left px-3 py-2">#</th>
-                            <th class="text-left px-3 py-2">Pair</th>
-                            <th class="text-center px-3 py-2">Different Days</th>
-                            <th class="text-center px-3 py-2">Same Day</th>
-                            <th class="text-center px-3 py-2">Pairing %</th>
-                            <th class="text-center px-3 py-2">Coverage</th>
-                            <th class="text-center px-3 py-2">Separation</th>
-                            <th class="text-center px-3 py-2" title="Average goalkeeper/defensive fixture opportunity across the selected gameweeks. Higher = better. Based primarily on opponent attacking strength, plus own defensive strength and venue.">Avg GK Fix</th>
-                            <th class="text-left px-3 py-2" id="pairings-extra-header">GK Pair</th>
-                        </tr>
-                    </thead>
-                    <tbody id="pairings-table-body"></tbody>
-                </table>
-            </div>
-        </section>
-
-    </div>
-
-    <div id="glossary-modal" class="modal-backdrop hidden" onclick="closeModal('glossary')">
-        <div class="modal-content p-6 w-full max-w-lg" onclick="event.stopPropagation()">
-            <div class="flex justify-between items-center border-b pb-3 mb-4">
-                <h3 class="text-xl font-bold text-gray-900">Table Key / Glossary</h3>
-                <button onclick="closeModal('glossary')" class="text-gray-400 hover:text-gray-600 transition">
-                    <i class="fa-solid fa-xmark text-2xl"></i>
-                </button>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3" id="glossary-content">
-                <p class="col-span-2 text-center text-gray-500">Loading key...</p>
-            </div>
-
-            <p class="text-xs text-gray-500 mt-4 pt-2 border-t text-center">
-                Click outside or press the 'X' to close this window.
-            </p>
-        </div>
-    </div>
-
-    <div id="player-details-modal" class="modal-backdrop hidden" onclick="closeModal('player')">
-        <div class="modal-content p-6 w-full max-w-lg" onclick="event.stopPropagation()">
-
-            <button onclick="closeModal('player')"
-                class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 transition z-20">
-                <i class="fa-solid fa-xmark text-2xl"></i>
-            </button>
-
-            <div class="text-center border-b pb-2 mb-4">
-                <h3 id="modal-player-name" class="text-2xl font-bold text-gray-900"></h3>
-                <div id="modal-player-info" class="text-sm text-gray-500 mt-1">
-                    <span id="modal-player-pos"></span> &bull; <span id="modal-player-club"></span> &bull; <span
-                        id="modal-player-value" class="font-semibold text-gray-700"></span>
-                </div>
-                <span id="modal-player-nat" class="text-sm text-gray-500 mt-1"></span>
-                <div id="modal-news-container"></div>
-            </div>
-
-            <div class="border-b border-gray-200 mb-4">
-                <nav class="-mb-px flex space-x-4" aria-label="Tabs">
-                    <a href="#" id="details-tab" onclick="switchTab('details')" class="tab-button active">
-                        Stats & Fixtures
-                    </a>
-                    <a href="#" id="history-tab" onclick="switchTab('history')" class="tab-button">
-                        Value & Selection History
-                    </a>
-                </nav>
-            </div>
-            <div id="modal-tab-content">
-                <div id="tab-details" class="tab-pane">
-                    <div id="modal-stats-grid" class="grid grid-cols-2 gap-2">
-                    </div>
-
-                    <div class="mt-6 pt-4 border-t">
-                        <h4 class="text-xl font-semibold text-indigo-700 mb-3 flex items-center">
-                            <i class="fa-solid fa-calendar-alt mr-2"></i> Upcoming Matches
-                        </h4>
-                        <div id="modal-fixtures-list" class="space-y-3">
-                            <p class="text-gray-500 text-sm italic">Loading fixtures...</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="tab-history" class="tab-pane hidden">
-                    <div class="relative h-64 md:h-80 w-full">
-                        <canvas id="playerChart" class="w-full h-full"></canvas>
-                    </div>
-                    <div id="chartLoadingMessage" class="text-center text-sm text-gray-500 mt-3 hidden">Loading chart
-                        data...</div>
-                    <div id="chartNoDataMessage" class="text-center text-sm text-gray-500 mt-3 hidden">Historical data
-                        not found for this player.</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.datatables.net/2.3.4/js/dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/responsive/3.0.7/js/dataTables.responsive.js"></script>
-    <script src="https://cdn.datatables.net/responsive/3.0.7/js/responsive.dataTables.js"></script>
-
-<script>    
-        // --- GLOBALS FOR CHARTING ---
-        const PLAYER_HISTORY_PATH = 'player_history.json'; 
-        const TRANSFORMED_DATA_PATH = 'transformed_data.json';
-        const FIXTURES_PATH = 'fixtures.json'; 
-        
-        let playerHistoryData = {};
-        let fullFixtureData = []; 
-        let myChart = null; 
-        // --- NEW GLOBALS ---
-
-        const VISIONARY_SVG_LARGE = `
-        <svg class="visionary-icon w-6 h-6 align-top relative -top-1" viewBox="0 0 100 100" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-            <path fill="#0d996d"
-                d="M62.0583 23.8654C62.5588 21.8379 65.4412 21.8379 65.9417 23.8654L70.0291 40.4225C72.1656 49.0771 78.923 55.8344 87.5775 57.9709L104.135 62.0583C106.162 62.5588 106.162 65.4412 104.135 65.9417L87.5775 70.0291C78.9229 72.1656 72.1656 78.923 70.0291 87.5775L65.9417 104.135C65.4412 106.162 62.5588 106.162 62.0583 104.135L57.9709 87.5775C55.8344 78.9229 49.0770 72.1656 40.4225 70.0291L23.8654 65.9417C21.8379 65.4412 21.8379 62.5588 23.8654 62.0583L40.4225 57.9709C49.0771 55.8344 55.8344 49.0770 57.9709 40.4225L62.0583 23.8654ZM31.0291 19.9327C31.2794 18.9189 32.7206 18.9189 32.9709 19.9327L33.2859 21.2088C34.4432 25.8966 38.1034 29.5568 42.7912 30.7141L44.0673 31.0291C45.0811 31.2794 45.0811 32.7206 44.0673 32.9709L42.7912 33.2859C38.1034 34.4432 34.4432 38.1034 33.2859 42.7912L32.9709 44.0673C32.7206 45.0811 31.2794 45.0811 31.0291 44.0673L30.7141 42.7912C29.5568 38.1034 25.8966 34.4432 21.2088 33.2859L19.9327 32.9709C18.9189 32.7206 18.9189 31.2794 19.9327 31.0291L21.2088 30.7141C25.8966 29.5568 29.5568 25.8966 30.7141 21.2088L31.0291 19.9327Z"
-            />
-        </svg>
-    `;
-        const VISIONARY_SVG_SMALL = `
-        <svg class="visionary-icon" viewBox="0 0 100 100" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-            <path fill="#0d996d"
-                d="M62.0583 23.8654C62.5588 21.8379 65.4412 21.8379 65.9417 23.8654L70.0291 40.4225C72.1656 49.0771 78.923 55.8344 87.5775 57.9709L104.135 62.0583C106.162 62.5588 106.162 65.4412 104.135 65.9417L87.5775 70.0291C78.9229 72.1656 72.1656 78.923 70.0291 87.5775L65.9417 104.135C65.4412 106.162 62.5588 106.162 62.0583 104.135L57.9709 87.5775C55.8344 78.9229 49.0770 72.1656 40.4225 70.0291L23.8654 65.9417C21.8379 65.4412 21.8379 62.5588 23.8654 62.0583L40.4225 57.9709C49.0771 55.8344 55.8344 49.0770 57.9709 40.4225L62.0583 23.8654ZM31.0291 19.9327C31.2794 18.9189 32.7206 18.9189 32.9709 19.9327L33.2859 21.2088C34.4432 25.8966 38.1034 29.5568 42.7912 30.7141L44.0673 31.0291C45.0811 31.2794 45.0811 32.7206 44.0673 32.9709L42.7912 33.2859C38.1034 34.4432 34.4432 38.1034 33.2859 42.7912L32.9709 44.0673C32.7206 45.0811 31.2794 45.0811 31.0291 44.0673L30.7141 42.7912C29.5568 38.1034 25.8966 34.4432 21.2088 33.2859L19.9327 32.9709C18.9189 32.7206 18.9189 31.2794 19.9327 31.0291L21.2088 30.7141C25.8966 29.5568 29.5568 25.8966 30.7141 21.2088L31.0291 19.9327Z"
-            />
-        </svg>
-    `;
-        
-        /**
-         * Enhanced cleaning of player names for consistent lookup.
-         * This handles casing, leading/trailing spaces, and removes punctuation.
-         * @param {string} name 
-         * @returns {string} The normalized key (trimmed, lowercased, punctuation-free, single-space separated).
-         */
-        function normalizeKey(name) {
-            if (name === null || name === undefined) return "";
-            
-            let normalized = name.toString().toLowerCase().trim();
-            
-            // 1. Remove all non-alphabetic/non-space characters (periods, hyphens, etc.)
-            normalized = normalized.replace(/[^a-z\s]/g, ''); 
-            
-            // 2. Condense multiple spaces into a single space (e.g., "  " -> " ")
-            normalized = normalized.replace(/\s+/g, ' '); 
-            
-            return normalized;
-        }
-
-        $(document).ready(function () {
-
-            const STORAGE_KEYS = {
-                myTeam: 'wsl_my_team',
-                watchlist: 'wsl_watchlist',
-                leagueFilter: 'wsl_league_filter'
-            };
-            
-            function getStoredList(key) {
-                return JSON.parse(localStorage.getItem(key) || '[]');
-            }
-            
-            function saveStoredList(key, list) {
-                localStorage.setItem(key, JSON.stringify(list));
-            }
-
-            function getStoredLeaguePreference() {
-                const stored = localStorage.getItem(STORAGE_KEYS.leagueFilter);
-                if (stored === 'WSL' || stored === 'WSL2' || stored === '') return stored;
-                return 'WSL';
-            }
-
-            function saveLeaguePreference(value) {
-                localStorage.setItem(STORAGE_KEYS.leagueFilter, value);
-            }
-            
-            function isMyTeamPlayer(name) {
-                return getStoredList(STORAGE_KEYS.myTeam).includes(name);
-            }
-            
-            function isWatchlistPlayer(name) {
-                return getStoredList(STORAGE_KEYS.watchlist).includes(name);
-            }
-            
-            window.toggleMyTeam = function(name) {
-                let myTeam = getStoredList(STORAGE_KEYS.myTeam);
-            
-                if (myTeam.includes(name)) {
-                    myTeam = myTeam.filter(n => n !== name);
-                } else {
-                    myTeam.push(name);
-            
-                    // remove from watchlist if adding to team
-                    let watchlist = getStoredList(STORAGE_KEYS.watchlist)
-                        .filter(n => n !== name);
-            
-                    saveStoredList(STORAGE_KEYS.watchlist, watchlist);
-                }
-            
-                saveStoredList(STORAGE_KEYS.myTeam, myTeam);
-            
-                if (dataTableInstance) {
-                    dataTableInstance.rows().invalidate().draw(false);
-                }
-                if (!$('#planner-view').hasClass('hidden')) renderPlanner();
-            };
-            
-            window.toggleWatchlist = function(name) {
-                // don't allow watchlisting if already on team
-                if (isMyTeamPlayer(name)) return;
-            
-                let watchlist = getStoredList(STORAGE_KEYS.watchlist);
-            
-                if (watchlist.includes(name)) {
-                    watchlist = watchlist.filter(n => n !== name);
-                } else {
-                    watchlist.push(name);
-                }
-            
-                saveStoredList(STORAGE_KEYS.watchlist, watchlist);
-            
-                if (dataTableInstance) {
-                    dataTableInstance.rows().invalidate().draw(false);
-                }
-            };
-
-            const RECENT_GAMES_COUNT = 4;
-            let dataTableInstance = null;
-            let fullPlayerData = [];
-            let uniqueClubs = [];
-            let selectedDeltaField = 'Selected Percentage Change 1W';
-            const isMobileView = window.innerWidth <= 768;
-
-            function formatDisplayDate(isoDateString) {
-                if (!isoDateString) return null;
-            
-                const d = new Date(isoDateString + 'T00:00:00');
-                if (isNaN(d)) return isoDateString;
-            
-                return d.toLocaleDateString('en-GB', {
-                    day: 'numeric',
-                    month: 'short',
-                    year: 'numeric'
-                });
-            }
-            
-            function updateDeltaReferenceNote(metadata) {
-                const $note = $('#delta-reference-note');
-            
-                if (selectedDeltaField === 'Selected Percentage Change 1W') {
-                    $note.html('<span class="font-medium">Delta mode:</span> Last 7 Days');
-                    return;
-                }
-            
-                if (selectedDeltaField === 'Selected Percentage Change Since Last Global Price Change') {
-                    const formattedDate = formatDisplayDate(metadata.last_global_price_change_date);
-                    if (formattedDate) {
-                        $note.html(`<span class="font-medium">Delta mode:</span> Since Last Price Change <span class="text-gray-500">(reference date: ${formattedDate})</span>`);
-                    } else {
-                        $note.html('<span class="font-medium">Delta mode:</span> Since Last Price Change');
-                    }
-                    return;
-                }
-            
-                $note.text('');
-            }
-
-            // --- Tab Switching Logic (Tailwind version of Bootstrap tabs) ---
-            window.switchTab = function (tabName) {
-                $('.tab-button').removeClass('active');
-                $('.tab-pane').addClass('hidden');
-
-                $(`#${tabName}-tab`).addClass('active');
-                $(`#tab-${tabName}`).removeClass('hidden');
-
-                if (tabName === 'history') {
-                    const playerName = $('#player-details-modal').data('player-name'); 
-                    $('#chartLoadingMessage').removeClass('hidden'); 
-                    
-                    setTimeout(() => {
-                        renderChart(playerName);
-                        $('#chartLoadingMessage').addClass('hidden');
-                    }, 50);
-                }
-            }
-
-            // --- GLOBAL MODAL FUNCTIONS ---
-            window.showModal = function (type, data = null) {
-                if (type === 'glossary') {
-                    generateGlossaryContent(dataTableInstance ? dataTableInstance.settings()[0].aoColumns : []);
-                    $('#glossary-modal').removeClass('hidden');
-                } else if (type === 'player' && data) {
-                    populatePlayerDetails(data);
-                    
-                    $('#player-details-modal').data('player-name', data.Name);
-                    switchTab('details'); 
-
-                    $('#player-details-modal').removeClass('hidden');
-                }
-            };
-
-            window.closeModal = function (type) {
-                if (type === 'glossary') {
-                    $('#glossary-modal').addClass('hidden');
-                } else if (type === 'player') {
-                    $('#player-details-modal').addClass('hidden');
-                    if (myChart) {
-                        myChart.destroy();
-                        myChart = null;
-                    }
-                }
-            };
-
-            $('#show-key-button').on('click', () => showModal('glossary'));
-
-            function csvEscape(value) {
-                if (value === null || value === undefined) return '';
-
-                let text;
-                if (typeof value === 'object') {
-                    if (Object.prototype.hasOwnProperty.call(value, 'points')) {
-                        text = value.points === null || value.points === undefined ? '' : String(value.points);
-                    } else {
-                        text = JSON.stringify(value);
-                    }
-                } else {
-                    text = String(value);
-                }
-
-                if (/[",\n\r]/.test(text)) {
-                    return '"' + text.replace(/"/g, '""') + '"';
-                }
-                return text;
-            }
-
-            function getExportColumns(rows) {
-                const preferred = [
-                    'Name', 'Club', 'Position', 'Value', 'Next Fixture Day', 'Next Fixture Date ISO', 'Next Fixture Kickoff', 'Next Fixture Opponent', 'Next Fixture H/A', 'Sub Flex', 'Decision Rating', 'Form Rating',
-                    'Total Points', 'Points Per Game', 'Selected Percentage',
-                    'Selected Percentage Change 1W',
-                    'Selected Percentage Change Since Last Global Price Change',
-                    'Next Fixture Rating', 'Following Fixture Rating',
-                    'Next Fixture Score', 'Following Fixture Score',
-                    'Next Fixture Rating Tooltip', 'Following Fixture Rating Tooltip',
-                    'Total Goals', 'Total Assists', 'Total Clean Sheet',
-                    'Total Games Played', 'Total Over 4 Gameweeks',
-                    'Points Per Million Over 4 Gameweeks', 'Recommendation'
-                ];
-
-                const allKeys = new Set();
-                rows.forEach(row => Object.keys(row || {}).forEach(key => allKeys.add(key)));
-
-                const gameweekKeys = Array.from(allKeys)
-                    .filter(key => /^\d+$/.test(key))
-                    .sort((a, b) => Number(b) - Number(a));
-
-                const remaining = Array.from(allKeys)
-                    .filter(key => !preferred.includes(key) && !gameweekKeys.includes(key))
-                    .sort((a, b) => a.localeCompare(b));
-
-                return [
-                    ...preferred.filter(key => allKeys.has(key)),
-                    ...gameweekKeys,
-                    ...remaining
-                ];
-            }
-
-            function downloadPlayersCsv(rows, filename) {
-                if (!rows || rows.length === 0) {
-                    alert('There are no players to export with the current selection.');
-                    return;
-                }
-
-                const columns = getExportColumns(rows);
-                const lines = [columns.map(csvEscape).join(',')];
-
-                rows.forEach(row => {
-                    lines.push(columns.map(column => csvEscape(row[column])).join(','));
-                });
-
-                const csv = '\uFEFF' + lines.join('\r\n');
-                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-                const url = URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = filename;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                URL.revokeObjectURL(url);
-            }
-
-            $('#export-current-button').on('click', function () {
-                if (!dataTableInstance) return;
-
-                // DataTables returns exactly the rows surviving the active filters/search,
-                // in the table's current sort order, across all pagination pages.
-                const rows = dataTableInstance
-                    .rows({ search: 'applied', order: 'applied' })
-                    .data()
-                    .toArray();
-
-                const date = new Date().toISOString().slice(0, 10);
-                downloadPlayersCsv(rows, `wsl-current-view-${date}.csv`);
-            });
-
-            $('#export-all-button').on('click', function () {
-                const date = new Date().toISOString().slice(0, 10);
-                downloadPlayersCsv(fullPlayerData, `wsl-all-players-${date}.csv`);
-            });
-            // --- END GLOBAL MODAL FUNCTIONS ---
-
-            // --- PLAYER DETAILS FUNCTION ---
-            function populatePlayerDetails(player) {
-                const nameEl = $('#modal-player-name');
-                const posEl = $('#modal-player-pos');
-                const clubEl = $('#modal-player-club');
-                const valueEl = $('#modal-player-value');
-                const natEl = $('#modal-player-nat');
-                const statsGrid = $('#modal-stats-grid');
-                const fixturesListEl = $('#modal-fixtures-list'); 
-
-                if (player.Visionary) {
-                    nameEl.html(`${player.Name} ${VISIONARY_SVG_LARGE}`);
-                } else {
-                    nameEl.text(player.Name);
-                }
-                posEl.text(player.Position);
-                clubEl.text(player.Club);
-                natEl.text(player.Nationality);
-                valueEl.html(`&pound;${safeToFixed(player.Value, 1)}M`);
-
-                const newsContainerEl = $('#modal-news-container');
-
-                newsContainerEl.html('');
-                const playerNews = player.News;
-
-                if (playerNews && playerNews.trim() !== "") {
-                    const newsHtml = `<div class="text-sm font-semibold text-red-600 mb-1">${playerNews}</div>`;
-                    newsContainerEl.html(newsHtml);
-                }
-                
-                const statKeys = [
-                    { "label": "Total Points (P)", "key": "Total Points", "unit": "" },
-                    { "label": "Points Per Game (PG)", "key": "Points Per Game", "unit": "", "calc": true }, 
-                    { "label": "Selection Rate (S%)", "key": "Selected Percentage", "unit": "%", "raw_unit": true },
-                    { "label": "Selection Change", "key": "Ownership Delta", "unit": "", "raw_unit": true, "delta": true },
-                    { "label": "Next Fixture Score (0-100)", "key": "Next Fixture Rating", "unit": "", "raw_unit": true },
-                    <!-- { "label": "Recommendation", "key": "Recommendation", "unit": "", "raw_unit": true }, -->
-                    { "label": "Goals Scored", "key": "Total Goals", "unit": "" },
-                    { "label": "Assists", "key": "Total Assists", "unit": "" },
-                    { "label": "Clean Sheets (CS)", "key": "Total Clean Sheet", "unit": "" },
-                    { "label": "Points Last 4 GWs (P4)", "key": "Total Over 4 Gameweeks", "unit": "" },
-                    { "label": "Points/M Last 4 GWs (PM4)", "key": "Points Per Million Over 4 Gameweeks", "unit": "", "raw_unit": true }, 
-                ];
-                let detailsHTML = '';
-
-                statKeys.forEach(stat => {
-                    let displayValue = '-';
-
-                    if (stat.calc) {
-                        const totalPoints = player["Total Points"];
-                        const gamesPlayed = player["Total Games Played"];
-                        displayValue = gamesPlayed > 0 ? safeToFixed(totalPoints / gamesPlayed, 1) : '-';
-                    } else if (stat.key === "Ownership Delta") {
-                        displayValue = player[selectedDeltaField];
-                    } else if (player[stat.key] !== undefined && player[stat.key] !== null) {
-                        displayValue = player[stat.key];
-                    }
-                    if (stat.delta) {
-                        displayValue = formatOwnershipDelta(displayValue);
-                    } else if (typeof displayValue === 'number' && !stat.raw_unit) {
-                        displayValue = safeToFixed(displayValue, 0); 
-                    } else if (typeof displayValue === 'number' && (stat.key === 'Selected Percentage' || stat.key === 'Points Per Million Over 4 Gameweeks')) {
-                        displayValue = safeToFixed(displayValue, 1);
-                    }
-                    
-                    detailsHTML += `
-                    <div class="flex flex-col p-1 bg-gray-50 rounded-lg shadow-sm border border-gray-200">
-                        <span class="text-xs font-medium text-gray-500 uppercase tracking-wider">${stat.label}</span>
-                        <span class="text-xl font-extrabold text-indigo-600 mt-1">
-                            ${displayValue}${stat.raw_unit ? '' : stat.unit}
-                        </span>
-                    </div>
-                `;
-                });
-
-                statsGrid.html(detailsHTML);
-
-                const fixtures = player.upcoming_fixtures || [];
-                const playerClubCode = player.Club;
-                let fixturesHTML = '';
-
-                if (fixtures.length === 0) {
-                    fixturesHTML = '<p class="text-gray-500 text-sm italic">No upcoming fixtures found.</p>';
-                } else {
-                    let listHTML = '';
-
-                    fixtures.forEach(fixture => {
-                        const homeTeamCode = fixture.home_id;
-                        const awayTeamCode = fixture.away_id;
-                        const isHome = homeTeamCode === playerClubCode;
-
-                        const opponentCode = isHome ? fixture.away_short_name : fixture.home_short_name;
-                        const location = isHome ? ' (Home)' : ' (Away)';
-                        const displayOpponentCode = opponentCode || '???';
-
-                        const opponentClass = isHome
-                            ? 'font-bold text-gray-900'
-                            : 'font-medium text-gray-600';
-
-                        listHTML += `
-                        <div class="flex justify-between items-center text-sm border-b border-gray-100 pb-2">
-                            <div class="flex items-center space-x-2">
-                                <span class="text-xs font-bold text-gray-600 w-[130px] flex-shrink-0">Game Week ${fixture.game_week}</span>
-                                <span class="${opponentClass}">${displayOpponentCode}${location}</span>
-                            </div>
-                            <div class="flex items-center space-x-3">
-                                <span class="font-medium text-gray-900">${fixture.game_date} @ ${fixture.kick_off_time}</span>
-                            </div>
-                        </div>
-                    `;
-                    });
-
-                    fixturesHTML = `<div class="space-y-3">${listHTML}</div>`;
-                }
-
-                fixturesListEl.html(fixturesHTML);
-            }
-            // --- END PLAYER DETAILS FUNCTION ---
-
-            // --- CHARTING LOGIC ---
-
-            function renderChart(playerName) {
-                // 1. Get the key and perform lookup
-                const historyKey = normalizeKey(playerName);
-                const history = playerHistoryData[historyKey];
-
-                
-                $('#chartLoadingMessage').addClass('hidden');
-                $('#chartNoDataMessage').addClass('hidden');
-
-                // 2. Check for data validity (exists and has at least two points)
-                if (!history || history.length < 2) {
-                    
-                    $('#chartNoDataMessage').removeClass('hidden'); 
-                    
-                    if (myChart) {
-                        myChart.destroy();
-                        myChart = null;
-                    }
-                    return;
-                }
-                
-                // 3. Prepare data for chart
-                const dates = history.map(item => new Date(item.timestamp).toLocaleDateString('en-GB')); 
-                const values = history.map(item => item.value);
-                const selectionPercentages = history.map(item => item.selected_by_percent);
-                const formRatings = history.map(item => item.form_rating);
-                
-                // 4. Calculate dynamic min/max for Selection % 
-                const minSelection = Math.min(...selectionPercentages);
-                const maxSelection = Math.max(...selectionPercentages);
-                
-                // Add a buffer (e.g., 5 points) to the min and max for padding
-                const padding = 5;
-                let ySelectMin = Math.max(0, Math.floor(minSelection) - padding); 
-                let ySelectMax = Math.ceil(maxSelection) + padding; 
-
-                // Ensure the scale is not too tight if min/max are close
-                if (ySelectMax - ySelectMin < 10) {
-                    ySelectMax = ySelectMax + (10 - (ySelectMax - ySelectMin));
-                }
-
-                // If the lowest value is 0, keep the min at 0
-                if (minSelection === 0) {
-                    ySelectMin = 0;
-                }
-                
-                // 5. Render the chart
-                const ctx = document.getElementById('playerChart').getContext('2d');
-
-                if (myChart) {
-                    myChart.destroy();
-                }
-
-                myChart = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: dates,
-                        datasets: [
-                            {
-                                label: 'Value (£m)',
-                                data: values,
-                                borderColor: 'rgb(79, 70, 229)', 
-                                backgroundColor: 'rgba(79, 70, 229, 0.2)',
-                                fill: false,
-                                yAxisID: 'y-value',
-                                lineTension: 0.1,
-                                pointRadius: 4,
-                            },
-                            {
-                                label: 'Selection %',
-                                data: selectionPercentages,
-                                borderColor: 'rgb(245, 158, 11)', 
-                                backgroundColor: 'rgba(245, 158, 11, 0.2)',
-                                fill: false,
-                                yAxisID: 'y-select',
-                                lineTension: 0.1,
-                                pointRadius: 4,
-                            },
-                            {
-                                label: 'Form Rating',
-                                data: formRatings,
-                                borderColor: 'rgb(16, 185, 129)',
-                                backgroundColor: 'rgba(16, 185, 129, 0.2)',
-                                fill: false,
-                                yAxisID: 'y-form',
-                                lineTension: 0.1,
-                                pointRadius: 4,
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        title: {
-                            display: false,
-                        },
-                        legend: {
-                            position: 'bottom',
-                        },
-                        scales: {
-                            xAxes: [{
-                                display: true,
-                                scaleLabel: {
-                                    display: true,
-                                    labelString: 'Date'
-                                }
-                            }],
-                            yAxes: [
-                                {
-                                    id: 'y-value',
-                                    type: 'linear',
-                                    position: 'left',
-                                    scaleLabel: {
-                                        display: true,
-                                        labelString: 'Value (£m)'
-                                    },
-                                    gridLines: {
-                                        drawOnChartArea: false, 
-                                    },
-                                    ticks: {
-                                        callback: function(value, index, values) {
-                                            return '£' + value.toFixed(1) + 'm';
-                                        }
-                                    }
-                                },
-                                {
-                                    id: 'y-select',
-                                    type: 'linear',
-                                    position: 'right',
-                                    scaleLabel: {
-                                        display: true,
-                                        labelString: 'Selection (%)'
-                                    },
-                                    ticks: {
-                                        // *** DYNAMIC SCALE CALCULATED ABOVE ***
-                                        min: ySelectMin, 
-                                        max: ySelectMax, 
-                                        callback: function(value, index, values) {
-                                            return value + '%';
-                                        }
-                                    }
-                                },
-                                {
-                                    id: 'y-form',
-                                    type: 'linear',
-                                    position: 'right',
-                                    display: false,
-                                    ticks: {
-                                        min: 0,
-                                        max: 100
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                });
-            }
-
-            // --- END CHARTING LOGIC ---
-
-            // Helper function to create the abbreviated header with a tooltip (No Change)
-            function createHeader(abbr, fullTitle) {
-                return `<div class="custom-tooltip-container"><span class="custom-tooltip-points">${abbr}</span><div class="custom-tooltip-content">${fullTitle.replace(/\n/g, '<br>')}</div></div>`;
-            }
-
-            // Helper function to safely format data, returning '-' for missing values (No Change)
-            function safeToFixed(data, decimals) {
-                if (data === null || data === undefined || isNaN(data) || !isFinite(data) || data === '-') {
-                    return '-';
-                }
-                return parseFloat(data).toFixed(decimals);
-            }
-
-            function formatDisplayDate(isoDateString) {
-                if (!isoDateString) return null;
-            
-                const d = new Date(isoDateString + 'T00:00:00');
-                if (isNaN(d)) return isoDateString;
-            
-                return d.toLocaleDateString('en-GB', {
-                    day: 'numeric',
-                    month: 'short',
-                    year: 'numeric'
-                });
-            }
-            
-            function updateDeltaReferenceNote(metadata) {
-                const $note = $('#delta-reference-note');
-            
-                if (selectedDeltaField === 'Selected Percentage Change 1W') {
-                    $note.html('<span class="font-medium">Delta mode:</span> Last 7 Days');
-                    return;
-                }
-            
-                if (selectedDeltaField === 'Selected Percentage Change Since Last Global Price Change') {
-                    const formattedDate = formatDisplayDate(metadata.last_global_price_change_date);
-                    if (formattedDate) {
-                        $note.html(`<span class="font-medium">Delta mode:</span> Since Last Price Change <span class="text-gray-500">(reference date: ${formattedDate})</span>`);
-                    } else {
-                        $note.html('<span class="font-medium">Delta mode:</span> Since Last Price Change');
-                    }
-                    return;
-                }
-            
-                $note.text('');
-            }
-            
-            function formatOwnershipDelta(data) {
-                if (data === null || data === undefined || data === '' || data === '-') {
-                    return '-';
-                }
-            
-                const num = parseFloat(data);
-                if (isNaN(num) || !isFinite(num)) {
-                    return '-';
-                }
-            
-                if (num > 0) {
-                    return `+${num.toFixed(1)}`;
-                }
-                return num.toFixed(1);
-            }
-            
-            // --- Mapped column definitions for STATIC data (No Change) ---
-            const STATIC_COLUMN_MAP = {
-                "Name": {
-                    abbr: 'Name',
-                    full: 'Player Name',
-                    type: 'string',
-                    className: 'font-bold player-name-content',
-
-                    render: function (data, type, row) {
-                        if (type === 'display') {
-                            const isVisionary = row.Visionary === true;
-                            const playerNews = row.news || row.News;
-                            const hasNews = playerNews && playerNews.trim() !== "";
-                            let classString = 'font-bold';
-                            let finalContent;
-
-                            if (hasNews) {
-                                classString += ' news-text'; 
-                            } else if (isVisionary) {
-                                classString += ' visionary-text'; 
-                            } else {
-                                classString += ' text-gray-800';
-                            }
-
-                            const nameSpan = `<span class="${classString}">${data}</span>`;
-
-                            const hotPickIcon = row["Hot Pick"] === true
-                                ? `<span class="ml-1" title="Hot Pick">🔥</span>`
-                                : '';
-
-                            const myTeamIcon = isMyTeamPlayer(data)
-                                ? `<span class="ml-1 cursor-pointer" title="Remove from Current Team"
-                                    onclick="event.stopPropagation(); toggleMyTeam('${data.replace(/'/g, "\\'")}')">⭐</span>`
-                                : `<span class="ml-1 opacity-40 hover:opacity-100 cursor-pointer"
-                                    title="Add to Current Team"
-                                    onclick="event.stopPropagation(); toggleMyTeam('${data.replace(/'/g, "\\'")}')">☆</span>`;
-                            
-                            const watchlistIcon = isMyTeamPlayer(data)
-                                ? ''
-                                : isWatchlistPlayer(data)
-                                    ? `<span class="ml-1 cursor-pointer" title="Remove from Watchlist"
-                                        onclick="event.stopPropagation(); toggleWatchlist('${data.replace(/'/g, "\\'")}')">👀</span>`
-                                    : `<span class="ml-1 opacity-40 hover:opacity-100 cursor-pointer"
-                                        title="Add to Watchlist"
-                                        onclick="event.stopPropagation(); toggleWatchlist('${data.replace(/'/g, "\\'")}')">⭘</span>`;
-
-                            if (isVisionary) {
-                                finalContent = `<div class="flex items-center">
-                                                ${nameSpan}
-                                                ${VISIONARY_SVG_SMALL}
-                                                ${hotPickIcon}
-                                                ${myTeamIcon}
-                                                ${watchlistIcon}
-                                            </div>`;
-                            } else {
-                                finalContent = `<div class="flex items-center">
-                                                ${nameSpan}
-                                                ${hotPickIcon}
-                                                ${myTeamIcon}
-                                                ${watchlistIcon}
-                                            </div>`;
-                            }
-
-                            if (hasNews) {
-                                const tooltipHtml = playerNews.replace(/\\n/g, '<br>').replace(/\n/g, '<br>');
-
-                                return `<div class="custom-tooltip-container">${finalContent}<span class="custom-tooltip-content">${tooltipHtml}</span></div>`;
-                            }
-
-                            return finalContent;
-                        }
-                        return data;
-                    }
-                },
-
-                "Club": {
-                    abbr: 'Club',
-                    full: 'Player\'s Club',
-                    type: 'string',
-                    className: 'whitespace-nowrap dt-center',
-                    render: function (data, type, row) {
-                        if (type === 'display') {
-                            const teamCode = data; 
-                            return `<span class="team-badge badge-${teamCode}">${teamCode}</span>`;
-                        }
-                        return data;
-                    }
-                },
-                "Next Fixture Day Short": {
-                    abbr: 'Day',
-                    full: 'Day of the player\'s next fixture. Later fixtures can preserve manual-sub flexibility.',
-                    type: 'string',
-                    className: 'dt-center',
-                    render: function(data, type, row) {
-                        if (type !== 'display') return data || '';
-                        if (!data) return '<span class="text-gray-400">-</span>';
-                        return `<span class="day-pill">${data}</span>`;
-                    }
-                },
-                "Decision Rating": {
-                    abbr: 'Decision',
-                    full: 'Overall Decision Rating (0-100). Position-specific blend of next-GW fixture opportunity and recent form: GK 85/15, DEF 65/35, MID 35/65, FWD 25/75.',
-                    type: 'num',
-                    render: function (data, type, row) {
-                        const numericRating = (data === null || data === undefined || data === "")
-                            ? null
-                            : parseFloat(data);
-
-                        if (type !== 'display') {
-                            return numericRating === null || isNaN(numericRating) ? -1 : numericRating;
-                        }
-
-                        if (numericRating === null || isNaN(numericRating)) {
-                            return '<span class="text-gray-400">-</span>';
-                        }
-
-                        let classes = 'px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap inline-block min-w-[48px] text-center';
-                        if (numericRating >= 80) {
-                            classes += ' bg-green-600 text-white';
-                        } else if (numericRating >= 65) {
-                            classes += ' bg-green-200 text-green-900';
-                        } else if (numericRating >= 50) {
-                            classes += ' bg-gray-200 text-gray-800';
-                        } else if (numericRating >= 35) {
-                            classes += ' bg-red-200 text-red-900';
-                        } else {
-                            classes += ' bg-red-600 text-white';
-                        }
-
-                        const pos = row["Position"] || '';
-                        const form = parseFloat(row["Form Rating"] || 0);
-                        const fixture = parseFloat(row["Next Fixture Rating"] || 0);
-                        const weights = {
-                            GK: [85, 15],
-                            DEF: [65, 35],
-                            MID: [35, 65],
-                            FOR: [25, 75]
-                        };
-                        const w = weights[pos] || [50, 50];
-                        const tooltipHtml = `Decision ${numericRating.toFixed(1)}/100<br>${pos}: ${w[0]}% next fixture + ${w[1]}% form<br>Fixture: ${fixture.toFixed(1)} | Form: ${form.toFixed(0)}`;
-
-                        return `
-                            <div class="custom-tooltip-container">
-                                <span class="${classes}">${numericRating.toFixed(1)}</span>
-                                <span class="custom-tooltip-content">${tooltipHtml}</span>
-                            </div>
-                        `;
-                    },
-                    className: 'dt-center'
-                },
-
-                "Next Fixture Score": {
-                    abbr: 'Fix',
-                    full: 'Next gameweek fixture opportunity from 0-100 (higher = better). Uses ASA xG, recent form, opponent strength, venue, and gameweek volume.',
-                    type: 'num',
-                    render: function (data, type, row) {
-                        const rating = row["Next Fixture Rating"];
-                        const numericRating = (rating === null || rating === undefined || rating === "")
-                            ? null
-                            : parseFloat(rating);
-
-                        if (type !== 'display') {
-                            return numericRating === null || isNaN(numericRating) ? -1 : numericRating;
-                        }
-
-                        if (numericRating === null || isNaN(numericRating)) {
-                            return '<span class="text-gray-400">-</span>';
-                        }
-
-                        let classes = 'px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap inline-block min-w-[48px] text-center';
-
-                        if (numericRating >= 80) {
-                            classes += ' bg-green-600 text-white';
-                        } else if (numericRating >= 65) {
-                            classes += ' bg-green-200 text-green-900';
-                        } else if (numericRating >= 45) {
-                            classes += ' bg-gray-200 text-gray-800';
-                        } else if (numericRating >= 25) {
-                            classes += ' bg-red-200 text-red-900';
-                        } else {
-                            classes += ' bg-red-600 text-white';
-                        }
-
-                        const tooltipText = row["Next Fixture Details"] || "";
-                        const tooltipHtml = tooltipText
-                            .replace(/&/g, '&amp;')
-                            .replace(/</g, '&lt;')
-                            .replace(/>/g, '&gt;')
-                            .replace(/\\n/g, '<br>').replace(/\n/g, '<br>');
-
-                        return `
-                            <div class="custom-tooltip-container">
-                                <span class="${classes}">${numericRating.toFixed(1)}</span>
-                                <span class="custom-tooltip-content">${tooltipHtml}</span>
-                            </div>
-                        `;
-                    },
-                    className: 'dt-center'
-                },
-                "Following Fixture Score": {
-                    abbr: 'Fix+1',
-                    full: 'Following gameweek fixture opportunity from 0-100 (higher = better). Uses ASA xG, recent form, opponent strength, venue, and gameweek volume.',
-                    type: 'num',
-                    render: function (data, type, row) {
-                        const rating = row["Following Fixture Rating"];
-                        const numericRating = (rating === null || rating === undefined || rating === "")
-                            ? null
-                            : parseFloat(rating);
-
-                        if (type !== 'display') {
-                            return numericRating === null || isNaN(numericRating) ? -1 : numericRating;
-                        }
-
-                        if (numericRating === null || isNaN(numericRating)) {
-                            return '<span class="text-gray-400">-</span>';
-                        }
-
-                        let classes = 'px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap inline-block min-w-[48px] text-center';
-
-                        if (numericRating >= 80) {
-                            classes += ' bg-green-600 text-white';
-                        } else if (numericRating >= 65) {
-                            classes += ' bg-green-200 text-green-900';
-                        } else if (numericRating >= 45) {
-                            classes += ' bg-gray-200 text-gray-800';
-                        } else if (numericRating >= 25) {
-                            classes += ' bg-red-200 text-red-900';
-                        } else {
-                            classes += ' bg-red-600 text-white';
-                        }
-
-                        const tooltipText = row["Following Fixture Details"] || "";
-                        const tooltipHtml = tooltipText
-                            .replace(/&/g, '&amp;')
-                            .replace(/</g, '&lt;')
-                            .replace(/>/g, '&gt;')
-                            .replace(/\\n/g, '<br>').replace(/\n/g, '<br>');
-
-                        return `
-                            <div class="custom-tooltip-container">
-                                <span class="${classes}">${numericRating.toFixed(1)}</span>
-                                <span class="custom-tooltip-content">${tooltipHtml}</span>
-                            </div>
-                        `;
-                    },
-                    className: 'dt-center'
-                },
-
-                "Form Rating": {
-                    abbr: 'Form',
-                    full: 'Recent form rating from 0-100, based on last 4 games: recent points, consistency, and bonus involvement',
-                    type: 'num',
-                    render: function (data, type, row) {
-                        if (type !== 'display') {
-                            return data === null || data === undefined ? 0 : data;
-                        }
-                
-                        if (data === null || data === undefined) {
-                            return '<span class="text-gray-400">-</span>';
-                        }
-                
-                        const score = parseInt(data, 10);
-                
-                        let classes = 'px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap inline-block min-w-[42px] text-center';
-                
-                        if (score >= 80) {
-                            classes += ' bg-green-600 text-white';
-                        } else if (score >= 65) {
-                            classes += ' bg-green-200 text-green-900';
-                        } else if (score >= 50) {
-                            classes += ' bg-gray-200 text-gray-800';
-                        } else if (score >= 35) {
-                            classes += ' bg-red-200 text-red-900';
-                        } else {
-                            classes += ' bg-red-600 text-white';
-                        }
-                
-                        return `<span class="${classes}">${score}</span>`;
-                    },
-                    className: 'dt-center'
-                },
-                "Position": {
-                    abbr: 'Pos',
-                    full: 'Player Position',
-                    type: 'string',
-                    className: 'dt-center',
-                    render: function (data, type, row) {
-                        if (type === 'display') {
-                            const posCode = data;
-                            return `<span class="pos-badge badge-${posCode}">${posCode}</span>`;
-                        }
-                        return data;
-                    }
-                },
-                "Value": {
-                    abbr: 'Val',
-                    full: 'Player Value (millions)',
-                    type: 'num',
-                    render: (data) => `${safeToFixed(data, 1)}`,
-                    className: 'font-bold dt-center bg-yellow-100'
-                },
-
-                "Selected Percentage": {
-                    abbr: 'S%',
-                    full: 'Percentage of people selecting this player',
-                    type: 'num',
-                    render: function (data, type, row) {
-                        if (type === 'display') {
-                            const formattedData = safeToFixed(data, 1);
-                            return `<div style="padding-left: 8px; padding-right: 8px;">${formattedData}</div>`;
-                        }
-                        return data;
-                    },
-
-                    className: 'dt-center'
-                },
-               
-                "Ownership Delta": {
-                    data: null,
-                    defaultContent: '-',
-                    abbr: 'ΔS%',
-                    full: 'Change in selection percentage for the chosen delta mode',
-                    type: 'num',
-                    render: function (data, type, row) {
-                        const value = row[selectedDeltaField];
-                
-                        if (type === 'sort' || type === 'type') {
-                            if (value === null || value === undefined || value === '' || value === '-') {
-                                return -9999;
-                            }
-                            const num = parseFloat(value);
-                            return isNaN(num) ? -9999 : num;
-                        }
-                
-                        if (type === 'display') {
-                            const formatted = formatOwnershipDelta(value);
-                
-                            if (formatted === '-') {
-                                return '<div style="padding-left: 8px; padding-right: 8px;">-</div>';
-                            }
-                
-                            let colorClass = 'text-gray-700';
-                            if (parseFloat(value) > 0) {
-                                colorClass = 'text-green-600 font-semibold';
-                            } else if (parseFloat(value) < 0) {
-                                colorClass = 'text-red-600 font-semibold';
-                            }
-                
-                            return `<div class="${colorClass}" style="padding-left: 8px; padding-right: 8px;">${formatted}</div>`;
-                        }
-                
-                        return value;
-                    },
-                    className: 'dt-center'
-                },
-
-                "Total Points": {
-                    abbr: `P`,
-                    full: 'Points for the season',
-                    type: 'num',
-                    className: 'font-bold dt-center'
-                },
-
-                "Total Games Played": { abbr: 'G', full: 'Games played this season (Total appearances)', type: 'num', className: 'dt-center' },
-
-                "Points Per Game": {
-                    data: null,
-                    abbr: 'PG',
-                    full: 'Points per game over the season (Points / Appearances)',
-                    type: 'num',
-                    render: (data, type, row) => {
-                        const totalPoints = row["Total Points"];
-                        const gamesPlayed = row["Total Games Played"];
-
-                        if (type === 'sort' || type === 'type') {
-                            return gamesPlayed > 0 ? (totalPoints / gamesPlayed) : 0;
-                        }
-                        return gamesPlayed > 0 ? safeToFixed(totalPoints / gamesPlayed, 1) : '-';
-                    },
-                    className: 'dt-center'
-                },
-
-                "Points Per Million": {
-                    abbr: 'PM',
-                    full: 'Points scored per million pounds spent (Total season)',
-                    type: 'num',
-                    render: (data, type, row) => {
-                        const totalPoints = row["Total Points"];
-                        const value = row["Value"];
-
-                        if (type === 'sort' || type === 'type') {
-                            return value > 0 ? (totalPoints / value) : 0;
-                        }
-                        return value > 0 ? safeToFixed(totalPoints / value, 1) : '-';
-                    },
-                    className: 'dt-center'
-                },
-
-                "Total Over 4 Gameweeks": {
-                    abbr: `P${RECENT_GAMES_COUNT}`,
-                    full: `Total points over last ${RECENT_GAMES_COUNT} gameweeks`,
-                    type: 'num',
-                    className: 'dt-center'
-                },
-
-                "Games Played Over 4 Gameweeks": {
-                    abbr: `G${RECENT_GAMES_COUNT}`,
-                    full: `Games participated in (appeared) over last ${RECENT_GAMES_COUNT} gameweeks`,
-                    type: 'num',
-                    className: 'dt-center'
-                },
-
-                "Points Per Game Over 4 Gameweeks": {
-                    abbr: `PG${RECENT_GAMES_COUNT}`,
-                    full: `Points per available gameweek (PPG over ${RECENT_GAMES_COUNT} weeks - uses 4 as divisor)`,
-                    type: 'num',
-                    render: (data) => safeToFixed(data, 1), 
-                    className: 'dt-center'
-                },
-
-                "Points Per Million Over 4 Gameweeks": {
-                    abbr: `PM${RECENT_GAMES_COUNT}`,
-                    full: `Points per million over last ${RECENT_GAMES_COUNT} gameweeks`,
-                    type: 'num',
-                    render: (data) => safeToFixed(data, 1), 
-                    className: 'dt-center'
-                },
-
-                "Total Goals": {
-                    abbr: `<i class="fa-solid fa-volleyball icon-green text-base fa-header-icon"></i>`,
-                    full: 'Goals scored ',
-                    type: 'num',
-                    className: 'dt-center'
-                },
-
-                "Total Assists": {
-                    abbr: `A`,
-                    full: 'Assists this season',
-                    type: 'num',
-                    className: 'dt-center'
-                },
-
-                "Total Goals + Assists": {
-                    abbr: `G+A`,
-                    full: 'Goals plus assists this season',
-                    type: 'num',
-                    className: 'dt-center font-semibold'
-                },
-
-                "Total Clean Sheet": {
-                    abbr: `CS`,
-                    full: 'Clean sheets this season',
-                    type: 'num',
-                    className: 'dt-center'
-                },
-
-                "Total Bonus Points": {
-                    abbr: `<i class="fa-solid fa-star icon-yellow text-base fa-header-icon"></i>`,
-                    full: 'Bonus points won this season',
-                    type: 'num',
-                    className: 'dt-center'
-                },
-
-                "Total Bonus Games": {
-                    abbr: `B+`,
-                    full: 'Number of games where the player received bonus points',
-                    type: 'num',
-                    className: 'dt-center'
-                },
-                
-                "Total Yellow Cards": {
-                    abbr: `<i class="fa-solid fa-square icon-yellow text-base fa-header-icon"></i>`,
-                    full: 'Yellow cards this season',
-                    type: 'num',
-                    className: 'dt-center'
-                },
-
-                "Total Red Cards": {
-                    abbr: `<i class="fa-solid fa-square icon-red text-base fa-header-icon"></i>`,
-                    full: 'Red cards this season',
-                    type: 'num',
-                    className: 'dt-center'
-                },
-
-                "Total Missed Penalties": {
-                    abbr: `MP`,
-                    full: 'Missed penalties this season',
-                    type: 'num',
-                    className: 'dt-center'
-                },
-                "Total Clearances": { abbr: 'CL', full: 'Goal line clearances this season', type: 'num', className: 'dt-center' },
-                "Total Conceeded": { abbr: 'GC', full: 'Points lost for goals conceded (-1 per 2 goals conceeded)', type: 'num', className: 'dt-center' },
-
-                "Total Saves": {
-                    abbr: `S`,
-                    full: 'Save points awarded (Goalkeepers, 1 pt per 3 saves)',
-                    type: 'num',
-                    className: 'dt-center'
-                },
-
-                "Total Own Goals": {
-                    abbr: `OG`,
-                    full: 'Own goals scored this season (-2 points each)',
-                    type: 'num',
-                    className: 'dt-center'
-                },
-                "Total 1 min Appearances": { abbr: 'P1', full: 'Games with at least 1 minute played (1pt)', type: 'num', className: 'dt-center' },
-                "Total 60 min Appearances": { abbr: '60', full: 'Games with at least 60 minutes played (1pt)', type: 'num', className: 'dt-center border-r-4 border-gray-400' }
-            };
-
-            const STATIC_KEYS_SET = new Set(Object.keys(STATIC_COLUMN_MAP));
-
-            // --- Other helper functions (No Change) ---
-            function generateGlossaryContent(columns) {
-                let html = '';
-                Object.keys(STATIC_COLUMN_MAP).forEach(key => {
-                    const config = STATIC_COLUMN_MAP[key];
-                    const abbrText = $('<div>').html(config.abbr).text().trim() || config.abbr;
-
-                    html += `
-                    <div class="flex items-center space-x-2">
-                        <span class="font-bold text-sm text-indigo-600 w-12 flex-shrink-0">${abbrText}:</span>
-                        <span class="text-xs text-gray-700">${config.full}</span>
-                    </div>
-                `;
-                });
-
-                if (columns.length > 0) {
-                    const gwColumn = columns.find(col => col.data && /^\d+$/.test(col.data));
-
-                    if (gwColumn) {
-                        html += `
-                        <div class="flex items-center space-x-2">
-                            <span class="font-bold text-sm text-indigo-600 w-12 flex-shrink-0">GW:</span>
-                            <span class="text-xs text-gray-700">Gameweek Points (Dynamic columns are labeled with their Gameweek number, hover for fixture detail)</span>
-                        </div>
-                    `;
-                    }
-                }
-
-                if (html === '') {
-                    html = '<p class="col-span-2 text-center text-gray-500">No column definitions available.</p>';
-                }
-
-                $('#glossary-content').html(html);
-            }
-
-            function updateClubDisplayText() {
-                const selectedCount = $('#club-filter-list input[type="checkbox"]:checked').length;
-                const totalCount = uniqueClubs.length;
-
-                let text = "Clubs (None)";
-                if (selectedCount === totalCount) {
-                    text = "Clubs (All)";
-                } else if (selectedCount > 0) {
-                    text = `Clubs (${selectedCount}/${totalCount})`;
-                }
-                $('#club-display-text').text(text);
-            }
-
-            function toggleClubDropdown() {
-                $('#club-dropdown-menu').toggleClass('hidden');
-                $('#club-dropdown-toggle').attr('aria-expanded', function (_, attr) {
-                    return attr === 'true' ? 'false' : 'true';
-                });
-            }
-
-            function populateClubFilters(data) {
-                const clubs = new Set();
-                data.forEach(player => clubs.add(player.Club));
-                uniqueClubs = Array.from(clubs).sort();
-
-                const $clubList = $('#club-filter-list');
-                $clubList.empty();
-
-                if (uniqueClubs.length === 0) {
-                    $clubList.append('<p class="text-center text-xs text-gray-500">No clubs found in data.</p>');
-                    return;
-                }
-
-                uniqueClubs.forEach(club => {
-                    const checkboxHtml = `
-                    <div class="flex items-center">
-                        <input id="club-${club}" name="club-filter" type="checkbox" value="${club}" checked 
-                               class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 club-checkbox">
-                        <label for="club-${club}" class="ml-3 text-sm text-gray-700">${club}</label>
-                    </div>
-                `;
-                    $clubList.append(checkboxHtml);
-                });
-
-                updateClubDisplayText();
-            }
-
-            $.fn.dataTable.ext.search.push(
-                function (settings, data, dataIndex, rowData) {
-                    if (settings.nTable.id !== 'myTable') {
-                        return true;
-                    }
-
-                    // Maximum player value
-                    const maxValueInput = parseFloat($('#max-value-filter').val());
-                    const playerValue = parseFloat(rowData["Value"]);
-                    if (!isNaN(maxValueInput) && !isNaN(playerValue) && playerValue > maxValueInput) {
-                        return false;
-                    }
-
-                    // Minimum overall / Decision Rating (0-100)
-                    const minDecision = parseFloat($('#min-decision-filter').val());
-                    const decisionRating = parseFloat(rowData["Decision Rating"]);
-                    if (!isNaN(minDecision)) {
-                        if (isNaN(decisionRating) || decisionRating < minDecision) {
-                            return false;
-                        }
-                    }
-
-                    // Minimum next-GW fixture opportunity (0-100, higher is better)
-                    const minFixture = parseFloat($('#min-fixture-filter').val());
-                    const nextFixture = parseFloat(rowData["Next Fixture Rating"]);
-                    if (!isNaN(minFixture)) {
-                        if (isNaN(nextFixture) || nextFixture < minFixture) {
-                            return false;
-                        }
-                    }
-
-                    // Minimum following-GW fixture opportunity
-                    const minFollowingFixture = parseFloat($('#min-following-fixture-filter').val());
-                    const followingFixture = parseFloat(rowData["Following Fixture Rating"]);
-                    if (!isNaN(minFollowingFixture)) {
-                        if (isNaN(followingFixture) || followingFixture < minFollowingFixture) {
-                            return false;
-                        }
-                    }
-
-                    // Minimum player form rating
-                    const minForm = parseFloat($('#min-form-filter').val());
-                    const playerForm = parseFloat(rowData["Form Rating"]);
-                    if (!isNaN(minForm)) {
-                        if (isNaN(playerForm) || playerForm < minForm) {
-                            return false;
-                        }
-                    }
-
-                    // Competition / league
-                    const selectedLeague = $('#league-filter').val();
-                    if (selectedLeague && rowData["League"] !== selectedLeague) {
-                        return false;
-                    }
-
-                    // Position
-                    const selectedPosition = $('#position-filter').val();
-                    if (selectedPosition && rowData["Position"] !== selectedPosition) {
-                        return false;
-                    }
-
-                    // Fixture day (current/next fixture)
-                    const selectedFixtureDay = $('#fixture-day-filter').val();
-                    if (selectedFixtureDay && rowData["Next Fixture Day Short"] !== selectedFixtureDay) {
-                        return false;
-                    }
-
-                    // Clubs
-                    const selectedClubs = $('#club-filter-list input[type="checkbox"]:checked').map(function () {
-                        return this.value;
-                    }).get();
-                    if (selectedClubs.length === 0 || !selectedClubs.includes(rowData["Club"])) {
-                        return false;
-                    }
-
-                    // Visionary / hot-pick filters
-                    const visionaryChecked = $('#visionary-filter').is(':checked');
-                    const isVisionary = rowData.Visionary === true || rowData.Visionary === "true";
-                    if (visionaryChecked && !isVisionary) {
-                        return false;
-                    }
-
-                    const hotPickChecked = $('#hot-pick-filter').is(':checked');
-                    const isHotPick = rowData["Hot Pick"] === true || rowData["Hot Pick"] === "true";
-                    if (hotPickChecked && !isHotPick) {
-                        return false;
-                    }
-
-                    // Hide stale bench/injured players: require an appearance in at least
-                    // one of the two most recent gameweeks represented in the dataset.
-                    if ($('#recently-active-filter').is(':checked')) {
-                        const recentGwKeys = Object.keys(rowData)
-                            .filter(key => /^\d+$/.test(key))
-                            .map(Number)
-                            .sort((a, b) => b - a)
-                            .slice(0, 2)
-                            .map(String);
-
-                        const playedRecently = recentGwKeys.some(gwKey => {
-                            const gwValue = rowData[gwKey];
-                            return (
-                                gwValue &&
-                                typeof gwValue === 'object' &&
-                                Object.prototype.hasOwnProperty.call(gwValue, 'points')
-                            );
-                        });
-
-                        if (!playedRecently) {
-                            return false;
-                        }
-                    }
-
-                    // My Team / Watchlist
-                    const myTeamChecked = $('#my-team-filter').is(':checked');
-                    const watchlistChecked = $('#watchlist-filter').is(':checked');
-                    const isMyTeam = isMyTeamPlayer(rowData.Name);
-                    const isWatchlist = isWatchlistPlayer(rowData.Name);
-
-                    if (myTeamChecked && watchlistChecked) {
-                        if (!isMyTeam && !isWatchlist) return false;
-                    } else if (myTeamChecked && !isMyTeam) {
-                        return false;
-                    } else if (watchlistChecked && !isWatchlist) {
-                        return false;
-                    }
-
-                    return true;
-                }
-            );
-
-            // --- initializeTable (No Change) ---
-            function initializeTable(data) {
-                if (!data || data.length === 0) {
-                    $('#loading-message').text('No player data available to display. Please ensure your data is loaded correctly.');
-                    return;
-                }
-
-                $('#loading-message').addClass('hidden');
-                $('#myTable').removeClass('hidden');
-
-                populateClubFilters(data);
-                
-
-                let columns = [];
-                let headerRow = '<tr>';
-
-                const STATIC_KEYS_ORDERED = Object.keys(STATIC_COLUMN_MAP);
-
-                STATIC_KEYS_ORDERED.forEach(key => {
-                    const config = STATIC_COLUMN_MAP[key];
-
-                    columns.push({
-                        data: config.data !== undefined ? config.data : key,
-                        title: createHeader(config.abbr, config.full),
-                        className: config.className || 'dt-center',
-                        type: config.type === 'num' ? 'num-fmt' : 'string',
-                        render: config.render
-                    });
-
-                    const headerClass = key === "Name" ? 'player-name-header' : '';
-                    headerRow += `<th class="dt-head-center ${headerClass}">${createHeader(config.abbr, config.full)}</th>`;
-                });
-
-                const firstPlayer = data[0];
-                const gameweekKeys = Object.keys(firstPlayer).filter(key => {
-                    return !STATIC_KEYS_SET.has(key) && /^\d+$/.test(key);
-                }).sort((a, b) => {
-                    return parseInt(b) - parseInt(a);
-                });
-
-                gameweekKeys.forEach(gwKey => {
-                    columns.push({
-                        data: gwKey,
-                        title: createHeader(gwKey, `GW${gwKey}`),
-                        className: 'gw-col dt-center',
-                        type: 'num-fmt',
-                        render: function (data, type, row) {
-                            if (typeof data === 'object' && data !== null && data.hasOwnProperty('points')) {
-                                const points = data.points === null || data.points === undefined ? '-' : data.points;
-
-                                const tooltip = data.tooltip ? data.tooltip.trim() : '';
-
-                                if (type === 'sort' || type === 'type') {
-                                    return data.points;
-                                }
-
-                                return `<div class="custom-tooltip-container"><span class="custom-tooltip-points">${points}</span><div class="custom-tooltip-content">${tooltip.replace(/\\n/g, '<br>').replace(/\n/g, '<br>')}</div></div>`;
-                            }
-
-                            return '-';
-                        }
-                    });
-                    headerRow += `<th class="dt-head-center gw-col">${createHeader(gwKey, `Gameweek ${gwKey} Points`)}</th>`;
-                });
-
-                headerRow += '</tr>';
-
-                $('#myTable').empty();
-                $('#myTable').append(`<thead>${headerRow}</thead>`);
-
-                dataTableInstance = $('#myTable').DataTable({
-                    data: data,
-                    columns: columns,
-                    paging: true,
-                    searching: true,
-                    scrollX: false,
-                    autoWidth: false,
-                    order: [[4, 'desc']],
-                    responsive: false,
-                    info: true,
-
-                    rowCallback: function(row, data) {
-                    
-                        $(row).removeClass('my-team-row watchlist-row');
-                    
-                        if (isMyTeamPlayer(data.Name)) {
-                            $(row).addClass('my-team-row');
-                        } else if (isWatchlistPlayer(data.Name)) {
-                            $(row).addClass('watchlist-row');
-                        }
-                    },
-
-                    lengthMenu: [
-                        [10, 15, 25, 50, 100, -1],
-                        ['10', '15', '25', '50', '100', 'All']
-                    ],
-                    pageLength: 15,
-
-                    columnDefs: [
-                        { orderSequence: ['desc', 'asc'], targets: '_all' }
-                    ],
-
-                    language: {
-                        search: "Search:",
-                        info: "Showing _START_ to _END_ of _TOTAL_ entries",
-                    }
-                });
-
-                setTimeout(() => {
-                    if (dataTableInstance) {
-                        dataTableInstance.columns.adjust();
-                        dataTableInstance.draw(false);
-                        dataTableInstance.columns.adjust(); // 🔥 second pass fixes mobile
-                    }
-                }, 250);
-
-                $('#myTable tbody').on('click', 'tr', function () {
-                    if (dataTableInstance) {
-                        const rowData = dataTableInstance.row(this).data();
-                        if (rowData) {
-                            showModal('player', rowData);
-                        }
-                    }
-                });
-
-                $('#myTable').on('mouseenter', '.custom-tooltip-container', function () {
-                    const $container = $(this);
-                    const $tooltip = $container.find('.custom-tooltip-content');
-
-                    const containerRect = $container[0].getBoundingClientRect();
-                    const tooltipWidth = $tooltip.outerWidth();
-                    const tooltipHeight = $tooltip.outerHeight();
-
-                    let top, left;
-
-                    const margin = 5; 
-                    const windowWidth = $(window).width();
-
-                    const spaceBelow = $(window).height() - containerRect.bottom;
-                    const spaceAbove = containerRect.top;
-
-                    if (spaceBelow < tooltipHeight + 10 && spaceAbove > tooltipHeight) {
-                        top = containerRect.top - tooltipHeight - margin; 
-                    } else {
-                        top = containerRect.bottom + margin; 
-                    }
-
-                    const maxLeft = windowWidth - tooltipWidth - margin;
-                    const preferredLeft = containerRect.left;
-
-                    let finalLeft = Math.min(preferredLeft, maxLeft);
-                    left = Math.max(finalLeft, margin);
-
-
-                    $tooltip.css({
-                        top: top + 'px',
-                        left: left + 'px',
-                        right: 'auto', 
-                        bottom: 'auto'
-                    });
-                });
-
-                $('#myTable').on('mouseleave', '.custom-tooltip-container', function () {
-                    const $tooltip = $(this).find('.custom-tooltip-content');
-                    $tooltip.css({
-                        top: '',
-                        left: '',
-                        right: '',
-                        bottom: ''
-                    });
-                });
-                
-                $('#visionary-filter, #hot-pick-filter, #recently-active-filter, #my-team-filter, #watchlist-filter').on('change', function () {
-                    if (dataTableInstance) {
-                        dataTableInstance.draw();
-                    }
-                });
-
-                $('#max-value-filter, #min-decision-filter, #min-fixture-filter, #min-following-fixture-filter, #min-form-filter, #league-filter, #position-filter, #fixture-day-filter').on('keyup change input', function () {
-                    if (this.id === 'league-filter') {
-                        saveLeaguePreference($(this).val());
-                        $('#planner-league').val($(this).val());
-                        $('#pairings-league').val($(this).val());
-                        if (!$('#planner-view').hasClass('hidden')) renderPlanner();
-                        if (!$('#pairings-view').hasClass('hidden')) renderPairings();
-                    }
-
-                    if (dataTableInstance) {
-                        dataTableInstance.draw();
-                    }
-                });
-                $('#delta-mode-filter').on('change', function () {
-                    selectedDeltaField = $(this).val();
-                
-                    if (window.transformedMetadataForUI) {
-                        updateDeltaReferenceNote(window.transformedMetadataForUI);
-                    }
-                
-                    if (dataTableInstance) {
-                        dataTableInstance.rows().invalidate().draw(false);
-                    }
-                });
-
-                $('#club-dropdown-toggle').on('click', function (e) {
-                    e.stopPropagation();
-                    toggleClubDropdown();
-                });
-
-                $(document).on('click', function (e) {
-                    if (!$('#club-dropdown-menu').hasClass('hidden') &&
-                        !$(e.target).closest('#club-dropdown-menu').length &&
-                        !$(e.target).closest('#club-dropdown-toggle').length) {
-                        $('#club-dropdown-menu').addClass('hidden');
-                        $('#club-dropdown-toggle').attr('aria-expanded', 'false');
-                    }
-                });
-
-                $('#club-filter-list').on('change', '.club-checkbox', function () {
-                    updateClubDisplayText();
-                    if (dataTableInstance) {
-                        dataTableInstance.draw();
-                    }
-                });
-
-                $('#select-all-clubs, #unselect-all-clubs').on('click', function () {
-                    const isSelectAll = this.id === 'select-all-clubs';
-                    $('#club-filter-list input[type="checkbox"]').prop('checked', isSelectAll).trigger('change');
-                });
-            }
-
-            function getFixtureForGameweek(player, gw) {
-                const fixtures = Array.isArray(player.upcoming_fixtures) ? player.upcoming_fixtures : [];
-                return fixtures.find(f => String(f.game_week) === String(gw)) || null;
-            }
-
-            function plannerDayClass(dayShort) {
-                if (dayShort === 'FRI') return 'planner-day-fri';
-                if (dayShort === 'SAT') return 'planner-day-sat';
-                if (dayShort === 'SUN') return 'planner-day-sun';
-                return 'planner-day-other';
-            }
-
-            function plannerFlexLabel(dayNumber) {
-                const n = Number(dayNumber);
-                if (!Number.isFinite(n)) return '';
-                if (n >= 7) return 'High flex';
-                if (n === 6) return 'Medium flex';
-                if (n === 5) return 'Early';
-                return 'Early';
-            }
-
-            function populatePlannerControls(data, preferredGw) {
-                const gameweeks = new Set();
-                const clubs = new Set();
-                data.forEach(player => {
-                    if (player.Club) clubs.add(player.Club);
-                    (player.upcoming_fixtures || []).forEach(f => {
-                        if (f.game_week) gameweeks.add(String(f.game_week));
-                    });
-                });
-                const sortedGws = Array.from(gameweeks).sort((a,b) => Number(a)-Number(b));
-                $('#planner-gameweek').empty();
-                sortedGws.forEach(gw => $('#planner-gameweek').append(`<option value="${gw}">GW${gw}</option>`));
-                const desired = String(preferredGw || sortedGws[0] || '');
-                if (sortedGws.includes(desired)) $('#planner-gameweek').val(desired);
-
-                $('#planner-club').empty().append('<option value="">All</option>');
-                Array.from(clubs).sort().forEach(club => $('#planner-club').append(`<option value="${club}">${club}</option>`));
-            }
-
-            function renderPlanner() {
-                if (!fullPlayerData || !fullPlayerData.length) return;
-                const gw = $('#planner-gameweek').val();
-                const league = $('#planner-league').val();
-                const pos = $('#planner-position').val();
-                const club = $('#planner-club').val();
-                const search = ($('#planner-search').val() || '').trim().toLowerCase();
-                const myTeamOnly = $('#planner-my-team').is(':checked');
-                const sortMode = $('#planner-sort').val() || 'decision';
-
-                let entries = fullPlayerData.map(player => ({ player, fixture: getFixtureForGameweek(player, gw) }))
-                    .filter(x => x.fixture)
-                    .filter(x => !league || x.player.League === league)
-                    .filter(x => !pos || x.player.Position === pos)
-                    .filter(x => !club || x.player.Club === club)
-                    .filter(x => !myTeamOnly || isMyTeamPlayer(x.player.Name))
-                    .filter(x => !search || x.player.Name.toLowerCase().includes(search) || String(x.player.Club || '').toLowerCase().includes(search));
-
-                const scoreFor = x => {
-                    if (sortMode === 'fixture') return Number(x.fixture.opportunity_rating ?? -1);
-                    if (sortMode === 'value') return Number(x.player.Value ?? -1);
-                    if (sortMode === 'ownership') return Number(x.player['Selected Percentage'] ?? -1);
-                    if (sortMode === 'kickoff') return -(Number(String(x.fixture.kick_off_time || '99:99').replace(':','')) || 9999);
-                    return Number(x.player['Decision Rating'] ?? -1);
-                };
-                entries.sort((a,b) => scoreFor(b)-scoreFor(a));
-
-                const groups = new Map();
-                entries.forEach(x => {
-                    const dateKey = x.fixture.fixture_date_iso || x.fixture.game_date || 'Unknown';
-                    if (!groups.has(dateKey)) groups.set(dateKey, []);
-                    groups.get(dateKey).push(x);
-                });
-                const sortedDates = Array.from(groups.keys()).sort();
-                const total = entries.length;
-                $('#planner-summary').html(`<span class="font-semibold">GW${gw || '-'}:</span> ${total} matching players across ${sortedDates.length} fixture day${sortedDates.length === 1 ? '' : 's'}. <span class="text-gray-500">Sunday/later players are most useful as reactive bench options because their kickoff remains unlocked longer.</span>`);
-
-                const $columns = $('#planner-columns').empty();
-                if (!sortedDates.length) {
-                    $columns.html('<div class="col-span-full bg-white rounded-lg border border-gray-200 p-8 text-center text-gray-500">No fixtures match these filters.</div>');
-                    return;
-                }
-
-                sortedDates.forEach(dateKey => {
-                    const list = groups.get(dateKey);
-                    const sample = list[0].fixture;
-                    const dayShort = sample.fixture_day_short || (sample.fixture_day || '').slice(0,3).toUpperCase();
-                    const dayFull = sample.fixture_day || dayShort || 'Fixture Day';
-                    const displayDate = sample.game_date || dateKey;
-                    const visible = list.slice(0, 40);
-                    const cards = visible.map(({player, fixture}) => {
-                        const opp = fixture.opponent_id || fixture.opponent_short_name || fixture.opponent_name || 'TBD';
-                        const loc = fixture.location || '';
-                        const flex = plannerFlexLabel(fixture.fixture_day_number);
-                        const owned = isMyTeamPlayer(player.Name);
-                        return `<article class="planner-player-card ${owned ? 'ring-2 ring-indigo-200' : ''}" data-player-name="${String(player.Name).replace(/&/g,'&amp;').replace(/"/g,'&quot;')}">
-                            <div class="flex justify-between gap-2 items-start">
-                                <div class="min-w-0">
-                                    <div class="font-bold text-sm text-gray-900 truncate">${player.Name}${owned ? ' ⭐' : ''}</div>
-                                    <div class="text-xs text-gray-500">${player.Club} · ${player.League || ''} · ${player.Position} · £${Number(player.Value || 0).toFixed(1)}m</div>
-                                </div>
-                                <span class="sub-flex-pill">↪ ${flex}</span>
-                            </div>
-                            <div class="mt-2 flex justify-between gap-2 text-xs">
-                                <span class="font-semibold text-gray-700">${fixture.kick_off_time || ''} · ${opp} (${loc})</span>
-                                <span class="text-gray-500">Fix ${Math.round(Number(fixture.opportunity_rating || 0))}</span>
-                            </div>
-                            <div class="mt-1 text-xs text-gray-500">Decision ${Number(player['Decision Rating'] || 0).toFixed(1)} · Selected ${Number(player['Selected Percentage'] || 0).toFixed(0)}%</div>
-                        </article>`;
-                    }).join('');
-                    const more = list.length > visible.length ? `<div class="text-xs text-center text-gray-400 pt-2">Top ${visible.length} of ${list.length}; narrow filters/search to see others.</div>` : '';
-                    $columns.append(`<section class="planner-day-column bg-gray-50 border border-gray-200 rounded-lg p-3 ${plannerDayClass(dayShort)}">
-                        <div class="flex items-baseline justify-between mb-2">
-                            <div><span class="text-lg font-extrabold text-gray-900">${dayFull}</span> <span class="text-sm text-gray-500">${displayDate}</span></div>
-                            <span class="text-xs font-semibold text-gray-500">${list.length} players</span>
-                        </div>
-                        <div class="space-y-2">${cards}</div>${more}
-                    </section>`);
-                });
-
-                $('#planner-columns .planner-player-card').on('click', function() {
-                    const name = $(this).attr('data-player-name');
-                    const player = fullPlayerData.find(p => p.Name === name);
-                    if (player) showModal('player', player);
-                });
-            }
-
-
-            function getAvailableGameweeks(data) {
-                const gameweeks = new Set();
-
-                if (Array.isArray(fullFixtureData) && fullFixtureData.length) {
-                    fullFixtureData.forEach(f => {
-                        const gw = f.fantasy_game_week ?? f.game_week;
-                        if (gw !== null && gw !== undefined && gw !== '') {
-                            gameweeks.add(Number(gw));
-                        }
-                    });
-                } else {
-                    data.forEach(player => {
-                        (player.upcoming_fixtures || []).forEach(f => {
-                            const gw = f.fantasy_game_week ?? f.game_week;
-                            if (gw !== null && gw !== undefined && gw !== '') {
-                                gameweeks.add(Number(gw));
-                            }
-                        });
-                    });
-                }
-
-                return Array.from(gameweeks).filter(Number.isFinite).sort((a, b) => a - b);
-            }
 
-            function populatePairingsControls(data, preferredGw) {
-                const gws = getAvailableGameweeks(data);
-                const $from = $('#pairings-from-gw').empty();
-                const $to = $('#pairings-to-gw').empty();
+def safe_int(value: Any, default: int = 0) -> int:
+    try:
+        return int(round(safe_float(value, float(default))))
+    except (TypeError, ValueError):
+        return default
 
-                gws.forEach(gw => {
-                    $from.append(`<option value="${gw}">GW${gw}</option>`);
-                    $to.append(`<option value="${gw}">GW${gw}</option>`);
-                });
 
-                if (!gws.length) return;
+def compact_id(raw_id: str | None) -> str:
+    if not raw_id:
+        return ""
+    return raw_id.rsplit("::", 1)[-1]
 
-                const preferred = Number(preferredGw);
-                const startGw = gws.includes(preferred) ? preferred : gws[0];
-                const startIndex = Math.max(0, gws.indexOf(startGw));
-                const defaultEndIndex = Math.min(gws.length - 1, startIndex + 7);
-
-                $from.val(String(gws[startIndex]));
-                $to.val(String(gws[defaultEndIndex]));
-            }
-
-            function getFantasyWindowMeta(gw) {
-                const windows = (window.transformedMetadataForUI && window.transformedMetadataForUI.fantasy_gameweeks) || [];
-                return windows.find(w => String(w.fantasy_game_week) === String(gw)) || null;
-            }
-
-            function clubFixtureMapForPairings(data, league, fromGw, toGw) {
-                const clubs = new Map();
-                const playerClubMeta = new Map();
-
-                data.forEach(player => {
-                    const club = player.Club;
-                    if (!club) return;
-
-                    if (!playerClubMeta.has(club)) {
-                        playerClubMeta.set(club, {
-                            league: player.League || '',
-                            goalkeepers: []
-                        });
-                    }
-
-                    if (player.Position === 'GK') {
-                        playerClubMeta.get(club).goalkeepers.push({
-                            name: player.Name,
-                            value: Number(player.Value || 0),
-                            selected: Number(player['Selected Percentage'] || 0),
-                            previousPoints: Number(player['Previous Season Points'] || 0),
-                            availability: String(player['Availability Description'] || '')
-                        });
-                    }
-                });
-
-                playerClubMeta.forEach(meta => {
-                    meta.goalkeepers.sort((a, b) => {
-                        if (a.value !== b.value) return b.value - a.value;
-                        if (a.previousPoints !== b.previousPoints) return b.previousPoints - a.previousPoints;
-                        return b.selected - a.selected;
-                    });
-                });
-
-                function ensureClub(club) {
-                    if (!club) return null;
-                    const meta = playerClubMeta.get(club) || { league: '', goalkeepers: [] };
-                    if (league && meta.league !== league) return null;
-
-                    if (!clubs.has(club)) {
-                        clubs.set(club, {
-                            club,
-                            league: meta.league,
-                            fixtures: new Map(),
-                            goalkeepers: meta.goalkeepers || []
-                        });
-                    }
-                    return clubs.get(club);
-                }
-
-                // Seed every known club so LEAGUE_OFF / CLUB_BLANK can be distinguished.
-                playerClubMeta.forEach((meta, club) => {
-                    if (!league || meta.league === league) ensureClub(club);
-                });
-
-                if (Array.isArray(fullFixtureData) && fullFixtureData.length) {
-                    fullFixtureData.forEach(f => {
-                        const gw = Number(f.fantasy_game_week ?? f.game_week);
-                        if (!Number.isFinite(gw) || gw < fromGw || gw > toGw) return;
-
-                        const date = f.fixture_date_iso || '';
-                        if (!date) return;
-
-                        const home = f.home_id || '';
-                        const away = f.away_id || '';
-
-                        function addFixture(clubInfo, record) {
-                            if (!clubInfo) return;
-                            if (!clubInfo.fixtures.has(gw)) {
-                                clubInfo.fixtures.set(gw, {
-                                    ...record,
-                                    fixtureCount: 1,
-                                    allDates: [record.date]
-                                });
-                            } else {
-                                const existing = clubInfo.fixtures.get(gw);
-                                existing.fixtureCount += 1;
-                                if (!existing.allDates.includes(record.date)) existing.allDates.push(record.date);
-                                existing.allDates.sort();
-
-                                // For manual-sub lock timing, use the earliest fixture in a DGW.
-                                if (record.date < existing.date ||
-                                    (record.date === existing.date && record.kickoff < existing.kickoff)) {
-                                    Object.assign(existing, record, {
-                                        fixtureCount: existing.fixtureCount,
-                                        allDates: existing.allDates
-                                    });
-                                }
-                            }
-                        }
-
-                        addFixture(ensureClub(home), {
-                            gw,
-                            date,
-                            day: f.fixture_day_short || (f.fixture_day || '').slice(0, 3).toUpperCase(),
-                            dayFull: f.fixture_day || '',
-                            kickoff: f.kick_off_time || '',
-                            opponent: away || f.away_short_name || f.away_name || 'TBD',
-                            location: 'H',
-                            defensiveOpportunity: Number(f.home_defensive_opportunity ?? NaN)
-                        });
-
-                        addFixture(ensureClub(away), {
-                            gw,
-                            date,
-                            day: f.fixture_day_short || (f.fixture_day || '').slice(0, 3).toUpperCase(),
-                            dayFull: f.fixture_day || '',
-                            kickoff: f.kick_off_time || '',
-                            opponent: home || f.home_short_name || f.home_name || 'TBD',
-                            location: 'A',
-                            defensiveOpportunity: Number(f.away_defensive_opportunity ?? NaN)
-                        });
-                    });
-                }
-
-                return clubs;
-            }
-
-            function getClubGwStatus(clubInfo, gw) {
-                const fixture = clubInfo.fixtures.get(gw);
-                if (fixture) {
-                    return {
-                        status: fixture.fixtureCount > 1 ? 'DOUBLE' : 'NORMAL',
-                        fixture
-                    };
-                }
-
-                const windowMeta = getFantasyWindowMeta(gw);
-                if (!windowMeta) {
-                    return { status: 'TBD', fixture: null };
-                }
-
-                const activeLeagues = Array.isArray(windowMeta.active_leagues)
-                    ? windowMeta.active_leagues
-                    : [];
-
-                if (clubInfo.league && !activeLeagues.includes(clubInfo.league)) {
-                    return { status: 'LEAGUE_OFF', fixture: null, windowMeta };
-                }
-
-                return { status: 'CLUB_BLANK', fixture: null, windowMeta };
-            }
-
-            function dateDifferenceDays(dateA, dateB) {
-                const a = new Date(`${dateA}T00:00:00Z`);
-                const b = new Date(`${dateB}T00:00:00Z`);
-                if (isNaN(a) || isNaN(b)) return 0;
-                return Math.abs(Math.round((b - a) / 86400000));
-            }
-
-            function buildAllPairings(data, league, fromGw, toGw) {
-                const clubs = clubFixtureMapForPairings(data, league, fromGw, toGw);
-                const names = Array.from(clubs.keys()).sort();
-                const pairs = [];
-
-                for (let i = 0; i < names.length; i++) {
-                    for (let j = i + 1; j < names.length; j++) {
-                        const a = clubs.get(names[i]);
-                        const b = clubs.get(names[j]);
-
-                        let comparable = 0;
-                        let different = 0;
-                        let same = 0;
-                        let separationPoints = 0;
-
-                        let leagueOffWeeks = 0;
-                        let clubBlankWeeks = 0;
-                        let tbdWeeks = 0;
-                        let doubleWeeks = 0;
-
-                        let defensiveTotalA = 0;
-                        let defensiveTotalB = 0;
-                        let defensiveCountA = 0;
-                        let defensiveCountB = 0;
-
-                        const details = [];
-
-                        for (let gw = fromGw; gw <= toGw; gw++) {
-                            const sa = getClubGwStatus(a, gw);
-                            const sb = getClubGwStatus(b, gw);
-
-                            const bothHaveFixtures = ['NORMAL', 'DOUBLE'].includes(sa.status)
-                                && ['NORMAL', 'DOUBLE'].includes(sb.status);
-
-                            if (!bothHaveFixtures) {
-                                if (sa.status === 'LEAGUE_OFF' || sb.status === 'LEAGUE_OFF') leagueOffWeeks++;
-                                if (sa.status === 'CLUB_BLANK' || sb.status === 'CLUB_BLANK') clubBlankWeeks++;
-                                if (sa.status === 'TBD' || sb.status === 'TBD') tbdWeeks++;
-
-                                details.push({
-                                    gw,
-                                    comparable: false,
-                                    statusA: sa.status,
-                                    statusB: sb.status,
-                                    a: sa.fixture,
-                                    b: sb.fixture,
-                                    windowMeta: sa.windowMeta || sb.windowMeta || getFantasyWindowMeta(gw)
-                                });
-                                continue;
-                            }
-
-                            const fa = sa.fixture;
-                            const fb = sb.fixture;
-
-                            comparable++;
-                            if (sa.status === 'DOUBLE' || sb.status === 'DOUBLE') doubleWeeks++;
-
-                            if (Number.isFinite(fa.defensiveOpportunity)) {
-                                defensiveTotalA += fa.defensiveOpportunity;
-                                defensiveCountA++;
-                            }
-                            if (Number.isFinite(fb.defensiveOpportunity)) {
-                                defensiveTotalB += fb.defensiveOpportunity;
-                                defensiveCountB++;
-                            }
-
-                            const isDifferent = fa.date !== fb.date;
-                            const gap = isDifferent ? dateDifferenceDays(fa.date, fb.date) : 0;
-
-                            if (isDifferent) {
-                                different++;
-                                separationPoints += gap;
-                            } else {
-                                same++;
-                            }
-
-                            details.push({
-                                gw,
-                                comparable: true,
-                                different: isDifferent,
-                                gap,
-                                statusA: sa.status,
-                                statusB: sb.status,
-                                a: fa,
-                                b: fb
-                            });
-                        }
-
-                        const selectedWindowWeeks = toGw - fromGw + 1;
-                        const pct = comparable ? (different / comparable) * 100 : 0;
-                        const coveragePct = selectedWindowWeeks ? (comparable / selectedWindowWeeks) * 100 : 0;
-                        const avgSeparation = different ? separationPoints / different : 0;
-
-                        const gkA = a.goalkeepers[0] || null;
-                        const gkB = b.goalkeepers[0] || null;
-                        const combinedGkPrice = gkA && gkB ? gkA.value + gkB.value : null;
-
-                        const avgDefA = defensiveCountA ? defensiveTotalA / defensiveCountA : null;
-                        const avgDefB = defensiveCountB ? defensiveTotalB / defensiveCountB : null;
-                        const combinedDefAvg = (
-                            Number.isFinite(avgDefA) && Number.isFinite(avgDefB)
-                                ? (avgDefA + avgDefB) / 2
-                                : Number.isFinite(avgDefA) ? avgDefA
-                                : Number.isFinite(avgDefB) ? avgDefB
-                                : null
-                        );
-
-                        pairs.push({
-                            a,
-                            b,
-                            selectedWindowWeeks,
-                            comparable,
-                            coveragePct,
-                            different,
-                            same,
-                            pct,
-                            separationPoints,
-                            avgSeparation,
-                            leagueOffWeeks,
-                            clubBlankWeeks,
-                            tbdWeeks,
-                            doubleWeeks,
-                            avgDefA,
-                            avgDefB,
-                            combinedDefAvg,
-                            details,
-                            gkA,
-                            gkB,
-                            combinedGkPrice
-                        });
-                    }
-                }
-
-                pairs.sort((x, y) => {
-                    if (y.pct !== x.pct) return y.pct - x.pct;
-                    if (y.coveragePct !== x.coveragePct) return y.coveragePct - x.coveragePct;
-                    if (y.different !== x.different) return y.different - x.different;
-
-                    const xDef = Number.isFinite(x.combinedDefAvg) ? x.combinedDefAvg : -1;
-                    const yDef = Number.isFinite(y.combinedDefAvg) ? y.combinedDefAvg : -1;
-                    if (yDef !== xDef) return yDef - xDef;
-
-                    if (y.separationPoints !== x.separationPoints) return y.separationPoints - x.separationPoints;
-
-                    const xPrice = x.combinedGkPrice ?? 999;
-                    const yPrice = y.combinedGkPrice ?? 999;
-                    if (xPrice !== yPrice) return xPrice - yPrice;
-
-                    return `${x.a.club}-${x.b.club}`.localeCompare(`${y.a.club}-${y.b.club}`);
-                });
-
-                return pairs;
-            }
-
-            function pairingPercentClass(pct) {
-                if (pct >= 80) return 'pairing-percent pairing-percent-high';
-                if (pct >= 60) return 'pairing-percent pairing-percent-mid';
-                return 'pairing-percent pairing-percent-low';
-            }
-
-            function pairingFixtureLabel(fixture) {
-                if (!fixture) return '<span class="text-gray-400">No fixture</span>';
-                const loc = fixture.location ? ` ${fixture.location}` : '';
-                const def = Number.isFinite(fixture.defensiveOpportunity)
-                    ? ` · Def ${fixture.defensiveOpportunity.toFixed(0)}`
-                    : '';
-                return `${fixture.day || '?'} · ${fixture.opponent}${loc}${def}`;
-            }
-
-            function pairingDetailHtml(pair) {
-                function statusLabel(status, club, windowMeta) {
-                    if (status === 'LEAGUE_OFF') {
-                        const freeHit = windowMeta && windowMeta.free_hit_eligible ? ' · FREE HIT' : '';
-                        return `${club}: league off${freeHit}`;
-                    }
-                    if (status === 'CLUB_BLANK') return `${club}: no club fixture (league active)`;
-                    if (status === 'TBD') return `${club}: schedule TBD`;
-                    if (status === 'DOUBLE') return `${club}: DGW`;
-                    return '';
-                }
-
-                return pair.details.map(d => {
-                    if (!d.comparable) {
-                        const aLabel = statusLabel(d.statusA, pair.a.club, d.windowMeta);
-                        const bLabel = statusLabel(d.statusB, pair.b.club, d.windowMeta);
-                        const labels = [aLabel, bLabel].filter(Boolean).join(' / ');
-
-                        let classes = 'pairing-gw-chip text-gray-500';
-                        if (d.statusA === 'LEAGUE_OFF' || d.statusB === 'LEAGUE_OFF') {
-                            classes = 'pairing-gw-chip text-indigo-700 bg-indigo-50 border-indigo-200';
-                        } else if (d.statusA === 'CLUB_BLANK' || d.statusB === 'CLUB_BLANK') {
-                            classes = 'pairing-gw-chip text-red-700 bg-red-50 border-red-200';
-                        }
-
-                        return `<span class="${classes}"><strong>GW${d.gw}</strong> · ${labels || 'Not comparable'}</span>`;
-                    }
-
-                    const mark = d.different ? '✓' : '✕';
-                    const markClass = d.different ? 'text-green-700' : 'text-red-700';
-                    const gapText = d.different && d.gap ? ` · ${d.gap}d apart` : '';
-                    const doubleText = (d.statusA === 'DOUBLE' || d.statusB === 'DOUBLE') ? ' · DGW' : '';
-
-                    return `<span class="pairing-gw-chip">
-                        <strong>GW${d.gw}</strong>
-                        <span>${pairingFixtureLabel(d.a)}</span>
-                        <span class="text-gray-400">/</span>
-                        <span>${pairingFixtureLabel(d.b)}</span>
-                        <span class="${markClass} font-bold">${mark}</span>
-                        <span class="text-gray-400">${gapText}${doubleText}</span>
-                    </span>`;
-                }).join('');
-            }
-
-            function renderPairings() {
-                if (!fullPlayerData || !fullPlayerData.length) return;
-
-                let fromGw = Number($('#pairings-from-gw').val());
-                let toGw = Number($('#pairings-to-gw').val());
-                const league = $('#pairings-league').val();
-                const mode = $('#pairings-mode').val() || 'gk';
-                const minPairingPct = Number($('#pairings-min-pct').val() || 75);
-
-                if (!Number.isFinite(fromGw) || !Number.isFinite(toGw)) return;
-                if (fromGw > toGw) {
-                    [fromGw, toGw] = [toGw, fromGw];
-                    $('#pairings-from-gw').val(String(fromGw));
-                    $('#pairings-to-gw').val(String(toGw));
-                }
-
-                const pairs = buildAllPairings(fullPlayerData, league, fromGw, toGw);
-                const shown = pairs.filter(pair => pair.comparable > 0 && pair.pct + 0.0001 >= minPairingPct);
-
-                $('#pairings-extra-header').text(mode === 'gk' ? 'Projected GK Pair' : 'Day Pattern');
-
-                const leagueLabel = league || 'WSL + WSL2';
-                $('#pairings-summary').html(
-                    `<span class="font-semibold">${leagueLabel}, GW${fromGw}–GW${toGw}:</span> `
-                    + `${shown.length} of ${pairs.length} club pairs shown at ≥${minPairingPct}% pairing. `
-                    + `<span class="text-gray-500">Pairing % uses only GWs where both clubs actually have a fixture. Coverage shows how many selected GWs are comparable. League-off/Free Hit weeks and club-specific blanks are tracked separately.</span>`
-                );
-
-                const $body = $('#pairings-table-body').empty();
-
-                if (!shown.length) {
-                    $body.html('<tr><td colspan="9" class="px-3 py-8 text-center text-gray-500">No pairings meet this minimum pairing percentage for the selected window.</td></tr>');
-                    return;
-                }
-
-                shown.forEach((pair, idx) => {
-                    let extra = '';
-
-                    if (mode === 'gk') {
-                        if (pair.gkA && pair.gkB) {
-                            extra = `
-                                <div class="font-medium text-gray-800">${pair.gkA.name} + ${pair.gkB.name}</div>
-                                <div class="text-xs text-gray-500">£${pair.gkA.value.toFixed(1)}m + £${pair.gkB.value.toFixed(1)}m = £${pair.combinedGkPrice.toFixed(1)}m</div>
-                                <div class="text-xs text-gray-400">Starter confidence: ${pair.gkA.starterConfidence || 'Low'} / ${pair.gkB.starterConfidence || 'Low'}</div>
-                            `;
-                        } else {
-                            extra = '<span class="text-gray-400">GK data unavailable</span>';
-                        }
-                    } else {
-                        const distinctPatterns = pair.details
-                            .filter(d => d.comparable)
-                            .map(d => `${d.a.day || '?'} / ${d.b.day || '?'}`)
-                            .join(' · ');
-                        extra = `<span class="text-xs text-gray-600">${distinctPatterns}</span>`;
-                    }
-
-                    const rowId = `pair-detail-${idx}`;
-                    $body.append(`
-                        <tr class="pairing-row border-t border-gray-100" data-detail-id="${rowId}">
-                            <td class="px-3 py-2 text-gray-500">${idx + 1}</td>
-                            <td class="px-3 py-2">
-                                <div class="font-bold text-gray-900">${pair.a.club} + ${pair.b.club}</div>
-                                <div class="text-xs text-gray-500">${pair.a.league}${pair.a.league !== pair.b.league ? ` + ${pair.b.league}` : ''}</div>
-                            </td>
-                            <td class="px-3 py-2 text-center font-semibold">${pair.different}/${pair.comparable}</td>
-                            <td class="px-3 py-2 text-center">${pair.same}/${pair.comparable}</td>
-                            <td class="px-3 py-2 text-center"><span class="${pairingPercentClass(pair.pct)}">${pair.pct.toFixed(0)}%</span></td>
-                            <td class="px-3 py-2 text-center">
-                                <div class="font-semibold">${pair.comparable}/${pair.selectedWindowWeeks}</div>
-                                <div class="text-xs text-gray-400">
-                                    ${pair.leagueOffWeeks ? `${pair.leagueOffWeeks} league-off` : ''}
-                                    ${pair.clubBlankWeeks ? `${pair.clubBlankWeeks} club blank` : ''}
-                                </div>
-                            </td>
-                            <td class="px-3 py-2 text-center">
-                                <div class="font-semibold">${pair.separationPoints}</div>
-                                <div class="text-xs text-gray-400">day-gap pts</div>
-                            </td>
-                            <td class="px-3 py-2 text-center">
-                                ${
-                                    Number.isFinite(pair.combinedDefAvg)
-                                        ? `<div class="font-semibold">${pair.combinedDefAvg.toFixed(1)}</div>
-                                           <div class="text-xs text-gray-400">${pair.a.club} ${pair.avgDefA.toFixed(0)} · ${pair.b.club} ${pair.avgDefB.toFixed(0)}</div>`
-                                        : '<span class="text-gray-400">—</span>'
-                                }
-                            </td>
-                            <td class="px-3 py-2">${extra}</td>
-                        </tr>
-                        <tr id="${rowId}" class="pairing-detail-row hidden">
-                            <td colspan="9" class="px-3 py-3">
-                                <div class="flex flex-wrap gap-2">${pairingDetailHtml(pair)}</div>
-                            </td>
-                        </tr>
-                    `);
-                });
-
-                $('#pairings-table-body .pairing-row').on('click', function() {
-                    const id = $(this).attr('data-detail-id');
-                    $('#' + id).toggleClass('hidden');
-                });
-            }
-
-            function setMainView(view) {
-                const planner = view === 'planner';
-                const pairings = view === 'pairings';
-                const table = !planner && !pairings;
-
-                $('#table-view').toggleClass('hidden', !table);
-                $('#planner-view').toggleClass('hidden', !planner);
-                $('#pairings-view').toggleClass('hidden', !pairings);
-
-                $('#table-view-tab').toggleClass('active', table);
-                $('#planner-view-tab').toggleClass('active', planner);
-                $('#pairings-view-tab').toggleClass('active', pairings);
-
-                if (planner) {
-                    renderPlanner();
-                } else if (pairings) {
-                    renderPairings();
-                } else if (dataTableInstance) {
-                    setTimeout(() => dataTableInstance.columns.adjust().draw(false), 50);
-                }
-            }
-
-            $('#table-view-tab').on('click', () => setMainView('table'));
-            $('#planner-view-tab').on('click', () => setMainView('planner'));
-            $('#pairings-view-tab').on('click', () => setMainView('pairings'));
-            $('#planner-gameweek, #planner-position, #planner-club, #planner-sort, #planner-my-team').on('change', renderPlanner);
-
-            $('#planner-league').on('change', function() {
-                const value = $(this).val();
-                saveLeaguePreference(value);
-                $('#league-filter').val(value);
-                $('#pairings-league').val(value);
-                if (dataTableInstance) dataTableInstance.draw(false);
-                renderPlanner();
-                renderPairings();
-            });
-            $('#planner-search').on('input', renderPlanner);
-
-            $('#pairings-from-gw, #pairings-to-gw, #pairings-mode').on('change', renderPairings);
-            $('#pairings-min-pct').on('input change', function() {
-                $('#pairings-min-pct-value').text(`${$(this).val()}%`);
-                renderPairings();
-            });
-
-            $('#pairings-league').on('change', function() {
-                const value = $(this).val();
-                saveLeaguePreference(value);
-                $('#league-filter').val(value);
-                $('#planner-league').val(value);
-                if (dataTableInstance) dataTableInstance.draw(false);
-                renderPlanner();
-                renderPairings();
-            });
-
-            async function fetchData() {
-                try {
-                    const cacheBuster = '?t=' + new Date().getTime();
-
-                    const [transformedResponse, historyResponse, fixturesResponse] = await Promise.all([
-                        fetch(TRANSFORMED_DATA_PATH + cacheBuster),
-                        fetch(PLAYER_HISTORY_PATH + cacheBuster),
-                        fetch(FIXTURES_PATH + cacheBuster)
-                    ]);
-
-                    if (!transformedResponse.ok) {
-                         throw new Error(`Transformed data network response was not ok: ${transformedResponse.statusText}`);
-                    }
-                    
-                    const transformedPayload = await transformedResponse.json();
-                    const playerData = transformedPayload.players || [];
-                    const transformedMetadata = transformedPayload.metadata || {};
-                    window.transformedMetadataForUI = transformedMetadata;
-                    
-                    try {
-                        if (fixturesResponse.ok) {
-                            const fixturePayload = await fixturesResponse.json();
-                            fullFixtureData = Array.isArray(fixturePayload)
-                                ? fixturePayload
-                                : (fixturePayload.fixtures || fixturePayload.data || []);
-                        } else {
-                            console.warn(`Full fixture data network response was not ok: ${fixturesResponse.statusText}. Pairings will fall back to the player feed.`);
-                            fullFixtureData = [];
-                        }
-                    } catch (fixtureError) {
-                        console.warn('Could not parse fixtures.json. Pairings will fall back to the player feed.', fixtureError);
-                        fullFixtureData = [];
-                    }
-
-                    try {
-                        let historyObject = {};
-                        if (historyResponse.ok) {
-                            historyObject = await historyResponse.json();
-                        } else {
-                            console.warn(`Player history data network response was not ok: ${historyResponse.statusText}. Chart will show no data.`);
-                        }
-                        
-                        if (typeof historyObject === 'object' && historyObject !== null && Object.keys(historyObject).length > 0) { 
-                             
-                            playerHistoryData = {}; 
-                            let totalEntries = 0;
-
-                            for (const playerName in historyObject) {
-                                if (historyObject.hasOwnProperty(playerName)) {
-                                    const normalizedKey = normalizeKey(playerName);
-                                    
-                                    const historyByDate = historyObject[playerName];
-                                    const historyArray = [];
-
-                                    for (const date in historyByDate) {
-                                        if (historyByDate.hasOwnProperty(date)) {
-                                            historyArray.push({
-                                                timestamp: date, 
-                                                value: historyByDate[date].Value,
-                                                selected_by_percent: historyByDate[date]["Selected Percentage"],
-                                                form_rating: historyByDate[date]["Form Rating"]
-                                            });
-                                        }
-                                    }
-
-                                    historyArray.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-
-                                    playerHistoryData[normalizedKey] = historyArray; 
-                                    totalEntries++;
-                                }
-                            }
-                        } else {
-                             playerHistoryData = {}; 
-                        }
-
-                    } catch (e) {
-                        console.error("Error processing player history JSON. Chart will show no data. Ensure history data is a valid JSON object.", e);
-                        playerHistoryData = {}; 
-                    }
-
-                    fullPlayerData = playerData.slice();
-
-                    const initialLeaguePreference = getStoredLeaguePreference();
-                    $('#league-filter').val(initialLeaguePreference);
-                    $('#planner-league').val(initialLeaguePreference);
-                    $('#pairings-league').val(initialLeaguePreference);
-
-                    initializeTable(playerData);
-                    populatePlannerControls(playerData, transformedMetadata.matchday_id);
-                    populatePairingsControls(playerData, transformedMetadata.matchday_id);
-
-                    $('#planner-league').val(initialLeaguePreference);
-                    $('#pairings-league').val(initialLeaguePreference);
-
-                    renderPlanner();
-                    renderPairings();
-                    updateDeltaReferenceNote(transformedMetadata);
-                    
-                } catch (error) {
-                    console.error('Error loading data:', error);
-                    $('#loading-message').text('Failed to load player data. Check console for error details.');
-                }
-            }
-            // --- END MODIFIED DATA FETCHING FUNCTION ---
-
-            fetchData();
-            
-            $(window).on('resize orientationchange', function () {
-                if (dataTableInstance) {
-                    setTimeout(() => {
-                        dataTableInstance.columns.adjust().draw(false);
-                    }, 200);
-                }
-            });
-        });
-    </script>
-    
-    <center><a href="https://spannerj.github.io/wsl_stats/">Adapted for Fantasy WSL from spannerj's original Fantasy WSL stats project.</a></center>
-
-</body>
-
-</html>
+
+def parse_dt(value: str | None) -> datetime | None:
+    if not value:
+        return None
+    try:
+        return datetime.fromisoformat(value.replace("Z", "+00:00")).replace(tzinfo=timezone.utc)
+    except ValueError:
+        return None
+
+
+def fixture_local_dt(value: str | None) -> datetime | None:
+    dt = parse_dt(value)
+    return dt.astimezone(UK_TZ) if dt else None
+
+
+def format_fixture_date(value: str | None) -> str:
+    dt = fixture_local_dt(value)
+    if not dt:
+        return ""
+    # WSL fixtures are shown in UK local time (GMT/BST as appropriate).
+    return f"{dt.day} {dt.strftime('%b')}"
+
+
+def format_fixture_time(value: str | None) -> str:
+    dt = fixture_local_dt(value)
+    if not dt:
+        return ""
+    return dt.strftime("%H:%M")
+
+
+def format_fixture_date_iso(value: str | None) -> str:
+    dt = fixture_local_dt(value)
+    if not dt:
+        return ""
+    return dt.date().isoformat()
+
+
+def format_fixture_day(value: str | None) -> str:
+    dt = fixture_local_dt(value)
+    if not dt:
+        return ""
+    return dt.strftime("%A")
+
+
+def format_fixture_day_short(value: str | None) -> str:
+    dt = fixture_local_dt(value)
+    if not dt:
+        return ""
+    return dt.strftime("%a").upper()
+
+
+
+def assign_canonical_fantasy_gameweeks(
+    fixtures: list[dict[str, Any]],
+    max_gap_days: int = 3,
+) -> list[dict[str, Any]]:
+    """Assign a shared Fantasy GW across WSL and WSL2 by calendar window.
+
+    The two competitions' own matchday numbers diverge during the season.
+    Fantasy rotation/substitution analysis needs a single chronological
+    scoring-window index instead.
+
+    We cluster published *league* fixtures into calendar windows. Consecutive
+    fixture dates no more than max_gap_days apart belong to the same Fantasy
+    GW. A later cluster becomes the next Fantasy GW. This naturally preserves
+    WSL-only or WSL2-only league weekends as their own fantasy scoring window.
+
+    The original competition matchday remains available as league_game_week.
+    """
+    dated = []
+    for fixture in fixtures:
+        date_str = fixture.get("fixture_date_iso")
+        if not date_str:
+            continue
+        try:
+            d = datetime.fromisoformat(date_str).date()
+        except Exception:
+            continue
+        dated.append((d, fixture))
+
+    dated.sort(key=lambda item: (item[0], str(item[1].get("match_id") or "")))
+
+    clusters: list[dict[str, Any]] = []
+    for d, fixture in dated:
+        if not clusters:
+            clusters.append({"start": d, "end": d, "fixtures": [fixture]})
+            continue
+
+        previous_end = clusters[-1]["end"]
+        gap = (d - previous_end).days
+
+        if gap <= max_gap_days:
+            clusters[-1]["end"] = max(clusters[-1]["end"], d)
+            clusters[-1]["fixtures"].append(fixture)
+        else:
+            clusters.append({"start": d, "end": d, "fixtures": [fixture]})
+
+    windows: list[dict[str, Any]] = []
+    for fantasy_gw, cluster in enumerate(clusters, start=1):
+        active_competitions = sorted({
+            str(f.get("competition_id") or "")
+            for f in cluster["fixtures"]
+            if f.get("competition_id")
+        })
+        active_leagues = [competition_label(comp) for comp in active_competitions]
+
+        for fixture in cluster["fixtures"]:
+            fixture["league_game_week"] = fixture.get("game_week")
+            fixture["fantasy_game_week"] = str(fantasy_gw)
+            fixture["fantasy_window_start"] = cluster["start"].isoformat()
+            fixture["fantasy_window_end"] = cluster["end"].isoformat()
+
+        if len(active_leagues) == 1:
+            window_type = f"{active_leagues[0]}_ONLY"
+            free_hit_eligible = True
+        else:
+            window_type = "BOTH_LEAGUES"
+            free_hit_eligible = False
+
+        windows.append({
+            "fantasy_game_week": str(fantasy_gw),
+            "start_date": cluster["start"].isoformat(),
+            "end_date": cluster["end"].isoformat(),
+            "active_competition_ids": active_competitions,
+            "active_leagues": active_leagues,
+            "window_type": window_type,
+            "free_hit_eligible": free_hit_eligible,
+            "fixture_count": len(cluster["fixtures"]),
+        })
+
+    return windows
+
+
+
+def normalize_fixture(fixture: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "match_id": fixture.get("matchId"),
+        "provider_id": fixture.get("providerId"),
+        "competition_id": fixture.get("competitionId"),
+        "status": fixture.get("status"),
+        "provider_status": fixture.get("providerStatus"),
+        "match_date_time_utc": fixture.get("matchDateTimeUtc"),
+        "fixture_date_iso": format_fixture_date_iso(fixture.get("matchDateTimeUtc")),
+        "fixture_day": format_fixture_day(fixture.get("matchDateTimeUtc")),
+        "fixture_day_short": format_fixture_day_short(fixture.get("matchDateTimeUtc")),
+        "fixture_day_number": fixture_local_dt(fixture.get("matchDateTimeUtc")).isoweekday() if fixture_local_dt(fixture.get("matchDateTimeUtc")) else None,
+        "game_date": format_fixture_date(fixture.get("matchDateTimeUtc")),
+        "kick_off_time": format_fixture_time(fixture.get("matchDateTimeUtc")),
+        "game_week": str(fixture.get("matchdayId") or ""),
+        "gameday_id": fixture.get("gamedayId"),
+        "home_id": fixture.get("homeAcronymName") or compact_id(fixture.get("homeTeamId")),
+        "home_team_id": fixture.get("homeTeamId"),
+        "home_provider_id": fixture.get("homeProviderId"),
+        "home_name": fixture.get("homeOfficialName") or fixture.get("homeMediaName"),
+        "home_short_name": fixture.get("homeShortName") or fixture.get("homeMediaShortName"),
+        "home_rating": fixture.get("homeRating"),
+        "away_id": fixture.get("awayAcronymName") or compact_id(fixture.get("awayTeamId")),
+        "away_team_id": fixture.get("awayTeamId"),
+        "away_provider_id": fixture.get("awayProviderId"),
+        "away_name": fixture.get("awayOfficialName") or fixture.get("awayMediaName"),
+        "away_short_name": fixture.get("awayShortName") or fixture.get("awayMediaShortName"),
+        "away_rating": fixture.get("awayRating"),
+        "home_score": fixture.get("homeScore"),
+        "away_score": fixture.get("awayScore"),
+        "deadline_date": fixture.get("deadlineDate"),
+    }
+
+
+def normalize_team(team: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "team_id": team.get("teamId"),
+        "provider_id": team.get("providerId"),
+        "competition_id": team.get("competitionId"),
+        "name": team.get("officialName") or team.get("mediaName"),
+        "short_name": team.get("shortName") or team.get("mediaShortName"),
+        "acronym": team.get("acronymName"),
+    }
+
+
+def load_history() -> dict[str, dict[str, dict[str, float]]]:
+    if not HISTORY_PATH.exists():
+        return {}
+    try:
+        return json.loads(HISTORY_PATH.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return {}
+
+
+def update_history(players: list[dict[str, Any]]) -> dict[str, dict[str, dict[str, float]]]:
+    history = load_history()
+    today = datetime.now(timezone.utc).date().isoformat()
+    for player in players:
+        key = player["Name"]
+        history.setdefault(key, {})[today] = {
+            "Value": safe_float(player.get("Value")),
+            "Selected Percentage": safe_float(player.get("Selected Percentage")),
+        }
+    HISTORY_PATH.write_text(json.dumps(history, ensure_ascii=False, indent=2, sort_keys=True), encoding="utf-8")
+    return history
+
+
+def selected_delta(history: dict[str, Any], name: str, current: float, days_back: int = 7) -> float:
+    snapshots = history.get(name, {})
+    if not snapshots:
+        return 0.0
+    dates = sorted(snapshots)
+    if len(dates) < 2:
+        return 0.0
+    # Prefer a snapshot at least N days old; otherwise use oldest available.
+    current_date = datetime.now(timezone.utc).date()
+    baseline_date = dates[0]
+    for d in dates:
+        try:
+            age = (current_date - datetime.fromisoformat(d).date()).days
+        except ValueError:
+            continue
+        if age >= days_back:
+            baseline_date = d
+    baseline = safe_float(snapshots.get(baseline_date, {}).get("Selected Percentage"))
+    return round(current - baseline, 2)
+
+
+def detect_last_global_price_change_date(history: dict[str, Any]) -> str | None:
+    changed_dates: list[str] = []
+    for snapshots in history.values():
+        dates = sorted(snapshots)
+        for prev, cur in zip(dates, dates[1:]):
+            if safe_float(snapshots[prev].get("Value")) != safe_float(snapshots[cur].get("Value")):
+                changed_dates.append(cur)
+    return max(changed_dates) if changed_dates else None
+
+
+def selected_delta_since(history: dict[str, Any], name: str, current: float, since_date: str | None) -> float:
+    if not since_date:
+        return 0.0
+    snapshots = history.get(name, {})
+    if since_date not in snapshots:
+        return 0.0
+    return round(current - safe_float(snapshots[since_date].get("Selected Percentage")), 2)
+
+
+def competition_label(competition_id: str | None) -> str:
+    return COMPETITION_LABELS.get(competition_id, "Other")
+
+
+def percentile(values: list[float], q: float) -> float | None:
+    if not values:
+        return None
+    vals = sorted(values)
+    if len(vals) == 1:
+        return vals[0]
+    pos = (len(vals) - 1) * q
+    lo = int(math.floor(pos))
+    hi = int(math.ceil(pos))
+    if lo == hi:
+        return vals[lo]
+    frac = pos - lo
+    return vals[lo] * (1 - frac) + vals[hi] * frac
+
+
+def build_competition_fixture_calibration(players_raw: list[dict[str, Any]]) -> dict[str, dict[str, float]]:
+    """Create league-relative fixture difficulty bands.
+
+    The launch feed's currentRating values live in very different numeric bands
+    for WSL and WSL2. Treating them as one global scale makes virtually every
+    WSL2 fixture look easier than every WSL fixture. For fantasy purposes we
+    instead compare an opponent to the other opponents in the same competition.
+
+    We deduplicate by competition/team/match, then use the 10th and 90th
+    percentiles of source difficulty as the easy/hard anchors. Those anchors
+    map to 90 and 10 on the parser's common opportunity scale.
+    """
+    by_comp: dict[str, dict[tuple[str, str], float]] = {}
+    for player in players_raw:
+        comp = player.get("competitionId")
+        own_team = str(player.get("teamId") or player.get("teamAcronymName") or "")
+        if not comp:
+            continue
+        bucket = by_comp.setdefault(comp, {})
+        for f in player.get("upcomingFixtures", []) or []:
+            raw = f.get("currentRating")
+            if raw in (None, ""):
+                continue
+            key = (own_team, str(f.get("matchId") or f.get("matchdayId") or len(bucket)))
+            bucket[key] = safe_float(raw)
+
+    calibration: dict[str, dict[str, float]] = {}
+    for comp, keyed in by_comp.items():
+        vals = list(keyed.values())
+        easy = percentile(vals, 0.10)
+        hard = percentile(vals, 0.90)
+        if easy is None or hard is None:
+            continue
+        if hard <= easy:
+            easy = min(vals)
+            hard = max(vals)
+        if hard <= easy:
+            hard = easy + 1.0
+        calibration[comp] = {
+            "easy_anchor": round(easy, 2),
+            "hard_anchor": round(hard, 2),
+            "sample_count": float(len(vals)),
+        }
+    return calibration
+
+
+def wsl_difficulty_to_opportunity(
+    difficulty: float | None,
+    competition_id: str | None = None,
+    calibration: dict[str, dict[str, float]] | None = None,
+) -> float | None:
+    """Convert source difficulty into a common 0-100 league-relative opportunity score.
+
+    Higher source currentRating = harder. Higher parser Fixture Rating = better.
+    WSL and WSL2 are normalized separately so a mid-table WSL2 opponent is not
+    automatically rated easier than every WSL opponent merely because the two
+    competitions occupy different source-rating bands.
+    """
+    if difficulty is None:
+        return None
+    d = safe_float(difficulty)
+    band = (calibration or {}).get(competition_id or "")
+    if band:
+        easy = safe_float(band.get("easy_anchor"))
+        hard = safe_float(band.get("hard_anchor"))
+        span = max(hard - easy, 0.01)
+        # easy anchor -> 90 opportunity, hard anchor -> 10; allow modest
+        # extension beyond anchors and clamp to the common 0-100 scale.
+        opportunity = 90.0 - ((d - easy) / span) * 80.0
+        return round(max(0.0, min(100.0, opportunity)), 1)
+
+    # Conservative fallback if a new/unknown competition appears.
+    return round(max(0.0, min(100.0, 190.0 - (2.0 * d))), 1)
+
+
+def rank_percentile(values: dict[str, float]) -> dict[str, float]:
+    if not values:
+        return {}
+    ordered = sorted(values.items(), key=lambda item: item[1])
+    if len(ordered) == 1:
+        return {ordered[0][0]: 0.5}
+    return {
+        team: idx / (len(ordered) - 1)
+        for idx, (team, _) in enumerate(ordered)
+    }
+
+
+def build_team_strength_priors(players_raw: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    """Build preseason team-strength priors from the current roster.
+
+    Team raw score = sum of the top 11 previous-season fantasy point totals on
+    the current roster. Ranking happens within the current competition first,
+    so WSL2 totals are never treated as directly equal to WSL totals.
+
+    Promoted/relegated clubs are then mapped onto a sensible destination-league
+    preseason band instead of receiving a flat fixture-rating adjustment.
+    """
+    team_info: dict[str, dict[str, Any]] = {}
+
+    for raw in players_raw:
+        team = str(raw.get("teamAcronymName") or raw.get("teamShortName") or "").upper()
+        comp = raw.get("competitionId")
+        if not team or not comp:
+            continue
+        bucket = team_info.setdefault(team, {
+            "competition_id": comp,
+            "prior_points": [],
+            "player_count": 0,
+        })
+        bucket["player_count"] += 1
+        pts = safe_float(raw.get("pointsLastSeason"), 0.0)
+        if pts > 0:
+            bucket["prior_points"].append(pts)
+
+    scores_by_comp: dict[str, dict[str, float]] = {}
+    raw_scores: dict[str, float] = {}
+
+    for team, info in team_info.items():
+        score = sum(sorted(info["prior_points"], reverse=True)[:11])
+        raw_scores[team] = score
+        scores_by_comp.setdefault(info["competition_id"], {})[team] = score
+
+    ranks_by_comp = {
+        comp: rank_percentile(scores)
+        for comp, scores in scores_by_comp.items()
+    }
+
+    priors: dict[str, dict[str, Any]] = {}
+    for team, info in team_info.items():
+        comp = info["competition_id"]
+        rank = ranks_by_comp.get(comp, {}).get(team, 0.5)
+        note = ""
+
+        if comp == WSL_COMPETITION_ID:
+            if team in PROMOTED_TO_WSL:
+                strength = 0.20 + (0.18 * rank)   # 0.20..0.38
+                note = "Promoted to WSL: lower-WSL preseason strength band"
+            else:
+                strength = 0.18 + (0.74 * rank)   # 0.18..0.92
+        elif comp == WSL2_COMPETITION_ID:
+            if team in RELEGATED_TO_WSL2:
+                strength = 0.78 + (0.10 * rank)   # 0.78..0.88
+                note = "Relegated to WSL2: upper-WSL2 preseason strength band"
+            else:
+                strength = 0.15 + (0.70 * rank)   # 0.15..0.85
+        else:
+            strength = 0.25 + (0.50 * rank)
+
+        priors[team] = {
+            "competition_id": comp,
+            "raw_roster_prior_points_top11": round(raw_scores.get(team, 0.0), 1),
+            "within_competition_rank": round(rank, 4),
+            "strength_index": round(max(0.05, min(0.95, strength)), 4),
+            "player_count": info["player_count"],
+            "transition_note": note,
+        }
+
+    return priors
+
+
+
+def map_rank_to_destination_strength(
+    team: str,
+    competition_id: str | None,
+    rank: float,
+) -> tuple[float, str]:
+    """Map an intra-competition rank onto a preseason destination-league scale."""
+    note = ""
+
+    if competition_id == WSL_COMPETITION_ID:
+        if team in PROMOTED_TO_WSL:
+            strength = 0.20 + (0.18 * rank)   # 0.20..0.38
+            note = "Promoted to WSL: lower-WSL preseason unit-strength band"
+        else:
+            strength = 0.18 + (0.74 * rank)   # 0.18..0.92
+    elif competition_id == WSL2_COMPETITION_ID:
+        if team in RELEGATED_TO_WSL2:
+            strength = 0.78 + (0.10 * rank)   # 0.78..0.88
+            note = "Relegated to WSL2: upper-WSL2 preseason unit-strength band"
+        else:
+            strength = 0.15 + (0.70 * rank)   # 0.15..0.85
+    else:
+        strength = 0.25 + (0.50 * rank)
+
+    return max(0.05, min(0.95, strength)), note
+
+
+def build_team_unit_priors(
+    players_raw: list[dict[str, Any]],
+    team_strength: dict[str, dict[str, Any]],
+) -> dict[str, dict[str, Any]]:
+    """Build separate preseason attacking and defensive team-strength priors.
+
+    Attack prior: top six prior-season fantasy point totals among MID/FOR.
+    Defense prior: top five prior-season fantasy point totals among GK/DEF.
+
+    Each unit is ranked within its current competition first, then mapped onto
+    the destination-league scale. We blend 70% unit-specific evidence with
+    30% whole-team strength to reduce noise when a club has many new signings
+    or sparse prior-season data.
+    """
+    units: dict[str, dict[str, Any]] = {}
+
+    for raw in players_raw:
+        team = str(raw.get("teamAcronymName") or raw.get("teamShortName") or "").upper()
+        comp = raw.get("competitionId")
+        if not team or not comp:
+            continue
+
+        position = POSITION_MAP.get(
+            str(raw.get("skillName") or "").lower(),
+            str(raw.get("skillName") or "").upper()
+        )
+        pts = safe_float(raw.get("pointsLastSeason"), 0.0)
+
+        bucket = units.setdefault(team, {
+            "competition_id": comp,
+            "attack_points": [],
+            "defense_points": [],
+        })
+
+        if pts > 0:
+            if position in {"MID", "FOR"}:
+                bucket["attack_points"].append(pts)
+            elif position in {"GK", "DEF"}:
+                bucket["defense_points"].append(pts)
+
+    attack_scores_by_comp: dict[str, dict[str, float]] = {}
+    defense_scores_by_comp: dict[str, dict[str, float]] = {}
+
+    for team, info in units.items():
+        attack_score = sum(sorted(info["attack_points"], reverse=True)[:6])
+        defense_score = sum(sorted(info["defense_points"], reverse=True)[:5])
+        comp = info["competition_id"]
+        attack_scores_by_comp.setdefault(comp, {})[team] = attack_score
+        defense_scores_by_comp.setdefault(comp, {})[team] = defense_score
+
+    attack_ranks = {
+        comp: rank_percentile(scores)
+        for comp, scores in attack_scores_by_comp.items()
+    }
+    defense_ranks = {
+        comp: rank_percentile(scores)
+        for comp, scores in defense_scores_by_comp.items()
+    }
+
+    priors: dict[str, dict[str, Any]] = {}
+
+    for team, info in units.items():
+        comp = info["competition_id"]
+        attack_rank = attack_ranks.get(comp, {}).get(team, 0.5)
+        defense_rank = defense_ranks.get(comp, {}).get(team, 0.5)
+
+        attack_mapped, attack_note = map_rank_to_destination_strength(team, comp, attack_rank)
+        defense_mapped, defense_note = map_rank_to_destination_strength(team, comp, defense_rank)
+
+        generic_strength = safe_float(team_strength.get(team, {}).get("strength_index"), 0.50)
+
+        attack_strength = (0.70 * attack_mapped) + (0.30 * generic_strength)
+        defense_strength = (0.70 * defense_mapped) + (0.30 * generic_strength)
+
+        priors[team] = {
+            "competition_id": comp,
+            "attack_raw_points_top6": round(sum(sorted(info["attack_points"], reverse=True)[:6]), 1),
+            "defense_raw_points_top5": round(sum(sorted(info["defense_points"], reverse=True)[:5]), 1),
+            "attack_rank": round(attack_rank, 4),
+            "defense_rank": round(defense_rank, 4),
+            "attack_strength_index": round(max(0.05, min(0.95, attack_strength)), 4),
+            "defense_strength_index": round(max(0.05, min(0.95, defense_strength)), 4),
+            "attack_transition_note": attack_note,
+            "defense_transition_note": defense_note,
+        }
+
+    return priors
+
+
+def defensive_fixture_opportunity(
+    own_team_code: str | None,
+    opponent_code: str | None,
+    location: str | None,
+    unit_strength: dict[str, dict[str, Any]],
+) -> tuple[float, dict[str, Any]]:
+    """Estimate GK/defensive fixture favorability, 0..100, higher = better.
+
+    This deliberately answers a different question from the general fixture
+    score: how favorable is the matchup for keeping goals out?
+
+    Opponent attack carries the largest weight; own defensive strength also
+    matters; home/away is explicit.
+    """
+    own = str(own_team_code or "").upper()
+    opp = str(opponent_code or "").upper()
+
+    own_info = unit_strength.get(own, {})
+    opp_info = unit_strength.get(opp, {})
+
+    own_defense = safe_float(own_info.get("defense_strength_index"), 0.50)
+    opp_attack = safe_float(opp_info.get("attack_strength_index"), 0.50)
+
+    venue = 5.0 if location == "H" else -5.0 if location == "A" else 0.0
+
+    # Opponent attacking quality is intentionally the dominant term.
+    score = (
+        50.0
+        + ((own_defense - 0.50) * 25.0)
+        + ((0.50 - opp_attack) * 55.0)
+        + venue
+    )
+    score = round(max(8.0, min(92.0, score)), 1)
+
+    return score, {
+        "own_defense_strength_index": round(own_defense, 4),
+        "opponent_attack_strength_index": round(opp_attack, 4),
+        "venue_adjustment": venue,
+        "own_defense_transition_note": own_info.get("defense_transition_note", ""),
+        "opponent_attack_transition_note": opp_info.get("attack_transition_note", ""),
+    }
+
+
+
+def source_opportunity_softened(
+    difficulty: float | None,
+    competition_id: str | None,
+    calibration: dict[str, dict[str, float]] | None,
+) -> float | None:
+    raw = wsl_difficulty_to_opportunity(difficulty, competition_id, calibration)
+    if raw is None:
+        return None
+    # Convert the old 0..100 source component to 10..90 before blending.
+    return round(10.0 + (0.80 * raw), 1)
+
+
+def team_matchup_opportunity(
+    own_team_code: str | None,
+    opponent_code: str | None,
+    location: str | None,
+    team_strength: dict[str, dict[str, Any]],
+) -> tuple[float, dict[str, Any]]:
+    own = str(own_team_code or "").upper()
+    opp = str(opponent_code or "").upper()
+
+    own_info = team_strength.get(own, {})
+    opp_info = team_strength.get(opp, {})
+    own_strength = safe_float(own_info.get("strength_index"), 0.50)
+    opp_strength = safe_float(opp_info.get("strength_index"), 0.50)
+
+    venue = (
+        HOME_ADVANTAGE_POINTS if location == "H"
+        else AWAY_DISADVANTAGE_POINTS if location == "A"
+        else 0.0
+    )
+
+    score = 50.0 + ((own_strength - opp_strength) * 60.0) + venue
+    score = round(max(8.0, min(92.0, score)), 1)
+
+    return score, {
+        "own_strength_index": round(own_strength, 4),
+        "opponent_strength_index": round(opp_strength, 4),
+        "venue_adjustment": venue,
+        "own_transition_note": own_info.get("transition_note", ""),
+        "opponent_transition_note": opp_info.get("transition_note", ""),
+    }
+
+
+def blended_fixture_opportunity(
+    difficulty: float | None,
+    own_team_code: str | None,
+    opponent_code: str | None,
+    location: str | None,
+    competition_id: str | None,
+    calibration: dict[str, dict[str, float]] | None,
+    team_strength: dict[str, dict[str, Any]],
+) -> tuple[float, dict[str, Any]]:
+    source_score = source_opportunity_softened(difficulty, competition_id, calibration)
+    matchup_score, detail = team_matchup_opportunity(
+        own_team_code, opponent_code, location, team_strength
+    )
+
+    if source_score is None:
+        final = matchup_score
+        source_weight = 0.0
+        matchup_weight = 1.0
+    else:
+        source_weight = SOURCE_RATING_WEIGHT
+        matchup_weight = TEAM_MATCHUP_WEIGHT
+        final = (
+            source_score * source_weight
+            + matchup_score * matchup_weight
+        )
+
+    final = round(max(5.0, min(95.0, final)), 1)
+
+    return final, {
+        "source_opportunity_softened": source_score,
+        "source_weight": source_weight,
+        "team_matchup_opportunity": matchup_score,
+        "team_matchup_weight": matchup_weight,
+        **detail,
+    }
+
+
+
+def fixture_rating_to_score(rating: float | None) -> int | str:
+    """Convert 0-100 opportunity to 1-5: 5 = easiest/best, 1 = hardest."""
+    if rating is None:
+        return "-"
+    r = safe_float(rating, 50.0)
+    if r >= 80:
+        return 5
+    if r >= 65:
+        return 4
+    if r >= 45:
+        return 3
+    if r >= 25:
+        return 2
+    return 1
+
+
+def build_upcoming_fixture(
+    raw: dict[str, Any],
+    own_team_id: str | None = None,
+    own_team_name: str | None = None,
+    own_team_short_name: str | None = None,
+    competition_id: str | None = None,
+    fixture_calibration: dict[str, dict[str, float]] | None = None,
+    team_strength: dict[str, dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    difficulty = raw.get("currentRating")
+    location = raw.get("location")
+    opponent_id = raw.get("vsTeamAcronymName") or compact_id(raw.get("vsTeamId"))
+    opponent_name = raw.get("vsTeamName")
+    opponent_short = raw.get("vsTeamShortName")
+
+    source_base = wsl_difficulty_to_opportunity(
+        difficulty, competition_id, fixture_calibration
+    )
+    opportunity, model_detail = blended_fixture_opportunity(
+        difficulty,
+        own_team_id,
+        opponent_id,
+        location,
+        competition_id,
+        fixture_calibration,
+        team_strength or {},
+    )
+
+    if location == "H":
+        home_id, home_name, home_short = own_team_id, own_team_name, own_team_short_name
+        away_id, away_name, away_short = opponent_id, opponent_name, opponent_short
+    elif location == "A":
+        home_id, home_name, home_short = opponent_id, opponent_name, opponent_short
+        away_id, away_name, away_short = own_team_id, own_team_name, own_team_short_name
+    else:
+        home_id = home_name = home_short = ""
+        away_id = away_name = away_short = ""
+
+    fixture_dt = fixture_local_dt(raw.get("matchDateTimeUtc"))
+
+    return {
+        "match_date_time_utc": raw.get("matchDateTimeUtc"),
+        "fixture_date_iso": format_fixture_date_iso(raw.get("matchDateTimeUtc")),
+        "fixture_day": format_fixture_day(raw.get("matchDateTimeUtc")),
+        "fixture_day_short": format_fixture_day_short(raw.get("matchDateTimeUtc")),
+        "fixture_day_number": fixture_dt.isoweekday() if fixture_dt else None,
+        "game_date": format_fixture_date(raw.get("matchDateTimeUtc")),
+        "kick_off_time": format_fixture_time(raw.get("matchDateTimeUtc")),
+        "game_week": str(raw.get("matchdayId") or ""),
+        "match_id": raw.get("matchId"),
+        "opponent_id": opponent_id,
+        "opponent_name": opponent_name,
+        "opponent_short_name": opponent_short,
+        "location": location,
+
+        # Raw/source values retained for auditability.
+        "current_rating": difficulty,
+        "fixture_difficulty": difficulty,
+        "competition_id": competition_id,
+        "league": competition_label(competition_id),
+        "source_base_opportunity_rating": source_base,
+
+        # v5 model components.
+        "source_opportunity_softened": model_detail.get("source_opportunity_softened"),
+        "source_weight": model_detail.get("source_weight"),
+        "team_matchup_opportunity": model_detail.get("team_matchup_opportunity"),
+        "team_matchup_weight": model_detail.get("team_matchup_weight"),
+        "own_strength_index": model_detail.get("own_strength_index"),
+        "opponent_strength_index": model_detail.get("opponent_strength_index"),
+        "venue_adjustment": model_detail.get("venue_adjustment"),
+        "own_transition_note": model_detail.get("own_transition_note"),
+        "opponent_transition_note": model_detail.get("opponent_transition_note"),
+
+        "opportunity_rating": opportunity,
+        "home_id": home_id or "",
+        "home_name": home_name or "",
+        "home_short_name": home_short or "",
+        "away_id": away_id or "",
+        "away_name": away_name or "",
+        "away_short_name": away_short or "",
+    }
+
+
+
+def fixture_details_text(fixtures: list[dict[str, Any]], position: str) -> str:
+    if not fixtures:
+        return "No upcoming fixture in feed."
+
+    lines = ["Upcoming fixtures — Fixture Model v5:"]
+    opportunities: list[float] = []
+
+    for f in fixtures:
+        opponent = f.get("opponent_id") or f.get("opponent_short_name") or f.get("opponent_name") or "TBD"
+        loc = f.get("location") or ""
+        opportunity = f.get("opportunity_rating")
+        score = fixture_rating_to_score(opportunity)
+
+        lines.append(
+            f"GW{f.get('game_week')}: vs {opponent} ({loc}) on "
+            f"{f.get('game_date')} {f.get('kick_off_time')}"
+        )
+
+        difficulty = f.get("fixture_difficulty", f.get("current_rating"))
+        if difficulty is not None:
+            lines.append(f"  WSL source difficulty: {difficulty}/100 (higher = harder)")
+
+        if f.get("source_base_opportunity_rating") is not None:
+            lines.append(
+                f"  Source-derived opportunity: {f.get('source_base_opportunity_rating')}/100; "
+                f"softened component: {f.get('source_opportunity_softened')}/100"
+            )
+
+        lines.append(
+            f"  Team matchup: {f.get('team_matchup_opportunity')}/100 "
+            f"(own strength {f.get('own_strength_index')}, "
+            f"opponent {f.get('opponent_strength_index')}, "
+            f"venue {safe_float(f.get('venue_adjustment')):+.1f})"
+        )
+
+        notes = [
+            x for x in (f.get("own_transition_note"), f.get("opponent_transition_note"))
+            if x
+        ]
+        if notes:
+            lines.append("  Division bridge: " + " | ".join(notes))
+
+        if opportunity is not None:
+            opportunities.append(float(opportunity))
+            lines.append(
+                f"  Final fixture opportunity: {opportunity}/100 "
+                f"({int(round(safe_float(f.get('source_weight')) * 100))}% source + "
+                f"{int(round(safe_float(f.get('team_matchup_weight')) * 100))}% team matchup); "
+                f"opportunity bucket: {score}/5"
+            )
+
+    if opportunities:
+        lines.append(
+            f"Average fixture opportunity: "
+            f"{round(sum(opportunities) / len(opportunities), 1)}/100"
+        )
+
+    return "\\n".join(lines)
+
+
+
+def recommendation(player: dict[str, Any]) -> str:
+    total = safe_float(player.get("Total Points"))
+    last_season = safe_float(player.get("Previous Season Points"))
+    selected = safe_float(player.get("Selected Percentage"))
+    value = max(safe_float(player.get("Value")), 0.1)
+    ppm_prev = last_season / value if value else 0.0
+    next_rating = safe_float(player.get("Next Fixture Rating"), 0.0)
+
+    if selected >= 35 and (last_season >= 120 or total >= 80):
+        return "Template"
+    if selected < 15 and (ppm_prev >= 12 or next_rating >= 75):
+        return "Differential"
+    if selected < 5 and (ppm_prev >= 8 or next_rating >= 70):
+        return "Punt"
+    if last_season >= 100 or total >= 70 or next_rating >= 80:
+        return "Watchlist"
+    return "Monitor"
+
+
+def form_rating(player: dict[str, Any]) -> int:
+    # Preseason feeds expose prior-season points and current ownership more
+    # reliably than current form. Once form/averagePoints populate, this starts
+    # using them automatically.
+    form = player.get("Raw Form")
+    avg = player.get("Average Points")
+    if form not in (None, ""):
+        return min(100, max(0, round(safe_float(form) * 12)))
+    if avg not in (None, ""):
+        return min(100, max(0, round(safe_float(avg) * 15)))
+    value = max(safe_float(player.get("Value")), 0.1)
+    prior = safe_float(player.get("Previous Season Points"))
+    return min(100, max(0, round((prior / value) * 4)))
+
+
+def decision_rating(player: dict[str, Any]) -> float:
+    pos = player.get("Position")
+    fixture = safe_float(player.get("Next Fixture Rating"), 50.0)
+    form = safe_float(player.get("Form Rating"), 50.0)
+    if pos == "GK":
+        weights = (0.85, 0.15)
+    elif pos == "DEF":
+        weights = (0.65, 0.35)
+    elif pos == "MID":
+        weights = (0.35, 0.65)
+    else:
+        weights = (0.25, 0.75)
+    return round(fixture * weights[0] + form * weights[1], 1)
+
+
+def transform_player(raw: dict[str, Any], fixture_calibration: dict[str, dict[str, float]], team_strength: dict[str, dict[str, Any]]) -> dict[str, Any]:
+    name = f"{raw.get('mediaFirstName', '').strip()} {raw.get('mediaLastName', '').strip()}".strip()
+    short_name = raw.get("mediaShortName") or name
+    position = POSITION_MAP.get(str(raw.get("skillName") or "").lower(), str(raw.get("skillName") or "").upper())
+    value = safe_float(raw.get("valuation"))
+    selected = safe_float(raw.get("selectedPercentage"))
+    total_points = safe_float(raw.get("totalPoints"))
+    prior_points = safe_float(raw.get("pointsLastSeason"))
+    avg_points = raw.get("averagePoints")
+    raw_form = raw.get("form")
+    own_team_id = raw.get("teamAcronymName") or raw.get("teamShortName")
+    own_team_name = raw.get("teamOfficialName") or raw.get("teamShortName")
+    own_team_short_name = raw.get("teamShortName") or own_team_name
+    competition_id = raw.get("competitionId")
+    upcoming = [
+        build_upcoming_fixture(
+            f, own_team_id, own_team_name, own_team_short_name,
+            competition_id, fixture_calibration, team_strength
+        )
+        for f in raw.get("upcomingFixtures", [])
+    ]
+    next_fixture = upcoming[0] if upcoming else None
+    following_fixture = upcoming[1] if len(upcoming) > 1 else None
+    next_rating = safe_float(next_fixture.get("opportunity_rating"), 0.0) if next_fixture else 0.0
+    following_rating = safe_float(following_fixture.get("opportunity_rating"), 0.0) if following_fixture else 0.0
+
+    row: dict[str, Any] = {
+        "Name": name,
+        "Short Name": short_name,
+        "Player ID": raw.get("playerId"),
+        "Opta Player ID": raw.get("providerId"),
+        "Club": raw.get("teamAcronymName") or raw.get("teamShortName"),
+        "Club Name": raw.get("teamOfficialName") or raw.get("teamShortName"),
+        "Team ID": raw.get("teamId"),
+        "Competition ID": competition_id,
+        "League": competition_label(competition_id),
+        "Division Transition": (
+            "Promoted to WSL" if (raw.get("teamAcronymName") or raw.get("teamShortName")) in PROMOTED_TO_WSL
+            else "Relegated to WSL2" if (raw.get("teamAcronymName") or raw.get("teamShortName")) in RELEGATED_TO_WSL2
+            else ""
+        ),
+        "Team Strength Index": safe_float(team_strength.get(str(own_team_id).upper(), {}).get("strength_index"), 0.5),
+        "Team Strength Rank": safe_float(team_strength.get(str(own_team_id).upper(), {}).get("within_competition_rank"), 0.5),
+        "Position": position,
+        "Value": value,
+        "Nationality": "",
+        "News": availability_text(raw.get("availabilityStatus")),
+        "Availability Status": raw.get("availabilityStatus"),
+        "Is Active": bool(raw.get("isActive")),
+        "Is Playing": bool(raw.get("isPlaying")),
+        "Visionary": False,
+        "Total Points": safe_int(total_points),
+        "Previous Season Points": safe_int(prior_points),
+        "Selected Percentage": selected,
+        "Selected Percentage Change 1W": 0.0,
+        "Selected Percentage Change Since Last Global Price Change": 0.0,
+        "Recommendation": "Monitor",
+        "Hot Pick": False,
+        "Total Games Played": 0,
+        "Total Over 4 Gameweeks": safe_int(raw.get("lastMDPoints")),
+        "Form Rating": 0,
+        "Raw Form": raw_form,
+        "Average Points": avg_points,
+        "Games Played Over 4 Gameweeks": 0,
+        "Points Per Game Over 4 Gameweeks": 0.0,
+        "Points Per Million": round(total_points / value, 2) if value else 0.0,
+        "Points Per Million Over 4 Gameweeks": round(safe_float(raw.get("lastMDPoints")) / value, 2) if value else 0.0,
+        "Previous Season Points Per Million": round(prior_points / value, 2) if value else 0.0,
+        "Total Goals": 0,
+        "Total Assists": 0,
+        "Total Goals + Assists": 0,
+        "Total Red Cards": 0,
+        "Total Yellow Cards": 0,
+        "Total Saves": 0,
+        "Total Own Goals": 0,
+        "Total Conceeded": 0,
+        "Total Conceded": 0,
+        "Total Clean Sheet": 0,
+        "Total Bonus Points": safe_int(raw.get("bonusPointsWon")),
+        "Total Bonus Games": 0,
+        "Total Missed Penalties": 0,
+        "Total Clearances": 0,
+        "Total 1 min Appearances": 0,
+        "Total 60 min Appearances": 0,
+        "Transfers In": safe_int(raw.get("transferIn")),
+        "Transfers Out": safe_int(raw.get("transferOut")),
+        "upcoming_fixtures": upcoming,
+        "Next Fixture Day": next_fixture.get("fixture_day") if next_fixture else "",
+        "Next Fixture Day Short": next_fixture.get("fixture_day_short") if next_fixture else "",
+        "Next Fixture Day Number": next_fixture.get("fixture_day_number") if next_fixture else None,
+        "Next Fixture Date ISO": next_fixture.get("fixture_date_iso") if next_fixture else "",
+        "Next Fixture Kickoff": next_fixture.get("kick_off_time") if next_fixture else "",
+        "Next Fixture Opponent": next_fixture.get("opponent_id") if next_fixture else "",
+        "Next Fixture H/A": next_fixture.get("location") if next_fixture else "",
+        "Sub Flex": max(0, (next_fixture.get("fixture_day_number") or 5) - 5) if next_fixture else 0,
+        "Next Fixture Rating": round(next_rating, 1),
+        "Next Fixture Score": fixture_rating_to_score(next_rating) if next_fixture else "-",
+        "Next Fixture Details": fixture_details_text(upcoming[:1], position),
+        "Following Fixture Rating": round(following_rating, 1),
+        "Following Fixture Score": fixture_rating_to_score(following_rating) if following_fixture else "-",
+        "Following Fixture Details": fixture_details_text(upcoming[1:2], position),
+        "Next Three Fixture Rating": round(
+            sum(safe_float(f.get("opportunity_rating")) for f in upcoming[:3]) / len(upcoming[:3]), 1
+        ) if upcoming[:3] else 0.0,
+        "Next Three Fixture Details": fixture_details_text(upcoming[:3], position),
+        "Decision Rating": 0.0,
+    }
+
+    # Fill matchday columns. The WSL preseason feed has upcoming fixtures but not
+    # completed match-by-match scoring yet, so these start as '-' until richer
+    # matchweek scoring data appears.
+    for i in range(1, MAX_MATCHDAY_COLUMNS + 1):
+        row[str(i)] = "-"
+
+    # If a future feed begins exposing a points-per-match list, support a few
+    # likely key names without changing downstream data shape.
+    for match in raw.get("matchPoints", []) or raw.get("matchwisePoints", []) or []:
+        md = str(match.get("matchdayId") or match.get("gamedayId") or "")
+        if md and md in row:
+            pts = safe_int(match.get("points") or match.get("totalPoints"))
+            row[md] = {"points": pts, "base_points": pts, "visionary_bonus": 0, "tooltip": "WSL feed match points"}
+
+    row["Form Rating"] = form_rating(row)
+    row["Recommendation"] = recommendation(row)
+    row["Decision Rating"] = decision_rating(row)
+    row["Hot Pick"] = bool(row["Decision Rating"] >= 75 and selected < 25)
+    return row
+
+
+def availability_text(status: Any) -> str | None:
+    # The feed currently uses numeric availabilityStatus. Keep the raw value too.
+    if status in (None, ""):
+        return None
+    mapping = {
+        1: None,  # appears available in the launch feed
+        0: "Unavailable or inactive",
+        2: "Doubtful / check status",
+        3: "Unavailable / check status",
+    }
+    return mapping.get(status, f"Availability status: {status}")
+
+
+def build_outputs(from_local: bool = False) -> dict[str, Any]:
+    feeds = {
+        key: fetch_json(path, cache_name=f"{key}.json", from_local=from_local)
+        for key, path in URLS.items()
+    }
+
+    players_raw = value_of(feeds["players"]) or []
+    fixtures_raw = value_of(feeds["fixtures"]) or []
+    teams_value = value_of(feeds["teams"]) or {}
+    teams_raw = teams_value.get("teams", []) if isinstance(teams_value, dict) else []
+
+    fixture_calibration = build_competition_fixture_calibration(players_raw)
+    team_strength = build_team_strength_priors(players_raw)
+    team_unit_strength = build_team_unit_priors(players_raw, team_strength)
+    players = [transform_player(p, fixture_calibration, team_strength) for p in players_raw]
+    history = update_history(players)
+    last_price_change = detect_last_global_price_change_date(history)
+
+    for player in players:
+        selected = safe_float(player.get("Selected Percentage"))
+        player["Selected Percentage Change 1W"] = selected_delta(history, player["Name"], selected, days_back=7)
+        player["Selected Percentage Change Since Last Global Price Change"] = selected_delta_since(
+            history, player["Name"], selected, last_price_change
+        )
+
+    fixtures = [normalize_fixture(f) for f in fixtures_raw]
+    fantasy_gameweeks = assign_canonical_fantasy_gameweeks(fixtures)
+
+    # Full-schedule GK/defensive fixture opportunity for each side.
+    # This is a true defensive matchup model: opponent attacking strength is
+    # dominant, with own defensive strength and venue also contributing.
+    for fixture in fixtures:
+        home_rating, home_detail = defensive_fixture_opportunity(
+            fixture.get("home_id"),
+            fixture.get("away_id"),
+            "H",
+            team_unit_strength,
+        )
+        away_rating, away_detail = defensive_fixture_opportunity(
+            fixture.get("away_id"),
+            fixture.get("home_id"),
+            "A",
+            team_unit_strength,
+        )
+
+        fixture["home_defensive_opportunity"] = home_rating
+        fixture["away_defensive_opportunity"] = away_rating
+
+        fixture["home_defense_strength_index"] = home_detail.get("own_defense_strength_index")
+        fixture["away_defense_strength_index"] = away_detail.get("own_defense_strength_index")
+        fixture["home_opponent_attack_strength_index"] = home_detail.get("opponent_attack_strength_index")
+        fixture["away_opponent_attack_strength_index"] = away_detail.get("opponent_attack_strength_index")
+
+        fixture["home_defensive_transition_note"] = home_detail.get("own_defense_transition_note")
+        fixture["away_defensive_transition_note"] = away_detail.get("own_defense_transition_note")
+        fixture["home_opponent_attack_transition_note"] = home_detail.get("opponent_attack_transition_note")
+        fixture["away_opponent_attack_transition_note"] = away_detail.get("opponent_attack_transition_note")
+
+        fixture["defensive_rating_model"] = "unit-strength-defense-v6"
+
+    teams = [normalize_team(t) for t in teams_raw]
+
+    metadata = {
+        "source": "WSL Fantasy public JSON feeds used by create-team UI",
+        "generated_at_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "matchday_id": MATCHDAY_ID,
+        "tour_id": TOUR_ID,
+        "player_count": len(players),
+        "fixture_count": len(fixtures),
+        "team_count": len(teams),
+        "fantasy_gameweeks": fantasy_gameweeks,
+        "fantasy_calendar_model": {
+            "version": "calendar-cluster-v1",
+            "note": "Canonical Fantasy GWs are shared across WSL and WSL2 and are assigned chronologically from published league fixture dates. Competition-specific matchday numbers are preserved separately as league_game_week. A one-league-only window is flagged free_hit_eligible.",
+            "cluster_max_gap_days": 3,
+            "statuses": {
+                "NORMAL": "Club has one fixture in an active league window.",
+                "DOUBLE": "Club has more than one fixture in the same Fantasy GW.",
+                "LEAGUE_OFF": "Club's entire league has no league fixtures in that Fantasy GW.",
+                "CLUB_BLANK": "League is active but this club has no published league fixture in the window; could reflect postponement/rescheduling or an exceptional blank.",
+                "TBD": "Fixture exists but date/window is not yet published."
+            }
+        },
+        "last_global_price_change_date": last_price_change,
+        "feed_urls": {key: urljoin(BASE_URL, path) for key, path in URLS.items()},
+        "fixture_model": {
+            "version": "wsl-team-strength-blend-v5",
+            "note": "Preseason fixture opportunity blends softened WSL source currentRating (35%) with an independent team-matchup prior (65%) built from current-roster previous-season fantasy production, destination-league promotion/relegation bridging, and explicit home/away. Higher Fixture Rating = better. Routine 0/100 saturation is intentionally avoided.",
+            "weights": {
+                "source_rating": SOURCE_RATING_WEIGHT,
+                "team_matchup": TEAM_MATCHUP_WEIGHT,
+            },
+            "venue": {
+                "home_adjustment": HOME_ADVANTAGE_POINTS,
+                "away_adjustment": AWAY_DISADVANTAGE_POINTS,
+            },
+            "competition_calibration": {
+                competition_label(comp): {**vals, "competition_id": comp}
+                for comp, vals in fixture_calibration.items()
+            },
+            "team_strength_priors": team_strength,
+            "defensive_fixture_model": {
+                "version": "unit-strength-defense-v6",
+                "note": "GK/defensive fixture opportunity is distinct from the general fantasy fixture rating. It is driven primarily by opponent attacking strength, then own defensive strength, with explicit home/away. Attack and defense priors use position-specific prior-season fantasy production and the same destination-league promotion/relegation bridge.",
+                "formula": "50 + (own_defense_index - 0.50)*25 + (0.50 - opponent_attack_index)*55 + venue",
+                "venue": {"home": 5.0, "away": -5.0},
+                "team_unit_priors": team_unit_strength,
+            },
+            "promotion_relegation_bridge": {
+                "promoted_to_wsl": sorted(PROMOTED_TO_WSL),
+                "relegated_to_wsl2": sorted(RELEGATED_TO_WSL2),
+                "promoted_wsl_strength_band": [0.20, 0.38],
+                "established_wsl_strength_band": [0.18, 0.92],
+                "relegated_wsl2_strength_band": [0.78, 0.88],
+                "established_wsl2_strength_band": [0.15, 0.85],
+                "note": "Cross-division status changes the preseason team-strength prior instead of adding a flat post-normalization opportunity adjustment."
+            },
+        },
+        "decision_rating": {
+            "version": "wsl-v1-position-specific",
+            "weights": {
+                "GK": {"fixture": 0.85, "form": 0.15},
+                "DEF": {"fixture": 0.65, "form": 0.35},
+                "MID": {"fixture": 0.35, "form": 0.65},
+                "FOR": {"fixture": 0.25, "form": 0.75},
+            },
+            "uses": ["Form Rating", "Next Fixture Rating"],
+        },
+    }
+
+    output = {"metadata": metadata, "players": players}
+    TRANSFORMED_PATH.write_text(json.dumps(output, ensure_ascii=False, indent=2), encoding="utf-8")
+    FIXTURES_PATH.write_text(json.dumps(fixtures, ensure_ascii=False, indent=2), encoding="utf-8")
+    TEAMS_PATH.write_text(json.dumps(teams, ensure_ascii=False, indent=2), encoding="utf-8")
+    return output
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Build WSL Fantasy transformed_data.json")
+    parser.add_argument(
+        "--from-local",
+        action="store_true",
+        help="Read raw_feeds/*.json instead of downloading fresh copies.",
+    )
+    args = parser.parse_args()
+    output = build_outputs(from_local=args.from_local)
+    print(
+        f"Wrote {TRANSFORMED_PATH.name} with {len(output['players'])} players; "
+        f"metadata: {output['metadata']['fixture_count']} fixtures, {output['metadata']['team_count']} teams."
+    )
+
+
+if __name__ == "__main__":
+    main()
