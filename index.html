@@ -1400,7 +1400,7 @@
                             <th class="text-center px-3 py-2">Same Day</th>
                             <th class="text-center px-3 py-2">Pairing %</th>
                             <th class="text-center px-3 py-2">Separation</th>
-                            <th class="text-center px-3 py-2">Avg Def Fix</th>
+                            <th class="text-center px-3 py-2" title="Average goalkeeper/defensive fixture opportunity across the selected gameweeks. Higher = better. Based primarily on opponent attacking strength, plus own defensive strength and venue.">Avg GK Fix</th>
                             <th class="text-left px-3 py-2" id="pairings-extra-header">GK Pair</th>
                         </tr>
                     </thead>
@@ -3609,7 +3609,7 @@
                 $('#pairings-summary').html(
                     `<span class="font-semibold">${leagueLabel}, GW${fromGw}–GW${toGw}:</span> `
                     + `${pairs.length} club pairs ranked from the full published fixture schedule. `
-                    + `<span class="text-gray-500">Primary rank = different-day percentage; ties favor more different-day weeks, then better average defensive fixtures, then greater day separation.</span>`
+                    + `<span class="text-gray-500">Primary rank = different-day percentage; ties favor more different-day weeks, then better average GK/defensive fixtures, then greater day separation.</span>`
                 );
 
                 const $body = $('#pairings-table-body').empty();
