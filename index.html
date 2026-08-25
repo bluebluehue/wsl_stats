@@ -823,6 +823,97 @@
             color: #047857;
         }
 
+        /* ------------------------------------------------------------------ */
+        /* --- COMPACT DESKTOP HEADER --- */
+        /* ------------------------------------------------------------------ */
+        .stats-topbar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-bottom: 0.45rem;
+            flex-wrap: wrap;
+        }
+
+        .stats-title {
+            margin: 0 !important;
+            line-height: 1.05;
+        }
+
+        #view-tabs {
+            margin-bottom: 0 !important;
+        }
+
+        #view-tabs .view-tab {
+            padding: 0.45rem 0.75rem;
+            line-height: 1.1;
+        }
+
+        .table-controls-shell {
+            margin-bottom: 0.45rem !important;
+            gap: 0.45rem !important;
+            align-items: center !important;
+        }
+
+        .table-action-buttons {
+            gap: 0.35rem !important;
+            flex-wrap: wrap;
+        }
+
+        .table-action-buttons button {
+            padding-top: 0.45rem !important;
+            padding-bottom: 0.45rem !important;
+            box-shadow: none !important;
+        }
+
+        .filter-stack {
+            gap: 0.35rem !important;
+        }
+
+        .filter-row {
+            gap: 0.6rem !important;
+        }
+
+        .filter-row select,
+        .filter-row input[type="number"] {
+            padding-top: 0.4rem !important;
+            padding-bottom: 0.4rem !important;
+        }
+
+        .filter-toggle-row {
+            gap: 0.8rem !important;
+            min-height: 1.7rem;
+        }
+
+        .filter-toggle-row label,
+        .filter-toggle-row #delta-reference-note {
+            font-size: 0.78rem !important;
+        }
+
+        .table-scroll-container {
+            margin-top: 0 !important;
+        }
+
+        @media (min-width: 1100px) {
+            .stats-topbar {
+                min-height: 34px;
+            }
+
+            .table-controls-shell {
+                display: grid !important;
+                grid-template-columns: auto 1fr;
+                align-items: start !important;
+            }
+
+            .filter-stack {
+                align-items: end !important;
+            }
+
+            .filter-row {
+                justify-content: flex-end !important;
+            }
+        }
+
     </style>
 
 </head>
@@ -830,45 +921,26 @@
 <body>
 
     <div class="max-w-full mx-auto pt-2 px-4 pb-4">
-        <div class="flex items-center justify-between">
-            <!-- <a href="https://www.buymeacoffee.com/spannerj" target="_blank"
-                class="flex items-center text-sm font-medium text-gray-700 hover:text-gray-900 border border-gray-300 rounded-md px-2 py-1 bg-white hover:bg-gray-50 transition duration-150 ease-in-out">
+        <div class="stats-topbar">
+            <h2 class="stats-title text-2xl font-bold text-gray-600">
+                WSL Fantasy Player Statistics
+            </h2>
 
-                <img src="https://img.buymeacoffee.com/button-api/?text=Buy%20me%20a%20coffee&slug=spannerj&button_colour=FFDD00&font_colour=000000&font_family=Inter&coffee_colour=ffffff"
-                    alt="Buy Me A Coffee" style="height: 36px; width: auto;" class="h-12 w-auto">
-            </a> -->
-
-            <div class="flex justify-center w-full">
-                <h2 class="text-2xl font-bold leading-tight text-gray-600">
-                    WSL Fantasy Player Statistics
-                </h2>
+            <div class="flex flex-wrap justify-center gap-2" id="view-tabs">
+                <button id="table-view-tab" class="view-tab active px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-md text-sm font-semibold shadow-sm">
+                    <i class="fa-solid fa-table mr-2"></i>Player Table
+                </button>
+                <button id="planner-view-tab" class="view-tab px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-md text-sm font-semibold shadow-sm">
+                    <i class="fa-solid fa-calendar-days mr-2"></i>Matchweek Planner
+                </button>
             </div>
-
-            <!-- <div class="invisible">
-                <a href="https://www.buymeacoffee.com/spannerj" target="_blank"
-                    class="flex items-center text-sm font-medium text-gray-700 border border-gray-300 rounded-md px-3 py-1 bg-white"
-                    style="opacity: 0;">
-                    <img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&slug=spannerj&button_colour=FFDD00&font_colour=000000&font_family=Inter&coffee_colour=ffffff&height=20"
-                        alt="Buy Me A Coffee" style="height: 20px !important;width: auto !important;">
-                </a>
-            </div> -->
-        </div>
-
-
-        <div class="flex flex-wrap justify-center gap-2 mb-3" id="view-tabs">
-            <button id="table-view-tab" class="view-tab active px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-md text-sm font-semibold shadow-sm">
-                <i class="fa-solid fa-table mr-2"></i>Player Table
-            </button>
-            <button id="planner-view-tab" class="view-tab px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-md text-sm font-semibold shadow-sm">
-                <i class="fa-solid fa-calendar-days mr-2"></i>Matchweek Planner
-            </button>
         </div>
 
         <div id="table-view">
         <div
-            class="flex flex-col md:flex-row justify-between items-end md:items-center mb-4 space-y-2 md:space-y-0 md:space-x-4">
+            class="table-controls-shell flex flex-col md:flex-row justify-between items-end md:items-center mb-2 space-y-2 md:space-y-0 md:space-x-3">
 
-            <div class="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+            <div class="table-action-buttons flex flex-col sm:flex-row gap-2 w-full md:w-auto">
                 <button id="show-key-button"
                     class="w-full md:w-auto px-3 py-2 bg-indigo-600 text-white border border-indigo-700 rounded-md shadow-lg text-sm font-medium hover:bg-indigo-700 transition duration-150">
                     <i class="fa-solid fa-circle-question mr-2"></i> Show Key / Glossary
@@ -885,10 +957,10 @@
                 </button>
             </div>
 
-            <div class="flex flex-col w-full md:w-auto md:items-end space-y-2">
+            <div class="filter-stack flex flex-col w-full md:w-auto md:items-end space-y-1">
 
                 <!-- Row 1 -->
-                <div class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-4 w-full md:w-auto md:justify-end items-end md:items-center">
+                <div class="filter-row flex flex-col md:flex-row space-y-2 md:space-y-0 w-full md:w-auto md:justify-end items-end md:items-center">
             
                     <div class="relative w-full sm:w-auto">
                         <button id="club-dropdown-toggle"
@@ -975,7 +1047,7 @@
                 </div>
 
                 <!-- Row 2: numeric thresholds -->
-                <div class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-4 w-full md:w-auto md:justify-end items-end md:items-center">
+                <div class="filter-row flex flex-col md:flex-row space-y-2 md:space-y-0 w-full md:w-auto md:justify-end items-end md:items-center">
                     <div class="flex items-center space-x-2 w-full sm:w-auto">
                         <label for="max-value-filter" class="text-sm font-medium text-gray-700 whitespace-nowrap">
                             Max Value:
@@ -1023,7 +1095,7 @@
                 </div>
 
                 <!-- Row 3: toggles -->
-                <div class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-6 w-full md:w-auto md:justify-end items-end md:items-center">
+                <div class="filter-toggle-row flex flex-col md:flex-row space-y-2 md:space-y-0 w-full md:w-auto md:justify-end items-end md:items-center">
                     <div class="flex items-center space-x-2 w-full sm:w-auto">
                         <input type="checkbox" id="visionary-filter"
                             class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
