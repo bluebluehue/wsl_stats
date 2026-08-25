@@ -1,7 +1,7 @@
 {
   "metadata": {
     "source": "WSL Fantasy public JSON feeds used by create-team UI",
-    "generated_at_utc": "2026-08-25T19:48:38+00:00",
+    "generated_at_utc": "2026-08-25T20:10:56+00:00",
     "matchday_id": 1,
     "tour_id": 1,
     "player_count": 713,
@@ -248,6 +248,303 @@
           "strength_index": 0.4045,
           "player_count": 25,
           "transition_note": ""
+        }
+      },
+      "defensive_fixture_model": {
+        "version": "unit-strength-defense-v6",
+        "note": "GK/defensive fixture opportunity is distinct from the general fantasy fixture rating. It is driven primarily by opponent attacking strength, then own defensive strength, with explicit home/away. Attack and defense priors use position-specific prior-season fantasy production and the same destination-league promotion/relegation bridge.",
+        "formula": "50 + (own_defense_index - 0.50)*25 + (0.50 - opponent_attack_index)*55 + venue",
+        "venue": {
+          "home": 5.0,
+          "away": -5.0
+        },
+        "team_unit_priors": {
+          "WAT": {
+            "competition_id": "wpll::Football_Competition::422757a2c70d450eba118ad97bed5222",
+            "attack_raw_points_top6": 63.0,
+            "defense_raw_points_top5": 0,
+            "attack_rank": 0.0,
+            "defense_rank": 0.0,
+            "attack_strength_index": 0.15,
+            "defense_strength_index": 0.15,
+            "attack_transition_note": "",
+            "defense_transition_note": ""
+          },
+          "BUR": {
+            "competition_id": "wpll::Football_Competition::422757a2c70d450eba118ad97bed5222",
+            "attack_raw_points_top6": 148.0,
+            "defense_raw_points_top5": 72.0,
+            "attack_rank": 0.1818,
+            "defense_rank": 0.1818,
+            "attack_strength_index": 0.2773,
+            "defense_strength_index": 0.2773,
+            "attack_transition_note": "",
+            "defense_transition_note": ""
+          },
+          "MNU": {
+            "competition_id": "wpll::Football_Competition::e32284e8a1214f1ca83a3245d690b336",
+            "attack_raw_points_top6": 480.0,
+            "defense_raw_points_top5": 476.0,
+            "attack_rank": 0.3846,
+            "defense_rank": 1.0,
+            "attack_strength_index": 0.5671,
+            "defense_strength_index": 0.8859,
+            "attack_transition_note": "",
+            "defense_transition_note": ""
+          },
+          "LCL": {
+            "competition_id": "wpll::Football_Competition::e32284e8a1214f1ca83a3245d690b336",
+            "attack_raw_points_top6": 492.0,
+            "defense_raw_points_top5": 275.0,
+            "attack_rank": 0.4615,
+            "defense_rank": 0.1538,
+            "attack_strength_index": 0.5045,
+            "defense_strength_index": 0.3451,
+            "attack_transition_note": "",
+            "defense_transition_note": ""
+          },
+          "CHE": {
+            "competition_id": "wpll::Football_Competition::e32284e8a1214f1ca83a3245d690b336",
+            "attack_raw_points_top6": 539.0,
+            "defense_raw_points_top5": 427.0,
+            "attack_rank": 0.5385,
+            "defense_rank": 0.8462,
+            "attack_strength_index": 0.5785,
+            "defense_strength_index": 0.7379,
+            "attack_transition_note": "",
+            "defense_transition_note": ""
+          },
+          "AVL": {
+            "competition_id": "wpll::Football_Competition::e32284e8a1214f1ca83a3245d690b336",
+            "attack_raw_points_top6": 334.0,
+            "defense_raw_points_top5": 331.0,
+            "attack_rank": 0.0,
+            "defense_rank": 0.3077,
+            "attack_strength_index": 0.18,
+            "defense_strength_index": 0.3394,
+            "attack_transition_note": "",
+            "defense_transition_note": ""
+          },
+          "LIV": {
+            "competition_id": "wpll::Football_Competition::e32284e8a1214f1ca83a3245d690b336",
+            "attack_raw_points_top6": 434.0,
+            "defense_raw_points_top5": 336.0,
+            "attack_rank": 0.2308,
+            "defense_rank": 0.4615,
+            "attack_strength_index": 0.3508,
+            "defense_strength_index": 0.4703,
+            "attack_transition_note": "",
+            "defense_transition_note": ""
+          },
+          "ARS": {
+            "competition_id": "wpll::Football_Competition::e32284e8a1214f1ca83a3245d690b336",
+            "attack_raw_points_top6": 631.0,
+            "defense_raw_points_top5": 347.0,
+            "attack_rank": 0.8462,
+            "defense_rank": 0.5385,
+            "attack_strength_index": 0.772,
+            "defense_strength_index": 0.6126,
+            "attack_transition_note": "",
+            "defense_transition_note": ""
+          },
+          "BIR": {
+            "competition_id": "wpll::Football_Competition::e32284e8a1214f1ca83a3245d690b336",
+            "attack_raw_points_top6": 582.0,
+            "defense_raw_points_top5": 407.0,
+            "attack_rank": 0.7692,
+            "defense_rank": 0.7692,
+            "attack_strength_index": 0.3385,
+            "defense_strength_index": 0.3385,
+            "attack_transition_note": "Promoted to WSL: lower-WSL preseason unit-strength band",
+            "defense_transition_note": "Promoted to WSL: lower-WSL preseason unit-strength band"
+          },
+          "TOT": {
+            "competition_id": "wpll::Football_Competition::e32284e8a1214f1ca83a3245d690b336",
+            "attack_raw_points_top6": 570.0,
+            "defense_raw_points_top5": 333.0,
+            "attack_rank": 0.6154,
+            "defense_rank": 0.3846,
+            "attack_strength_index": 0.6012,
+            "defense_strength_index": 0.4817,
+            "attack_transition_note": "",
+            "defense_transition_note": ""
+          },
+          "CHA": {
+            "competition_id": "wpll::Football_Competition::e32284e8a1214f1ca83a3245d690b336",
+            "attack_raw_points_top6": 376.0,
+            "defense_raw_points_top5": 388.0,
+            "attack_rank": 0.0769,
+            "defense_rank": 0.6923,
+            "attack_strength_index": 0.2263,
+            "defense_strength_index": 0.3039,
+            "attack_transition_note": "Promoted to WSL: lower-WSL preseason unit-strength band",
+            "defense_transition_note": "Promoted to WSL: lower-WSL preseason unit-strength band"
+          },
+          "MCI": {
+            "competition_id": "wpll::Football_Competition::e32284e8a1214f1ca83a3245d690b336",
+            "attack_raw_points_top6": 729.0,
+            "defense_raw_points_top5": 473.0,
+            "attack_rank": 0.9231,
+            "defense_rank": 0.9231,
+            "attack_strength_index": 0.8802,
+            "defense_strength_index": 0.8802,
+            "attack_transition_note": "",
+            "defense_transition_note": ""
+          },
+          "CRY": {
+            "competition_id": "wpll::Football_Competition::e32284e8a1214f1ca83a3245d690b336",
+            "attack_raw_points_top6": 732.0,
+            "defense_raw_points_top5": 193.0,
+            "attack_rank": 1.0,
+            "defense_rank": 0.0,
+            "attack_strength_index": 0.3759,
+            "defense_strength_index": 0.2499,
+            "attack_transition_note": "Promoted to WSL: lower-WSL preseason unit-strength band",
+            "defense_transition_note": "Promoted to WSL: lower-WSL preseason unit-strength band"
+          },
+          "BHA": {
+            "competition_id": "wpll::Football_Competition::e32284e8a1214f1ca83a3245d690b336",
+            "attack_raw_points_top6": 581.0,
+            "defense_raw_points_top5": 370.0,
+            "attack_rank": 0.6923,
+            "defense_rank": 0.6154,
+            "attack_strength_index": 0.6752,
+            "defense_strength_index": 0.6354,
+            "attack_transition_note": "",
+            "defense_transition_note": ""
+          },
+          "EVE": {
+            "competition_id": "wpll::Football_Competition::e32284e8a1214f1ca83a3245d690b336",
+            "attack_raw_points_top6": 413.0,
+            "defense_raw_points_top5": 297.0,
+            "attack_rank": 0.1538,
+            "defense_rank": 0.2308,
+            "attack_strength_index": 0.2938,
+            "defense_strength_index": 0.3337,
+            "attack_transition_note": "",
+            "defense_transition_note": ""
+          },
+          "WHU": {
+            "competition_id": "wpll::Football_Competition::e32284e8a1214f1ca83a3245d690b336",
+            "attack_raw_points_top6": 451.0,
+            "defense_raw_points_top5": 210.0,
+            "attack_rank": 0.3077,
+            "defense_rank": 0.0769,
+            "attack_strength_index": 0.3565,
+            "defense_strength_index": 0.2369,
+            "attack_transition_note": "",
+            "defense_transition_note": ""
+          },
+          "NFO": {
+            "competition_id": "wpll::Football_Competition::422757a2c70d450eba118ad97bed5222",
+            "attack_raw_points_top6": 374.0,
+            "defense_raw_points_top5": 370.0,
+            "attack_rank": 0.5455,
+            "defense_rank": 1.0,
+            "attack_strength_index": 0.57,
+            "defense_strength_index": 0.7927,
+            "attack_transition_note": "",
+            "defense_transition_note": ""
+          },
+          "SUN": {
+            "competition_id": "wpll::Football_Competition::422757a2c70d450eba118ad97bed5222",
+            "attack_raw_points_top6": 594.0,
+            "defense_raw_points_top5": 292.0,
+            "attack_rank": 1.0,
+            "defense_rank": 0.7273,
+            "attack_strength_index": 0.85,
+            "defense_strength_index": 0.7164,
+            "attack_transition_note": "",
+            "defense_transition_note": ""
+          },
+          "LEI": {
+            "competition_id": "wpll::Football_Competition::422757a2c70d450eba118ad97bed5222",
+            "attack_raw_points_top6": 275.0,
+            "defense_raw_points_top5": 203.0,
+            "attack_rank": 0.3636,
+            "defense_rank": 0.3636,
+            "attack_strength_index": 0.8136,
+            "defense_strength_index": 0.8136,
+            "attack_transition_note": "Relegated to WSL2: upper-WSL2 preseason unit-strength band",
+            "defense_transition_note": "Relegated to WSL2: upper-WSL2 preseason unit-strength band"
+          },
+          "BRC": {
+            "competition_id": "wpll::Football_Competition::422757a2c70d450eba118ad97bed5222",
+            "attack_raw_points_top6": 527.0,
+            "defense_raw_points_top5": 268.0,
+            "attack_rank": 0.8182,
+            "defense_rank": 0.5455,
+            "attack_strength_index": 0.7227,
+            "defense_strength_index": 0.5891,
+            "attack_transition_note": "",
+            "defense_transition_note": ""
+          },
+          "SHU": {
+            "competition_id": "wpll::Football_Competition::422757a2c70d450eba118ad97bed5222",
+            "attack_raw_points_top6": 481.0,
+            "defense_raw_points_top5": 193.0,
+            "attack_rank": 0.7273,
+            "defense_rank": 0.2727,
+            "attack_strength_index": 0.6209,
+            "defense_strength_index": 0.3982,
+            "attack_transition_note": "",
+            "defense_transition_note": ""
+          },
+          "SOU": {
+            "competition_id": "wpll::Football_Competition::422757a2c70d450eba118ad97bed5222",
+            "attack_raw_points_top6": 471.0,
+            "defense_raw_points_top5": 262.0,
+            "attack_rank": 0.6364,
+            "defense_rank": 0.4545,
+            "attack_strength_index": 0.5955,
+            "defense_strength_index": 0.5064,
+            "attack_transition_note": "",
+            "defense_transition_note": ""
+          },
+          "DUR": {
+            "competition_id": "wpll::Football_Competition::422757a2c70d450eba118ad97bed5222",
+            "attack_raw_points_top6": 346.0,
+            "defense_raw_points_top5": 299.0,
+            "attack_rank": 0.4545,
+            "defense_rank": 0.8182,
+            "attack_strength_index": 0.4682,
+            "defense_strength_index": 0.6464,
+            "attack_transition_note": "",
+            "defense_transition_note": ""
+          },
+          "WOL": {
+            "competition_id": "wpll::Football_Competition::422757a2c70d450eba118ad97bed5222",
+            "attack_raw_points_top6": 72.0,
+            "defense_raw_points_top5": 14.0,
+            "attack_rank": 0.0909,
+            "defense_rank": 0.0909,
+            "attack_strength_index": 0.2136,
+            "defense_strength_index": 0.2136,
+            "attack_transition_note": "",
+            "defense_transition_note": ""
+          },
+          "NEW": {
+            "competition_id": "wpll::Football_Competition::422757a2c70d450eba118ad97bed5222",
+            "attack_raw_points_top6": 583.0,
+            "defense_raw_points_top5": 307.0,
+            "attack_rank": 0.9091,
+            "defense_rank": 0.9091,
+            "attack_strength_index": 0.7864,
+            "defense_strength_index": 0.7864,
+            "attack_transition_note": "",
+            "defense_transition_note": ""
+          },
+          "IPS": {
+            "competition_id": "wpll::Football_Competition::422757a2c70d450eba118ad97bed5222",
+            "attack_raw_points_top6": 265.0,
+            "defense_raw_points_top5": 289.0,
+            "attack_rank": 0.2727,
+            "defense_rank": 0.6364,
+            "attack_strength_index": 0.36,
+            "defense_strength_index": 0.5382,
+            "attack_transition_note": "",
+            "defense_transition_note": ""
+          }
         }
       },
       "promotion_relegation_bridge": {
