@@ -919,6 +919,31 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
         )
 
     fixtures = [normalize_fixture(f) for f in fixtures_raw]
+
+    # Full-schedule defensive fixture opportunity for each side.
+    # Uses the independent team-strength matchup component from Fixture Model v5,
+    # so it works for every published fixture rather than only the next three
+    # player-feed fixtures. Higher = better defensive / clean-sheet opportunity.
+    for fixture in fixtures:
+        home_rating, home_detail = team_matchup_opportunity(
+            fixture.get("home_id"),
+            fixture.get("away_id"),
+            "H",
+            team_strength,
+        )
+        away_rating, away_detail = team_matchup_opportunity(
+            fixture.get("away_id"),
+            fixture.get("home_id"),
+            "A",
+            team_strength,
+        )
+
+        fixture["home_defensive_opportunity"] = home_rating
+        fixture["away_defensive_opportunity"] = away_rating
+        fixture["home_strength_index"] = home_detail.get("own_strength_index")
+        fixture["away_strength_index"] = away_detail.get("own_strength_index")
+        fixture["defensive_rating_model"] = "team-matchup-v5"
+
     teams = [normalize_team(t) for t in teams_raw]
 
     metadata = {
