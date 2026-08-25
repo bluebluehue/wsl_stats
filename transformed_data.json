@@ -1,12 +1,398 @@
 {
   "metadata": {
     "source": "WSL Fantasy public JSON feeds used by create-team UI",
-    "generated_at_utc": "2026-08-25T20:10:56+00:00",
+    "generated_at_utc": "2026-08-25T21:03:10+00:00",
     "matchday_id": 1,
     "tour_id": 1,
     "player_count": 713,
     "fixture_count": 314,
     "team_count": 26,
+    "fantasy_gameweeks": [
+      {
+        "fantasy_game_week": "1",
+        "start_date": "2026-09-04",
+        "end_date": "2026-09-06",
+        "active_competition_ids": [
+          "wpll::Football_Competition::422757a2c70d450eba118ad97bed5222",
+          "wpll::Football_Competition::e32284e8a1214f1ca83a3245d690b336"
+        ],
+        "active_leagues": [
+          "WSL2",
+          "WSL"
+        ],
+        "window_type": "BOTH_LEAGUES",
+        "free_hit_eligible": false,
+        "fixture_count": 13
+      },
+      {
+        "fantasy_game_week": "2",
+        "start_date": "2026-09-12",
+        "end_date": "2026-09-13",
+        "active_competition_ids": [
+          "wpll::Football_Competition::422757a2c70d450eba118ad97bed5222",
+          "wpll::Football_Competition::e32284e8a1214f1ca83a3245d690b336"
+        ],
+        "active_leagues": [
+          "WSL2",
+          "WSL"
+        ],
+        "window_type": "BOTH_LEAGUES",
+        "free_hit_eligible": false,
+        "fixture_count": 13
+      },
+      {
+        "fantasy_game_week": "3",
+        "start_date": "2026-09-18",
+        "end_date": "2026-09-20",
+        "active_competition_ids": [
+          "wpll::Football_Competition::422757a2c70d450eba118ad97bed5222",
+          "wpll::Football_Competition::e32284e8a1214f1ca83a3245d690b336"
+        ],
+        "active_leagues": [
+          "WSL2",
+          "WSL"
+        ],
+        "window_type": "BOTH_LEAGUES",
+        "free_hit_eligible": false,
+        "fixture_count": 13
+      },
+      {
+        "fantasy_game_week": "4",
+        "start_date": "2026-09-26",
+        "end_date": "2026-09-27",
+        "active_competition_ids": [
+          "wpll::Football_Competition::422757a2c70d450eba118ad97bed5222",
+          "wpll::Football_Competition::e32284e8a1214f1ca83a3245d690b336"
+        ],
+        "active_leagues": [
+          "WSL2",
+          "WSL"
+        ],
+        "window_type": "BOTH_LEAGUES",
+        "free_hit_eligible": false,
+        "fixture_count": 13
+      },
+      {
+        "fantasy_game_week": "5",
+        "start_date": "2026-10-04",
+        "end_date": "2026-10-04",
+        "active_competition_ids": [
+          "wpll::Football_Competition::422757a2c70d450eba118ad97bed5222",
+          "wpll::Football_Competition::e32284e8a1214f1ca83a3245d690b336"
+        ],
+        "active_leagues": [
+          "WSL2",
+          "WSL"
+        ],
+        "window_type": "BOTH_LEAGUES",
+        "free_hit_eligible": false,
+        "fixture_count": 13
+      },
+      {
+        "fantasy_game_week": "6",
+        "start_date": "2026-10-17",
+        "end_date": "2026-10-18",
+        "active_competition_ids": [
+          "wpll::Football_Competition::e32284e8a1214f1ca83a3245d690b336"
+        ],
+        "active_leagues": [
+          "WSL"
+        ],
+        "window_type": "WSL_ONLY",
+        "free_hit_eligible": true,
+        "fixture_count": 7
+      },
+      {
+        "fantasy_game_week": "7",
+        "start_date": "2026-10-25",
+        "end_date": "2026-10-25",
+        "active_competition_ids": [
+          "wpll::Football_Competition::422757a2c70d450eba118ad97bed5222",
+          "wpll::Football_Competition::e32284e8a1214f1ca83a3245d690b336"
+        ],
+        "active_leagues": [
+          "WSL2",
+          "WSL"
+        ],
+        "window_type": "BOTH_LEAGUES",
+        "free_hit_eligible": false,
+        "fixture_count": 13
+      },
+      {
+        "fantasy_game_week": "8",
+        "start_date": "2026-10-31",
+        "end_date": "2026-11-01",
+        "active_competition_ids": [
+          "wpll::Football_Competition::e32284e8a1214f1ca83a3245d690b336"
+        ],
+        "active_leagues": [
+          "WSL"
+        ],
+        "window_type": "WSL_ONLY",
+        "free_hit_eligible": true,
+        "fixture_count": 7
+      },
+      {
+        "fantasy_game_week": "9",
+        "start_date": "2026-11-07",
+        "end_date": "2026-11-08",
+        "active_competition_ids": [
+          "wpll::Football_Competition::422757a2c70d450eba118ad97bed5222",
+          "wpll::Football_Competition::e32284e8a1214f1ca83a3245d690b336"
+        ],
+        "active_leagues": [
+          "WSL2",
+          "WSL"
+        ],
+        "window_type": "BOTH_LEAGUES",
+        "free_hit_eligible": false,
+        "fixture_count": 13
+      },
+      {
+        "fantasy_game_week": "10",
+        "start_date": "2026-11-14",
+        "end_date": "2026-11-15",
+        "active_competition_ids": [
+          "wpll::Football_Competition::422757a2c70d450eba118ad97bed5222",
+          "wpll::Football_Competition::e32284e8a1214f1ca83a3245d690b336"
+        ],
+        "active_leagues": [
+          "WSL2",
+          "WSL"
+        ],
+        "window_type": "BOTH_LEAGUES",
+        "free_hit_eligible": false,
+        "fixture_count": 13
+      },
+      {
+        "fantasy_game_week": "11",
+        "start_date": "2026-11-22",
+        "end_date": "2026-11-22",
+        "active_competition_ids": [
+          "wpll::Football_Competition::e32284e8a1214f1ca83a3245d690b336"
+        ],
+        "active_leagues": [
+          "WSL"
+        ],
+        "window_type": "WSL_ONLY",
+        "free_hit_eligible": true,
+        "fixture_count": 7
+      },
+      {
+        "fantasy_game_week": "12",
+        "start_date": "2026-12-12",
+        "end_date": "2026-12-13",
+        "active_competition_ids": [
+          "wpll::Football_Competition::e32284e8a1214f1ca83a3245d690b336"
+        ],
+        "active_leagues": [
+          "WSL"
+        ],
+        "window_type": "WSL_ONLY",
+        "free_hit_eligible": true,
+        "fixture_count": 7
+      },
+      {
+        "fantasy_game_week": "13",
+        "start_date": "2026-12-19",
+        "end_date": "2026-12-21",
+        "active_competition_ids": [
+          "wpll::Football_Competition::422757a2c70d450eba118ad97bed5222",
+          "wpll::Football_Competition::e32284e8a1214f1ca83a3245d690b336"
+        ],
+        "active_leagues": [
+          "WSL2",
+          "WSL"
+        ],
+        "window_type": "BOTH_LEAGUES",
+        "free_hit_eligible": false,
+        "fixture_count": 13
+      },
+      {
+        "fantasy_game_week": "14",
+        "start_date": "2027-01-10",
+        "end_date": "2027-01-10",
+        "active_competition_ids": [
+          "wpll::Football_Competition::422757a2c70d450eba118ad97bed5222",
+          "wpll::Football_Competition::e32284e8a1214f1ca83a3245d690b336"
+        ],
+        "active_leagues": [
+          "WSL2",
+          "WSL"
+        ],
+        "window_type": "BOTH_LEAGUES",
+        "free_hit_eligible": false,
+        "fixture_count": 13
+      },
+      {
+        "fantasy_game_week": "15",
+        "start_date": "2027-01-20",
+        "end_date": "2027-01-31",
+        "active_competition_ids": [
+          "wpll::Football_Competition::422757a2c70d450eba118ad97bed5222",
+          "wpll::Football_Competition::e32284e8a1214f1ca83a3245d690b336"
+        ],
+        "active_leagues": [
+          "WSL2",
+          "WSL"
+        ],
+        "window_type": "BOTH_LEAGUES",
+        "free_hit_eligible": false,
+        "fixture_count": 39
+      },
+      {
+        "fantasy_game_week": "16",
+        "start_date": "2027-02-07",
+        "end_date": "2027-02-07",
+        "active_competition_ids": [
+          "wpll::Football_Competition::422757a2c70d450eba118ad97bed5222",
+          "wpll::Football_Competition::e32284e8a1214f1ca83a3245d690b336"
+        ],
+        "active_leagues": [
+          "WSL2",
+          "WSL"
+        ],
+        "window_type": "BOTH_LEAGUES",
+        "free_hit_eligible": false,
+        "fixture_count": 13
+      },
+      {
+        "fantasy_game_week": "17",
+        "start_date": "2027-02-12",
+        "end_date": "2027-02-14",
+        "active_competition_ids": [
+          "wpll::Football_Competition::422757a2c70d450eba118ad97bed5222",
+          "wpll::Football_Competition::e32284e8a1214f1ca83a3245d690b336"
+        ],
+        "active_leagues": [
+          "WSL2",
+          "WSL"
+        ],
+        "window_type": "BOTH_LEAGUES",
+        "free_hit_eligible": false,
+        "fixture_count": 13
+      },
+      {
+        "fantasy_game_week": "18",
+        "start_date": "2027-03-13",
+        "end_date": "2027-03-21",
+        "active_competition_ids": [
+          "wpll::Football_Competition::422757a2c70d450eba118ad97bed5222",
+          "wpll::Football_Competition::e32284e8a1214f1ca83a3245d690b336"
+        ],
+        "active_leagues": [
+          "WSL2",
+          "WSL"
+        ],
+        "window_type": "BOTH_LEAGUES",
+        "free_hit_eligible": false,
+        "fixture_count": 26
+      },
+      {
+        "fantasy_game_week": "19",
+        "start_date": "2027-03-26",
+        "end_date": "2027-03-28",
+        "active_competition_ids": [
+          "wpll::Football_Competition::422757a2c70d450eba118ad97bed5222",
+          "wpll::Football_Competition::e32284e8a1214f1ca83a3245d690b336"
+        ],
+        "active_leagues": [
+          "WSL2",
+          "WSL"
+        ],
+        "window_type": "BOTH_LEAGUES",
+        "free_hit_eligible": false,
+        "fixture_count": 13
+      },
+      {
+        "fantasy_game_week": "20",
+        "start_date": "2027-04-04",
+        "end_date": "2027-04-04",
+        "active_competition_ids": [
+          "wpll::Football_Competition::422757a2c70d450eba118ad97bed5222",
+          "wpll::Football_Competition::e32284e8a1214f1ca83a3245d690b336"
+        ],
+        "active_leagues": [
+          "WSL2",
+          "WSL"
+        ],
+        "window_type": "BOTH_LEAGUES",
+        "free_hit_eligible": false,
+        "fixture_count": 13
+      },
+      {
+        "fantasy_game_week": "21",
+        "start_date": "2027-04-10",
+        "end_date": "2027-04-11",
+        "active_competition_ids": [
+          "wpll::Football_Competition::422757a2c70d450eba118ad97bed5222"
+        ],
+        "active_leagues": [
+          "WSL2"
+        ],
+        "window_type": "WSL2_ONLY",
+        "free_hit_eligible": true,
+        "fixture_count": 6
+      },
+      {
+        "fantasy_game_week": "22",
+        "start_date": "2027-04-30",
+        "end_date": "2027-05-02",
+        "active_competition_ids": [
+          "wpll::Football_Competition::422757a2c70d450eba118ad97bed5222",
+          "wpll::Football_Competition::e32284e8a1214f1ca83a3245d690b336"
+        ],
+        "active_leagues": [
+          "WSL2",
+          "WSL"
+        ],
+        "window_type": "BOTH_LEAGUES",
+        "free_hit_eligible": false,
+        "fixture_count": 13
+      },
+      {
+        "fantasy_game_week": "23",
+        "start_date": "2027-05-08",
+        "end_date": "2027-05-09",
+        "active_competition_ids": [
+          "wpll::Football_Competition::422757a2c70d450eba118ad97bed5222",
+          "wpll::Football_Competition::e32284e8a1214f1ca83a3245d690b336"
+        ],
+        "active_leagues": [
+          "WSL2",
+          "WSL"
+        ],
+        "window_type": "BOTH_LEAGUES",
+        "free_hit_eligible": false,
+        "fixture_count": 13
+      },
+      {
+        "fantasy_game_week": "24",
+        "start_date": "2027-05-22",
+        "end_date": "2027-05-22",
+        "active_competition_ids": [
+          "wpll::Football_Competition::e32284e8a1214f1ca83a3245d690b336"
+        ],
+        "active_leagues": [
+          "WSL"
+        ],
+        "window_type": "WSL_ONLY",
+        "free_hit_eligible": true,
+        "fixture_count": 7
+      }
+    ],
+    "fantasy_calendar_model": {
+      "version": "calendar-cluster-v1",
+      "note": "Canonical Fantasy GWs are shared across WSL and WSL2 and are assigned chronologically from published league fixture dates. Competition-specific matchday numbers are preserved separately as league_game_week. A one-league-only window is flagged free_hit_eligible.",
+      "cluster_max_gap_days": 3,
+      "statuses": {
+        "NORMAL": "Club has one fixture in an active league window.",
+        "DOUBLE": "Club has more than one fixture in the same Fantasy GW.",
+        "LEAGUE_OFF": "Club's entire league has no league fixtures in that Fantasy GW.",
+        "CLUB_BLANK": "League is active but this club has no published league fixture in the window; could reflect postponement/rescheduling or an exceptional blank.",
+        "TBD": "Fixture exists but date/window is not yet published."
+      }
+    },
     "last_global_price_change_date": null,
     "feed_urls": {
       "config": "https://gaming.wslfootball.com/feeds/config/web/configurations.json",
