@@ -768,6 +768,61 @@
                 overflow-x: auto !important;
             }
         }
+
+        /* ------------------------------------------------------------------ */
+        /* --- MATCHWEEK DAY PLANNER --- */
+        /* ------------------------------------------------------------------ */
+        .view-tab.active {
+            background: #4f46e5;
+            color: #fff;
+            border-color: #4338ca;
+        }
+        .planner-day-column {
+            min-width: 0;
+        }
+        .planner-player-card {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-left: 4px solid #6366f1;
+            border-radius: 0.5rem;
+            padding: 0.65rem 0.75rem;
+            cursor: pointer;
+            transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
+        }
+        .planner-player-card:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            border-color: #a5b4fc;
+        }
+        .planner-day-fri { border-top: 4px solid #60a5fa; }
+        .planner-day-sat { border-top: 4px solid #a78bfa; }
+        .planner-day-sun { border-top: 4px solid #f59e0b; }
+        .planner-day-other { border-top: 4px solid #9ca3af; }
+        .day-pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 2.75rem;
+            padding: 0.1rem 0.4rem;
+            border-radius: 9999px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            background: #eef2ff;
+            color: #3730a3;
+        }
+        .sub-flex-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.2rem;
+            padding: 0.1rem 0.4rem;
+            border-radius: 9999px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            background: #ecfdf5;
+            color: #047857;
+        }
+
     </style>
 
 </head>
@@ -800,6 +855,16 @@
         </div>
 
 
+        <div class="flex flex-wrap justify-center gap-2 mb-3" id="view-tabs">
+            <button id="table-view-tab" class="view-tab active px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-md text-sm font-semibold shadow-sm">
+                <i class="fa-solid fa-table mr-2"></i>Player Table
+            </button>
+            <button id="planner-view-tab" class="view-tab px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-md text-sm font-semibold shadow-sm">
+                <i class="fa-solid fa-calendar-days mr-2"></i>Matchweek Planner
+            </button>
+        </div>
+
+        <div id="table-view">
         <div
             class="flex flex-col md:flex-row justify-between items-end md:items-center mb-4 space-y-2 md:space-y-0 md:space-x-4">
 
@@ -871,6 +936,19 @@
                         </select>
                     </div>
                         
+                    <div class="flex items-center space-x-2 w-full sm:w-auto">
+                        <label for="fixture-day-filter" class="text-sm font-medium text-gray-700 whitespace-nowrap">
+                            Day:
+                        </label>
+                        <select id="fixture-day-filter"
+                            class="w-full sm:w-28 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm">
+                            <option value="">All</option>
+                            <option value="FRI">Friday</option>
+                            <option value="SAT">Saturday</option>
+                            <option value="SUN">Sunday</option>
+                        </select>
+                    </div>
+
                     <div class="flex items-center space-x-2 w-full sm:w-auto">
                         <label for="delta-mode-filter" class="text-sm font-medium text-gray-700 whitespace-nowrap">
                             Delta Mode:
@@ -987,6 +1065,48 @@
             </p>
             <table id="myTable" class="display compact nowrap hidden" cellspacing="0"></table>
         </div>
+        </div><!-- /table-view -->
+
+        <section id="planner-view" class="hidden">
+            <div class="bg-white border border-gray-200 rounded-lg p-3 mb-3 shadow-sm">
+                <div class="flex flex-wrap gap-3 items-end justify-between">
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-800">Matchweek Day Planner</h3>
+                        <p class="text-xs text-gray-500 mt-1">Use later-playing bench players to preserve manual-sub flexibility after earlier scores are known.</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2 items-end">
+                        <label class="text-xs font-semibold text-gray-600">Gameweek
+                            <select id="planner-gameweek" class="block mt-1 px-2 py-2 border border-gray-300 rounded-md text-sm bg-white"></select>
+                        </label>
+                        <label class="text-xs font-semibold text-gray-600">Position
+                            <select id="planner-position" class="block mt-1 px-2 py-2 border border-gray-300 rounded-md text-sm bg-white">
+                                <option value="">All</option><option>GK</option><option>DEF</option><option>MID</option><option>FOR</option>
+                            </select>
+                        </label>
+                        <label class="text-xs font-semibold text-gray-600">Club
+                            <select id="planner-club" class="block mt-1 px-2 py-2 border border-gray-300 rounded-md text-sm bg-white"><option value="">All</option></select>
+                        </label>
+                        <label class="text-xs font-semibold text-gray-600">Sort
+                            <select id="planner-sort" class="block mt-1 px-2 py-2 border border-gray-300 rounded-md text-sm bg-white">
+                                <option value="decision">Decision</option>
+                                <option value="fixture">Fixture</option>
+                                <option value="value">Price</option>
+                                <option value="ownership">Ownership</option>
+                                <option value="kickoff">Kickoff</option>
+                            </select>
+                        </label>
+                        <label class="text-xs font-semibold text-gray-600">Search
+                            <input id="planner-search" type="search" placeholder="Player..." class="block mt-1 px-2 py-2 border border-gray-300 rounded-md text-sm w-36">
+                        </label>
+                        <label class="flex items-center gap-2 px-2 py-2 text-sm font-medium text-gray-700">
+                            <input id="planner-my-team" type="checkbox" class="h-4 w-4 text-indigo-600 border-gray-300 rounded"> My Team only
+                        </label>
+                    </div>
+                </div>
+                <div id="planner-summary" class="mt-3 text-xs text-gray-600"></div>
+            </div>
+            <div id="planner-columns" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3"></div>
+        </section>
 
     </div>
 
@@ -1157,6 +1277,7 @@
                 if (dataTableInstance) {
                     dataTableInstance.rows().invalidate().draw(false);
                 }
+                if (!$('#planner-view').hasClass('hidden')) renderPlanner();
             };
             
             window.toggleWatchlist = function(name) {
@@ -1289,7 +1410,7 @@
 
             function getExportColumns(rows) {
                 const preferred = [
-                    'Name', 'Club', 'Position', 'Value', 'Decision Rating', 'Form Rating',
+                    'Name', 'Club', 'Position', 'Value', 'Next Fixture Day', 'Next Fixture Date ISO', 'Next Fixture Kickoff', 'Next Fixture Opponent', 'Next Fixture H/A', 'Sub Flex', 'Decision Rating', 'Form Rating',
                     'Total Points', 'Points Per Game', 'Selected Percentage',
                     'Selected Percentage Change 1W',
                     'Selected Percentage Change Since Last Global Price Change',
@@ -1794,6 +1915,17 @@
                             return `<span class="team-badge badge-${teamCode}">${teamCode}</span>`;
                         }
                         return data;
+                    }
+                },
+                "Next Fixture Day Short": {
+                    abbr: 'Day',
+                    full: 'Day of the player\'s next fixture. Later fixtures can preserve manual-sub flexibility.',
+                    type: 'string',
+                    className: 'dt-center',
+                    render: function(data, type, row) {
+                        if (type !== 'display') return data || '';
+                        if (!data) return '<span class="text-gray-400">-</span>';
+                        return `<span class="day-pill">${data}</span>`;
                     }
                 },
                 "Decision Rating": {
@@ -2346,6 +2478,12 @@
                         return false;
                     }
 
+                    // Fixture day (current/next fixture)
+                    const selectedFixtureDay = $('#fixture-day-filter').val();
+                    if (selectedFixtureDay && rowData["Next Fixture Day Short"] !== selectedFixtureDay) {
+                        return false;
+                    }
+
                     // Clubs
                     const selectedClubs = $('#club-filter-list input[type="checkbox"]:checked').map(function () {
                         return this.value;
@@ -2587,7 +2725,7 @@
                     }
                 });
 
-                $('#max-value-filter, #min-decision-filter, #min-fixture-filter, #min-following-fixture-filter, #min-form-filter, #position-filter').on('keyup change input', function () {
+                $('#max-value-filter, #min-decision-filter, #min-fixture-filter, #min-following-fixture-filter, #min-form-filter, #position-filter, #fixture-day-filter').on('keyup change input', function () {
                     if (dataTableInstance) {
                         dataTableInstance.draw();
                     }
@@ -2630,6 +2768,146 @@
                     $('#club-filter-list input[type="checkbox"]').prop('checked', isSelectAll).trigger('change');
                 });
             }
+
+            function getFixtureForGameweek(player, gw) {
+                const fixtures = Array.isArray(player.upcoming_fixtures) ? player.upcoming_fixtures : [];
+                return fixtures.find(f => String(f.game_week) === String(gw)) || null;
+            }
+
+            function plannerDayClass(dayShort) {
+                if (dayShort === 'FRI') return 'planner-day-fri';
+                if (dayShort === 'SAT') return 'planner-day-sat';
+                if (dayShort === 'SUN') return 'planner-day-sun';
+                return 'planner-day-other';
+            }
+
+            function plannerFlexLabel(dayNumber) {
+                const n = Number(dayNumber);
+                if (!Number.isFinite(n)) return '';
+                if (n >= 7) return 'High flex';
+                if (n === 6) return 'Medium flex';
+                if (n === 5) return 'Early';
+                return 'Early';
+            }
+
+            function populatePlannerControls(data, preferredGw) {
+                const gameweeks = new Set();
+                const clubs = new Set();
+                data.forEach(player => {
+                    if (player.Club) clubs.add(player.Club);
+                    (player.upcoming_fixtures || []).forEach(f => {
+                        if (f.game_week) gameweeks.add(String(f.game_week));
+                    });
+                });
+                const sortedGws = Array.from(gameweeks).sort((a,b) => Number(a)-Number(b));
+                $('#planner-gameweek').empty();
+                sortedGws.forEach(gw => $('#planner-gameweek').append(`<option value="${gw}">GW${gw}</option>`));
+                const desired = String(preferredGw || sortedGws[0] || '');
+                if (sortedGws.includes(desired)) $('#planner-gameweek').val(desired);
+
+                $('#planner-club').empty().append('<option value="">All</option>');
+                Array.from(clubs).sort().forEach(club => $('#planner-club').append(`<option value="${club}">${club}</option>`));
+            }
+
+            function renderPlanner() {
+                if (!fullPlayerData || !fullPlayerData.length) return;
+                const gw = $('#planner-gameweek').val();
+                const pos = $('#planner-position').val();
+                const club = $('#planner-club').val();
+                const search = ($('#planner-search').val() || '').trim().toLowerCase();
+                const myTeamOnly = $('#planner-my-team').is(':checked');
+                const sortMode = $('#planner-sort').val() || 'decision';
+
+                let entries = fullPlayerData.map(player => ({ player, fixture: getFixtureForGameweek(player, gw) }))
+                    .filter(x => x.fixture)
+                    .filter(x => !pos || x.player.Position === pos)
+                    .filter(x => !club || x.player.Club === club)
+                    .filter(x => !myTeamOnly || isMyTeamPlayer(x.player.Name))
+                    .filter(x => !search || x.player.Name.toLowerCase().includes(search) || String(x.player.Club || '').toLowerCase().includes(search));
+
+                const scoreFor = x => {
+                    if (sortMode === 'fixture') return Number(x.fixture.opportunity_rating ?? -1);
+                    if (sortMode === 'value') return Number(x.player.Value ?? -1);
+                    if (sortMode === 'ownership') return Number(x.player['Selected Percentage'] ?? -1);
+                    if (sortMode === 'kickoff') return -(Number(String(x.fixture.kick_off_time || '99:99').replace(':','')) || 9999);
+                    return Number(x.player['Decision Rating'] ?? -1);
+                };
+                entries.sort((a,b) => scoreFor(b)-scoreFor(a));
+
+                const groups = new Map();
+                entries.forEach(x => {
+                    const dateKey = x.fixture.fixture_date_iso || x.fixture.game_date || 'Unknown';
+                    if (!groups.has(dateKey)) groups.set(dateKey, []);
+                    groups.get(dateKey).push(x);
+                });
+                const sortedDates = Array.from(groups.keys()).sort();
+                const total = entries.length;
+                $('#planner-summary').html(`<span class="font-semibold">GW${gw || '-'}:</span> ${total} matching players across ${sortedDates.length} fixture day${sortedDates.length === 1 ? '' : 's'}. <span class="text-gray-500">Sunday/later players are most useful as reactive bench options because their kickoff remains unlocked longer.</span>`);
+
+                const $columns = $('#planner-columns').empty();
+                if (!sortedDates.length) {
+                    $columns.html('<div class="col-span-full bg-white rounded-lg border border-gray-200 p-8 text-center text-gray-500">No fixtures match these filters.</div>');
+                    return;
+                }
+
+                sortedDates.forEach(dateKey => {
+                    const list = groups.get(dateKey);
+                    const sample = list[0].fixture;
+                    const dayShort = sample.fixture_day_short || (sample.fixture_day || '').slice(0,3).toUpperCase();
+                    const dayFull = sample.fixture_day || dayShort || 'Fixture Day';
+                    const displayDate = sample.game_date || dateKey;
+                    const visible = list.slice(0, 40);
+                    const cards = visible.map(({player, fixture}) => {
+                        const opp = fixture.opponent_id || fixture.opponent_short_name || fixture.opponent_name || 'TBD';
+                        const loc = fixture.location || '';
+                        const flex = plannerFlexLabel(fixture.fixture_day_number);
+                        const owned = isMyTeamPlayer(player.Name);
+                        return `<article class="planner-player-card ${owned ? 'ring-2 ring-indigo-200' : ''}" data-player-name="${String(player.Name).replace(/&/g,'&amp;').replace(/"/g,'&quot;')}">
+                            <div class="flex justify-between gap-2 items-start">
+                                <div class="min-w-0">
+                                    <div class="font-bold text-sm text-gray-900 truncate">${player.Name}${owned ? ' ⭐' : ''}</div>
+                                    <div class="text-xs text-gray-500">${player.Club} · ${player.Position} · £${Number(player.Value || 0).toFixed(1)}m</div>
+                                </div>
+                                <span class="sub-flex-pill">↪ ${flex}</span>
+                            </div>
+                            <div class="mt-2 flex justify-between gap-2 text-xs">
+                                <span class="font-semibold text-gray-700">${fixture.kick_off_time || ''} · ${opp} (${loc})</span>
+                                <span class="text-gray-500">Fix ${Math.round(Number(fixture.opportunity_rating || 0))}</span>
+                            </div>
+                            <div class="mt-1 text-xs text-gray-500">Decision ${Number(player['Decision Rating'] || 0).toFixed(1)} · Selected ${Number(player['Selected Percentage'] || 0).toFixed(0)}%</div>
+                        </article>`;
+                    }).join('');
+                    const more = list.length > visible.length ? `<div class="text-xs text-center text-gray-400 pt-2">Top ${visible.length} of ${list.length}; narrow filters/search to see others.</div>` : '';
+                    $columns.append(`<section class="planner-day-column bg-gray-50 border border-gray-200 rounded-lg p-3 ${plannerDayClass(dayShort)}">
+                        <div class="flex items-baseline justify-between mb-2">
+                            <div><span class="text-lg font-extrabold text-gray-900">${dayFull}</span> <span class="text-sm text-gray-500">${displayDate}</span></div>
+                            <span class="text-xs font-semibold text-gray-500">${list.length} players</span>
+                        </div>
+                        <div class="space-y-2">${cards}</div>${more}
+                    </section>`);
+                });
+
+                $('#planner-columns .planner-player-card').on('click', function() {
+                    const name = $(this).attr('data-player-name');
+                    const player = fullPlayerData.find(p => p.Name === name);
+                    if (player) showModal('player', player);
+                });
+            }
+
+            function setMainView(view) {
+                const planner = view === 'planner';
+                $('#table-view').toggleClass('hidden', planner);
+                $('#planner-view').toggleClass('hidden', !planner);
+                $('#table-view-tab').toggleClass('active', !planner);
+                $('#planner-view-tab').toggleClass('active', planner);
+                if (planner) renderPlanner();
+                else if (dataTableInstance) setTimeout(() => dataTableInstance.columns.adjust().draw(false), 50);
+            }
+
+            $('#table-view-tab').on('click', () => setMainView('table'));
+            $('#planner-view-tab').on('click', () => setMainView('planner'));
+            $('#planner-gameweek, #planner-position, #planner-club, #planner-sort, #planner-my-team').on('change', renderPlanner);
+            $('#planner-search').on('input', renderPlanner);
 
             async function fetchData() {
                 try {
@@ -2697,6 +2975,8 @@
 
                     fullPlayerData = playerData.slice();
                     initializeTable(playerData);
+                    populatePlannerControls(playerData, transformedMetadata.matchday_id);
+                    renderPlanner();
                     updateDeltaReferenceNote(transformedMetadata);
                     
                 } catch (error) {
