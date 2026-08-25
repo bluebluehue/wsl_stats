@@ -52,6 +52,13 @@ POSITION_MAP = {
 MAX_MATCHDAY_COLUMNS = int(os.getenv("WSL_MAX_MATCHDAYS", "30"))
 UK_TZ = ZoneInfo("Europe/London")
 
+WSL_COMPETITION_ID = "wpll::Football_Competition::e32284e8a1214f1ca83a3245d690b336"
+WSL2_COMPETITION_ID = "wpll::Football_Competition::422757a2c70d450eba118ad97bed5222"
+COMPETITION_LABELS = {
+    WSL_COMPETITION_ID: "WSL",
+    WSL2_COMPETITION_ID: "WSL2",
+}
+
 
 def fetch_json(path: str, cache_name: str | None = None, from_local: bool = False) -> dict[str, Any]:
     """Fetch one WSL JSON feed, optionally from raw_feeds for offline testing."""
@@ -262,23 +269,98 @@ def selected_delta_since(history: dict[str, Any], name: str, current: float, sin
     return round(current - safe_float(snapshots[since_date].get("Selected Percentage")), 2)
 
 
-def wsl_difficulty_to_opportunity(difficulty: float | None) -> float | None:
-    """Normalize WSL feed currentRating to the parser's 0-100 opportunity scale.
+def competition_label(competition_id: str | None) -> str:
+    return COMPETITION_LABELS.get(competition_id, "Other")
 
-    The launch feed behaves as an opponent/fixture difficulty measure: higher
-    values are harder (for example, Arsenal fixtures are around the low 90s,
-    while easier WSL2 opponents are commonly in the 70s). The NWSL parser and
-    this viewer use the opposite contract: higher Fixture Rating = better.
 
-    Keep the raw WSL value in upcoming_fixtures[...]["current_rating"], but use
-    a rescaled inverse everywhere downstream as Fixture Rating. The WSL config
-    defines FDR thresholds at 50/60/70/80/90 (green through red), so we map
-    those roughly to 90/70/50/30/10 opportunity points via 190 - 2*difficulty.
+def percentile(values: list[float], q: float) -> float | None:
+    if not values:
+        return None
+    vals = sorted(values)
+    if len(vals) == 1:
+        return vals[0]
+    pos = (len(vals) - 1) * q
+    lo = int(math.floor(pos))
+    hi = int(math.ceil(pos))
+    if lo == hi:
+        return vals[lo]
+    frac = pos - lo
+    return vals[lo] * (1 - frac) + vals[hi] * frac
+
+
+def build_competition_fixture_calibration(players_raw: list[dict[str, Any]]) -> dict[str, dict[str, float]]:
+    """Create league-relative fixture difficulty bands.
+
+    The launch feed's currentRating values live in very different numeric bands
+    for WSL and WSL2. Treating them as one global scale makes virtually every
+    WSL2 fixture look easier than every WSL fixture. For fantasy purposes we
+    instead compare an opponent to the other opponents in the same competition.
+
+    We deduplicate by competition/team/match, then use the 10th and 90th
+    percentiles of source difficulty as the easy/hard anchors. Those anchors
+    map to 90 and 10 on the parser's common opportunity scale.
+    """
+    by_comp: dict[str, dict[tuple[str, str], float]] = {}
+    for player in players_raw:
+        comp = player.get("competitionId")
+        own_team = str(player.get("teamId") or player.get("teamAcronymName") or "")
+        if not comp:
+            continue
+        bucket = by_comp.setdefault(comp, {})
+        for f in player.get("upcomingFixtures", []) or []:
+            raw = f.get("currentRating")
+            if raw in (None, ""):
+                continue
+            key = (own_team, str(f.get("matchId") or f.get("matchdayId") or len(bucket)))
+            bucket[key] = safe_float(raw)
+
+    calibration: dict[str, dict[str, float]] = {}
+    for comp, keyed in by_comp.items():
+        vals = list(keyed.values())
+        easy = percentile(vals, 0.10)
+        hard = percentile(vals, 0.90)
+        if easy is None or hard is None:
+            continue
+        if hard <= easy:
+            easy = min(vals)
+            hard = max(vals)
+        if hard <= easy:
+            hard = easy + 1.0
+        calibration[comp] = {
+            "easy_anchor": round(easy, 2),
+            "hard_anchor": round(hard, 2),
+            "sample_count": float(len(vals)),
+        }
+    return calibration
+
+
+def wsl_difficulty_to_opportunity(
+    difficulty: float | None,
+    competition_id: str | None = None,
+    calibration: dict[str, dict[str, float]] | None = None,
+) -> float | None:
+    """Convert source difficulty into a common 0-100 league-relative opportunity score.
+
+    Higher source currentRating = harder. Higher parser Fixture Rating = better.
+    WSL and WSL2 are normalized separately so a mid-table WSL2 opponent is not
+    automatically rated easier than every WSL opponent merely because the two
+    competitions occupy different source-rating bands.
     """
     if difficulty is None:
         return None
-    return round(max(0.0, min(100.0, 190.0 - (2.0 * safe_float(difficulty)))), 1)
+    d = safe_float(difficulty)
+    band = (calibration or {}).get(competition_id or "")
+    if band:
+        easy = safe_float(band.get("easy_anchor"))
+        hard = safe_float(band.get("hard_anchor"))
+        span = max(hard - easy, 0.01)
+        # easy anchor -> 90 opportunity, hard anchor -> 10; allow modest
+        # extension beyond anchors and clamp to the common 0-100 scale.
+        opportunity = 90.0 - ((d - easy) / span) * 80.0
+        return round(max(0.0, min(100.0, opportunity)), 1)
 
+    # Conservative fallback if a new/unknown competition appears.
+    return round(max(0.0, min(100.0, 190.0 - (2.0 * d))), 1)
 
 def fixture_rating_to_score(rating: float | None) -> int | str:
     """Convert a 0-100 opportunity rating to the viewer's legacy 1-5 bucket.
@@ -304,9 +386,11 @@ def build_upcoming_fixture(
     own_team_id: str | None = None,
     own_team_name: str | None = None,
     own_team_short_name: str | None = None,
+    competition_id: str | None = None,
+    fixture_calibration: dict[str, dict[str, float]] | None = None,
 ) -> dict[str, Any]:
     difficulty = raw.get("currentRating")
-    opportunity = wsl_difficulty_to_opportunity(difficulty)
+    opportunity = wsl_difficulty_to_opportunity(difficulty, competition_id, fixture_calibration)
     location = raw.get("location")
     opponent_id = raw.get("vsTeamAcronymName") or compact_id(raw.get("vsTeamId"))
     opponent_name = raw.get("vsTeamName")
@@ -341,6 +425,8 @@ def build_upcoming_fixture(
         # Preserve the source field for debugging/reference. Higher = harder.
         "current_rating": difficulty,
         "fixture_difficulty": difficulty,
+        "competition_id": competition_id,
+        "league": competition_label(competition_id),
         # Normalized parser contract. Higher = better.
         "opportunity_rating": opportunity,
         "home_id": home_id or "",
@@ -363,7 +449,7 @@ def fixture_details_text(fixtures: list[dict[str, Any]], position: str) -> str:
         difficulty = f.get("fixture_difficulty", f.get("current_rating"))
         opportunity = f.get("opportunity_rating")
         if opportunity is None:
-            opportunity = wsl_difficulty_to_opportunity(difficulty)
+            opportunity = wsl_difficulty_to_opportunity(difficulty, f.get("competition_id"))
         score = fixture_rating_to_score(opportunity)
         lines.append(
             f"GW{f.get('game_week')}: vs {opponent} ({loc}) on {f.get('game_date')} {f.get('kick_off_time')}"
@@ -372,11 +458,11 @@ def fixture_details_text(fixtures: list[dict[str, Any]], position: str) -> str:
             lines.append(f"  WSL source difficulty: {difficulty}/100 (higher = harder)")
         if opportunity is not None:
             opportunities.append(float(opportunity))
-            lines.append(f"  Fixture opportunity: {opportunity}/100 (higher = better); table score: {score}/5")
+            lines.append(f"  {f.get('league') or 'League'}-relative fixture opportunity: {opportunity}/100 (higher = better); table score: {score}/5")
         if position in {"GK", "DEF"}:
-            lines.append("  Temporary defensive opportunity uses inverted WSL difficulty until a WSL xG model is added.")
+            lines.append("  Temporary defensive opportunity is normalized within the player's competition until a WSL xG model is added.")
         else:
-            lines.append("  Temporary attacking opportunity uses inverted WSL difficulty until a WSL xG model is added.")
+            lines.append("  Temporary attacking opportunity is normalized within the player's competition until a WSL xG model is added.")
     if opportunities:
         lines.append(f"Average fixture opportunity: {round(sum(opportunities) / len(opportunities), 1)}/100")
     return "\n".join(lines)
@@ -431,7 +517,7 @@ def decision_rating(player: dict[str, Any]) -> float:
     return round(fixture * weights[0] + form * weights[1], 1)
 
 
-def transform_player(raw: dict[str, Any]) -> dict[str, Any]:
+def transform_player(raw: dict[str, Any], fixture_calibration: dict[str, dict[str, float]]) -> dict[str, Any]:
     name = f"{raw.get('mediaFirstName', '').strip()} {raw.get('mediaLastName', '').strip()}".strip()
     short_name = raw.get("mediaShortName") or name
     position = POSITION_MAP.get(str(raw.get("skillName") or "").lower(), str(raw.get("skillName") or "").upper())
@@ -444,8 +530,12 @@ def transform_player(raw: dict[str, Any]) -> dict[str, Any]:
     own_team_id = raw.get("teamAcronymName") or raw.get("teamShortName")
     own_team_name = raw.get("teamOfficialName") or raw.get("teamShortName")
     own_team_short_name = raw.get("teamShortName") or own_team_name
+    competition_id = raw.get("competitionId")
     upcoming = [
-        build_upcoming_fixture(f, own_team_id, own_team_name, own_team_short_name)
+        build_upcoming_fixture(
+            f, own_team_id, own_team_name, own_team_short_name,
+            competition_id, fixture_calibration
+        )
         for f in raw.get("upcomingFixtures", [])
     ]
     next_fixture = upcoming[0] if upcoming else None
@@ -461,7 +551,8 @@ def transform_player(raw: dict[str, Any]) -> dict[str, Any]:
         "Club": raw.get("teamAcronymName") or raw.get("teamShortName"),
         "Club Name": raw.get("teamOfficialName") or raw.get("teamShortName"),
         "Team ID": raw.get("teamId"),
-        "Competition ID": raw.get("competitionId"),
+        "Competition ID": competition_id,
+        "League": competition_label(competition_id),
         "Position": position,
         "Value": value,
         "Nationality": "",
@@ -572,7 +663,8 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
     teams_value = value_of(feeds["teams"]) or {}
     teams_raw = teams_value.get("teams", []) if isinstance(teams_value, dict) else []
 
-    players = [transform_player(p) for p in players_raw]
+    fixture_calibration = build_competition_fixture_calibration(players_raw)
+    players = [transform_player(p, fixture_calibration) for p in players_raw]
     history = update_history(players)
     last_price_change = detect_last_global_price_change_date(history)
 
@@ -597,8 +689,12 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
         "last_global_price_change_date": last_price_change,
         "feed_urls": {key: urljoin(BASE_URL, path) for key, path in URLS.items()},
         "fixture_model": {
-            "version": "wsl-feed-inverted-difficulty-v2",
-            "note": "WSL currentRating is fixture difficulty (higher = harder). WSL config FDR thresholds 50/60/70/80/90 are normalized to roughly 90/70/50/30/10 opportunity using 190-2*currentRating. Higher Fixture Rating = better. A WSL xG/team-strength model can be added later.",
+            "version": "wsl-competition-relative-difficulty-v3",
+            "note": "WSL currentRating is higher-is-harder, but WSL and WSL2 occupy different source bands. Ratings are normalized separately within each competition using the 10th/90th percentile source difficulties as 90/10 opportunity anchors. Higher Fixture Rating = better. A WSL xG/team-strength model can replace this later.",
+            "competition_calibration": {
+                competition_label(comp): {**vals, "competition_id": comp}
+                for comp, vals in fixture_calibration.items()
+            },
         },
         "decision_rating": {
             "version": "wsl-v1-position-specific",
