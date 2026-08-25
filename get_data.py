@@ -174,6 +174,89 @@ def format_fixture_day_short(value: str | None) -> str:
     return dt.strftime("%a").upper()
 
 
+
+def assign_canonical_fantasy_gameweeks(
+    fixtures: list[dict[str, Any]],
+    max_gap_days: int = 3,
+) -> list[dict[str, Any]]:
+    """Assign a shared Fantasy GW across WSL and WSL2 by calendar window.
+
+    The two competitions' own matchday numbers diverge during the season.
+    Fantasy rotation/substitution analysis needs a single chronological
+    scoring-window index instead.
+
+    We cluster published *league* fixtures into calendar windows. Consecutive
+    fixture dates no more than max_gap_days apart belong to the same Fantasy
+    GW. A later cluster becomes the next Fantasy GW. This naturally preserves
+    WSL-only or WSL2-only league weekends as their own fantasy scoring window.
+
+    The original competition matchday remains available as league_game_week.
+    """
+    dated = []
+    for fixture in fixtures:
+        date_str = fixture.get("fixture_date_iso")
+        if not date_str:
+            continue
+        try:
+            d = datetime.fromisoformat(date_str).date()
+        except Exception:
+            continue
+        dated.append((d, fixture))
+
+    dated.sort(key=lambda item: (item[0], str(item[1].get("match_id") or "")))
+
+    clusters: list[dict[str, Any]] = []
+    for d, fixture in dated:
+        if not clusters:
+            clusters.append({"start": d, "end": d, "fixtures": [fixture]})
+            continue
+
+        previous_end = clusters[-1]["end"]
+        gap = (d - previous_end).days
+
+        if gap <= max_gap_days:
+            clusters[-1]["end"] = max(clusters[-1]["end"], d)
+            clusters[-1]["fixtures"].append(fixture)
+        else:
+            clusters.append({"start": d, "end": d, "fixtures": [fixture]})
+
+    windows: list[dict[str, Any]] = []
+    for fantasy_gw, cluster in enumerate(clusters, start=1):
+        active_competitions = sorted({
+            str(f.get("competition_id") or "")
+            for f in cluster["fixtures"]
+            if f.get("competition_id")
+        })
+        active_leagues = [competition_label(comp) for comp in active_competitions]
+
+        for fixture in cluster["fixtures"]:
+            fixture["league_game_week"] = fixture.get("game_week")
+            fixture["fantasy_game_week"] = str(fantasy_gw)
+            fixture["fantasy_window_start"] = cluster["start"].isoformat()
+            fixture["fantasy_window_end"] = cluster["end"].isoformat()
+
+        if len(active_leagues) == 1:
+            window_type = f"{active_leagues[0]}_ONLY"
+            free_hit_eligible = True
+        else:
+            window_type = "BOTH_LEAGUES"
+            free_hit_eligible = False
+
+        windows.append({
+            "fantasy_game_week": str(fantasy_gw),
+            "start_date": cluster["start"].isoformat(),
+            "end_date": cluster["end"].isoformat(),
+            "active_competition_ids": active_competitions,
+            "active_leagues": active_leagues,
+            "window_type": window_type,
+            "free_hit_eligible": free_hit_eligible,
+            "fixture_count": len(cluster["fixtures"]),
+        })
+
+    return windows
+
+
+
 def normalize_fixture(fixture: dict[str, Any]) -> dict[str, Any]:
     return {
         "match_id": fixture.get("matchId"),
@@ -1080,6 +1163,7 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
         )
 
     fixtures = [normalize_fixture(f) for f in fixtures_raw]
+    fantasy_gameweeks = assign_canonical_fantasy_gameweeks(fixtures)
 
     # Full-schedule GK/defensive fixture opportunity for each side.
     # This is a true defensive matchup model: opponent attacking strength is
@@ -1123,6 +1207,19 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
         "player_count": len(players),
         "fixture_count": len(fixtures),
         "team_count": len(teams),
+        "fantasy_gameweeks": fantasy_gameweeks,
+        "fantasy_calendar_model": {
+            "version": "calendar-cluster-v1",
+            "note": "Canonical Fantasy GWs are shared across WSL and WSL2 and are assigned chronologically from published league fixture dates. Competition-specific matchday numbers are preserved separately as league_game_week. A one-league-only window is flagged free_hit_eligible.",
+            "cluster_max_gap_days": 3,
+            "statuses": {
+                "NORMAL": "Club has one fixture in an active league window.",
+                "DOUBLE": "Club has more than one fixture in the same Fantasy GW.",
+                "LEAGUE_OFF": "Club's entire league has no league fixtures in that Fantasy GW.",
+                "CLUB_BLANK": "League is active but this club has no published league fixture in the window; could reflect postponement/rescheduling or an exceptional blank.",
+                "TBD": "Fixture exists but date/window is not yet published."
+            }
+        },
         "last_global_price_change_date": last_price_change,
         "feed_urls": {key: urljoin(BASE_URL, path) for key, path in URLS.items()},
         "fixture_model": {
