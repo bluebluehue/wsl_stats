@@ -60,6 +60,22 @@ COMPETITION_LABELS = {
 }
 
 
+# 2026/27 cross-division transition layer.
+#
+# The launch source ratings appear to carry prior-competition strength forward:
+# clubs promoted from WSL2 can therefore look implausibly strong immediately in
+# WSL, while a relegated WSL club can look too ordinary in WSL2. We correct
+# that temporarily, then fade the correction as the new season supplies data.
+PROMOTED_TO_WSL = {"BIR", "CRY", "CHA"}
+RELEGATED_TO_WSL2 = {"LEI"}
+
+# Full preseason / early-season correction in opportunity points.
+# These are deliberately transparent heuristics rather than pretending the
+# public feed contains a cross-division model that it does not expose.
+PROMOTION_OPPORTUNITY_PENALTY = 35.0
+RELEGATION_OPPORTUNITY_BONUS = 30.0
+
+
 def fetch_json(path: str, cache_name: str | None = None, from_local: bool = False) -> dict[str, Any]:
     """Fetch one WSL JSON feed, optionally from raw_feeds for offline testing."""
     RAW_DIR.mkdir(exist_ok=True)
@@ -362,6 +378,82 @@ def wsl_difficulty_to_opportunity(
     # Conservative fallback if a new/unknown competition appears.
     return round(max(0.0, min(100.0, 190.0 - (2.0 * d))), 1)
 
+
+def transition_decay(current_matchday: int | None = None) -> float:
+    """Fade the cross-division correction as current-season evidence arrives.
+
+    GW1-3: full correction
+    GW4-6: 65%
+    GW7-8: 30%
+    GW9+: none
+
+    MATCHDAY_ID is the parser's current player-feed matchday. This keeps the
+    correction tied to season progress rather than to the future fixture being
+    evaluated.
+    """
+    md = safe_int(current_matchday if current_matchday is not None else MATCHDAY_ID, 1)
+    if md <= 3:
+        return 1.0
+    if md <= 6:
+        return 0.65
+    if md <= 8:
+        return 0.30
+    return 0.0
+
+
+def apply_division_transition_adjustment(
+    opportunity: float | None,
+    own_team_code: str | None,
+    opponent_code: str | None,
+    competition_id: str | None,
+    current_matchday: int | None = None,
+) -> tuple[float | None, float, str]:
+    """Correct preseason/early-season ratings for promoted/relegated clubs.
+
+    The correction is symmetric:
+      * promoted WSL club evaluating a fixture -> harder than inherited WSL2
+        strength implies (subtract opportunity);
+      * established WSL club facing a promoted club -> easier than inherited
+        WSL2 strength implies (add opportunity);
+      * relegated WSL2 club evaluating a fixture -> easier than ordinary WSL2
+        normalization implies (add opportunity);
+      * WSL2 opponent facing relegated Leicester -> harder (subtract).
+
+    If both sides are transition clubs the effects can partially/fully cancel.
+    """
+    if opportunity is None:
+        return None, 0.0, ""
+
+    own = str(own_team_code or "").upper()
+    opp = str(opponent_code or "").upper()
+    decay = transition_decay(current_matchday)
+    adjustment = 0.0
+    reasons: list[str] = []
+
+    if competition_id == WSL_COMPETITION_ID:
+        if own in PROMOTED_TO_WSL:
+            delta = -PROMOTION_OPPORTUNITY_PENALTY * decay
+            adjustment += delta
+            reasons.append(f"{own} promoted to WSL ({delta:+.1f})")
+        if opp in PROMOTED_TO_WSL:
+            delta = PROMOTION_OPPORTUNITY_PENALTY * decay
+            adjustment += delta
+            reasons.append(f"{opp} promoted to WSL ({delta:+.1f})")
+
+    elif competition_id == WSL2_COMPETITION_ID:
+        if own in RELEGATED_TO_WSL2:
+            delta = RELEGATION_OPPORTUNITY_BONUS * decay
+            adjustment += delta
+            reasons.append(f"{own} relegated to WSL2 ({delta:+.1f})")
+        if opp in RELEGATED_TO_WSL2:
+            delta = -RELEGATION_OPPORTUNITY_BONUS * decay
+            adjustment += delta
+            reasons.append(f"{opp} relegated to WSL2 ({delta:+.1f})")
+
+    adjusted = round(max(0.0, min(100.0, safe_float(opportunity) + adjustment)), 1)
+    return adjusted, round(adjustment, 1), "; ".join(reasons)
+
+
 def fixture_rating_to_score(rating: float | None) -> int | str:
     """Convert a 0-100 opportunity rating to the viewer's legacy 1-5 bucket.
 
@@ -390,11 +482,19 @@ def build_upcoming_fixture(
     fixture_calibration: dict[str, dict[str, float]] | None = None,
 ) -> dict[str, Any]:
     difficulty = raw.get("currentRating")
-    opportunity = wsl_difficulty_to_opportunity(difficulty, competition_id, fixture_calibration)
+    base_opportunity = wsl_difficulty_to_opportunity(difficulty, competition_id, fixture_calibration)
     location = raw.get("location")
     opponent_id = raw.get("vsTeamAcronymName") or compact_id(raw.get("vsTeamId"))
     opponent_name = raw.get("vsTeamName")
     opponent_short = raw.get("vsTeamShortName")
+
+    opportunity, transition_adjustment, transition_reason = apply_division_transition_adjustment(
+        base_opportunity,
+        own_team_id,
+        opponent_id,
+        competition_id,
+        MATCHDAY_ID,
+    )
 
     if location == "H":
         home_id, home_name, home_short = own_team_id, own_team_name, own_team_short_name
@@ -428,6 +528,9 @@ def build_upcoming_fixture(
         "competition_id": competition_id,
         "league": competition_label(competition_id),
         # Normalized parser contract. Higher = better.
+        "base_opportunity_rating": base_opportunity,
+        "transition_adjustment": transition_adjustment,
+        "transition_adjustment_reason": transition_reason,
         "opportunity_rating": opportunity,
         "home_id": home_id or "",
         "home_name": home_name or "",
@@ -458,11 +561,20 @@ def fixture_details_text(fixtures: list[dict[str, Any]], position: str) -> str:
             lines.append(f"  WSL source difficulty: {difficulty}/100 (higher = harder)")
         if opportunity is not None:
             opportunities.append(float(opportunity))
-            lines.append(f"  {f.get('league') or 'League'}-relative fixture opportunity: {opportunity}/100 (higher = better); table score: {score}/5")
+            base_opportunity = f.get("base_opportunity_rating")
+            transition_adjustment = safe_float(f.get("transition_adjustment"), 0.0)
+            if base_opportunity is not None and abs(transition_adjustment) > 0.01:
+                lines.append(
+                    f"  League-relative base opportunity: {base_opportunity}/100; "
+                    f"division-transition adjustment: {transition_adjustment:+.1f}"
+                )
+                if f.get("transition_adjustment_reason"):
+                    lines.append(f"  Transition note: {f.get('transition_adjustment_reason')}")
+            lines.append(f"  Final fixture opportunity: {opportunity}/100 (higher = better); table score: {score}/5")
         if position in {"GK", "DEF"}:
-            lines.append("  Temporary defensive opportunity is normalized within the player's competition until a WSL xG model is added.")
+            lines.append("  Temporary defensive opportunity uses competition normalization plus the early-season promotion/relegation bridge until a WSL xG model is added.")
         else:
-            lines.append("  Temporary attacking opportunity is normalized within the player's competition until a WSL xG model is added.")
+            lines.append("  Temporary attacking opportunity uses competition normalization plus the early-season promotion/relegation bridge until a WSL xG model is added.")
     if opportunities:
         lines.append(f"Average fixture opportunity: {round(sum(opportunities) / len(opportunities), 1)}/100")
     return "\n".join(lines)
@@ -553,6 +665,11 @@ def transform_player(raw: dict[str, Any], fixture_calibration: dict[str, dict[st
         "Team ID": raw.get("teamId"),
         "Competition ID": competition_id,
         "League": competition_label(competition_id),
+        "Division Transition": (
+            "Promoted to WSL" if (raw.get("teamAcronymName") or raw.get("teamShortName")) in PROMOTED_TO_WSL
+            else "Relegated to WSL2" if (raw.get("teamAcronymName") or raw.get("teamShortName")) in RELEGATED_TO_WSL2
+            else ""
+        ),
         "Position": position,
         "Value": value,
         "Nationality": "",
@@ -689,11 +806,26 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
         "last_global_price_change_date": last_price_change,
         "feed_urls": {key: urljoin(BASE_URL, path) for key, path in URLS.items()},
         "fixture_model": {
-            "version": "wsl-competition-relative-difficulty-v3",
-            "note": "WSL currentRating is higher-is-harder, but WSL and WSL2 occupy different source bands. Ratings are normalized separately within each competition using the 10th/90th percentile source difficulties as 90/10 opportunity anchors. Higher Fixture Rating = better. A WSL xG/team-strength model can replace this later.",
+            "version": "wsl-competition-relative-transition-v4",
+            "note": "WSL currentRating is higher-is-harder. WSL and WSL2 are normalized separately, then an explicit early-season cross-division bridge corrects inherited prior-league strength for promoted/relegated clubs. Higher Fixture Rating = better. A WSL xG/team-strength model can replace this later.",
             "competition_calibration": {
                 competition_label(comp): {**vals, "competition_id": comp}
                 for comp, vals in fixture_calibration.items()
+            },
+            "division_transition": {
+                "promoted_to_wsl": sorted(PROMOTED_TO_WSL),
+                "relegated_to_wsl2": sorted(RELEGATED_TO_WSL2),
+                "promotion_opportunity_penalty_full": PROMOTION_OPPORTUNITY_PENALTY,
+                "relegation_opportunity_bonus_full": RELEGATION_OPPORTUNITY_BONUS,
+                "current_matchday": MATCHDAY_ID,
+                "current_decay_factor": transition_decay(MATCHDAY_ID),
+                "decay_schedule": {
+                    "GW1-3": 1.0,
+                    "GW4-6": 0.65,
+                    "GW7-8": 0.30,
+                    "GW9+": 0.0,
+                },
+                "note": "Adjustment is symmetric: promoted clubs lose opportunity from their own fixtures and established WSL opponents gain the same amount when facing them; relegated Leicester receives the inverse treatment in WSL2. The correction fades as current-season evidence accumulates."
             },
         },
         "decision_rating": {
