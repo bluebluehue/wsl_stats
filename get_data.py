@@ -14,6 +14,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 from urllib.parse import urljoin
+from zoneinfo import ZoneInfo
 
 import requests
 
@@ -49,6 +50,7 @@ POSITION_MAP = {
 # fit inside 22 matchdays, but keeping 30 avoids breaking if cup/double-week
 # structures appear later.
 MAX_MATCHDAY_COLUMNS = int(os.getenv("WSL_MAX_MATCHDAYS", "30"))
+UK_TZ = ZoneInfo("Europe/London")
 
 
 def fetch_json(path: str, cache_name: str | None = None, from_local: bool = False) -> dict[str, Any]:
@@ -112,19 +114,45 @@ def parse_dt(value: str | None) -> datetime | None:
         return None
 
 
-def format_fixture_date(value: str | None) -> str:
+def fixture_local_dt(value: str | None) -> datetime | None:
     dt = parse_dt(value)
+    return dt.astimezone(UK_TZ) if dt else None
+
+
+def format_fixture_date(value: str | None) -> str:
+    dt = fixture_local_dt(value)
     if not dt:
         return ""
-    # Keep the NWSL viewer's compact style: 4 Sep, 13 Sep, etc.
+    # WSL fixtures are shown in UK local time (GMT/BST as appropriate).
     return f"{dt.day} {dt.strftime('%b')}"
 
 
 def format_fixture_time(value: str | None) -> str:
-    dt = parse_dt(value)
+    dt = fixture_local_dt(value)
     if not dt:
         return ""
     return dt.strftime("%H:%M")
+
+
+def format_fixture_date_iso(value: str | None) -> str:
+    dt = fixture_local_dt(value)
+    if not dt:
+        return ""
+    return dt.date().isoformat()
+
+
+def format_fixture_day(value: str | None) -> str:
+    dt = fixture_local_dt(value)
+    if not dt:
+        return ""
+    return dt.strftime("%A")
+
+
+def format_fixture_day_short(value: str | None) -> str:
+    dt = fixture_local_dt(value)
+    if not dt:
+        return ""
+    return dt.strftime("%a").upper()
 
 
 def normalize_fixture(fixture: dict[str, Any]) -> dict[str, Any]:
@@ -135,6 +163,10 @@ def normalize_fixture(fixture: dict[str, Any]) -> dict[str, Any]:
         "status": fixture.get("status"),
         "provider_status": fixture.get("providerStatus"),
         "match_date_time_utc": fixture.get("matchDateTimeUtc"),
+        "fixture_date_iso": format_fixture_date_iso(fixture.get("matchDateTimeUtc")),
+        "fixture_day": format_fixture_day(fixture.get("matchDateTimeUtc")),
+        "fixture_day_short": format_fixture_day_short(fixture.get("matchDateTimeUtc")),
+        "fixture_day_number": fixture_local_dt(fixture.get("matchDateTimeUtc")).isoweekday() if fixture_local_dt(fixture.get("matchDateTimeUtc")) else None,
         "game_date": format_fixture_date(fixture.get("matchDateTimeUtc")),
         "kick_off_time": format_fixture_time(fixture.get("matchDateTimeUtc")),
         "game_week": str(fixture.get("matchdayId") or ""),
@@ -290,7 +322,14 @@ def build_upcoming_fixture(
         home_id = home_name = home_short = ""
         away_id = away_name = away_short = ""
 
+    fixture_dt = fixture_local_dt(raw.get("matchDateTimeUtc"))
+
     return {
+        "match_date_time_utc": raw.get("matchDateTimeUtc"),
+        "fixture_date_iso": format_fixture_date_iso(raw.get("matchDateTimeUtc")),
+        "fixture_day": format_fixture_day(raw.get("matchDateTimeUtc")),
+        "fixture_day_short": format_fixture_day_short(raw.get("matchDateTimeUtc")),
+        "fixture_day_number": fixture_dt.isoweekday() if fixture_dt else None,
         "game_date": format_fixture_date(raw.get("matchDateTimeUtc")),
         "kick_off_time": format_fixture_time(raw.get("matchDateTimeUtc")),
         "game_week": str(raw.get("matchdayId") or ""),
@@ -467,6 +506,14 @@ def transform_player(raw: dict[str, Any]) -> dict[str, Any]:
         "Transfers In": safe_int(raw.get("transferIn")),
         "Transfers Out": safe_int(raw.get("transferOut")),
         "upcoming_fixtures": upcoming,
+        "Next Fixture Day": next_fixture.get("fixture_day") if next_fixture else "",
+        "Next Fixture Day Short": next_fixture.get("fixture_day_short") if next_fixture else "",
+        "Next Fixture Day Number": next_fixture.get("fixture_day_number") if next_fixture else None,
+        "Next Fixture Date ISO": next_fixture.get("fixture_date_iso") if next_fixture else "",
+        "Next Fixture Kickoff": next_fixture.get("kick_off_time") if next_fixture else "",
+        "Next Fixture Opponent": next_fixture.get("opponent_id") if next_fixture else "",
+        "Next Fixture H/A": next_fixture.get("location") if next_fixture else "",
+        "Sub Flex": max(0, (next_fixture.get("fixture_day_number") or 5) - 5) if next_fixture else 0,
         "Next Fixture Rating": round(next_rating, 1),
         "Next Fixture Score": fixture_rating_to_score(next_rating) if next_fixture else "-",
         "Next Fixture Details": fixture_details_text(upcoming[:1], position),
