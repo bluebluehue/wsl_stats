@@ -460,6 +460,166 @@ def build_team_strength_priors(players_raw: list[dict[str, Any]]) -> dict[str, d
     return priors
 
 
+
+def map_rank_to_destination_strength(
+    team: str,
+    competition_id: str | None,
+    rank: float,
+) -> tuple[float, str]:
+    """Map an intra-competition rank onto a preseason destination-league scale."""
+    note = ""
+
+    if competition_id == WSL_COMPETITION_ID:
+        if team in PROMOTED_TO_WSL:
+            strength = 0.20 + (0.18 * rank)   # 0.20..0.38
+            note = "Promoted to WSL: lower-WSL preseason unit-strength band"
+        else:
+            strength = 0.18 + (0.74 * rank)   # 0.18..0.92
+    elif competition_id == WSL2_COMPETITION_ID:
+        if team in RELEGATED_TO_WSL2:
+            strength = 0.78 + (0.10 * rank)   # 0.78..0.88
+            note = "Relegated to WSL2: upper-WSL2 preseason unit-strength band"
+        else:
+            strength = 0.15 + (0.70 * rank)   # 0.15..0.85
+    else:
+        strength = 0.25 + (0.50 * rank)
+
+    return max(0.05, min(0.95, strength)), note
+
+
+def build_team_unit_priors(
+    players_raw: list[dict[str, Any]],
+    team_strength: dict[str, dict[str, Any]],
+) -> dict[str, dict[str, Any]]:
+    """Build separate preseason attacking and defensive team-strength priors.
+
+    Attack prior: top six prior-season fantasy point totals among MID/FOR.
+    Defense prior: top five prior-season fantasy point totals among GK/DEF.
+
+    Each unit is ranked within its current competition first, then mapped onto
+    the destination-league scale. We blend 70% unit-specific evidence with
+    30% whole-team strength to reduce noise when a club has many new signings
+    or sparse prior-season data.
+    """
+    units: dict[str, dict[str, Any]] = {}
+
+    for raw in players_raw:
+        team = str(raw.get("teamAcronymName") or raw.get("teamShortName") or "").upper()
+        comp = raw.get("competitionId")
+        if not team or not comp:
+            continue
+
+        position = POSITION_MAP.get(
+            str(raw.get("skillName") or "").lower(),
+            str(raw.get("skillName") or "").upper()
+        )
+        pts = safe_float(raw.get("pointsLastSeason"), 0.0)
+
+        bucket = units.setdefault(team, {
+            "competition_id": comp,
+            "attack_points": [],
+            "defense_points": [],
+        })
+
+        if pts > 0:
+            if position in {"MID", "FOR"}:
+                bucket["attack_points"].append(pts)
+            elif position in {"GK", "DEF"}:
+                bucket["defense_points"].append(pts)
+
+    attack_scores_by_comp: dict[str, dict[str, float]] = {}
+    defense_scores_by_comp: dict[str, dict[str, float]] = {}
+
+    for team, info in units.items():
+        attack_score = sum(sorted(info["attack_points"], reverse=True)[:6])
+        defense_score = sum(sorted(info["defense_points"], reverse=True)[:5])
+        comp = info["competition_id"]
+        attack_scores_by_comp.setdefault(comp, {})[team] = attack_score
+        defense_scores_by_comp.setdefault(comp, {})[team] = defense_score
+
+    attack_ranks = {
+        comp: rank_percentile(scores)
+        for comp, scores in attack_scores_by_comp.items()
+    }
+    defense_ranks = {
+        comp: rank_percentile(scores)
+        for comp, scores in defense_scores_by_comp.items()
+    }
+
+    priors: dict[str, dict[str, Any]] = {}
+
+    for team, info in units.items():
+        comp = info["competition_id"]
+        attack_rank = attack_ranks.get(comp, {}).get(team, 0.5)
+        defense_rank = defense_ranks.get(comp, {}).get(team, 0.5)
+
+        attack_mapped, attack_note = map_rank_to_destination_strength(team, comp, attack_rank)
+        defense_mapped, defense_note = map_rank_to_destination_strength(team, comp, defense_rank)
+
+        generic_strength = safe_float(team_strength.get(team, {}).get("strength_index"), 0.50)
+
+        attack_strength = (0.70 * attack_mapped) + (0.30 * generic_strength)
+        defense_strength = (0.70 * defense_mapped) + (0.30 * generic_strength)
+
+        priors[team] = {
+            "competition_id": comp,
+            "attack_raw_points_top6": round(sum(sorted(info["attack_points"], reverse=True)[:6]), 1),
+            "defense_raw_points_top5": round(sum(sorted(info["defense_points"], reverse=True)[:5]), 1),
+            "attack_rank": round(attack_rank, 4),
+            "defense_rank": round(defense_rank, 4),
+            "attack_strength_index": round(max(0.05, min(0.95, attack_strength)), 4),
+            "defense_strength_index": round(max(0.05, min(0.95, defense_strength)), 4),
+            "attack_transition_note": attack_note,
+            "defense_transition_note": defense_note,
+        }
+
+    return priors
+
+
+def defensive_fixture_opportunity(
+    own_team_code: str | None,
+    opponent_code: str | None,
+    location: str | None,
+    unit_strength: dict[str, dict[str, Any]],
+) -> tuple[float, dict[str, Any]]:
+    """Estimate GK/defensive fixture favorability, 0..100, higher = better.
+
+    This deliberately answers a different question from the general fixture
+    score: how favorable is the matchup for keeping goals out?
+
+    Opponent attack carries the largest weight; own defensive strength also
+    matters; home/away is explicit.
+    """
+    own = str(own_team_code or "").upper()
+    opp = str(opponent_code or "").upper()
+
+    own_info = unit_strength.get(own, {})
+    opp_info = unit_strength.get(opp, {})
+
+    own_defense = safe_float(own_info.get("defense_strength_index"), 0.50)
+    opp_attack = safe_float(opp_info.get("attack_strength_index"), 0.50)
+
+    venue = 5.0 if location == "H" else -5.0 if location == "A" else 0.0
+
+    # Opponent attacking quality is intentionally the dominant term.
+    score = (
+        50.0
+        + ((own_defense - 0.50) * 25.0)
+        + ((0.50 - opp_attack) * 55.0)
+        + venue
+    )
+    score = round(max(8.0, min(92.0, score)), 1)
+
+    return score, {
+        "own_defense_strength_index": round(own_defense, 4),
+        "opponent_attack_strength_index": round(opp_attack, 4),
+        "venue_adjustment": venue,
+        "own_defense_transition_note": own_info.get("defense_transition_note", ""),
+        "opponent_attack_transition_note": opp_info.get("attack_transition_note", ""),
+    }
+
+
+
 def source_opportunity_softened(
     difficulty: float | None,
     competition_id: str | None,
@@ -907,6 +1067,7 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
 
     fixture_calibration = build_competition_fixture_calibration(players_raw)
     team_strength = build_team_strength_priors(players_raw)
+    team_unit_strength = build_team_unit_priors(players_raw, team_strength)
     players = [transform_player(p, fixture_calibration, team_strength) for p in players_raw]
     history = update_history(players)
     last_price_change = detect_last_global_price_change_date(history)
@@ -920,29 +1081,37 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
 
     fixtures = [normalize_fixture(f) for f in fixtures_raw]
 
-    # Full-schedule defensive fixture opportunity for each side.
-    # Uses the independent team-strength matchup component from Fixture Model v5,
-    # so it works for every published fixture rather than only the next three
-    # player-feed fixtures. Higher = better defensive / clean-sheet opportunity.
+    # Full-schedule GK/defensive fixture opportunity for each side.
+    # This is a true defensive matchup model: opponent attacking strength is
+    # dominant, with own defensive strength and venue also contributing.
     for fixture in fixtures:
-        home_rating, home_detail = team_matchup_opportunity(
+        home_rating, home_detail = defensive_fixture_opportunity(
             fixture.get("home_id"),
             fixture.get("away_id"),
             "H",
-            team_strength,
+            team_unit_strength,
         )
-        away_rating, away_detail = team_matchup_opportunity(
+        away_rating, away_detail = defensive_fixture_opportunity(
             fixture.get("away_id"),
             fixture.get("home_id"),
             "A",
-            team_strength,
+            team_unit_strength,
         )
 
         fixture["home_defensive_opportunity"] = home_rating
         fixture["away_defensive_opportunity"] = away_rating
-        fixture["home_strength_index"] = home_detail.get("own_strength_index")
-        fixture["away_strength_index"] = away_detail.get("own_strength_index")
-        fixture["defensive_rating_model"] = "team-matchup-v5"
+
+        fixture["home_defense_strength_index"] = home_detail.get("own_defense_strength_index")
+        fixture["away_defense_strength_index"] = away_detail.get("own_defense_strength_index")
+        fixture["home_opponent_attack_strength_index"] = home_detail.get("opponent_attack_strength_index")
+        fixture["away_opponent_attack_strength_index"] = away_detail.get("opponent_attack_strength_index")
+
+        fixture["home_defensive_transition_note"] = home_detail.get("own_defense_transition_note")
+        fixture["away_defensive_transition_note"] = away_detail.get("own_defense_transition_note")
+        fixture["home_opponent_attack_transition_note"] = home_detail.get("opponent_attack_transition_note")
+        fixture["away_opponent_attack_transition_note"] = away_detail.get("opponent_attack_transition_note")
+
+        fixture["defensive_rating_model"] = "unit-strength-defense-v6"
 
     teams = [normalize_team(t) for t in teams_raw]
 
@@ -972,6 +1141,13 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
                 for comp, vals in fixture_calibration.items()
             },
             "team_strength_priors": team_strength,
+            "defensive_fixture_model": {
+                "version": "unit-strength-defense-v6",
+                "note": "GK/defensive fixture opportunity is distinct from the general fantasy fixture rating. It is driven primarily by opponent attacking strength, then own defensive strength, with explicit home/away. Attack and defense priors use position-specific prior-season fantasy production and the same destination-league promotion/relegation bridge.",
+                "formula": "50 + (own_defense_index - 0.50)*25 + (0.50 - opponent_attack_index)*55 + venue",
+                "venue": {"home": 5.0, "away": -5.0},
+                "team_unit_priors": team_unit_strength,
+            },
             "promotion_relegation_bridge": {
                 "promoted_to_wsl": sorted(PROMOTED_TO_WSL),
                 "relegated_to_wsl2": sorted(RELEGATED_TO_WSL2),
