@@ -1398,6 +1398,7 @@
                             <th class="text-center px-3 py-2">Different Days</th>
                             <th class="text-center px-3 py-2">Same Day</th>
                             <th class="text-center px-3 py-2">Pairing %</th>
+                            <th class="text-center px-3 py-2">Coverage</th>
                             <th class="text-center px-3 py-2">Separation</th>
                             <th class="text-center px-3 py-2" title="Average goalkeeper/defensive fixture opportunity across the selected gameweeks. Higher = better. Based primarily on opponent attacking strength, plus own defensive strength and venue.">Avg GK Fix</th>
                             <th class="text-left px-3 py-2" id="pairings-extra-header">GK Pair</th>
@@ -3229,15 +3230,17 @@
 
                 if (Array.isArray(fullFixtureData) && fullFixtureData.length) {
                     fullFixtureData.forEach(f => {
-                        if (f.game_week !== null && f.game_week !== undefined && f.game_week !== '') {
-                            gameweeks.add(Number(f.game_week));
+                        const gw = f.fantasy_game_week ?? f.game_week;
+                        if (gw !== null && gw !== undefined && gw !== '') {
+                            gameweeks.add(Number(gw));
                         }
                     });
                 } else {
                     data.forEach(player => {
                         (player.upcoming_fixtures || []).forEach(f => {
-                            if (f.game_week !== null && f.game_week !== undefined && f.game_week !== '') {
-                                gameweeks.add(Number(f.game_week));
+                            const gw = f.fantasy_game_week ?? f.game_week;
+                            if (gw !== null && gw !== undefined && gw !== '') {
+                                gameweeks.add(Number(gw));
                             }
                         });
                     });
@@ -3246,7 +3249,7 @@
                 return Array.from(gameweeks).filter(Number.isFinite).sort((a, b) => a - b);
             }
 
-                        function populatePairingsControls(data, preferredGw) {
+            function populatePairingsControls(data, preferredGw) {
                 const gws = getAvailableGameweeks(data);
                 const $from = $('#pairings-from-gw').empty();
                 const $to = $('#pairings-to-gw').empty();
@@ -3265,6 +3268,11 @@
 
                 $from.val(String(gws[startIndex]));
                 $to.val(String(gws[defaultEndIndex]));
+            }
+
+            function getFantasyWindowMeta(gw) {
+                const windows = (window.transformedMetadataForUI && window.transformedMetadataForUI.fantasy_gameweeks) || [];
+                return windows.find(w => String(w.fantasy_game_week) === String(gw)) || null;
             }
 
             function clubFixtureMapForPairings(data, league, fromGw, toGw) {
@@ -3288,45 +3296,17 @@
                             value: Number(player.Value || 0),
                             selected: Number(player['Selected Percentage'] || 0),
                             previousPoints: Number(player['Previous Season Points'] || 0),
-                            availability: Number(player['Availability Status'] ?? 1),
-                            active: player['Is Active'] !== false
+                            availability: String(player['Availability Description'] || '')
                         });
                     }
                 });
 
-                // Project the likeliest starting GK within each club. This is deliberately
-                // a club-relative preseason heuristic: 50% previous-season fantasy points,
-                // 30% current price, 20% ownership. If there is no useful prior-season
-                // evidence, price/ownership take over, making the most expensive GK the
-                // natural fallback rather than the cheapest.
                 playerClubMeta.forEach(meta => {
-                    const eligible = meta.goalkeepers.filter(g => g.active && g.availability !== 0);
-                    const pool = eligible.length ? eligible : meta.goalkeepers;
-                    const maxPrev = Math.max(0, ...pool.map(g => g.previousPoints));
-                    const maxValue = Math.max(0, ...pool.map(g => g.value));
-                    const maxSelected = Math.max(0, ...pool.map(g => g.selected));
-
-                    pool.forEach(g => {
-                        const prevNorm = maxPrev > 0 ? g.previousPoints / maxPrev : 0;
-                        const valueNorm = maxValue > 0 ? g.value / maxValue : 0;
-                        const selectedNorm = maxSelected > 0 ? g.selected / maxSelected : 0;
-                        g.starterScore = (0.50 * prevNorm) + (0.30 * valueNorm) + (0.20 * selectedNorm);
-                    });
-
-                    pool.sort((a, b) => {
-                        if (b.starterScore !== a.starterScore) return b.starterScore - a.starterScore;
-                        if (b.value !== a.value) return b.value - a.value;
+                    meta.goalkeepers.sort((a, b) => {
+                        if (a.value !== b.value) return b.value - a.value;
+                        if (a.previousPoints !== b.previousPoints) return b.previousPoints - a.previousPoints;
                         return b.selected - a.selected;
                     });
-
-                    const top = pool[0];
-                    const second = pool[1];
-                    if (top) {
-                        const gap = second ? top.starterScore - second.starterScore : 1;
-                        top.starterConfidence = gap >= 0.30 ? 'High' : gap >= 0.12 ? 'Medium' : 'Low';
-                        top.starterEvidence = maxPrev > 0 ? 'prior points + price + ownership' : 'price + ownership';
-                    }
-                    meta.goalkeepers = pool;
                 });
 
                 function ensureClub(club) {
@@ -3345,12 +3325,14 @@
                     return clubs.get(club);
                 }
 
-                // Full-season source. Player upcomingFixtures currently contains
-                // only the next three matches, but fixtures.json contains the
-                // complete published fixture schedule.
+                // Seed every known club so LEAGUE_OFF / CLUB_BLANK can be distinguished.
+                playerClubMeta.forEach((meta, club) => {
+                    if (!league || meta.league === league) ensureClub(club);
+                });
+
                 if (Array.isArray(fullFixtureData) && fullFixtureData.length) {
                     fullFixtureData.forEach(f => {
-                        const gw = Number(f.game_week);
+                        const gw = Number(f.fantasy_game_week ?? f.game_week);
                         if (!Number.isFinite(gw) || gw < fromGw || gw > toGw) return;
 
                         const date = f.fixture_date_iso || '';
@@ -3359,68 +3341,84 @@
                         const home = f.home_id || '';
                         const away = f.away_id || '';
 
-                        const homeInfo = ensureClub(home);
-                        const awayInfo = ensureClub(away);
+                        function addFixture(clubInfo, record) {
+                            if (!clubInfo) return;
+                            if (!clubInfo.fixtures.has(gw)) {
+                                clubInfo.fixtures.set(gw, {
+                                    ...record,
+                                    fixtureCount: 1,
+                                    allDates: [record.date]
+                                });
+                            } else {
+                                const existing = clubInfo.fixtures.get(gw);
+                                existing.fixtureCount += 1;
+                                if (!existing.allDates.includes(record.date)) existing.allDates.push(record.date);
+                                existing.allDates.sort();
 
-                        if (homeInfo && !homeInfo.fixtures.has(gw)) {
-                            homeInfo.fixtures.set(gw, {
-                                gw,
-                                date,
-                                day: f.fixture_day_short || (f.fixture_day || '').slice(0, 3).toUpperCase(),
-                                dayFull: f.fixture_day || '',
-                                kickoff: f.kick_off_time || '',
-                                opponent: away || f.away_short_name || f.away_name || 'TBD',
-                                location: 'H',
-                                defensiveOpportunity: Number(f.home_defensive_opportunity ?? NaN)
-                            });
+                                // For manual-sub lock timing, use the earliest fixture in a DGW.
+                                if (record.date < existing.date ||
+                                    (record.date === existing.date && record.kickoff < existing.kickoff)) {
+                                    Object.assign(existing, record, {
+                                        fixtureCount: existing.fixtureCount,
+                                        allDates: existing.allDates
+                                    });
+                                }
+                            }
                         }
 
-                        if (awayInfo && !awayInfo.fixtures.has(gw)) {
-                            awayInfo.fixtures.set(gw, {
-                                gw,
-                                date,
-                                day: f.fixture_day_short || (f.fixture_day || '').slice(0, 3).toUpperCase(),
-                                dayFull: f.fixture_day || '',
-                                kickoff: f.kick_off_time || '',
-                                opponent: home || f.home_short_name || f.home_name || 'TBD',
-                                location: 'A',
-                                defensiveOpportunity: Number(f.away_defensive_opportunity ?? NaN)
-                            });
-                        }
-                    });
-
-                    return clubs;
-                }
-
-                // Fallback if fixtures.json fails to load.
-                data.forEach(player => {
-                    if (league && player.League !== league) return;
-                    const clubInfo = ensureClub(player.Club);
-                    if (!clubInfo) return;
-
-                    (player.upcoming_fixtures || []).forEach(f => {
-                        const gw = Number(f.game_week);
-                        if (!Number.isFinite(gw) || gw < fromGw || gw > toGw) return;
-                        const date = f.fixture_date_iso || '';
-                        if (!date || clubInfo.fixtures.has(gw)) return;
-
-                        clubInfo.fixtures.set(gw, {
+                        addFixture(ensureClub(home), {
                             gw,
                             date,
                             day: f.fixture_day_short || (f.fixture_day || '').slice(0, 3).toUpperCase(),
                             dayFull: f.fixture_day || '',
                             kickoff: f.kick_off_time || '',
-                            opponent: f.opponent_id || f.opponent_short_name || f.opponent_name || 'TBD',
-                            location: f.location || '',
-                            defensiveOpportunity: Number(f.opportunity_rating ?? NaN)
+                            opponent: away || f.away_short_name || f.away_name || 'TBD',
+                            location: 'H',
+                            defensiveOpportunity: Number(f.home_defensive_opportunity ?? NaN)
+                        });
+
+                        addFixture(ensureClub(away), {
+                            gw,
+                            date,
+                            day: f.fixture_day_short || (f.fixture_day || '').slice(0, 3).toUpperCase(),
+                            dayFull: f.fixture_day || '',
+                            kickoff: f.kick_off_time || '',
+                            opponent: home || f.home_short_name || f.home_name || 'TBD',
+                            location: 'A',
+                            defensiveOpportunity: Number(f.away_defensive_opportunity ?? NaN)
                         });
                     });
-                });
+                }
 
                 return clubs;
             }
 
-                        function dateDifferenceDays(dateA, dateB) {
+            function getClubGwStatus(clubInfo, gw) {
+                const fixture = clubInfo.fixtures.get(gw);
+                if (fixture) {
+                    return {
+                        status: fixture.fixtureCount > 1 ? 'DOUBLE' : 'NORMAL',
+                        fixture
+                    };
+                }
+
+                const windowMeta = getFantasyWindowMeta(gw);
+                if (!windowMeta) {
+                    return { status: 'TBD', fixture: null };
+                }
+
+                const activeLeagues = Array.isArray(windowMeta.active_leagues)
+                    ? windowMeta.active_leagues
+                    : [];
+
+                if (clubInfo.league && !activeLeagues.includes(clubInfo.league)) {
+                    return { status: 'LEAGUE_OFF', fixture: null, windowMeta };
+                }
+
+                return { status: 'CLUB_BLANK', fixture: null, windowMeta };
+            }
+
+            function dateDifferenceDays(dateA, dateB) {
                 const a = new Date(`${dateA}T00:00:00Z`);
                 const b = new Date(`${dateB}T00:00:00Z`);
                 if (isNaN(a) || isNaN(b)) return 0;
@@ -3441,22 +3439,48 @@
                         let different = 0;
                         let same = 0;
                         let separationPoints = 0;
+
+                        let leagueOffWeeks = 0;
+                        let clubBlankWeeks = 0;
+                        let tbdWeeks = 0;
+                        let doubleWeeks = 0;
+
                         let defensiveTotalA = 0;
                         let defensiveTotalB = 0;
                         let defensiveCountA = 0;
                         let defensiveCountB = 0;
+
                         const details = [];
 
                         for (let gw = fromGw; gw <= toGw; gw++) {
-                            const fa = a.fixtures.get(gw);
-                            const fb = b.fixtures.get(gw);
+                            const sa = getClubGwStatus(a, gw);
+                            const sb = getClubGwStatus(b, gw);
 
-                            if (!fa || !fb) {
-                                details.push({ gw, comparable: false, a: fa || null, b: fb || null });
+                            const bothHaveFixtures = ['NORMAL', 'DOUBLE'].includes(sa.status)
+                                && ['NORMAL', 'DOUBLE'].includes(sb.status);
+
+                            if (!bothHaveFixtures) {
+                                if (sa.status === 'LEAGUE_OFF' || sb.status === 'LEAGUE_OFF') leagueOffWeeks++;
+                                if (sa.status === 'CLUB_BLANK' || sb.status === 'CLUB_BLANK') clubBlankWeeks++;
+                                if (sa.status === 'TBD' || sb.status === 'TBD') tbdWeeks++;
+
+                                details.push({
+                                    gw,
+                                    comparable: false,
+                                    statusA: sa.status,
+                                    statusB: sb.status,
+                                    a: sa.fixture,
+                                    b: sb.fixture,
+                                    windowMeta: sa.windowMeta || sb.windowMeta || getFantasyWindowMeta(gw)
+                                });
                                 continue;
                             }
 
+                            const fa = sa.fixture;
+                            const fb = sb.fixture;
+
                             comparable++;
+                            if (sa.status === 'DOUBLE' || sb.status === 'DOUBLE') doubleWeeks++;
 
                             if (Number.isFinite(fa.defensiveOpportunity)) {
                                 defensiveTotalA += fa.defensiveOpportunity;
@@ -3482,14 +3506,16 @@
                                 comparable: true,
                                 different: isDifferent,
                                 gap,
+                                statusA: sa.status,
+                                statusB: sb.status,
                                 a: fa,
                                 b: fb
                             });
                         }
 
-                        if (!comparable) continue;
-
-                        const pct = (different / comparable) * 100;
+                        const selectedWindowWeeks = toGw - fromGw + 1;
+                        const pct = comparable ? (different / comparable) * 100 : 0;
+                        const coveragePct = selectedWindowWeeks ? (comparable / selectedWindowWeeks) * 100 : 0;
                         const avgSeparation = different ? separationPoints / different : 0;
 
                         const gkA = a.goalkeepers[0] || null;
@@ -3509,12 +3535,18 @@
                         pairs.push({
                             a,
                             b,
+                            selectedWindowWeeks,
                             comparable,
+                            coveragePct,
                             different,
                             same,
                             pct,
                             separationPoints,
                             avgSeparation,
+                            leagueOffWeeks,
+                            clubBlankWeeks,
+                            tbdWeeks,
+                            doubleWeeks,
                             avgDefA,
                             avgDefB,
                             combinedDefAvg,
@@ -3528,9 +3560,9 @@
 
                 pairs.sort((x, y) => {
                     if (y.pct !== x.pct) return y.pct - x.pct;
+                    if (y.coveragePct !== x.coveragePct) return y.coveragePct - x.coveragePct;
                     if (y.different !== x.different) return y.different - x.different;
 
-                    // Among equally flexible pairs, prefer better defensive fixtures.
                     const xDef = Number.isFinite(x.combinedDefAvg) ? x.combinedDefAvg : -1;
                     const yDef = Number.isFinite(y.combinedDefAvg) ? y.combinedDefAvg : -1;
                     if (yDef !== xDef) return yDef - xDef;
@@ -3563,14 +3595,37 @@
             }
 
             function pairingDetailHtml(pair) {
+                function statusLabel(status, club, windowMeta) {
+                    if (status === 'LEAGUE_OFF') {
+                        const freeHit = windowMeta && windowMeta.free_hit_eligible ? ' · FREE HIT' : '';
+                        return `${club}: league off${freeHit}`;
+                    }
+                    if (status === 'CLUB_BLANK') return `${club}: no club fixture (league active)`;
+                    if (status === 'TBD') return `${club}: schedule TBD`;
+                    if (status === 'DOUBLE') return `${club}: DGW`;
+                    return '';
+                }
+
                 return pair.details.map(d => {
                     if (!d.comparable) {
-                        return `<span class="pairing-gw-chip text-gray-400">GW${d.gw}: incomplete schedule</span>`;
+                        const aLabel = statusLabel(d.statusA, pair.a.club, d.windowMeta);
+                        const bLabel = statusLabel(d.statusB, pair.b.club, d.windowMeta);
+                        const labels = [aLabel, bLabel].filter(Boolean).join(' / ');
+
+                        let classes = 'pairing-gw-chip text-gray-500';
+                        if (d.statusA === 'LEAGUE_OFF' || d.statusB === 'LEAGUE_OFF') {
+                            classes = 'pairing-gw-chip text-indigo-700 bg-indigo-50 border-indigo-200';
+                        } else if (d.statusA === 'CLUB_BLANK' || d.statusB === 'CLUB_BLANK') {
+                            classes = 'pairing-gw-chip text-red-700 bg-red-50 border-red-200';
+                        }
+
+                        return `<span class="${classes}"><strong>GW${d.gw}</strong> · ${labels || 'Not comparable'}</span>`;
                     }
 
                     const mark = d.different ? '✓' : '✕';
                     const markClass = d.different ? 'text-green-700' : 'text-red-700';
                     const gapText = d.different && d.gap ? ` · ${d.gap}d apart` : '';
+                    const doubleText = (d.statusA === 'DOUBLE' || d.statusB === 'DOUBLE') ? ' · DGW' : '';
 
                     return `<span class="pairing-gw-chip">
                         <strong>GW${d.gw}</strong>
@@ -3578,7 +3633,7 @@
                         <span class="text-gray-400">/</span>
                         <span>${pairingFixtureLabel(d.b)}</span>
                         <span class="${markClass} font-bold">${mark}</span>
-                        <span class="text-gray-400">${gapText}</span>
+                        <span class="text-gray-400">${gapText}${doubleText}</span>
                     </span>`;
                 }).join('');
             }
@@ -3600,7 +3655,7 @@
                 }
 
                 const pairs = buildAllPairings(fullPlayerData, league, fromGw, toGw);
-                const shown = pairs.filter(pair => pair.pct + 0.0001 >= minPairingPct);
+                const shown = pairs.filter(pair => pair.comparable > 0 && pair.pct + 0.0001 >= minPairingPct);
 
                 $('#pairings-extra-header').text(mode === 'gk' ? 'Projected GK Pair' : 'Day Pattern');
 
@@ -3608,13 +3663,13 @@
                 $('#pairings-summary').html(
                     `<span class="font-semibold">${leagueLabel}, GW${fromGw}–GW${toGw}:</span> `
                     + `${shown.length} of ${pairs.length} club pairs shown at ≥${minPairingPct}% pairing. `
-                    + `<span class="text-gray-500">Primary rank = different-day percentage; ties favor more different-day weeks, then better average GK/defensive fixtures, then greater day separation.</span>`
+                    + `<span class="text-gray-500">Pairing % uses only GWs where both clubs actually have a fixture. Coverage shows how many selected GWs are comparable. League-off/Free Hit weeks and club-specific blanks are tracked separately.</span>`
                 );
 
                 const $body = $('#pairings-table-body').empty();
 
                 if (!shown.length) {
-                    $body.html('<tr><td colspan="8" class="px-3 py-8 text-center text-gray-500">No pairings meet this minimum percentage for the selected window.</td></tr>');
+                    $body.html('<tr><td colspan="9" class="px-3 py-8 text-center text-gray-500">No pairings meet this minimum pairing percentage for the selected window.</td></tr>');
                     return;
                 }
 
@@ -3651,6 +3706,13 @@
                             <td class="px-3 py-2 text-center">${pair.same}/${pair.comparable}</td>
                             <td class="px-3 py-2 text-center"><span class="${pairingPercentClass(pair.pct)}">${pair.pct.toFixed(0)}%</span></td>
                             <td class="px-3 py-2 text-center">
+                                <div class="font-semibold">${pair.comparable}/${pair.selectedWindowWeeks}</div>
+                                <div class="text-xs text-gray-400">
+                                    ${pair.leagueOffWeeks ? `${pair.leagueOffWeeks} league-off` : ''}
+                                    ${pair.clubBlankWeeks ? `${pair.clubBlankWeeks} club blank` : ''}
+                                </div>
+                            </td>
+                            <td class="px-3 py-2 text-center">
                                 <div class="font-semibold">${pair.separationPoints}</div>
                                 <div class="text-xs text-gray-400">day-gap pts</div>
                             </td>
@@ -3665,7 +3727,7 @@
                             <td class="px-3 py-2">${extra}</td>
                         </tr>
                         <tr id="${rowId}" class="pairing-detail-row hidden">
-                            <td colspan="8" class="px-3 py-3">
+                            <td colspan="9" class="px-3 py-3">
                                 <div class="flex flex-wrap gap-2">${pairingDetailHtml(pair)}</div>
                             </td>
                         </tr>
