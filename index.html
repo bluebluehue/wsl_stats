@@ -896,40 +896,109 @@
 
         @media (min-width: 1100px) {
             .stats-topbar {
-                min-height: 34px;
+                min-height: 32px;
+                margin-bottom: 0.3rem !important;
             }
 
             .table-controls-shell {
-                display: flex !important;
-                flex-direction: row !important;
-                align-items: flex-start !important;
-                justify-content: space-between !important;
-                flex-wrap: nowrap !important;
+                display: grid !important;
+                grid-template-columns: auto minmax(0, 1fr);
+                grid-template-rows: auto auto auto;
+                column-gap: 0.55rem !important;
+                row-gap: 0.25rem !important;
+                align-items: center !important;
+                margin-bottom: 0.3rem !important;
             }
 
             .table-action-buttons {
+                grid-column: 1;
+                grid-row: 1;
                 flex-direction: row !important;
                 align-items: center !important;
                 width: auto !important;
-                flex: 0 0 auto;
+                gap: 0.3rem !important;
+                align-self: center;
             }
 
             .table-action-buttons button {
                 width: auto !important;
                 white-space: nowrap;
-                padding-left: 0.7rem !important;
-                padding-right: 0.7rem !important;
+                padding: 0.38rem 0.58rem !important;
+                min-height: 34px;
+                font-size: 0.82rem !important;
             }
 
             .filter-stack {
-                flex: 1 1 auto;
-                align-items: end !important;
-                min-width: 0;
+                display: contents !important;
             }
 
-            .filter-row {
+            .filter-stack > .filter-row:nth-of-type(1) {
+                grid-column: 2;
+                grid-row: 1;
+            }
+
+            .filter-stack > .filter-row:nth-of-type(2) {
+                grid-column: 1 / -1;
+                grid-row: 2;
+            }
+
+            .filter-stack > .filter-toggle-row {
+                grid-column: 1 / -1;
+                grid-row: 3;
+            }
+
+            .filter-row,
+            .filter-toggle-row {
                 justify-content: flex-end !important;
-                flex-wrap: wrap !important;
+                flex-wrap: nowrap !important;
+                gap: 0.45rem !important;
+                width: 100% !important;
+            }
+
+            .filter-row > div,
+            .filter-toggle-row > div {
+                flex: 0 0 auto;
+            }
+
+            #club-dropdown-toggle {
+                width: 8.1rem !important;
+                padding-top: 0.38rem !important;
+                padding-bottom: 0.38rem !important;
+            }
+
+            #league-filter {
+                width: 7.2rem !important;
+            }
+
+            #position-filter {
+                width: 8.2rem !important;
+            }
+
+            #fixture-day-filter {
+                width: 6.1rem !important;
+            }
+
+            #delta-mode-filter {
+                width: 11rem !important;
+            }
+
+            .filter-row select,
+            .filter-row input[type="number"] {
+                padding-top: 0.38rem !important;
+                padding-bottom: 0.38rem !important;
+            }
+
+            .filter-row label {
+                font-size: 0.8rem !important;
+            }
+
+            .filter-toggle-row {
+                min-height: 1.45rem !important;
+            }
+
+            .filter-toggle-row label,
+            .filter-toggle-row #delta-reference-note {
+                font-size: 0.75rem !important;
             }
         }
 
@@ -1027,7 +1096,7 @@
 
                     <div class="flex items-center space-x-2 w-full sm:w-auto">
                         <label for="position-filter" class="text-sm font-medium text-gray-700 whitespace-nowrap">
-                            Position Filter:
+                            Pos:
                         </label>
                         <select id="position-filter"
                             class="w-full sm:w-36 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm">
@@ -1054,7 +1123,7 @@
 
                     <div class="flex items-center space-x-2 w-full sm:w-auto">
                         <label for="delta-mode-filter" class="text-sm font-medium text-gray-700 whitespace-nowrap">
-                            Delta Mode:
+                            Delta:
                         </label>
                         <select id="delta-mode-filter"
                             class="w-full sm:w-48 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm">
@@ -1119,7 +1188,7 @@
                         <input type="checkbox" id="visionary-filter"
                             class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
                         <label for="visionary-filter" class="text-sm font-medium text-gray-700 whitespace-nowrap">
-                            Visionaries Only
+                            Visionaries
                         </label>
                     </div>
 
@@ -1127,7 +1196,7 @@
                         <input type="checkbox" id="hot-pick-filter"
                             class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
                         <label for="hot-pick-filter" class="text-sm font-medium text-gray-700 whitespace-nowrap">
-                            Hot Picks Only
+                            Hot Picks
                         </label>
                     </div>
 
@@ -1144,7 +1213,7 @@
                         <input type="checkbox" id="my-team-filter"
                             class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
                         <label for="my-team-filter" class="text-sm font-medium text-gray-700 whitespace-nowrap">
-                            My Team Only
+                            My Team
                         </label>
                     </div>
 
@@ -1152,7 +1221,7 @@
                         <input type="checkbox" id="watchlist-filter"
                             class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
                         <label for="watchlist-filter" class="text-sm font-medium text-gray-700 whitespace-nowrap">
-                            Watchlist Only
+                            Watchlist
                         </label>
                     </div>
 
