@@ -1376,13 +1376,12 @@
                             </select>
                         </label>
 
-                        <label class="text-xs font-semibold text-gray-600">Show
-                            <select id="pairings-limit" class="block mt-1 px-2 py-2 border border-gray-300 rounded-md text-sm bg-white">
-                                <option value="25">Top 25</option>
-                                <option value="50" selected>Top 50</option>
-                                <option value="100">Top 100</option>
-                                <option value="all">All pairs</option>
-                            </select>
+                        <label class="text-xs font-semibold text-gray-600 min-w-[150px]">Min Pairing
+                            <div class="flex items-center gap-2 mt-1">
+                                <input id="pairings-min-pct" type="range" min="0" max="100" step="5" value="75"
+                                    class="w-28 accent-indigo-600">
+                                <span id="pairings-min-pct-value" class="text-sm font-bold text-gray-800 w-10 text-right">75%</span>
+                            </div>
                         </label>
                     </div>
                 </div>
@@ -3591,7 +3590,7 @@
                 let toGw = Number($('#pairings-to-gw').val());
                 const league = $('#pairings-league').val();
                 const mode = $('#pairings-mode').val() || 'gk';
-                const limitValue = $('#pairings-limit').val() || '50';
+                const minPairingPct = Number($('#pairings-min-pct').val() || 75);
 
                 if (!Number.isFinite(fromGw) || !Number.isFinite(toGw)) return;
                 if (fromGw > toGw) {
@@ -3601,21 +3600,21 @@
                 }
 
                 const pairs = buildAllPairings(fullPlayerData, league, fromGw, toGw);
-                const shown = limitValue === 'all' ? pairs : pairs.slice(0, Number(limitValue));
+                const shown = pairs.filter(pair => pair.pct + 0.0001 >= minPairingPct);
 
                 $('#pairings-extra-header').text(mode === 'gk' ? 'Projected GK Pair' : 'Day Pattern');
 
                 const leagueLabel = league || 'WSL + WSL2';
                 $('#pairings-summary').html(
                     `<span class="font-semibold">${leagueLabel}, GW${fromGw}–GW${toGw}:</span> `
-                    + `${pairs.length} club pairs ranked from the full published fixture schedule. `
+                    + `${shown.length} of ${pairs.length} club pairs shown at ≥${minPairingPct}% pairing. `
                     + `<span class="text-gray-500">Primary rank = different-day percentage; ties favor more different-day weeks, then better average GK/defensive fixtures, then greater day separation.</span>`
                 );
 
                 const $body = $('#pairings-table-body').empty();
 
                 if (!shown.length) {
-                    $body.html('<tr><td colspan="8" class="px-3 py-8 text-center text-gray-500">No pairings available for this window.</td></tr>');
+                    $body.html('<tr><td colspan="8" class="px-3 py-8 text-center text-gray-500">No pairings meet this minimum percentage for the selected window.</td></tr>');
                     return;
                 }
 
@@ -3717,7 +3716,11 @@
             });
             $('#planner-search').on('input', renderPlanner);
 
-            $('#pairings-from-gw, #pairings-to-gw, #pairings-mode, #pairings-limit').on('change', renderPairings);
+            $('#pairings-from-gw, #pairings-to-gw, #pairings-mode').on('change', renderPairings);
+            $('#pairings-min-pct').on('input change', function() {
+                $('#pairings-min-pct-value').text(`${$(this).val()}%`);
+                renderPairings();
+            });
 
             $('#pairings-league').on('change', function() {
                 const value = $(this).val();
