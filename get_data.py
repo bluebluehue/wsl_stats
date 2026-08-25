@@ -230,46 +230,86 @@ def selected_delta_since(history: dict[str, Any], name: str, current: float, sin
     return round(current - safe_float(snapshots[since_date].get("Selected Percentage")), 2)
 
 
-def fixture_rating_to_score(rating: float | None) -> int | str:
-    """Convert WSL's 0-100-ish currentRating into the 1-5 score style used by the viewer.
+def wsl_difficulty_to_opportunity(difficulty: float | None) -> float | None:
+    """Normalize WSL feed currentRating to the parser's 0-100 opportunity scale.
 
-    Higher appears easier/better in the WSL feed. The table's historical fixture
-    score convention uses 1 as best/easiest and 5 as hardest, so invert it.
+    The launch feed behaves as an opponent/fixture difficulty measure: higher
+    values are harder (for example, Arsenal fixtures are around the low 90s,
+    while easier WSL2 opponents are commonly in the 70s). The NWSL parser and
+    this viewer use the opposite contract: higher Fixture Rating = better.
+
+    Keep the raw WSL value in upcoming_fixtures[...]["current_rating"], but use
+    a rescaled inverse everywhere downstream as Fixture Rating. The WSL config
+    defines FDR thresholds at 50/60/70/80/90 (green through red), so we map
+    those roughly to 90/70/50/30/10 opportunity points via 190 - 2*difficulty.
+    """
+    if difficulty is None:
+        return None
+    return round(max(0.0, min(100.0, 190.0 - (2.0 * safe_float(difficulty)))), 1)
+
+
+def fixture_rating_to_score(rating: float | None) -> int | str:
+    """Convert a 0-100 opportunity rating to the viewer's legacy 1-5 bucket.
+
+    This matches the NWSL convention: 1 = elite/easiest, 5 = very difficult.
     """
     if rating is None:
         return "-"
     r = safe_float(rating, 50.0)
-    if r >= 85:
+    if r >= 80:
         return 1
-    if r >= 75:
-        return 2
     if r >= 65:
+        return 2
+    if r >= 45:
         return 3
-    if r >= 55:
+    if r >= 25:
         return 4
     return 5
 
 
-def build_upcoming_fixture(raw: dict[str, Any]) -> dict[str, Any]:
+def build_upcoming_fixture(
+    raw: dict[str, Any],
+    own_team_id: str | None = None,
+    own_team_name: str | None = None,
+    own_team_short_name: str | None = None,
+) -> dict[str, Any]:
+    difficulty = raw.get("currentRating")
+    opportunity = wsl_difficulty_to_opportunity(difficulty)
+    location = raw.get("location")
+    opponent_id = raw.get("vsTeamAcronymName") or compact_id(raw.get("vsTeamId"))
+    opponent_name = raw.get("vsTeamName")
+    opponent_short = raw.get("vsTeamShortName")
+
+    if location == "H":
+        home_id, home_name, home_short = own_team_id, own_team_name, own_team_short_name
+        away_id, away_name, away_short = opponent_id, opponent_name, opponent_short
+    elif location == "A":
+        home_id, home_name, home_short = opponent_id, opponent_name, opponent_short
+        away_id, away_name, away_short = own_team_id, own_team_name, own_team_short_name
+    else:
+        home_id = home_name = home_short = ""
+        away_id = away_name = away_short = ""
+
     return {
         "game_date": format_fixture_date(raw.get("matchDateTimeUtc")),
         "kick_off_time": format_fixture_time(raw.get("matchDateTimeUtc")),
         "game_week": str(raw.get("matchdayId") or ""),
         "match_id": raw.get("matchId"),
-        "opponent_id": raw.get("vsTeamAcronymName") or compact_id(raw.get("vsTeamId")),
-        "opponent_name": raw.get("vsTeamName"),
-        "opponent_short_name": raw.get("vsTeamShortName"),
-        "location": raw.get("location"),
-        "current_rating": raw.get("currentRating"),
-        # Compatibility keys from the NWSL data shape. For a player-centric WSL
-        # fixture record we do not know home/away teams here, but the frontend and
-        # exports can still use opponent/location.
-        "home_id": raw.get("vsTeamAcronymName") if raw.get("location") == "A" else "",
-        "home_name": raw.get("vsTeamName") if raw.get("location") == "A" else "",
-        "home_short_name": raw.get("vsTeamShortName") if raw.get("location") == "A" else "",
-        "away_id": raw.get("vsTeamAcronymName") if raw.get("location") == "H" else "",
-        "away_name": raw.get("vsTeamName") if raw.get("location") == "H" else "",
-        "away_short_name": raw.get("vsTeamShortName") if raw.get("location") == "H" else "",
+        "opponent_id": opponent_id,
+        "opponent_name": opponent_name,
+        "opponent_short_name": opponent_short,
+        "location": location,
+        # Preserve the source field for debugging/reference. Higher = harder.
+        "current_rating": difficulty,
+        "fixture_difficulty": difficulty,
+        # Normalized parser contract. Higher = better.
+        "opportunity_rating": opportunity,
+        "home_id": home_id or "",
+        "home_name": home_name or "",
+        "home_short_name": home_short or "",
+        "away_id": away_id or "",
+        "away_name": away_name or "",
+        "away_short_name": away_short or "",
     }
 
 
@@ -277,24 +317,29 @@ def fixture_details_text(fixtures: list[dict[str, Any]], position: str) -> str:
     if not fixtures:
         return "No upcoming fixture in feed."
     lines = ["Upcoming fixtures from WSL feed:"]
+    opportunities: list[float] = []
     for f in fixtures:
         opponent = f.get("opponent_id") or f.get("opponent_short_name") or f.get("opponent_name") or "TBD"
         loc = f.get("location") or ""
-        rating = f.get("current_rating")
-        score = fixture_rating_to_score(rating)
+        difficulty = f.get("fixture_difficulty", f.get("current_rating"))
+        opportunity = f.get("opportunity_rating")
+        if opportunity is None:
+            opportunity = wsl_difficulty_to_opportunity(difficulty)
+        score = fixture_rating_to_score(opportunity)
         lines.append(
             f"GW{f.get('game_week')}: vs {opponent} ({loc}) on {f.get('game_date')} {f.get('kick_off_time')}"
         )
-        if rating is not None:
-            lines.append(f"  WSL currentRating: {rating}/100; table score: {score}/5")
+        if difficulty is not None:
+            lines.append(f"  WSL source difficulty: {difficulty}/100 (higher = harder)")
+        if opportunity is not None:
+            opportunities.append(float(opportunity))
+            lines.append(f"  Fixture opportunity: {opportunity}/100 (higher = better); table score: {score}/5")
         if position in {"GK", "DEF"}:
-            lines.append("  Defensive fixture value currently uses WSL currentRating until a WSL xG model is added.")
+            lines.append("  Temporary defensive opportunity uses inverted WSL difficulty until a WSL xG model is added.")
         else:
-            lines.append("  Attacking fixture value currently uses WSL currentRating until a WSL xG model is added.")
-    ratings = [safe_float(f.get("current_rating"), math.nan) for f in fixtures if f.get("current_rating") is not None]
-    ratings = [r for r in ratings if not math.isnan(r)]
-    if ratings:
-        lines.append(f"Average WSL currentRating: {round(sum(ratings) / len(ratings), 1)}/100")
+            lines.append("  Temporary attacking opportunity uses inverted WSL difficulty until a WSL xG model is added.")
+    if opportunities:
+        lines.append(f"Average fixture opportunity: {round(sum(opportunities) / len(opportunities), 1)}/100")
     return "\n".join(lines)
 
 
@@ -357,11 +402,17 @@ def transform_player(raw: dict[str, Any]) -> dict[str, Any]:
     prior_points = safe_float(raw.get("pointsLastSeason"))
     avg_points = raw.get("averagePoints")
     raw_form = raw.get("form")
-    upcoming = [build_upcoming_fixture(f) for f in raw.get("upcomingFixtures", [])]
+    own_team_id = raw.get("teamAcronymName") or raw.get("teamShortName")
+    own_team_name = raw.get("teamOfficialName") or raw.get("teamShortName")
+    own_team_short_name = raw.get("teamShortName") or own_team_name
+    upcoming = [
+        build_upcoming_fixture(f, own_team_id, own_team_name, own_team_short_name)
+        for f in raw.get("upcomingFixtures", [])
+    ]
     next_fixture = upcoming[0] if upcoming else None
     following_fixture = upcoming[1] if len(upcoming) > 1 else None
-    next_rating = safe_float(next_fixture.get("current_rating"), 0.0) if next_fixture else 0.0
-    following_rating = safe_float(following_fixture.get("current_rating"), 0.0) if following_fixture else 0.0
+    next_rating = safe_float(next_fixture.get("opportunity_rating"), 0.0) if next_fixture else 0.0
+    following_rating = safe_float(following_fixture.get("opportunity_rating"), 0.0) if following_fixture else 0.0
 
     row: dict[str, Any] = {
         "Name": name,
@@ -423,7 +474,7 @@ def transform_player(raw: dict[str, Any]) -> dict[str, Any]:
         "Following Fixture Score": fixture_rating_to_score(following_rating) if following_fixture else "-",
         "Following Fixture Details": fixture_details_text(upcoming[1:2], position),
         "Next Three Fixture Rating": round(
-            sum(safe_float(f.get("current_rating")) for f in upcoming[:3]) / len(upcoming[:3]), 1
+            sum(safe_float(f.get("opportunity_rating")) for f in upcoming[:3]) / len(upcoming[:3]), 1
         ) if upcoming[:3] else 0.0,
         "Next Three Fixture Details": fixture_details_text(upcoming[:3], position),
         "Decision Rating": 0.0,
@@ -499,8 +550,8 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
         "last_global_price_change_date": last_price_change,
         "feed_urls": {key: urljoin(BASE_URL, path) for key, path in URLS.items()},
         "fixture_model": {
-            "version": "wsl-feed-current-rating-v1",
-            "note": "Uses WSL feed currentRating. A WSL xG/team-strength model can be added later.",
+            "version": "wsl-feed-inverted-difficulty-v2",
+            "note": "WSL currentRating is fixture difficulty (higher = harder). WSL config FDR thresholds 50/60/70/80/90 are normalized to roughly 90/70/50/30/10 opportunity using 190-2*currentRating. Higher Fixture Rating = better. A WSL xG/team-strength model can be added later.",
         },
         "decision_rating": {
             "version": "wsl-v1-position-specific",
