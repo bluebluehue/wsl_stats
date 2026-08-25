@@ -28,7 +28,12 @@
     "away_rating": 89,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-09-04T18:00:00"
+    "deadline_date": "2026-09-04T18:00:00",
+    "home_defensive_opportunity": 33.5,
+    "away_defensive_opportunity": 66.5,
+    "home_strength_index": 0.4646,
+    "away_strength_index": 0.8062,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::5a3443a75f2a44c58f89359d8d2699bc",
@@ -59,7 +64,12 @@
     "away_rating": 71,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-09-04T18:30:00"
+    "deadline_date": "2026-09-04T18:30:00",
+    "home_defensive_opportunity": 46.4,
+    "away_defensive_opportunity": 53.6,
+    "home_strength_index": 0.15,
+    "away_strength_index": 0.2773,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::25ef6af2d5dd4816bdd4c5cf38a12b5e",
@@ -90,7 +100,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-09-05T11:30:00"
+    "deadline_date": "2026-09-05T11:30:00",
+    "home_defensive_opportunity": 77.9,
+    "away_defensive_opportunity": 22.1,
+    "home_strength_index": 0.5785,
+    "away_strength_index": 0.18,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::72090b8862974a82bf321b1887f960d9",
@@ -121,7 +136,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-09-06T11:00:00"
+    "deadline_date": "2026-09-06T11:00:00",
+    "home_defensive_opportunity": 71.1,
+    "away_defensive_opportunity": 28.9,
+    "home_strength_index": 0.5215,
+    "away_strength_index": 0.2369,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::0312ae31cfc047378ec39fc20e195919",
@@ -152,7 +172,12 @@
     "away_rating": 93,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-09-06T11:00:00"
+    "deadline_date": "2026-09-06T11:00:00",
+    "home_defensive_opportunity": 50.6,
+    "away_defensive_opportunity": 49.4,
+    "home_strength_index": 0.6354,
+    "away_strength_index": 0.6923,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::3a2235f5b2284bceb67d1c178a5924af",
@@ -183,7 +208,12 @@
     "away_rating": 74,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-09-06T11:00:00"
+    "deadline_date": "2026-09-06T11:00:00",
+    "home_defensive_opportunity": 46.4,
+    "away_defensive_opportunity": 53.6,
+    "home_strength_index": 0.4682,
+    "away_strength_index": 0.5955,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::9883a3c6bc5d49349c1b8f3fdc6eccea",
@@ -214,7 +244,12 @@
     "away_rating": 72,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-09-06T13:00:00"
+    "deadline_date": "2026-09-06T13:00:00",
+    "home_defensive_opportunity": 88.4,
+    "away_defensive_opportunity": 11.6,
+    "home_strength_index": 0.7864,
+    "away_strength_index": 0.2136,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::3696616e181347aca770cd6e34a2ea7c",
@@ -245,7 +280,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-09-06T13:00:00"
+    "deadline_date": "2026-09-06T13:00:00",
+    "home_defensive_opportunity": 58.3,
+    "away_defensive_opportunity": 41.7,
+    "home_strength_index": 0.3662,
+    "away_strength_index": 0.2938,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::a3547fcee965482cad2fa9ddbf1e1575",
@@ -276,7 +316,12 @@
     "away_rating": 75,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-09-06T13:00:00"
+    "deadline_date": "2026-09-06T13:00:00",
+    "home_defensive_opportunity": 61.6,
+    "away_defensive_opportunity": 38.4,
+    "home_strength_index": 0.85,
+    "away_strength_index": 0.7227,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::438caa36946047d892907bd933b172ff",
@@ -307,7 +352,12 @@
     "away_rating": 76,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-09-06T13:00:00"
+    "deadline_date": "2026-09-06T13:00:00",
+    "home_defensive_opportunity": 37.5,
+    "away_defensive_opportunity": 62.5,
+    "home_strength_index": 0.5318,
+    "away_strength_index": 0.8073,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::7f4adbf487bc4d09a9416e08b3a112d8",
@@ -338,7 +388,12 @@
     "away_rating": 81,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-09-06T13:00:00"
+    "deadline_date": "2026-09-06T13:00:00",
+    "home_defensive_opportunity": 48.3,
+    "away_defensive_opportunity": 51.7,
+    "home_strength_index": 0.2554,
+    "away_strength_index": 0.3508,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::7025241c2c504c84b87b459eba9d2358",
@@ -369,7 +424,12 @@
     "away_rating": 72,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-09-06T13:00:00"
+    "deadline_date": "2026-09-06T13:00:00",
+    "home_defensive_opportunity": 38.7,
+    "away_defensive_opportunity": 61.3,
+    "home_strength_index": 0.4045,
+    "away_strength_index": 0.6591,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::e8af306d026d4841ac254787a1f44c1f",
@@ -400,7 +460,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-09-06T13:30:00"
+    "deadline_date": "2026-09-06T13:30:00",
+    "home_defensive_opportunity": 88.9,
+    "away_defensive_opportunity": 11.1,
+    "home_strength_index": 0.92,
+    "away_strength_index": 0.3385,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::17b69372c12543dfac1b88f4f6435f56",
@@ -431,7 +496,12 @@
     "away_rating": 82,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-09-12T11:45:00"
+    "deadline_date": "2026-09-12T11:45:00",
+    "home_defensive_opportunity": 40.3,
+    "away_defensive_opportunity": 59.7,
+    "home_strength_index": 0.2369,
+    "away_strength_index": 0.4646,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::84fbef2330bc405c8e118525ab919c57",
@@ -462,7 +532,12 @@
     "away_rating": 74,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-09-12T16:15:00"
+    "deadline_date": "2026-09-12T16:15:00",
+    "home_defensive_opportunity": 50.2,
+    "away_defensive_opportunity": 49.8,
+    "home_strength_index": 0.7227,
+    "away_strength_index": 0.7864,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::c3fd4039b100435bb0bccaa40e870abe",
@@ -493,7 +568,12 @@
     "away_rating": 94,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-09-13T11:00:00"
+    "deadline_date": "2026-09-13T11:00:00",
+    "home_defensive_opportunity": 67.7,
+    "away_defensive_opportunity": 32.3,
+    "home_strength_index": 0.8062,
+    "away_strength_index": 0.5785,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::749701a2ff474fef8267f412eb96400d",
@@ -524,7 +604,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-09-13T13:00:00"
+    "deadline_date": "2026-09-13T13:00:00",
+    "home_defensive_opportunity": 56.3,
+    "away_defensive_opportunity": 43.7,
+    "home_strength_index": 0.2938,
+    "away_strength_index": 0.2554,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::11cdb9c1f96e4a6d8c3d623ef93501ed",
@@ -555,7 +640,12 @@
     "away_rating": 68,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-09-13T13:00:00"
+    "deadline_date": "2026-09-13T13:00:00",
+    "home_defensive_opportunity": 34.9,
+    "away_defensive_opportunity": 65.1,
+    "home_strength_index": 0.2136,
+    "away_strength_index": 0.5318,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::c9738f3b831f4f80b0d08f7e9a28eb70",
@@ -586,7 +676,12 @@
     "away_rating": 70,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-09-13T13:00:00"
+    "deadline_date": "2026-09-13T13:00:00",
+    "home_defensive_opportunity": 65.5,
+    "away_defensive_opportunity": 34.5,
+    "home_strength_index": 0.5955,
+    "away_strength_index": 0.4045,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::958d4abed2294ca5aafaee6ee89a0e8d",
@@ -617,7 +712,12 @@
     "away_rating": 70,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-09-13T13:00:00"
+    "deadline_date": "2026-09-13T13:00:00",
+    "home_defensive_opportunity": 84.5,
+    "away_defensive_opportunity": 15.5,
+    "home_strength_index": 0.6591,
+    "away_strength_index": 0.15,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::cdfcc57f219640c0abd429a10eb8b7c5",
@@ -648,7 +748,12 @@
     "away_rating": 72,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-09-13T13:00:00"
+    "deadline_date": "2026-09-13T13:00:00",
+    "home_defensive_opportunity": 19.6,
+    "away_defensive_opportunity": 80.4,
+    "home_strength_index": 0.2773,
+    "away_strength_index": 0.85,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::b95f88240acb44d39700abb73ff7bd9d",
@@ -679,7 +784,12 @@
     "away_rating": 83,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-09-13T13:00:00"
+    "deadline_date": "2026-09-13T13:00:00",
+    "home_defensive_opportunity": 36.2,
+    "away_defensive_opportunity": 63.8,
+    "home_strength_index": 0.3385,
+    "away_strength_index": 0.6354,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::ca0d4c14b8c648e5a4275f019f8c935c",
@@ -710,7 +820,12 @@
     "away_rating": 83,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-09-13T13:00:00"
+    "deadline_date": "2026-09-13T13:00:00",
+    "home_defensive_opportunity": 43.8,
+    "away_defensive_opportunity": 56.2,
+    "home_strength_index": 0.3508,
+    "away_strength_index": 0.5215,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::6cfd6441fd864fdd935bb6cd3a362d25",
@@ -741,7 +856,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-09-13T13:45:00"
+    "deadline_date": "2026-09-13T13:45:00",
+    "home_defensive_opportunity": 73.6,
+    "away_defensive_opportunity": 26.4,
+    "home_strength_index": 0.6923,
+    "away_strength_index": 0.3662,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::7f709b6deab94bd0b14083f09cf821cd",
@@ -772,7 +892,12 @@
     "away_rating": 72,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-09-13T14:00:00"
+    "deadline_date": "2026-09-13T14:00:00",
+    "home_defensive_opportunity": 74.3,
+    "away_defensive_opportunity": 25.7,
+    "home_strength_index": 0.8073,
+    "away_strength_index": 0.4682,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::fa8b542859484d4d932096d59549aaed",
@@ -803,7 +928,12 @@
     "away_rating": 94,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-09-13T17:30:00"
+    "deadline_date": "2026-09-13T17:30:00",
+    "home_defensive_opportunity": 9.6,
+    "away_defensive_opportunity": 90.4,
+    "home_strength_index": 0.18,
+    "away_strength_index": 0.92,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::9c8826e6e4c64eda83f6ce0adc752e7a",
@@ -834,7 +964,12 @@
     "away_rating": 81,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-09-18T18:00:00"
+    "deadline_date": "2026-09-18T18:00:00",
+    "home_defensive_opportunity": 88.2,
+    "away_defensive_opportunity": 11.8,
+    "home_strength_index": 0.92,
+    "away_strength_index": 0.3508,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::94070447219c4b8bb079d28f8809fe39",
@@ -865,7 +1000,12 @@
     "away_rating": 71,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-09-18T18:30:00"
+    "deadline_date": "2026-09-18T18:30:00",
+    "home_defensive_opportunity": 50.2,
+    "away_defensive_opportunity": 49.8,
+    "home_strength_index": 0.2136,
+    "away_strength_index": 0.2773,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::ef62c1e58fa2499c9b9f8b31d8377401",
@@ -896,7 +1036,12 @@
     "away_rating": 82,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-09-19T11:30:00"
+    "deadline_date": "2026-09-19T11:30:00",
+    "home_defensive_opportunity": 41.4,
+    "away_defensive_opportunity": 58.6,
+    "home_strength_index": 0.2554,
+    "away_strength_index": 0.4646,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::4f7de4e451d54c11b0e2ff8644855354",
@@ -927,7 +1072,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-09-19T11:45:00"
+    "deadline_date": "2026-09-19T11:45:00",
+    "home_defensive_opportunity": 68.4,
+    "away_defensive_opportunity": 31.6,
+    "home_strength_index": 0.5785,
+    "away_strength_index": 0.3385,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::78822e157876488bbc6e4550ba5116d0",
@@ -958,7 +1108,12 @@
     "away_rating": 89,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-09-19T16:30:00"
+    "deadline_date": "2026-09-19T16:30:00",
+    "home_defensive_opportunity": 47.2,
+    "away_defensive_opportunity": 52.8,
+    "home_strength_index": 0.6923,
+    "away_strength_index": 0.8062,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::914a337b009a426682ea7ab26b0f7996",
@@ -989,7 +1144,12 @@
     "away_rating": 72,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-09-20T11:00:00"
+    "deadline_date": "2026-09-20T11:00:00",
+    "home_defensive_opportunity": 42.5,
+    "away_defensive_opportunity": 57.5,
+    "home_strength_index": 0.4682,
+    "away_strength_index": 0.6591,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::9c90de1c4d00419c8d8073cbb3905bc8",
@@ -1020,7 +1180,12 @@
     "away_rating": 74,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-09-20T13:00:00"
+    "deadline_date": "2026-09-20T13:00:00",
+    "home_defensive_opportunity": 69.3,
+    "away_defensive_opportunity": 30.7,
+    "home_strength_index": 0.85,
+    "away_strength_index": 0.5955,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::43a357e332484edd8a9bce993e8bf3a7",
@@ -1051,7 +1216,12 @@
     "away_rating": 68,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-09-20T13:00:00"
+    "deadline_date": "2026-09-20T13:00:00",
+    "home_defensive_opportunity": 69.3,
+    "away_defensive_opportunity": 30.7,
+    "home_strength_index": 0.7864,
+    "away_strength_index": 0.5318,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::6f358d0ebcd3472d934d0cfea8a3a2a2",
@@ -1082,7 +1252,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-09-20T13:00:00"
+    "deadline_date": "2026-09-20T13:00:00",
+    "home_defensive_opportunity": 81.3,
+    "away_defensive_opportunity": 18.7,
+    "home_strength_index": 0.6354,
+    "away_strength_index": 0.18,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::612d1f7a7a4944cbbe37c618c3e02819",
@@ -1113,7 +1288,12 @@
     "away_rating": 83,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-09-20T13:00:00"
+    "deadline_date": "2026-09-20T13:00:00",
+    "home_defensive_opportunity": 44.7,
+    "away_defensive_opportunity": 55.3,
+    "home_strength_index": 0.3662,
+    "away_strength_index": 0.5215,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::c45b5861aff54163b87b0fbcb6ecd941",
@@ -1144,7 +1324,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-09-20T13:00:00"
+    "deadline_date": "2026-09-20T13:00:00",
+    "home_defensive_opportunity": 50.6,
+    "away_defensive_opportunity": 49.4,
+    "home_strength_index": 0.2369,
+    "away_strength_index": 0.2938,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::35e331965a114a4fb707e5b42a4f8934",
@@ -1175,7 +1360,12 @@
     "away_rating": 75,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-09-20T13:00:00"
+    "deadline_date": "2026-09-20T13:00:00",
+    "home_defensive_opportunity": 19.6,
+    "away_defensive_opportunity": 80.4,
+    "home_strength_index": 0.15,
+    "away_strength_index": 0.7227,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::de2dddb4ef4645f594169cba34280767",
@@ -1206,7 +1396,12 @@
     "away_rating": 70,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-09-20T14:00:00"
+    "deadline_date": "2026-09-20T14:00:00",
+    "home_defensive_opportunity": 78.2,
+    "away_defensive_opportunity": 21.8,
+    "home_strength_index": 0.8073,
+    "away_strength_index": 0.4045,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::25e8974f79bc4c7db1a523b86fac8418",
@@ -1237,7 +1432,12 @@
     "away_rating": 75,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-09-26T11:00:00"
+    "deadline_date": "2026-09-26T11:00:00",
+    "home_defensive_opportunity": 27.3,
+    "away_defensive_opportunity": 72.7,
+    "home_strength_index": 0.2773,
+    "away_strength_index": 0.7227,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::45fa16f02e3f44e0a6973826d4e9ed00",
@@ -1268,7 +1468,12 @@
     "away_rating": 94,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-09-26T12:30:00"
+    "deadline_date": "2026-09-26T12:30:00",
+    "home_defensive_opportunity": 14.1,
+    "away_defensive_opportunity": 85.9,
+    "home_strength_index": 0.2554,
+    "away_strength_index": 0.92,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::38fffa5c79e44a84b70a0d188300b414",
@@ -1299,7 +1504,12 @@
     "away_rating": 83,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-09-26T16:00:00"
+    "deadline_date": "2026-09-26T16:00:00",
+    "home_defensive_opportunity": 43.8,
+    "away_defensive_opportunity": 56.2,
+    "home_strength_index": 0.4646,
+    "away_strength_index": 0.6354,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::e532f5703fed4cf785fdb10ea5aec6ed",
@@ -1330,7 +1540,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-09-27T12:00:00"
+    "deadline_date": "2026-09-27T12:00:00",
+    "home_defensive_opportunity": 88.2,
+    "away_defensive_opportunity": 11.8,
+    "home_strength_index": 0.8062,
+    "away_strength_index": 0.2369,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::14547ff6e9cc4965bb506aa2c04e8b27",
@@ -1361,7 +1576,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-09-27T13:00:00"
+    "deadline_date": "2026-09-27T13:00:00",
+    "home_defensive_opportunity": 74.5,
+    "away_defensive_opportunity": 25.5,
+    "home_strength_index": 0.5215,
+    "away_strength_index": 0.18,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::72ff27589845479d8a11f25803307801",
@@ -1392,7 +1612,12 @@
     "away_rating": 72,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-09-27T13:00:00"
+    "deadline_date": "2026-09-27T13:00:00",
+    "home_defensive_opportunity": 65.5,
+    "away_defensive_opportunity": 34.5,
+    "home_strength_index": 0.4045,
+    "away_strength_index": 0.2136,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::cbc51d4b89884630b45d129c946d8077",
@@ -1423,7 +1648,12 @@
     "away_rating": 76,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-09-27T13:00:00"
+    "deadline_date": "2026-09-27T13:00:00",
+    "home_defensive_opportunity": 52.7,
+    "away_defensive_opportunity": 47.3,
+    "home_strength_index": 0.7864,
+    "away_strength_index": 0.8073,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::441e06b858aa4367894fb9c93131c22e",
@@ -1454,7 +1684,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-09-27T13:00:00"
+    "deadline_date": "2026-09-27T13:00:00",
+    "home_defensive_opportunity": 52.3,
+    "away_defensive_opportunity": 47.7,
+    "home_strength_index": 0.3385,
+    "away_strength_index": 0.3662,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::b508005aced84d6a87ad2dfbdc3c7a31",
@@ -1485,7 +1720,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-09-27T13:00:00"
+    "deadline_date": "2026-09-27T13:00:00",
+    "home_defensive_opportunity": 57.4,
+    "away_defensive_opportunity": 42.6,
+    "home_strength_index": 0.3508,
+    "away_strength_index": 0.2938,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::0b2774571e6145ad8558781a481d6e5b",
@@ -1516,7 +1756,12 @@
     "away_rating": 72,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-09-27T13:00:00"
+    "deadline_date": "2026-09-27T13:00:00",
+    "home_defensive_opportunity": 12.0,
+    "away_defensive_opportunity": 88.0,
+    "home_strength_index": 0.15,
+    "away_strength_index": 0.85,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::6ff6213afd7c40f4b68f9cb0caab0040",
@@ -1547,7 +1792,12 @@
     "away_rating": 72,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-09-27T13:00:00"
+    "deadline_date": "2026-09-27T13:00:00",
+    "home_defensive_opportunity": 50.2,
+    "away_defensive_opportunity": 49.8,
+    "home_strength_index": 0.5955,
+    "away_strength_index": 0.6591,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::e5fb2ecf2b7c4197a24d9c0597f4da56",
@@ -1578,7 +1828,12 @@
     "away_rating": 72,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-09-27T13:00:00"
+    "deadline_date": "2026-09-27T13:00:00",
+    "home_defensive_opportunity": 57.8,
+    "away_defensive_opportunity": 42.2,
+    "home_strength_index": 0.5318,
+    "away_strength_index": 0.4682,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::e41e9112d45845d8906deb66c4b8cd73",
@@ -1609,7 +1864,12 @@
     "away_rating": 93,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-09-27T15:30:00"
+    "deadline_date": "2026-09-27T15:30:00",
+    "home_defensive_opportunity": 47.2,
+    "away_defensive_opportunity": 52.8,
+    "home_strength_index": 0.5785,
+    "away_strength_index": 0.6923,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::32af2c0062d64db5bec4f703c9c80014",
@@ -1640,7 +1900,12 @@
     "away_rating": 74,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-10-04T11:00:00"
+    "deadline_date": "2026-10-04T11:00:00",
+    "home_defensive_opportunity": 34.9,
+    "away_defensive_opportunity": 65.1,
+    "home_strength_index": 0.4682,
+    "away_strength_index": 0.7864,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::66bd149875594226a072bb3f0865bf36",
@@ -1671,7 +1936,12 @@
     "away_rating": 82,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-10-04T11:00:00"
+    "deadline_date": "2026-10-04T11:00:00",
+    "home_defensive_opportunity": 57.4,
+    "away_defensive_opportunity": 42.6,
+    "home_strength_index": 0.5215,
+    "away_strength_index": 0.4646,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::afab794465174afab54552809d76f5fb",
@@ -1702,7 +1972,12 @@
     "away_rating": 81,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-10-04T12:00:00"
+    "deadline_date": "2026-10-04T12:00:00",
+    "home_defensive_opportunity": 81.3,
+    "away_defensive_opportunity": 18.7,
+    "home_strength_index": 0.8062,
+    "away_strength_index": 0.3508,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::605c51e18e364796a1a2b0195157dcf1",
@@ -1733,7 +2008,12 @@
     "away_rating": 70,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-10-04T13:00:00"
+    "deadline_date": "2026-10-04T13:00:00",
+    "home_defensive_opportunity": 61.6,
+    "away_defensive_opportunity": 38.4,
+    "home_strength_index": 0.5318,
+    "away_strength_index": 0.4045,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::02cd1c440eca4521a08195d424635a9b",
@@ -1764,7 +2044,12 @@
     "away_rating": 71,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-10-04T13:00:00"
+    "deadline_date": "2026-10-04T13:00:00",
+    "home_defensive_opportunity": 76.9,
+    "away_defensive_opportunity": 23.1,
+    "home_strength_index": 0.6591,
+    "away_strength_index": 0.2773,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::24afafc14446459989582f21b2381074",
@@ -1795,7 +2080,12 @@
     "away_rating": 94,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-10-04T13:00:00"
+    "deadline_date": "2026-10-04T13:00:00",
+    "home_defensive_opportunity": 33.5,
+    "away_defensive_opportunity": 66.5,
+    "home_strength_index": 0.2369,
+    "away_strength_index": 0.5785,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::8fe891577df04ec6a9ff0b8d9dd3ebf2",
@@ -1826,7 +2116,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-10-04T13:00:00"
+    "deadline_date": "2026-10-04T13:00:00",
+    "home_defensive_opportunity": 51.3,
+    "away_defensive_opportunity": 48.7,
+    "home_strength_index": 0.2938,
+    "away_strength_index": 0.3385,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::38eba1106b6548f3935a0dfad86516bf",
@@ -1857,7 +2152,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-10-04T13:00:00"
+    "deadline_date": "2026-10-04T13:00:00",
+    "home_defensive_opportunity": 76.8,
+    "away_defensive_opportunity": 23.2,
+    "home_strength_index": 0.6354,
+    "away_strength_index": 0.2554,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::fc019b5da1e44147a6e9303f86a21932",
@@ -1888,7 +2188,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-10-04T13:00:00"
+    "deadline_date": "2026-10-04T13:00:00",
+    "home_defensive_opportunity": 42.8,
+    "away_defensive_opportunity": 57.2,
+    "home_strength_index": 0.18,
+    "away_strength_index": 0.3662,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::f8f0b0f078a1412aabed0af36db4e2e4",
@@ -1919,7 +2224,12 @@
     "away_rating": 74,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-10-04T13:00:00"
+    "deadline_date": "2026-10-04T13:00:00",
+    "home_defensive_opportunity": 61.6,
+    "away_defensive_opportunity": 38.4,
+    "home_strength_index": 0.7227,
+    "away_strength_index": 0.5955,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::451ffbc32ecd4307af2b02643d5a2b58",
@@ -1950,7 +2260,12 @@
     "away_rating": 70,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-10-04T13:00:00"
+    "deadline_date": "2026-10-04T13:00:00",
+    "home_defensive_opportunity": 57.8,
+    "away_defensive_opportunity": 42.2,
+    "home_strength_index": 0.2136,
+    "away_strength_index": 0.15,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::0d567d06f6114ce987e7d2b1af22a227",
@@ -1981,7 +2296,12 @@
     "away_rating": 76,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-10-04T13:00:00"
+    "deadline_date": "2026-10-04T13:00:00",
+    "home_defensive_opportunity": 56.6,
+    "away_defensive_opportunity": 43.4,
+    "home_strength_index": 0.85,
+    "away_strength_index": 0.8073,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::356ca3ca1e7c4883b06e17bcba0d99fe",
@@ -2012,7 +2332,12 @@
     "away_rating": 93,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-10-04T13:30:00"
+    "deadline_date": "2026-10-04T13:30:00",
+    "home_defensive_opportunity": 67.7,
+    "away_defensive_opportunity": 32.3,
+    "home_strength_index": 0.92,
+    "away_strength_index": 0.6923,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::9ed899fbbfc6456381b40ce1d0142a40",
@@ -2043,7 +2368,12 @@
     "away_rating": 81,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-10-17T11:00:00"
+    "deadline_date": "2026-10-17T11:00:00",
+    "home_defensive_opportunity": 43.8,
+    "away_defensive_opportunity": 56.2,
+    "home_strength_index": 0.18,
+    "away_strength_index": 0.3508,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::c18b112b3f9b464b894c473030404bd2",
@@ -2074,7 +2404,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-10-18T11:30:00"
+    "deadline_date": "2026-10-18T11:30:00",
+    "home_defensive_opportunity": 75.2,
+    "away_defensive_opportunity": 24.8,
+    "home_strength_index": 0.6923,
+    "away_strength_index": 0.3385,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::ae8ee0c2c93d4555bce4c40fb0d6c39f",
@@ -2105,7 +2440,12 @@
     "away_rating": 89,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-10-18T13:00:00"
+    "deadline_date": "2026-10-18T13:00:00",
+    "home_defensive_opportunity": 21.0,
+    "away_defensive_opportunity": 79.0,
+    "home_strength_index": 0.2554,
+    "away_strength_index": 0.8062,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::da644cc38fb8430081e3c25e5c828bca",
@@ -2136,7 +2476,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-10-18T13:00:00"
+    "deadline_date": "2026-10-18T13:00:00",
+    "home_defensive_opportunity": 64.2,
+    "away_defensive_opportunity": 35.8,
+    "home_strength_index": 0.4646,
+    "away_strength_index": 0.2938,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::909ff58064b0437b959c489a55d0b936",
@@ -2167,7 +2512,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-10-18T13:00:00"
+    "deadline_date": "2026-10-18T13:00:00",
+    "home_defensive_opportunity": 61.8,
+    "away_defensive_opportunity": 38.2,
+    "home_strength_index": 0.3662,
+    "away_strength_index": 0.2369,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::88f1060db0464a16a85a9112afcaf45b",
@@ -2198,7 +2548,12 @@
     "away_rating": 83,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-10-18T13:00:00"
+    "deadline_date": "2026-10-18T13:00:00",
+    "home_defensive_opportunity": 71.1,
+    "away_defensive_opportunity": 28.9,
+    "home_strength_index": 0.92,
+    "away_strength_index": 0.6354,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::9cebd47ddf2b44ad98ba5b078ed9ef88",
@@ -2229,7 +2584,12 @@
     "away_rating": 83,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-10-18T13:00:00"
+    "deadline_date": "2026-10-18T13:00:00",
+    "home_defensive_opportunity": 57.4,
+    "away_defensive_opportunity": 42.6,
+    "home_strength_index": 0.5785,
+    "away_strength_index": 0.5215,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::78ce7cb1172e4c85b817321e22bedb94",
@@ -2260,7 +2620,12 @@
     "away_rating": 72,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-10-25T12:00:00"
+    "deadline_date": "2026-10-25T12:00:00",
+    "home_defensive_opportunity": 34.9,
+    "away_defensive_opportunity": 65.1,
+    "home_strength_index": 0.15,
+    "away_strength_index": 0.4682,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::3817aa43b204470eb614a0c287f5e12a",
@@ -2291,7 +2656,12 @@
     "away_rating": 94,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-10-25T13:00:00"
+    "deadline_date": "2026-10-25T13:00:00",
+    "home_defensive_opportunity": 47.2,
+    "away_defensive_opportunity": 52.8,
+    "home_strength_index": 0.8062,
+    "away_strength_index": 0.92,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::78f410fbebb9450fa26a9f4b5d07eac6",
@@ -2322,7 +2692,12 @@
     "away_rating": 68,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-10-25T14:00:00"
+    "deadline_date": "2026-10-25T14:00:00",
+    "home_defensive_opportunity": 38.7,
+    "away_defensive_opportunity": 61.3,
+    "home_strength_index": 0.2773,
+    "away_strength_index": 0.5318,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::a0b436fe4dbf4d488491d0a771667fce",
@@ -2353,7 +2728,12 @@
     "away_rating": 74,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-10-25T14:00:00"
+    "deadline_date": "2026-10-25T14:00:00",
+    "home_defensive_opportunity": 46.4,
+    "away_defensive_opportunity": 53.6,
+    "home_strength_index": 0.6591,
+    "away_strength_index": 0.7864,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::1a930a80fc1a45668fbd3087e5289961",
@@ -2384,7 +2764,12 @@
     "away_rating": 93,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-10-25T14:00:00"
+    "deadline_date": "2026-10-25T14:00:00",
+    "home_defensive_opportunity": 43.8,
+    "away_defensive_opportunity": 56.2,
+    "home_strength_index": 0.5215,
+    "away_strength_index": 0.6923,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::fd960a9a87dc4e44998306b90bfb34bb",
@@ -2415,7 +2800,12 @@
     "away_rating": 82,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-10-25T14:00:00"
+    "deadline_date": "2026-10-25T14:00:00",
+    "home_defensive_opportunity": 47.2,
+    "away_defensive_opportunity": 52.8,
+    "home_strength_index": 0.3508,
+    "away_strength_index": 0.4646,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::c3d44b152442461887491dc12e2f18d0",
@@ -2446,7 +2836,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-10-25T14:00:00"
+    "deadline_date": "2026-10-25T14:00:00",
+    "home_defensive_opportunity": 60.8,
+    "away_defensive_opportunity": 39.2,
+    "home_strength_index": 0.2938,
+    "away_strength_index": 0.18,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::6f940dddfaf64dbf99c146e1589d31e9",
@@ -2477,7 +2872,12 @@
     "away_rating": 94,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-10-25T14:00:00"
+    "deadline_date": "2026-10-25T14:00:00",
+    "home_defensive_opportunity": 41.3,
+    "away_defensive_opportunity": 58.7,
+    "home_strength_index": 0.3662,
+    "away_strength_index": 0.5785,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::6e620b34dbc74fbdace4cb1e6be5b01c",
@@ -2508,7 +2908,12 @@
     "away_rating": 72,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-10-25T14:00:00"
+    "deadline_date": "2026-10-25T14:00:00",
+    "home_defensive_opportunity": 84.5,
+    "away_defensive_opportunity": 15.5,
+    "home_strength_index": 0.7227,
+    "away_strength_index": 0.2136,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::ce1d80eb3bfb46d9bab300a849cad12b",
@@ -2539,7 +2944,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-10-25T14:00:00"
+    "deadline_date": "2026-10-25T14:00:00",
+    "home_defensive_opportunity": 59.0,
+    "away_defensive_opportunity": 41.0,
+    "home_strength_index": 0.3385,
+    "away_strength_index": 0.2554,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::e36c961a24bb409498029478475ec755",
@@ -2570,7 +2980,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-10-25T14:00:00"
+    "deadline_date": "2026-10-25T14:00:00",
+    "home_defensive_opportunity": 77.9,
+    "away_defensive_opportunity": 22.1,
+    "home_strength_index": 0.6354,
+    "away_strength_index": 0.2369,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::8aeb050421f54657bf5bc2e0846cdf88",
@@ -2601,7 +3016,12 @@
     "away_rating": 72,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-10-25T14:00:00"
+    "deadline_date": "2026-10-25T14:00:00",
+    "home_defensive_opportunity": 27.3,
+    "away_defensive_opportunity": 72.7,
+    "home_strength_index": 0.4045,
+    "away_strength_index": 0.85,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::1cdd8f3df9724308804197ad0f394e74",
@@ -2632,7 +3052,12 @@
     "away_rating": 74,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-10-25T15:00:00"
+    "deadline_date": "2026-10-25T15:00:00",
+    "home_defensive_opportunity": 66.7,
+    "away_defensive_opportunity": 33.3,
+    "home_strength_index": 0.8073,
+    "away_strength_index": 0.5955,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::71ef1958bd1f4ecdb687f744972e5f65",
@@ -2663,7 +3088,12 @@
     "away_rating": 89,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-10-31T12:30:00"
+    "deadline_date": "2026-10-31T12:30:00",
+    "home_defensive_opportunity": 23.3,
+    "away_defensive_opportunity": 76.7,
+    "home_strength_index": 0.2938,
+    "away_strength_index": 0.8062,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::61b0b7ce8475419292d11da218b35a2c",
@@ -2694,7 +3124,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-11-01T12:30:00"
+    "deadline_date": "2026-11-01T12:30:00",
+    "home_defensive_opportunity": 84.7,
+    "away_defensive_opportunity": 15.3,
+    "home_strength_index": 0.6923,
+    "away_strength_index": 0.18,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::2460c2f26a8f4426adb7b80afa548ed5",
@@ -2725,7 +3160,12 @@
     "away_rating": 81,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-11-01T14:00:00"
+    "deadline_date": "2026-11-01T14:00:00",
+    "home_defensive_opportunity": 47.2,
+    "away_defensive_opportunity": 52.8,
+    "home_strength_index": 0.2369,
+    "away_strength_index": 0.3508,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::bf724ef604af47b59e50749419cc7c9c",
@@ -2756,7 +3196,12 @@
     "away_rating": 83,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-11-01T14:00:00"
+    "deadline_date": "2026-11-01T14:00:00",
+    "home_defensive_opportunity": 43.0,
+    "away_defensive_opportunity": 57.0,
+    "home_strength_index": 0.3385,
+    "away_strength_index": 0.5215,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::f8f32826f28a43d1b4e22ef48042d098",
@@ -2787,7 +3232,12 @@
     "away_rating": 94,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-11-01T14:00:00"
+    "deadline_date": "2026-11-01T14:00:00",
+    "home_defensive_opportunity": 34.6,
+    "away_defensive_opportunity": 65.4,
+    "home_strength_index": 0.2554,
+    "away_strength_index": 0.5785,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::59061be131b74430b9dfc47d7a9dc5ad",
@@ -2818,7 +3268,12 @@
     "away_rating": 94,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-11-01T14:00:00"
+    "deadline_date": "2026-11-01T14:00:00",
+    "home_defensive_opportunity": 26.7,
+    "away_defensive_opportunity": 73.3,
+    "home_strength_index": 0.4646,
+    "away_strength_index": 0.92,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::8bc32672e79d41f9b44e22202c3bbe9f",
@@ -2849,7 +3304,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-11-01T14:00:00"
+    "deadline_date": "2026-11-01T14:00:00",
+    "home_defensive_opportunity": 70.2,
+    "away_defensive_opportunity": 29.8,
+    "home_strength_index": 0.6354,
+    "away_strength_index": 0.3662,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::6f26948105984863a1640a9b8f29e05b",
@@ -2880,7 +3340,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-11-07T12:00:00"
+    "deadline_date": "2026-11-07T12:00:00",
+    "home_defensive_opportunity": 61.6,
+    "away_defensive_opportunity": 38.4,
+    "home_strength_index": 0.4646,
+    "away_strength_index": 0.3385,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::2c57460983694e388dfc1d0db688beac",
@@ -2911,7 +3376,12 @@
     "away_rating": 93,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-11-07T12:00:00"
+    "deadline_date": "2026-11-07T12:00:00",
+    "home_defensive_opportunity": 33.5,
+    "away_defensive_opportunity": 66.5,
+    "home_strength_index": 0.3508,
+    "away_strength_index": 0.6923,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::f7898a23d79643e7817c9a58090c215f",
@@ -2942,7 +3412,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-11-07T12:30:00"
+    "deadline_date": "2026-11-07T12:30:00",
+    "home_defensive_opportunity": 92.0,
+    "away_defensive_opportunity": 8.0,
+    "home_strength_index": 0.92,
+    "away_strength_index": 0.2369,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::4177f701a617479e97d04c2bbc91a5e0",
@@ -2973,7 +3448,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-11-07T12:30:00"
+    "deadline_date": "2026-11-07T12:30:00",
+    "home_defensive_opportunity": 71.1,
+    "away_defensive_opportunity": 28.9,
+    "home_strength_index": 0.5785,
+    "away_strength_index": 0.2938,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::08325bf7b99a4c4191666861a1e5e5d1",
@@ -3004,7 +3484,12 @@
     "away_rating": 89,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-11-07T12:30:00"
+    "deadline_date": "2026-11-07T12:30:00",
+    "home_defensive_opportunity": 16.4,
+    "away_defensive_opportunity": 83.6,
+    "home_strength_index": 0.18,
+    "away_strength_index": 0.8062,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::5912c9087aa244e8bd1d235be985963c",
@@ -3035,7 +3520,12 @@
     "away_rating": 72,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-11-08T12:00:00"
+    "deadline_date": "2026-11-08T12:00:00",
+    "home_defensive_opportunity": 31.1,
+    "away_defensive_opportunity": 68.9,
+    "home_strength_index": 0.4682,
+    "away_strength_index": 0.85,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::db41fe53a85542ec8a2b90fd5af72732",
@@ -3066,7 +3556,12 @@
     "away_rating": 72,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-11-08T14:00:00"
+    "deadline_date": "2026-11-08T14:00:00",
+    "home_defensive_opportunity": 27.3,
+    "away_defensive_opportunity": 72.7,
+    "home_strength_index": 0.2136,
+    "away_strength_index": 0.6591,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::6ad347d7c3d14ceaa4877a9c33e32604",
@@ -3097,7 +3592,12 @@
     "away_rating": 83,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-11-08T14:00:00"
+    "deadline_date": "2026-11-08T14:00:00",
+    "home_defensive_opportunity": 47.2,
+    "away_defensive_opportunity": 52.8,
+    "home_strength_index": 0.5215,
+    "away_strength_index": 0.6354,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::fad5e1d8beef4f89a0fd9a8dcf9ac05a",
@@ -3128,7 +3628,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-11-08T14:00:00"
+    "deadline_date": "2026-11-08T14:00:00",
+    "home_defensive_opportunity": 60.6,
+    "away_defensive_opportunity": 39.4,
+    "home_strength_index": 0.3662,
+    "away_strength_index": 0.2554,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::7193c3196d884cf7936857956f2bb9b2",
@@ -3159,7 +3664,12 @@
     "away_rating": 68,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-11-08T14:00:00"
+    "deadline_date": "2026-11-08T14:00:00",
+    "home_defensive_opportunity": 57.8,
+    "away_defensive_opportunity": 42.2,
+    "home_strength_index": 0.5955,
+    "away_strength_index": 0.5318,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::cbbab14653c949c7af0434867ee5bd7a",
@@ -3190,7 +3700,12 @@
     "away_rating": 75,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-11-08T14:00:00"
+    "deadline_date": "2026-11-08T14:00:00",
+    "home_defensive_opportunity": 34.9,
+    "away_defensive_opportunity": 65.1,
+    "home_strength_index": 0.4045,
+    "away_strength_index": 0.7227,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::d6cccb22af844fd191aef7c7af29af6a",
@@ -3221,7 +3736,12 @@
     "away_rating": 71,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-11-08T14:00:00"
+    "deadline_date": "2026-11-08T14:00:00",
+    "home_defensive_opportunity": 84.5,
+    "away_defensive_opportunity": 15.5,
+    "home_strength_index": 0.7864,
+    "away_strength_index": 0.2773,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::04096940899347a0bef193c15fd306ec",
@@ -3252,7 +3772,12 @@
     "away_rating": 70,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-11-08T15:00:00"
+    "deadline_date": "2026-11-08T15:00:00",
+    "home_defensive_opportunity": 92.0,
+    "away_defensive_opportunity": 8.0,
+    "home_strength_index": 0.8073,
+    "away_strength_index": 0.15,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::59667cd4eb584858941283945914c374",
@@ -3283,7 +3808,12 @@
     "away_rating": 94,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-11-14T14:00:00"
+    "deadline_date": "2026-11-14T14:00:00",
+    "home_defensive_opportunity": 33.5,
+    "away_defensive_opportunity": 66.5,
+    "home_strength_index": 0.5785,
+    "away_strength_index": 0.92,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::b984ad480ff64136b236bebf24087ae5",
@@ -3314,7 +3844,12 @@
     "away_rating": 82,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-11-14T17:30:00"
+    "deadline_date": "2026-11-14T17:30:00",
+    "home_defensive_opportunity": 67.7,
+    "away_defensive_opportunity": 32.3,
+    "home_strength_index": 0.6923,
+    "away_strength_index": 0.4646,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::70df41d0bf5d45d9a6082e1432b114b2",
@@ -3345,7 +3880,12 @@
     "away_rating": 75,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-11-14T18:00:00"
+    "deadline_date": "2026-11-14T18:00:00",
+    "home_defensive_opportunity": 42.5,
+    "away_defensive_opportunity": 57.5,
+    "home_strength_index": 0.5318,
+    "away_strength_index": 0.7227,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::ced23f61654344d7afa963d24f8651bd",
@@ -3376,7 +3916,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-11-15T13:00:00"
+    "deadline_date": "2026-11-15T13:00:00",
+    "home_defensive_opportunity": 80.4,
+    "away_defensive_opportunity": 19.6,
+    "home_strength_index": 0.8062,
+    "away_strength_index": 0.3662,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::f925284962f940b79c1f3a7e5dd2c861",
@@ -3407,7 +3952,12 @@
     "away_rating": 76,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-11-15T14:00:00"
+    "deadline_date": "2026-11-15T14:00:00",
+    "home_defensive_opportunity": 45.1,
+    "away_defensive_opportunity": 54.9,
+    "home_strength_index": 0.6591,
+    "away_strength_index": 0.8073,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::b5514fcc0b44486487e899451c73e5ac",
@@ -3438,7 +3988,12 @@
     "away_rating": 72,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-11-15T14:00:00"
+    "deadline_date": "2026-11-15T14:00:00",
+    "home_defensive_opportunity": 38.7,
+    "away_defensive_opportunity": 61.3,
+    "home_strength_index": 0.2136,
+    "away_strength_index": 0.4682,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::e9c1433c391b4fa98806d94e289f7944",
@@ -3469,7 +4024,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-11-15T14:00:00"
+    "deadline_date": "2026-11-15T14:00:00",
+    "home_defensive_opportunity": 67.7,
+    "away_defensive_opportunity": 32.3,
+    "home_strength_index": 0.5215,
+    "away_strength_index": 0.2938,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::341d9d1b0a1447afbca4cedfe5e2a132",
@@ -3500,7 +4060,12 @@
     "away_rating": 74,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-11-15T14:00:00"
+    "deadline_date": "2026-11-15T14:00:00",
+    "home_defensive_opportunity": 57.8,
+    "away_defensive_opportunity": 42.2,
+    "home_strength_index": 0.85,
+    "away_strength_index": 0.7864,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::b9503963101a4f10b72de49ed3310122",
@@ -3531,7 +4096,12 @@
     "away_rating": 81,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-11-15T14:00:00"
+    "deadline_date": "2026-11-15T14:00:00",
+    "home_defensive_opportunity": 71.1,
+    "away_defensive_opportunity": 28.9,
+    "home_strength_index": 0.6354,
+    "away_strength_index": 0.3508,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::86deeb5e7d1e4584b53554096cf80e35",
@@ -3562,7 +4132,12 @@
     "away_rating": 70,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-11-15T14:00:00"
+    "deadline_date": "2026-11-15T14:00:00",
+    "home_defensive_opportunity": 38.7,
+    "away_defensive_opportunity": 61.3,
+    "home_strength_index": 0.15,
+    "away_strength_index": 0.4045,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::aa8320a286ab4af7b30ca34e64066bad",
@@ -3593,7 +4168,12 @@
     "away_rating": 74,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-11-15T14:00:00"
+    "deadline_date": "2026-11-15T14:00:00",
+    "home_defensive_opportunity": 34.9,
+    "away_defensive_opportunity": 65.1,
+    "home_strength_index": 0.2773,
+    "away_strength_index": 0.5955,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::7b032db3f5554e84a0ab4ab8b93192fc",
@@ -3624,7 +4204,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-11-15T14:00:00"
+    "deadline_date": "2026-11-15T14:00:00",
+    "home_defensive_opportunity": 52.9,
+    "away_defensive_opportunity": 47.1,
+    "home_strength_index": 0.2369,
+    "away_strength_index": 0.2554,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::4189809f663540da96ce8ce58d2d5b91",
@@ -3655,7 +4240,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-11-15T14:30:00"
+    "deadline_date": "2026-11-15T14:30:00",
+    "home_defensive_opportunity": 44.5,
+    "away_defensive_opportunity": 55.5,
+    "home_strength_index": 0.18,
+    "away_strength_index": 0.3385,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::e00d7067a71543ef922a8cf9313cfd35",
@@ -3686,7 +4276,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-11-22T12:30:00"
+    "deadline_date": "2026-11-22T12:30:00",
+    "home_defensive_opportunity": 81.3,
+    "away_defensive_opportunity": 18.7,
+    "home_strength_index": 0.6923,
+    "away_strength_index": 0.2369,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::b5dad0723a7d4a2bbf0f873783ac4f99",
@@ -3717,7 +4312,12 @@
     "away_rating": 94,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-11-22T14:00:00"
+    "deadline_date": "2026-11-22T14:00:00",
+    "home_defensive_opportunity": 40.3,
+    "away_defensive_opportunity": 59.7,
+    "home_strength_index": 0.3508,
+    "away_strength_index": 0.5785,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::93fc89e9cf1047458448acd55d5f4581",
@@ -3748,7 +4348,12 @@
     "away_rating": 83,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-11-22T14:00:00"
+    "deadline_date": "2026-11-22T14:00:00",
+    "home_defensive_opportunity": 77.9,
+    "away_defensive_opportunity": 22.1,
+    "home_strength_index": 0.92,
+    "away_strength_index": 0.5215,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::5a9d8431663b41aba71f339ff4acd5ae",
@@ -3779,7 +4384,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-11-22T14:00:00"
+    "deadline_date": "2026-11-22T14:00:00",
+    "home_defensive_opportunity": 59.9,
+    "away_defensive_opportunity": 40.1,
+    "home_strength_index": 0.4646,
+    "away_strength_index": 0.3662,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::eb0fccd05ba54d64aae329f80fbe00a0",
@@ -3810,7 +4420,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-11-22T14:00:00"
+    "deadline_date": "2026-11-22T14:00:00",
+    "home_defensive_opportunity": 58.5,
+    "away_defensive_opportunity": 41.5,
+    "home_strength_index": 0.2554,
+    "away_strength_index": 0.18,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::b1eb2661ddf9444b9313db0ebf22392f",
@@ -3841,7 +4456,12 @@
     "away_rating": 89,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-11-22T14:00:00"
+    "deadline_date": "2026-11-22T14:00:00",
+    "home_defensive_opportunity": 25.9,
+    "away_defensive_opportunity": 74.1,
+    "home_strength_index": 0.3385,
+    "away_strength_index": 0.8062,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::e371ca0b78f44550b1deee274a86b365",
@@ -3872,7 +4492,12 @@
     "away_rating": 83,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-11-22T14:00:00"
+    "deadline_date": "2026-11-22T14:00:00",
+    "home_defensive_opportunity": 33.5,
+    "away_defensive_opportunity": 66.5,
+    "home_strength_index": 0.2938,
+    "away_strength_index": 0.6354,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::c7c83bedba8347e6bce17d7723373d71",
@@ -3903,7 +4528,12 @@
     "away_rating": 93,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-12-12T12:30:00"
+    "deadline_date": "2026-12-12T12:30:00",
+    "home_defensive_opportunity": 30.1,
+    "away_defensive_opportunity": 69.9,
+    "home_strength_index": 0.2938,
+    "away_strength_index": 0.6923,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::c9ffa471afe5434bb85bc6f888c2094e",
@@ -3934,7 +4564,12 @@
     "away_rating": 83,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-12-13T13:00:00"
+    "deadline_date": "2026-12-13T13:00:00",
+    "home_defensive_opportunity": 64.2,
+    "away_defensive_opportunity": 35.8,
+    "home_strength_index": 0.8062,
+    "away_strength_index": 0.6354,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::f2f583cf64374287aa3546cce15a2ca5",
@@ -3965,7 +4600,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-12-13T14:00:00"
+    "deadline_date": "2026-12-13T14:00:00",
+    "home_defensive_opportunity": 57.4,
+    "away_defensive_opportunity": 42.6,
+    "home_strength_index": 0.2369,
+    "away_strength_index": 0.18,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::57dfc8e9188b4e90ad3e280f97a1e448",
@@ -3996,7 +4636,12 @@
     "away_rating": 81,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-12-13T14:00:00"
+    "deadline_date": "2026-12-13T14:00:00",
+    "home_defensive_opportunity": 53.3,
+    "away_defensive_opportunity": 46.7,
+    "home_strength_index": 0.3385,
+    "away_strength_index": 0.3508,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::8f0ab8b17dcc4ad5b06eb5158bab7c23",
@@ -4027,7 +4672,12 @@
     "away_rating": 82,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-12-13T14:00:00"
+    "deadline_date": "2026-12-13T14:00:00",
+    "home_defensive_opportunity": 60.8,
+    "away_defensive_opportunity": 39.2,
+    "home_strength_index": 0.5785,
+    "away_strength_index": 0.4646,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::943bc41885d04d819c8f211cd2e62da0",
@@ -4058,7 +4708,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-12-13T14:00:00"
+    "deadline_date": "2026-12-13T14:00:00",
+    "home_defensive_opportunity": 70.0,
+    "away_defensive_opportunity": 30.0,
+    "home_strength_index": 0.5215,
+    "away_strength_index": 0.2554,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::120c2d21240d428883fdb2cdd59d9a20",
@@ -4089,7 +4744,12 @@
     "away_rating": 94,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-12-13T14:00:00"
+    "deadline_date": "2026-12-13T14:00:00",
+    "home_defensive_opportunity": 20.8,
+    "away_defensive_opportunity": 79.2,
+    "home_strength_index": 0.3662,
+    "away_strength_index": 0.92,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::c9cb2e2965d346d1af1e64b87cc146b5",
@@ -4120,7 +4780,12 @@
     "away_rating": 94,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-12-19T12:30:00"
+    "deadline_date": "2026-12-19T12:30:00",
+    "home_defensive_opportunity": 57.4,
+    "away_defensive_opportunity": 42.6,
+    "home_strength_index": 0.6354,
+    "away_strength_index": 0.5785,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::ef9456f6c3c145108eb4edce71272269",
@@ -4151,7 +4816,12 @@
     "away_rating": 70,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-12-20T12:00:00"
+    "deadline_date": "2026-12-20T12:00:00",
+    "home_defensive_opportunity": 57.8,
+    "away_defensive_opportunity": 42.2,
+    "home_strength_index": 0.4682,
+    "away_strength_index": 0.4045,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::c019612341b54ac9a3dde8b3d0639954",
@@ -4182,7 +4852,12 @@
     "away_rating": 93,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-12-20T12:30:00"
+    "deadline_date": "2026-12-20T12:30:00",
+    "home_defensive_opportunity": 27.8,
+    "away_defensive_opportunity": 72.2,
+    "home_strength_index": 0.2554,
+    "away_strength_index": 0.6923,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::c9185207365948958f5fc8abdfeaa336",
@@ -4213,7 +4888,12 @@
     "away_rating": 83,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-12-20T13:00:00"
+    "deadline_date": "2026-12-20T13:00:00",
+    "home_defensive_opportunity": 71.1,
+    "away_defensive_opportunity": 28.9,
+    "home_strength_index": 0.8062,
+    "away_strength_index": 0.5215,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::d34da01058ba48c2b55415cbe79f989f",
@@ -4244,7 +4924,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-12-20T14:00:00"
+    "deadline_date": "2026-12-20T14:00:00",
+    "home_defensive_opportunity": 53.1,
+    "away_defensive_opportunity": 46.9,
+    "home_strength_index": 0.3508,
+    "away_strength_index": 0.3662,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::b5b4e829f2d14ce88064051422724f7d",
@@ -4275,7 +4960,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-12-20T14:00:00"
+    "deadline_date": "2026-12-20T14:00:00",
+    "home_defensive_opportunity": 47.9,
+    "away_defensive_opportunity": 52.1,
+    "home_strength_index": 0.2369,
+    "away_strength_index": 0.3385,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::65829246cb1f460fb15f114587ba91ed",
@@ -4306,7 +4996,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-12-20T14:00:00"
+    "deadline_date": "2026-12-20T14:00:00",
+    "home_defensive_opportunity": 91.6,
+    "away_defensive_opportunity": 8.4,
+    "home_strength_index": 0.92,
+    "away_strength_index": 0.2938,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::c7476155edb74f6985bb47a73057cfa6",
@@ -4337,7 +5032,12 @@
     "away_rating": 82,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-12-20T14:00:00"
+    "deadline_date": "2026-12-20T14:00:00",
+    "home_defensive_opportunity": 36.9,
+    "away_defensive_opportunity": 63.1,
+    "home_strength_index": 0.18,
+    "away_strength_index": 0.4646,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::6503b7b70782405eb4a1ad1e6d7b54b8",
@@ -4368,7 +5068,12 @@
     "away_rating": 70,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-12-20T14:00:00"
+    "deadline_date": "2026-12-20T14:00:00",
+    "home_defensive_opportunity": 92.0,
+    "away_defensive_opportunity": 8.0,
+    "home_strength_index": 0.7864,
+    "away_strength_index": 0.15,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::85bc66341f5a4f0295493184eaf206de",
@@ -4399,7 +5104,12 @@
     "away_rating": 72,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-12-20T14:00:00"
+    "deadline_date": "2026-12-20T14:00:00",
+    "home_defensive_opportunity": 34.9,
+    "away_defensive_opportunity": 65.1,
+    "home_strength_index": 0.5318,
+    "away_strength_index": 0.85,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::a3468efa8ca541299747f29ece17c9a3",
@@ -4430,7 +5140,12 @@
     "away_rating": 72,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-12-20T14:00:00"
+    "deadline_date": "2026-12-20T14:00:00",
+    "home_defensive_opportunity": 76.9,
+    "away_defensive_opportunity": 23.1,
+    "home_strength_index": 0.5955,
+    "away_strength_index": 0.2136,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::7df8223f9c5341d8a6d6a0d19c611e91",
@@ -4461,7 +5176,12 @@
     "away_rating": 71,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-12-20T15:00:00"
+    "deadline_date": "2026-12-20T15:00:00",
+    "home_defensive_opportunity": 85.8,
+    "away_defensive_opportunity": 14.2,
+    "home_strength_index": 0.8073,
+    "away_strength_index": 0.2773,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::8578bf80c8684d158a19112b03c2bfdd",
@@ -4492,7 +5212,12 @@
     "away_rating": 72,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2026-12-21T17:00:00"
+    "deadline_date": "2026-12-21T17:00:00",
+    "home_defensive_opportunity": 57.8,
+    "away_defensive_opportunity": 42.2,
+    "home_strength_index": 0.7227,
+    "away_strength_index": 0.6591,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::dd326c8df3174c1cb5482c304bb09fe7",
@@ -4523,7 +5248,12 @@
     "away_rating": 83,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-01-10T12:30:00"
+    "deadline_date": "2027-01-10T12:30:00",
+    "home_defensive_opportunity": 57.4,
+    "away_defensive_opportunity": 42.6,
+    "home_strength_index": 0.6923,
+    "away_strength_index": 0.6354,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::fc633cf5bdb74522866fab32e6c520f4",
@@ -4554,7 +5284,12 @@
     "away_rating": 81,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-01-10T14:00:00"
+    "deadline_date": "2027-01-10T14:00:00",
+    "home_defensive_opportunity": 64.2,
+    "away_defensive_opportunity": 35.8,
+    "home_strength_index": 0.5215,
+    "away_strength_index": 0.3508,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::fce1a12faf1c4b08bd7e7dac7c571fb3",
@@ -4585,7 +5320,12 @@
     "away_rating": 76,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-01-10T14:00:00"
+    "deadline_date": "2027-01-10T14:00:00",
+    "home_defensive_opportunity": 48.9,
+    "away_defensive_opportunity": 51.1,
+    "home_strength_index": 0.7227,
+    "away_strength_index": 0.8073,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::2949c698821a44aba995761a682ca16f",
@@ -4616,7 +5356,12 @@
     "away_rating": 72,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-01-10T14:00:00"
+    "deadline_date": "2027-01-10T14:00:00",
+    "home_defensive_opportunity": 42.5,
+    "away_defensive_opportunity": 57.5,
+    "home_strength_index": 0.2773,
+    "away_strength_index": 0.4682,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::89b90bd393ff4e398c212386f458b5e6",
@@ -4647,7 +5392,12 @@
     "away_rating": 74,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-01-10T14:00:00"
+    "deadline_date": "2027-01-10T14:00:00",
+    "home_defensive_opportunity": 31.1,
+    "away_defensive_opportunity": 68.9,
+    "home_strength_index": 0.4045,
+    "away_strength_index": 0.7864,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::c681b497b95149cd89232fbf4d73a51b",
@@ -4678,7 +5428,12 @@
     "away_rating": 68,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-01-10T14:00:00"
+    "deadline_date": "2027-01-10T14:00:00",
+    "home_defensive_opportunity": 61.6,
+    "away_defensive_opportunity": 38.4,
+    "home_strength_index": 0.6591,
+    "away_strength_index": 0.5318,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::4a7f332810a14d73b75644f648507da7",
@@ -4709,7 +5464,12 @@
     "away_rating": 74,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-01-10T14:00:00"
+    "deadline_date": "2027-01-10T14:00:00",
+    "home_defensive_opportunity": 27.3,
+    "away_defensive_opportunity": 72.7,
+    "home_strength_index": 0.15,
+    "away_strength_index": 0.5955,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::14944381bda5406281a3c74c71312ad8",
@@ -4740,7 +5500,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-01-10T14:00:00"
+    "deadline_date": "2027-01-10T14:00:00",
+    "home_defensive_opportunity": 49.0,
+    "away_defensive_opportunity": 51.0,
+    "home_strength_index": 0.2554,
+    "away_strength_index": 0.3385,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::44dad15e4f8e42068f8e38df84537924",
@@ -4771,7 +5536,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-01-10T14:00:00"
+    "deadline_date": "2027-01-10T14:00:00",
+    "home_defensive_opportunity": 47.2,
+    "away_defensive_opportunity": 52.8,
+    "home_strength_index": 0.18,
+    "away_strength_index": 0.2938,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::348809f87ec343259ac4d134074eabad",
@@ -4802,7 +5572,12 @@
     "away_rating": 89,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-01-10T14:00:00"
+    "deadline_date": "2027-01-10T14:00:00",
+    "home_defensive_opportunity": 27.6,
+    "away_defensive_opportunity": 72.4,
+    "home_strength_index": 0.3662,
+    "away_strength_index": 0.8062,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::f97ed48310374adfad1bf3f5336d9658",
@@ -4833,7 +5608,12 @@
     "away_rating": 72,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-01-10T14:00:00"
+    "deadline_date": "2027-01-10T14:00:00",
+    "home_defensive_opportunity": 92.0,
+    "away_defensive_opportunity": 8.0,
+    "home_strength_index": 0.85,
+    "away_strength_index": 0.2136,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::4dd34a92093848109fe9755c008743a0",
@@ -4864,7 +5644,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-01-10T14:00:00"
+    "deadline_date": "2027-01-10T14:00:00",
+    "home_defensive_opportunity": 67.7,
+    "away_defensive_opportunity": 32.3,
+    "home_strength_index": 0.4646,
+    "away_strength_index": 0.2369,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::42a3da998fbf41b2b6dea1c4d35a2e91",
@@ -4895,7 +5680,12 @@
     "away_rating": 94,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-01-10T14:00:00"
+    "deadline_date": "2027-01-10T14:00:00",
+    "home_defensive_opportunity": 74.5,
+    "away_defensive_opportunity": 25.5,
+    "home_strength_index": 0.92,
+    "away_strength_index": 0.5785,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::f3693ae40aa5490da85d68442a28c7bf",
@@ -4926,7 +5716,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-01-20T19:00:00"
+    "deadline_date": "2027-01-20T19:00:00",
+    "home_defensive_opportunity": 73.4,
+    "away_defensive_opportunity": 26.6,
+    "home_strength_index": 0.5785,
+    "away_strength_index": 0.2554,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::03a5339ae43d45d1b4c19e3da2db43d3",
@@ -4957,7 +5752,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-01-20T19:00:00"
+    "deadline_date": "2027-01-20T19:00:00",
+    "home_defensive_opportunity": 65.2,
+    "away_defensive_opportunity": 34.8,
+    "home_strength_index": 0.3662,
+    "away_strength_index": 0.18,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::e98e3b164f8246b6a7de75b09d21ed22",
@@ -4988,7 +5788,12 @@
     "away_rating": 82,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-01-20T19:00:00"
+    "deadline_date": "2027-01-20T19:00:00",
+    "home_defensive_opportunity": 43.8,
+    "away_defensive_opportunity": 56.2,
+    "home_strength_index": 0.2938,
+    "away_strength_index": 0.4646,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::f604fab9856347aeb942e25f56453c9a",
@@ -5019,7 +5824,12 @@
     "away_rating": 89,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-01-20T19:00:00"
+    "deadline_date": "2027-01-20T19:00:00",
+    "home_defensive_opportunity": 19.8,
+    "away_defensive_opportunity": 80.2,
+    "home_strength_index": 0.2369,
+    "away_strength_index": 0.8062,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::74b5b6ce5e2b42f886ead11ffdc27249",
@@ -5050,7 +5860,12 @@
     "away_rating": 94,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-01-20T19:30:00"
+    "deadline_date": "2027-01-20T19:30:00",
+    "home_defensive_opportunity": 19.1,
+    "away_defensive_opportunity": 80.9,
+    "home_strength_index": 0.3385,
+    "away_strength_index": 0.92,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::9b9578da1a0a4a02b507dde87369eac3",
@@ -5081,7 +5896,12 @@
     "away_rating": 83,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-01-20T19:45:00"
+    "deadline_date": "2027-01-20T19:45:00",
+    "home_defensive_opportunity": 60.8,
+    "away_defensive_opportunity": 39.2,
+    "home_strength_index": 0.6354,
+    "away_strength_index": 0.5215,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::5a09f217a26e4127b0d9b48bd1a74fd0",
@@ -5112,7 +5932,12 @@
     "away_rating": 81,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-01-21T19:00:00"
+    "deadline_date": "2027-01-21T19:00:00",
+    "home_defensive_opportunity": 74.5,
+    "away_defensive_opportunity": 25.5,
+    "home_strength_index": 0.6923,
+    "away_strength_index": 0.3508,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::03a70c57ceba4431a8445bcace093ed9",
@@ -5143,7 +5968,12 @@
     "away_rating": 70,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-01-22T19:00:00"
+    "deadline_date": "2027-01-22T19:00:00",
+    "home_defensive_opportunity": 46.4,
+    "away_defensive_opportunity": 53.6,
+    "home_strength_index": 0.2773,
+    "away_strength_index": 0.4045,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::1b73aed4c3304334a61b4072e4b7da67",
@@ -5174,7 +6004,12 @@
     "away_rating": 70,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-01-23T18:00:00"
+    "deadline_date": "2027-01-23T18:00:00",
+    "home_defensive_opportunity": 76.9,
+    "away_defensive_opportunity": 23.1,
+    "home_strength_index": 0.5318,
+    "away_strength_index": 0.15,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::68a3a51efd854d629a13ba8851855b91",
@@ -5205,7 +6040,12 @@
     "away_rating": 75,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-01-24T12:00:00"
+    "deadline_date": "2027-01-24T12:00:00",
+    "home_defensive_opportunity": 38.7,
+    "away_defensive_opportunity": 61.3,
+    "home_strength_index": 0.4682,
+    "away_strength_index": 0.7227,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::cef0540632204c30acf6f4ab3dccd242",
@@ -5236,7 +6076,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-01-24T13:00:00"
+    "deadline_date": "2027-01-24T13:00:00",
+    "home_defensive_opportunity": 84.7,
+    "away_defensive_opportunity": 15.3,
+    "home_strength_index": 0.8062,
+    "away_strength_index": 0.2938,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::aa00a5af9daf4937a0e807357b6a4a6e",
@@ -5267,7 +6112,12 @@
     "away_rating": 83,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-01-24T14:00:00"
+    "deadline_date": "2027-01-24T14:00:00",
+    "home_defensive_opportunity": 33.5,
+    "away_defensive_opportunity": 66.5,
+    "home_strength_index": 0.18,
+    "away_strength_index": 0.5215,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::d5cd305b60e5493fa2d61f38027644e9",
@@ -5298,7 +6148,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-01-24T14:00:00"
+    "deadline_date": "2027-01-24T14:00:00",
+    "home_defensive_opportunity": 92.0,
+    "away_defensive_opportunity": 8.0,
+    "home_strength_index": 0.92,
+    "away_strength_index": 0.2554,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::4d06f6e2f9db438a9e27f324e967dde8",
@@ -5329,7 +6184,12 @@
     "away_rating": 74,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-01-24T14:00:00"
+    "deadline_date": "2027-01-24T14:00:00",
+    "home_defensive_opportunity": 65.5,
+    "away_defensive_opportunity": 34.5,
+    "home_strength_index": 0.7864,
+    "away_strength_index": 0.5955,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::1de8ae97a0374a90ad2dcd3acc0a643e",
@@ -5360,7 +6220,12 @@
     "away_rating": 72,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-01-24T14:00:00"
+    "deadline_date": "2027-01-24T14:00:00",
+    "home_defensive_opportunity": 42.5,
+    "away_defensive_opportunity": 57.5,
+    "home_strength_index": 0.6591,
+    "away_strength_index": 0.85,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::a56ae4002c2e4b54bcfd4eb870b1e40d",
@@ -5391,7 +6256,12 @@
     "away_rating": 76,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-01-24T14:00:00"
+    "deadline_date": "2027-01-24T14:00:00",
+    "home_defensive_opportunity": 18.4,
+    "away_defensive_opportunity": 81.6,
+    "home_strength_index": 0.2136,
+    "away_strength_index": 0.8073,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::baa627f751ae47dcbb2e5f10baf9e549",
@@ -5422,7 +6292,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-01-24T14:00:00"
+    "deadline_date": "2027-01-24T14:00:00",
+    "home_defensive_opportunity": 60.8,
+    "away_defensive_opportunity": 39.2,
+    "home_strength_index": 0.3508,
+    "away_strength_index": 0.2369,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::9f35ae1c441b44739b50b0096733ed40",
@@ -5453,7 +6328,12 @@
     "away_rating": 93,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-01-24T14:00:00"
+    "deadline_date": "2027-01-24T14:00:00",
+    "home_defensive_opportunity": 40.3,
+    "away_defensive_opportunity": 59.7,
+    "home_strength_index": 0.4646,
+    "away_strength_index": 0.6923,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::dd83162b7c5f487b939b4ebd2ac2c13d",
@@ -5484,7 +6364,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-01-24T14:00:00"
+    "deadline_date": "2027-01-24T14:00:00",
+    "home_defensive_opportunity": 66.7,
+    "away_defensive_opportunity": 33.3,
+    "home_strength_index": 0.5785,
+    "away_strength_index": 0.3662,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::c50b09aa25b04617aac57c6309fed795",
@@ -5515,7 +6400,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-01-24T14:00:00"
+    "deadline_date": "2027-01-24T14:00:00",
+    "home_defensive_opportunity": 71.8,
+    "away_defensive_opportunity": 28.2,
+    "home_strength_index": 0.6354,
+    "away_strength_index": 0.3385,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::17967eea107d4164b2faa4bd6419a4c2",
@@ -5546,7 +6436,12 @@
     "away_rating": 68,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-01-27T19:00:00"
+    "deadline_date": "2027-01-27T19:00:00",
+    "home_defensive_opportunity": 50.2,
+    "away_defensive_opportunity": 49.8,
+    "home_strength_index": 0.4682,
+    "away_strength_index": 0.5318,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::fb23d04f6d264419a345fd0d1b71c8e0",
@@ -5577,7 +6472,12 @@
     "away_rating": 71,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-01-27T19:00:00"
+    "deadline_date": "2027-01-27T19:00:00",
+    "home_defensive_opportunity": 88.4,
+    "away_defensive_opportunity": 11.6,
+    "home_strength_index": 0.85,
+    "away_strength_index": 0.2773,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::3f93f84141cd4eeaa4257cc8c5a6f803",
@@ -5608,7 +6508,12 @@
     "away_rating": 75,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-01-27T19:30:00"
+    "deadline_date": "2027-01-27T19:30:00",
+    "home_defensive_opportunity": 46.4,
+    "away_defensive_opportunity": 53.6,
+    "home_strength_index": 0.5955,
+    "away_strength_index": 0.7227,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::70f8627090854a97a500fb8c542d1ba2",
@@ -5639,7 +6544,12 @@
     "away_rating": 74,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-01-27T19:30:00"
+    "deadline_date": "2027-01-27T19:30:00",
+    "home_defensive_opportunity": 19.6,
+    "away_defensive_opportunity": 80.4,
+    "home_strength_index": 0.2136,
+    "away_strength_index": 0.7864,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::335a0136251e4fc3a225197587daa3f4",
@@ -5670,7 +6580,12 @@
     "away_rating": 72,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-01-27T19:30:00"
+    "deadline_date": "2027-01-27T19:30:00",
+    "home_defensive_opportunity": 62.9,
+    "away_defensive_opportunity": 37.1,
+    "home_strength_index": 0.8073,
+    "away_strength_index": 0.6591,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::2c38b0df410f4dbe88f3ecafcd59b6f0",
@@ -5701,7 +6616,12 @@
     "away_rating": 70,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-01-27T19:30:00"
+    "deadline_date": "2027-01-27T19:30:00",
+    "home_defensive_opportunity": 69.3,
+    "away_defensive_opportunity": 30.7,
+    "home_strength_index": 0.4045,
+    "away_strength_index": 0.15,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::84c9fcbc0c74463db7b01e840a009eb1",
@@ -5732,7 +6652,12 @@
     "away_rating": 94,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-01-30T17:30:00"
+    "deadline_date": "2027-01-30T17:30:00",
+    "home_defensive_opportunity": 40.3,
+    "away_defensive_opportunity": 59.7,
+    "home_strength_index": 0.6923,
+    "away_strength_index": 0.92,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::4381e42ab47e40778abf07ce11fd7b62",
@@ -5763,7 +6688,12 @@
     "away_rating": 82,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-01-31T13:00:00"
+    "deadline_date": "2027-01-31T13:00:00",
+    "home_defensive_opportunity": 74.5,
+    "away_defensive_opportunity": 25.5,
+    "home_strength_index": 0.8062,
+    "away_strength_index": 0.4646,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::46461cc7f7ff4200b49a054aacac4b70",
@@ -5794,7 +6724,12 @@
     "away_rating": 94,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-01-31T14:00:00"
+    "deadline_date": "2027-01-31T14:00:00",
+    "home_defensive_opportunity": 50.6,
+    "away_defensive_opportunity": 49.4,
+    "home_strength_index": 0.5215,
+    "away_strength_index": 0.5785,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::fa422cad5ee4459bb86ff685de7cc92b",
@@ -5825,7 +6760,12 @@
     "away_rating": 68,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-01-31T14:00:00"
+    "deadline_date": "2027-01-31T14:00:00",
+    "home_defensive_opportunity": 65.5,
+    "away_defensive_opportunity": 34.5,
+    "home_strength_index": 0.7227,
+    "away_strength_index": 0.5318,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::d13c61c932a84635a141121b6ce9eb76",
@@ -5856,7 +6796,12 @@
     "away_rating": 83,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-01-31T14:00:00"
+    "deadline_date": "2027-01-31T14:00:00",
+    "home_defensive_opportunity": 36.9,
+    "away_defensive_opportunity": 63.1,
+    "home_strength_index": 0.3508,
+    "away_strength_index": 0.6354,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::ed79c0a395754bfd937c4cb93babaf62",
@@ -5887,7 +6832,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-01-31T14:00:00"
+    "deadline_date": "2027-01-31T14:00:00",
+    "home_defensive_opportunity": 47.4,
+    "away_defensive_opportunity": 52.6,
+    "home_strength_index": 0.2554,
+    "away_strength_index": 0.3662,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::c080055c5bb0460a9d26b9d21ae1a050",
@@ -5918,7 +6868,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-01-31T14:00:00"
+    "deadline_date": "2027-01-31T14:00:00",
+    "home_defensive_opportunity": 57.4,
+    "away_defensive_opportunity": 42.6,
+    "home_strength_index": 0.2938,
+    "away_strength_index": 0.2369,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::5ea0f65a0c064a5eab3278859d873240",
@@ -5949,7 +6904,12 @@
     "away_rating": 72,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-01-31T14:00:00"
+    "deadline_date": "2027-01-31T14:00:00",
+    "home_defensive_opportunity": 50.2,
+    "away_defensive_opportunity": 49.8,
+    "home_strength_index": 0.15,
+    "away_strength_index": 0.2136,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::36bcdd5b400e463a91b2d1648774fd3c",
@@ -5980,7 +6940,12 @@
     "away_rating": 72,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-01-31T14:00:00"
+    "deadline_date": "2027-01-31T14:00:00",
+    "home_defensive_opportunity": 76.9,
+    "away_defensive_opportunity": 23.1,
+    "home_strength_index": 0.85,
+    "away_strength_index": 0.4682,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::83641022737b4cedad6185f7c75fab3e",
@@ -6011,7 +6976,12 @@
     "away_rating": 71,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-01-31T14:00:00"
+    "deadline_date": "2027-01-31T14:00:00",
+    "home_defensive_opportunity": 73.1,
+    "away_defensive_opportunity": 26.9,
+    "home_strength_index": 0.5955,
+    "away_strength_index": 0.2773,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::03113d10d1624e418991875519623e75",
@@ -6042,7 +7012,12 @@
     "away_rating": 70,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-01-31T14:00:00"
+    "deadline_date": "2027-01-31T14:00:00",
+    "home_defensive_opportunity": 69.3,
+    "away_defensive_opportunity": 30.7,
+    "home_strength_index": 0.6591,
+    "away_strength_index": 0.4045,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::3cf8bdd04df44b2e825eafe27bc8371c",
@@ -6073,7 +7048,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-01-31T14:00:00"
+    "deadline_date": "2027-01-31T14:00:00",
+    "home_defensive_opportunity": 63.5,
+    "away_defensive_opportunity": 36.5,
+    "home_strength_index": 0.3385,
+    "away_strength_index": 0.18,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::f9b7adfc21f641d3822bda8ca7850c14",
@@ -6104,7 +7084,12 @@
     "away_rating": 74,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-01-31T15:00:00"
+    "deadline_date": "2027-01-31T15:00:00",
+    "home_defensive_opportunity": 55.3,
+    "away_defensive_opportunity": 44.7,
+    "home_strength_index": 0.8073,
+    "away_strength_index": 0.7864,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::083ff7b65530402799a5f3d692cdfc09",
@@ -6135,7 +7120,12 @@
     "away_rating": 72,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-02-07T13:00:00"
+    "deadline_date": "2027-02-07T13:00:00",
+    "home_defensive_opportunity": 50.2,
+    "away_defensive_opportunity": 49.8,
+    "home_strength_index": 0.4045,
+    "away_strength_index": 0.4682,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::ed28a47e4d3145c0b41c6d5e7285a7fc",
@@ -6166,7 +7156,12 @@
     "away_rating": 72,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-02-07T14:00:00"
+    "deadline_date": "2027-02-07T14:00:00",
+    "home_defensive_opportunity": 61.6,
+    "away_defensive_opportunity": 38.4,
+    "home_strength_index": 0.7864,
+    "away_strength_index": 0.6591,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::6d19404281864fbdbe2947cacea24f4b",
@@ -6197,7 +7192,12 @@
     "away_rating": 70,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-02-07T14:00:00"
+    "deadline_date": "2027-02-07T14:00:00",
+    "home_defensive_opportunity": 88.4,
+    "away_defensive_opportunity": 11.6,
+    "home_strength_index": 0.7227,
+    "away_strength_index": 0.15,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::1848cf9fdbaa4901a830d998c2f88e4d",
@@ -6228,7 +7228,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-02-07T14:00:00"
+    "deadline_date": "2027-02-07T14:00:00",
+    "home_defensive_opportunity": 49.5,
+    "away_defensive_opportunity": 50.5,
+    "home_strength_index": 0.18,
+    "away_strength_index": 0.2554,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::ee7f33be3f7046418aa8b3104d026f1a",
@@ -6259,7 +7264,12 @@
     "away_rating": 93,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-02-07T14:00:00"
+    "deadline_date": "2027-02-07T14:00:00",
+    "home_defensive_opportunity": 32.8,
+    "away_defensive_opportunity": 67.2,
+    "home_strength_index": 0.3385,
+    "away_strength_index": 0.6923,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::fa150044d9814f50ae916d07dd015f75",
@@ -6290,7 +7300,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-02-07T14:00:00"
+    "deadline_date": "2027-02-07T14:00:00",
+    "home_defensive_opportunity": 74.5,
+    "away_defensive_opportunity": 25.5,
+    "home_strength_index": 0.6354,
+    "away_strength_index": 0.2938,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::808160a65afb4119bb95ae144205cea1",
@@ -6321,7 +7336,12 @@
     "away_rating": 81,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-02-07T14:00:00"
+    "deadline_date": "2027-02-07T14:00:00",
+    "home_defensive_opportunity": 67.7,
+    "away_defensive_opportunity": 32.3,
+    "home_strength_index": 0.5785,
+    "away_strength_index": 0.3508,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::3809fc6719ad4fa791363f57fd6fe726",
@@ -6352,7 +7372,12 @@
     "away_rating": 82,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-02-07T14:00:00"
+    "deadline_date": "2027-02-07T14:00:00",
+    "home_defensive_opportunity": 48.1,
+    "away_defensive_opportunity": 51.9,
+    "home_strength_index": 0.3662,
+    "away_strength_index": 0.4646,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::1d76e59882b74c26a6aeabf2dc96a206",
@@ -6383,7 +7408,12 @@
     "away_rating": 89,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-02-07T14:00:00"
+    "deadline_date": "2027-02-07T14:00:00",
+    "home_defensive_opportunity": 36.9,
+    "away_defensive_opportunity": 63.1,
+    "home_strength_index": 0.5215,
+    "away_strength_index": 0.8062,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::0a935a222ac744808add62033b4bf266",
@@ -6414,7 +7444,12 @@
     "away_rating": 94,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-02-07T14:00:00"
+    "deadline_date": "2027-02-07T14:00:00",
+    "home_defensive_opportunity": 13.0,
+    "away_defensive_opportunity": 87.0,
+    "home_strength_index": 0.2369,
+    "away_strength_index": 0.92,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::a6cd418c4d2748f8b6fdefdae7c9919d",
@@ -6445,7 +7480,12 @@
     "away_rating": 74,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-02-07T14:00:00"
+    "deadline_date": "2027-02-07T14:00:00",
+    "home_defensive_opportunity": 50.2,
+    "away_defensive_opportunity": 49.8,
+    "home_strength_index": 0.5318,
+    "away_strength_index": 0.5955,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::aff473f19fab4f50ac2667b8dfd683fd",
@@ -6476,7 +7516,12 @@
     "away_rating": 72,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-02-07T14:00:00"
+    "deadline_date": "2027-02-07T14:00:00",
+    "home_defensive_opportunity": 15.8,
+    "away_defensive_opportunity": 84.2,
+    "home_strength_index": 0.2136,
+    "away_strength_index": 0.85,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::651bec8431be40099f0de7dd7d776dbc",
@@ -6507,7 +7552,12 @@
     "away_rating": 76,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-02-07T14:00:00"
+    "deadline_date": "2027-02-07T14:00:00",
+    "home_defensive_opportunity": 22.2,
+    "away_defensive_opportunity": 77.8,
+    "home_strength_index": 0.2773,
+    "away_strength_index": 0.8073,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::e9ab767f37b04abc80c01e9871f6aba5",
@@ -6538,7 +7588,12 @@
     "away_rating": 76,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-02-12T19:30:00"
+    "deadline_date": "2027-02-12T19:30:00",
+    "home_defensive_opportunity": 14.6,
+    "away_defensive_opportunity": 85.4,
+    "home_strength_index": 0.15,
+    "away_strength_index": 0.8073,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::ce3c0ec8279b441ca918a3e1158dd3cf",
@@ -6569,7 +7624,12 @@
     "away_rating": 71,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-02-13T18:00:00"
+    "deadline_date": "2027-02-13T18:00:00",
+    "home_defensive_opportunity": 69.3,
+    "away_defensive_opportunity": 30.7,
+    "home_strength_index": 0.5318,
+    "away_strength_index": 0.2773,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::46092dc2ecd449beba6da5d336fe6c7c",
@@ -6600,7 +7660,12 @@
     "away_rating": 72,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-02-14T12:00:00"
+    "deadline_date": "2027-02-14T12:00:00",
+    "home_defensive_opportunity": 69.3,
+    "away_defensive_opportunity": 30.7,
+    "home_strength_index": 0.4682,
+    "away_strength_index": 0.2136,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::153230aec0bd4f759c3d62b10d7219a9",
@@ -6631,7 +7696,12 @@
     "away_rating": 83,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-02-14T14:00:00"
+    "deadline_date": "2027-02-14T14:00:00",
+    "home_defensive_opportunity": 40.3,
+    "away_defensive_opportunity": 59.7,
+    "home_strength_index": 0.2938,
+    "away_strength_index": 0.5215,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::e3b082fd375c451f804c21cfe5f9836e",
@@ -6662,7 +7732,12 @@
     "away_rating": 93,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-02-14T14:00:00"
+    "deadline_date": "2027-02-14T14:00:00",
+    "home_defensive_opportunity": 34.4,
+    "away_defensive_opportunity": 65.6,
+    "home_strength_index": 0.3662,
+    "away_strength_index": 0.6923,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::ff1757f601de4d60a86c580c0492781a",
@@ -6693,7 +7768,12 @@
     "away_rating": 83,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-02-14T14:00:00"
+    "deadline_date": "2027-02-14T14:00:00",
+    "home_defensive_opportunity": 26.7,
+    "away_defensive_opportunity": 73.3,
+    "home_strength_index": 0.18,
+    "away_strength_index": 0.6354,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::70c7b22d58904fa1b39bf4bc7b6711f7",
@@ -6724,7 +7804,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-02-14T14:00:00"
+    "deadline_date": "2027-02-14T14:00:00",
+    "home_defensive_opportunity": 55.1,
+    "away_defensive_opportunity": 44.9,
+    "home_strength_index": 0.2554,
+    "away_strength_index": 0.2369,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::fdd7d3e512b443e9a170330be37f994d",
@@ -6755,7 +7840,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-02-14T14:00:00"
+    "deadline_date": "2027-02-14T14:00:00",
+    "home_defensive_opportunity": 54.7,
+    "away_defensive_opportunity": 45.3,
+    "home_strength_index": 0.3508,
+    "away_strength_index": 0.3385,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::2c8a4ad38bf746db9a48ba54544eec85",
@@ -6786,7 +7876,12 @@
     "away_rating": 94,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-02-14T14:00:00"
+    "deadline_date": "2027-02-14T14:00:00",
+    "home_defensive_opportunity": 47.2,
+    "away_defensive_opportunity": 52.8,
+    "home_strength_index": 0.4646,
+    "away_strength_index": 0.5785,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::4b35a7d6ad4f44efb5214d03c5866d78",
@@ -6817,7 +7912,12 @@
     "away_rating": 74,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-02-14T14:00:00"
+    "deadline_date": "2027-02-14T14:00:00",
+    "home_defensive_opportunity": 42.5,
+    "away_defensive_opportunity": 57.5,
+    "home_strength_index": 0.5955,
+    "away_strength_index": 0.7864,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::0500de26baef4f75bcec197138974888",
@@ -6848,7 +7948,12 @@
     "away_rating": 75,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-02-14T14:00:00"
+    "deadline_date": "2027-02-14T14:00:00",
+    "home_defensive_opportunity": 50.2,
+    "away_defensive_opportunity": 49.8,
+    "home_strength_index": 0.6591,
+    "away_strength_index": 0.7227,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::d78e2d90afcb4b77a8d20eccbd2d645e",
@@ -6879,7 +7984,12 @@
     "away_rating": 70,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-02-14T14:00:00"
+    "deadline_date": "2027-02-14T14:00:00",
+    "home_defensive_opportunity": 80.7,
+    "away_defensive_opportunity": 19.3,
+    "home_strength_index": 0.85,
+    "away_strength_index": 0.4045,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::8d75a542881c4242b4010218251d5f63",
@@ -6910,7 +8020,12 @@
     "away_rating": 89,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-02-14T14:30:00"
+    "deadline_date": "2027-02-14T14:30:00",
+    "home_defensive_opportunity": 60.8,
+    "away_defensive_opportunity": 39.2,
+    "home_strength_index": 0.92,
+    "away_strength_index": 0.8062,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::082a7fe6b05a4b6bb6dbcc3c062745b0",
@@ -6941,7 +8056,12 @@
     "away_rating": 94,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-03-13T12:30:00"
+    "deadline_date": "2027-03-13T12:30:00",
+    "home_defensive_opportunity": 39.6,
+    "away_defensive_opportunity": 60.4,
+    "home_strength_index": 0.3385,
+    "away_strength_index": 0.5785,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::aa01d475d622498987db4541ace64be9",
@@ -6972,7 +8092,12 @@
     "away_rating": 83,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-03-13T17:30:00"
+    "deadline_date": "2027-03-13T17:30:00",
+    "home_defensive_opportunity": 64.2,
+    "away_defensive_opportunity": 35.8,
+    "home_strength_index": 0.6923,
+    "away_strength_index": 0.5215,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::f4bd8d6bf4d24539b92a26d9d04d4ecf",
@@ -7003,7 +8128,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-03-14T13:00:00"
+    "deadline_date": "2027-03-14T13:00:00",
+    "home_defensive_opportunity": 87.0,
+    "away_defensive_opportunity": 13.0,
+    "home_strength_index": 0.8062,
+    "away_strength_index": 0.2554,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::3638fc83620f4c6491c48d7b018a6577",
@@ -7034,7 +8164,12 @@
     "away_rating": 83,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-03-14T14:00:00"
+    "deadline_date": "2027-03-14T14:00:00",
+    "home_defensive_opportunity": 30.1,
+    "away_defensive_opportunity": 69.9,
+    "home_strength_index": 0.2369,
+    "away_strength_index": 0.6354,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::5cfc52a28a304b38b28d275e161cb033",
@@ -7065,7 +8200,12 @@
     "away_rating": 81,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-03-14T14:00:00"
+    "deadline_date": "2027-03-14T14:00:00",
+    "home_defensive_opportunity": 60.8,
+    "away_defensive_opportunity": 39.2,
+    "home_strength_index": 0.4646,
+    "away_strength_index": 0.3508,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::c2c3e55ba4074f8dbbf5b24950e342ab",
@@ -7096,7 +8236,12 @@
     "away_rating": 72,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-03-14T14:00:00"
+    "deadline_date": "2027-03-14T14:00:00",
+    "home_defensive_opportunity": 73.1,
+    "away_defensive_opportunity": 26.9,
+    "home_strength_index": 0.7864,
+    "away_strength_index": 0.4682,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::a7091cc45b864b489fdbd67d42072711",
@@ -7127,7 +8272,12 @@
     "away_rating": 74,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-03-14T14:00:00"
+    "deadline_date": "2027-03-14T14:00:00",
+    "home_defensive_opportunity": 57.8,
+    "away_defensive_opportunity": 42.2,
+    "home_strength_index": 0.6591,
+    "away_strength_index": 0.5955,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::f69cd7a29eee4212b6892c71744459d1",
@@ -7158,7 +8308,12 @@
     "away_rating": 68,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-03-14T14:00:00"
+    "deadline_date": "2027-03-14T14:00:00",
+    "home_defensive_opportunity": 46.4,
+    "away_defensive_opportunity": 53.6,
+    "home_strength_index": 0.4045,
+    "away_strength_index": 0.5318,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::acc1dfd2690a41dabfa17cf350a3bff3",
@@ -7189,7 +8344,12 @@
     "away_rating": 70,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-03-14T14:00:00"
+    "deadline_date": "2027-03-14T14:00:00",
+    "home_defensive_opportunity": 61.6,
+    "away_defensive_opportunity": 38.4,
+    "home_strength_index": 0.2773,
+    "away_strength_index": 0.15,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::59b4c18313b846d5914ed48e21ff3ce6",
@@ -7220,7 +8380,12 @@
     "away_rating": 72,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-03-14T14:00:00"
+    "deadline_date": "2027-03-14T14:00:00",
+    "home_defensive_opportunity": 46.4,
+    "away_defensive_opportunity": 53.6,
+    "home_strength_index": 0.7227,
+    "away_strength_index": 0.85,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::1f2f4ea5ef5d47ab8626933337b8a265",
@@ -7251,7 +8416,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-03-14T14:00:00"
+    "deadline_date": "2027-03-14T14:00:00",
+    "home_defensive_opportunity": 92.0,
+    "away_defensive_opportunity": 8.0,
+    "home_strength_index": 0.92,
+    "away_strength_index": 0.18,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::b8887b7da085487abdd395a7adfb90e1",
@@ -7282,7 +8452,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-03-14T14:00:00"
+    "deadline_date": "2027-03-14T14:00:00",
+    "home_defensive_opportunity": 49.7,
+    "away_defensive_opportunity": 50.3,
+    "home_strength_index": 0.2938,
+    "away_strength_index": 0.3662,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::6dda9552314140afa3a5dbce5488de9d",
@@ -7313,7 +8488,12 @@
     "away_rating": 72,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-03-14T15:00:00"
+    "deadline_date": "2027-03-14T15:00:00",
+    "home_defensive_opportunity": 89.6,
+    "away_defensive_opportunity": 10.4,
+    "home_strength_index": 0.8073,
+    "away_strength_index": 0.2136,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::d64917b503e8451ea8387b3fa9d63793",
@@ -7344,7 +8524,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-03-17T19:00:00"
+    "deadline_date": "2027-03-17T19:00:00",
+    "home_defensive_opportunity": 74.5,
+    "away_defensive_opportunity": 25.5,
+    "home_strength_index": 0.5785,
+    "away_strength_index": 0.2369,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::52c1ca501b834b36ae44eeefb0f34957",
@@ -7375,7 +8560,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-03-17T19:00:00"
+    "deadline_date": "2027-03-17T19:00:00",
+    "home_defensive_opportunity": 51.7,
+    "away_defensive_opportunity": 48.3,
+    "home_strength_index": 0.2554,
+    "away_strength_index": 0.2938,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::388c8d971cdd4a37878e4544ecb61da6",
@@ -7406,7 +8596,12 @@
     "away_rating": 89,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-03-17T19:00:00"
+    "deadline_date": "2027-03-17T19:00:00",
+    "home_defensive_opportunity": 26.7,
+    "away_defensive_opportunity": 73.3,
+    "home_strength_index": 0.3508,
+    "away_strength_index": 0.8062,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::157930e85a924cb2ac9a97bf1e0a8b40",
@@ -7437,7 +8632,12 @@
     "away_rating": 94,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-03-17T19:30:00"
+    "deadline_date": "2027-03-17T19:30:00",
+    "home_defensive_opportunity": 30.1,
+    "away_defensive_opportunity": 69.9,
+    "home_strength_index": 0.5215,
+    "away_strength_index": 0.92,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::2672624268444593a07532cd24fcdc94",
@@ -7468,7 +8668,12 @@
     "away_rating": 93,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-03-17T19:30:00"
+    "deadline_date": "2027-03-17T19:30:00",
+    "home_defensive_opportunity": 23.3,
+    "away_defensive_opportunity": 76.7,
+    "home_strength_index": 0.18,
+    "away_strength_index": 0.6923,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::b71b88c7a8ae43d5b21d426eb8648ab3",
@@ -7499,7 +8704,12 @@
     "away_rating": 82,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-03-17T19:45:00"
+    "deadline_date": "2027-03-17T19:45:00",
+    "home_defensive_opportunity": 64.2,
+    "away_defensive_opportunity": 35.8,
+    "home_strength_index": 0.6354,
+    "away_strength_index": 0.4646,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::27829a5c565d4235b24cc23794107714",
@@ -7530,7 +8740,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-03-17T20:00:00"
+    "deadline_date": "2027-03-17T20:00:00",
+    "home_defensive_opportunity": 55.7,
+    "away_defensive_opportunity": 44.3,
+    "home_strength_index": 0.3662,
+    "away_strength_index": 0.3385,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::cf45c3aaa2f94103a7e3bce48349b2af",
@@ -7561,7 +8776,12 @@
     "away_rating": 74,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-03-20T18:00:00"
+    "deadline_date": "2027-03-20T18:00:00",
+    "home_defensive_opportunity": 38.7,
+    "away_defensive_opportunity": 61.3,
+    "home_strength_index": 0.5318,
+    "away_strength_index": 0.7864,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::ad74f37de9344c8da2811f5f6456ad25",
@@ -7592,7 +8812,12 @@
     "away_rating": 76,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-03-21T12:00:00"
+    "deadline_date": "2027-03-21T12:00:00",
+    "home_defensive_opportunity": 33.7,
+    "away_defensive_opportunity": 66.3,
+    "home_strength_index": 0.4682,
+    "away_strength_index": 0.8073,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::84606d807387463eb942ab6ec6c5ed0b",
@@ -7623,7 +8848,12 @@
     "away_rating": 75,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-03-21T14:00:00"
+    "deadline_date": "2027-03-21T14:00:00",
+    "home_defensive_opportunity": 23.5,
+    "away_defensive_opportunity": 76.5,
+    "home_strength_index": 0.2136,
+    "away_strength_index": 0.7227,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::28e0afb77cba45a89b6e2a75151d8e76",
@@ -7654,7 +8884,12 @@
     "away_rating": 71,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-03-21T14:00:00"
+    "deadline_date": "2027-03-21T14:00:00",
+    "home_defensive_opportunity": 61.6,
+    "away_defensive_opportunity": 38.4,
+    "home_strength_index": 0.4045,
+    "away_strength_index": 0.2773,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::06d780609b39473494b606a0efb4c26c",
@@ -7685,7 +8920,12 @@
     "away_rating": 72,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-03-21T14:00:00"
+    "deadline_date": "2027-03-21T14:00:00",
+    "home_defensive_opportunity": 65.5,
+    "away_defensive_opportunity": 34.5,
+    "home_strength_index": 0.85,
+    "away_strength_index": 0.6591,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::0e4c6917e1d94abe9aa3a8dc0d617e21",
@@ -7716,7 +8956,12 @@
     "away_rating": 70,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-03-21T14:00:00"
+    "deadline_date": "2027-03-21T14:00:00",
+    "home_defensive_opportunity": 80.7,
+    "away_defensive_opportunity": 19.3,
+    "home_strength_index": 0.5955,
+    "away_strength_index": 0.15,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::00915e7d34e04546818ffe6aab5a249b",
@@ -7747,7 +8992,12 @@
     "away_rating": 72,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-03-26T19:30:00"
+    "deadline_date": "2027-03-26T19:30:00",
+    "home_defensive_opportunity": 23.5,
+    "away_defensive_opportunity": 76.5,
+    "home_strength_index": 0.15,
+    "away_strength_index": 0.6591,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::149b1aa564da4310899d80c8311e3591",
@@ -7778,7 +9028,12 @@
     "away_rating": 72,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-03-27T14:00:00"
+    "deadline_date": "2027-03-27T14:00:00",
+    "home_defensive_opportunity": 57.8,
+    "away_defensive_opportunity": 42.2,
+    "home_strength_index": 0.2773,
+    "away_strength_index": 0.2136,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::43fe463d1a3143278221e892bbe6dd41",
@@ -7809,7 +9064,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-03-27T14:00:00"
+    "deadline_date": "2027-03-27T14:00:00",
+    "home_defensive_opportunity": 87.2,
+    "away_defensive_opportunity": 12.8,
+    "home_strength_index": 0.92,
+    "away_strength_index": 0.3662,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::e9cb7e86c75242f8b05af181db87d0af",
@@ -7840,7 +9100,12 @@
     "away_rating": 72,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-03-28T11:00:00"
+    "deadline_date": "2027-03-28T11:00:00",
+    "home_defensive_opportunity": 61.6,
+    "away_defensive_opportunity": 38.4,
+    "home_strength_index": 0.5955,
+    "away_strength_index": 0.4682,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::693c95a5b9dc44cc81dad7ebc5f89335",
@@ -7871,7 +9136,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-03-28T12:00:00"
+    "deadline_date": "2027-03-28T12:00:00",
+    "home_defensive_opportunity": 91.6,
+    "away_defensive_opportunity": 8.4,
+    "home_strength_index": 0.8062,
+    "away_strength_index": 0.18,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::f91d2a141a174bfdb1a0a50f9fde7226",
@@ -7902,7 +9172,12 @@
     "away_rating": 83,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-03-28T13:00:00"
+    "deadline_date": "2027-03-28T13:00:00",
+    "home_defensive_opportunity": 31.2,
+    "away_defensive_opportunity": 68.8,
+    "home_strength_index": 0.2554,
+    "away_strength_index": 0.6354,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::d2230479a4794f8a9d25a9758dfb723e",
@@ -7933,7 +9208,12 @@
     "away_rating": 70,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-03-28T13:00:00"
+    "deadline_date": "2027-03-28T13:00:00",
+    "home_defensive_opportunity": 73.1,
+    "away_defensive_opportunity": 26.9,
+    "home_strength_index": 0.7227,
+    "away_strength_index": 0.4045,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::cfd12513206e4ef18e22ace4156d4f34",
@@ -7964,7 +9244,12 @@
     "away_rating": 72,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-03-28T13:00:00"
+    "deadline_date": "2027-03-28T13:00:00",
+    "home_defensive_opportunity": 50.2,
+    "away_defensive_opportunity": 49.8,
+    "home_strength_index": 0.7864,
+    "away_strength_index": 0.85,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::e7f80cf79a204fba8d0ab445a517fd47",
@@ -7995,7 +9280,12 @@
     "away_rating": 94,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-03-28T13:00:00"
+    "deadline_date": "2027-03-28T13:00:00",
+    "home_defensive_opportunity": 60.8,
+    "away_defensive_opportunity": 39.2,
+    "home_strength_index": 0.6923,
+    "away_strength_index": 0.5785,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::7acbd8503d2a40c7824770b6664ed250",
@@ -8026,7 +9316,12 @@
     "away_rating": 82,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-03-28T13:00:00"
+    "deadline_date": "2027-03-28T13:00:00",
+    "home_defensive_opportunity": 46.4,
+    "away_defensive_opportunity": 53.6,
+    "home_strength_index": 0.3385,
+    "away_strength_index": 0.4646,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::dac0fdaa87ea4a6f8f34a276d44aff9a",
@@ -8057,7 +9352,12 @@
     "away_rating": 81,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-03-28T13:00:00"
+    "deadline_date": "2027-03-28T13:00:00",
+    "home_defensive_opportunity": 50.6,
+    "away_defensive_opportunity": 49.4,
+    "home_strength_index": 0.2938,
+    "away_strength_index": 0.3508,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::1598a7e4e7c547f388075eb3a8567287",
@@ -8088,7 +9388,12 @@
     "away_rating": 83,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-03-28T13:00:00"
+    "deadline_date": "2027-03-28T13:00:00",
+    "home_defensive_opportunity": 36.9,
+    "away_defensive_opportunity": 63.1,
+    "home_strength_index": 0.2369,
+    "away_strength_index": 0.5215,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::e6d733b534fd480aa61d615f8899a297",
@@ -8119,7 +9424,12 @@
     "away_rating": 68,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-03-28T14:00:00"
+    "deadline_date": "2027-03-28T14:00:00",
+    "home_defensive_opportunity": 70.5,
+    "away_defensive_opportunity": 29.5,
+    "home_strength_index": 0.8073,
+    "away_strength_index": 0.5318,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::2730fd2a005b4c7a95646ea5504931bd",
@@ -8150,7 +9460,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-04-04T13:00:00"
+    "deadline_date": "2027-04-04T13:00:00",
+    "home_defensive_opportunity": 63.3,
+    "away_defensive_opportunity": 36.7,
+    "home_strength_index": 0.5215,
+    "away_strength_index": 0.3662,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::d20b143edecc4506bca04b803a7a87ff",
@@ -8181,7 +9496,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-04-04T13:00:00"
+    "deadline_date": "2027-04-04T13:00:00",
+    "home_defensive_opportunity": 66.6,
+    "away_defensive_opportunity": 33.4,
+    "home_strength_index": 0.4646,
+    "away_strength_index": 0.2554,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::431a930a84b245058a1ddf4d58820904",
@@ -8212,7 +9532,12 @@
     "away_rating": 89,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-04-04T13:00:00"
+    "deadline_date": "2027-04-04T13:00:00",
+    "home_defensive_opportunity": 40.3,
+    "away_defensive_opportunity": 59.7,
+    "home_strength_index": 0.5785,
+    "away_strength_index": 0.8062,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::bb58965d35cc4f08860840039b203644",
@@ -8243,7 +9568,12 @@
     "away_rating": 94,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-04-04T13:00:00"
+    "deadline_date": "2027-04-04T13:00:00",
+    "home_defensive_opportunity": 36.9,
+    "away_defensive_opportunity": 63.1,
+    "home_strength_index": 0.6354,
+    "away_strength_index": 0.92,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::e55d895d9734462a9b53cf3756441a8e",
@@ -8274,7 +9604,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-04-04T13:00:00"
+    "deadline_date": "2027-04-04T13:00:00",
+    "home_defensive_opportunity": 60.1,
+    "away_defensive_opportunity": 39.9,
+    "home_strength_index": 0.3385,
+    "away_strength_index": 0.2369,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::946872aeef2f4217a3ef401cb84f4e49",
@@ -8305,7 +9640,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-04-04T13:00:00"
+    "deadline_date": "2027-04-04T13:00:00",
+    "home_defensive_opportunity": 77.9,
+    "away_defensive_opportunity": 22.1,
+    "home_strength_index": 0.6923,
+    "away_strength_index": 0.2938,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::d93372113c764444b721a721342c6580",
@@ -8336,7 +9676,12 @@
     "away_rating": 74,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-04-04T13:00:00"
+    "deadline_date": "2027-04-04T13:00:00",
+    "home_defensive_opportunity": 31.1,
+    "away_defensive_opportunity": 68.9,
+    "home_strength_index": 0.2136,
+    "away_strength_index": 0.5955,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::80a3cf69d4fe42179ec30e522b9bbcd0",
@@ -8367,7 +9712,12 @@
     "away_rating": 68,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-04-04T13:00:00"
+    "deadline_date": "2027-04-04T13:00:00",
+    "home_defensive_opportunity": 73.1,
+    "away_defensive_opportunity": 26.9,
+    "home_strength_index": 0.85,
+    "away_strength_index": 0.5318,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::fc408347fdd9491290e2ed75fa2018f8",
@@ -8398,7 +9748,12 @@
     "away_rating": 72,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-04-04T13:00:00"
+    "deadline_date": "2027-04-04T13:00:00",
+    "home_defensive_opportunity": 65.5,
+    "away_defensive_opportunity": 34.5,
+    "home_strength_index": 0.6591,
+    "away_strength_index": 0.4682,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::5f1a92921a694472b06b5eaccf77011e",
@@ -8429,7 +9784,12 @@
     "away_rating": 76,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-04-04T13:00:00"
+    "deadline_date": "2027-04-04T13:00:00",
+    "home_defensive_opportunity": 29.8,
+    "away_defensive_opportunity": 70.2,
+    "home_strength_index": 0.4045,
+    "away_strength_index": 0.8073,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::1c3ba6f1b38940ee91d277323dbf04a5",
@@ -8460,7 +9820,12 @@
     "away_rating": 71,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-04-04T13:00:00"
+    "deadline_date": "2027-04-04T13:00:00",
+    "home_defensive_opportunity": 80.7,
+    "away_defensive_opportunity": 19.3,
+    "home_strength_index": 0.7227,
+    "away_strength_index": 0.2773,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::519db7d391c84623b28fc1d6b05c5b18",
@@ -8491,7 +9856,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-04-04T13:00:00"
+    "deadline_date": "2027-04-04T13:00:00",
+    "home_defensive_opportunity": 64.2,
+    "away_defensive_opportunity": 35.8,
+    "home_strength_index": 0.3508,
+    "away_strength_index": 0.18,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::4c3ddec397964e6fa7f1bdccb5bbb799",
@@ -8522,7 +9892,12 @@
     "away_rating": 74,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-04-04T13:00:00"
+    "deadline_date": "2027-04-04T13:00:00",
+    "home_defensive_opportunity": 15.8,
+    "away_defensive_opportunity": 84.2,
+    "home_strength_index": 0.15,
+    "away_strength_index": 0.7864,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::fbab4580ec6245deb264a9a1c3927ded",
@@ -8553,7 +9928,12 @@
     "away_rating": 72,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-04-10T17:00:00"
+    "deadline_date": "2027-04-10T17:00:00",
+    "home_defensive_opportunity": 73.1,
+    "away_defensive_opportunity": 26.9,
+    "home_strength_index": 0.5318,
+    "away_strength_index": 0.2136,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::a01a45ff09044ae882b83d0754b01873",
@@ -8584,7 +9964,12 @@
     "away_rating": 70,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-04-11T11:00:00"
+    "deadline_date": "2027-04-11T11:00:00",
+    "home_defensive_opportunity": 73.1,
+    "away_defensive_opportunity": 26.9,
+    "home_strength_index": 0.4682,
+    "away_strength_index": 0.15,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::daa2e1019e994137b858bd0807e9e8ae",
@@ -8615,7 +10000,12 @@
     "away_rating": 72,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-04-11T13:00:00"
+    "deadline_date": "2027-04-11T13:00:00",
+    "home_defensive_opportunity": 31.1,
+    "away_defensive_opportunity": 68.9,
+    "home_strength_index": 0.2773,
+    "away_strength_index": 0.6591,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::7f8fa22304c24433ba16742e54e7bb93",
@@ -8646,7 +10036,12 @@
     "away_rating": 72,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-04-11T13:00:00"
+    "deadline_date": "2027-04-11T13:00:00",
+    "home_defensive_opportunity": 38.7,
+    "away_defensive_opportunity": 61.3,
+    "home_strength_index": 0.5955,
+    "away_strength_index": 0.85,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::775644e9e3764e8599ce1c43fce744a6",
@@ -8677,7 +10072,12 @@
     "away_rating": 70,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-04-11T13:00:00"
+    "deadline_date": "2027-04-11T13:00:00",
+    "home_defensive_opportunity": 76.9,
+    "away_defensive_opportunity": 23.1,
+    "home_strength_index": 0.7864,
+    "away_strength_index": 0.4045,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::3290ae45e0da43858735feefbd75adbd",
@@ -8708,7 +10108,12 @@
     "away_rating": 75,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-04-11T14:00:00"
+    "deadline_date": "2027-04-11T14:00:00",
+    "home_defensive_opportunity": 59.1,
+    "away_defensive_opportunity": 40.9,
+    "home_strength_index": 0.8073,
+    "away_strength_index": 0.7227,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::c041bc6ebbf84724a99c7c884be9ea16",
@@ -8739,7 +10144,12 @@
     "away_rating": 94,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-04-30T18:00:00"
+    "deadline_date": "2027-04-30T18:00:00",
+    "home_defensive_opportunity": 16.4,
+    "away_defensive_opportunity": 83.6,
+    "home_strength_index": 0.2938,
+    "away_strength_index": 0.92,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::5a827510c8c64af69f49f58741781047",
@@ -8770,7 +10180,12 @@
     "away_rating": 68,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-05-01T11:00:00"
+    "deadline_date": "2027-05-01T11:00:00",
+    "home_defensive_opportunity": 31.1,
+    "away_defensive_opportunity": 68.9,
+    "home_strength_index": 0.15,
+    "away_strength_index": 0.5318,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::c6eb1ced947f43b7afd23f8d98619839",
@@ -8801,7 +10216,12 @@
     "away_rating": 72,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-05-01T16:30:00"
+    "deadline_date": "2027-05-01T16:30:00",
+    "home_defensive_opportunity": 69.3,
+    "away_defensive_opportunity": 30.7,
+    "home_strength_index": 0.7227,
+    "away_strength_index": 0.4682,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::523978fae1114c61aca9b3d9b278ef11",
@@ -8832,7 +10252,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-05-02T12:00:00"
+    "deadline_date": "2027-05-02T12:00:00",
+    "home_defensive_opportunity": 82.1,
+    "away_defensive_opportunity": 17.9,
+    "home_strength_index": 0.8062,
+    "away_strength_index": 0.3385,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::de70de9263364fb3bc6689dd524b09a4",
@@ -8863,7 +10288,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-05-02T13:00:00"
+    "deadline_date": "2027-05-02T13:00:00",
+    "home_defensive_opportunity": 59.7,
+    "away_defensive_opportunity": 40.3,
+    "home_strength_index": 0.3508,
+    "away_strength_index": 0.2554,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::b21cd4cbec364eccb93a7c6f115b5db8",
@@ -8894,7 +10324,12 @@
     "away_rating": 83,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-05-02T13:00:00"
+    "deadline_date": "2027-05-02T13:00:00",
+    "home_defensive_opportunity": 50.6,
+    "away_defensive_opportunity": 49.4,
+    "home_strength_index": 0.4646,
+    "away_strength_index": 0.5215,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::6d59089480d44b4c8027d315b5d0c0ab",
@@ -8925,7 +10360,12 @@
     "away_rating": 83,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-05-02T13:00:00"
+    "deadline_date": "2027-05-02T13:00:00",
+    "home_defensive_opportunity": 37.8,
+    "away_defensive_opportunity": 62.2,
+    "home_strength_index": 0.3662,
+    "away_strength_index": 0.6354,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::ac73892005a74c3f91a61decedd35adf",
@@ -8956,7 +10396,12 @@
     "away_rating": 74,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-05-02T13:00:00"
+    "deadline_date": "2027-05-02T13:00:00",
+    "home_defensive_opportunity": 23.5,
+    "away_defensive_opportunity": 76.5,
+    "home_strength_index": 0.2773,
+    "away_strength_index": 0.7864,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::63711435debd438982c56745e9b1c67b",
@@ -8987,7 +10432,12 @@
     "away_rating": 74,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-05-02T13:00:00"
+    "deadline_date": "2027-05-02T13:00:00",
+    "home_defensive_opportunity": 42.5,
+    "away_defensive_opportunity": 57.5,
+    "home_strength_index": 0.4045,
+    "away_strength_index": 0.5955,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::57e524c14d1b4f2aa9e0089f41f5e5e2",
@@ -9018,7 +10468,12 @@
     "away_rating": 72,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-05-02T13:00:00"
+    "deadline_date": "2027-05-02T13:00:00",
+    "home_defensive_opportunity": 80.7,
+    "away_defensive_opportunity": 19.3,
+    "home_strength_index": 0.6591,
+    "away_strength_index": 0.2136,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::1751ecbb8cf042f2a307b9e8b01226bc",
@@ -9049,7 +10504,12 @@
     "away_rating": 93,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-05-02T13:00:00"
+    "deadline_date": "2027-05-02T13:00:00",
+    "home_defensive_opportunity": 26.7,
+    "away_defensive_opportunity": 73.3,
+    "home_strength_index": 0.2369,
+    "away_strength_index": 0.6923,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::24956a7d99884ca8b9f32e14d34c6b97",
@@ -9080,7 +10540,12 @@
     "away_rating": 72,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-05-02T14:00:00"
+    "deadline_date": "2027-05-02T14:00:00",
+    "home_defensive_opportunity": 51.4,
+    "away_defensive_opportunity": 48.6,
+    "home_strength_index": 0.8073,
+    "away_strength_index": 0.85,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::90c8ed1691dc46839dc2955cd5bef6a0",
@@ -9111,7 +10576,12 @@
     "away_rating": 94,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-05-02T17:00:00"
+    "deadline_date": "2027-05-02T17:00:00",
+    "home_defensive_opportunity": 30.1,
+    "away_defensive_opportunity": 69.9,
+    "home_strength_index": 0.18,
+    "away_strength_index": 0.5785,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::98b055a3513f47bea72a78bf4a5b08e4",
@@ -9142,7 +10612,12 @@
     "away_rating": 76,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-05-08T00:00:00"
+    "deadline_date": "2027-05-08T00:00:00",
+    "home_defensive_opportunity": 41.3,
+    "away_defensive_opportunity": 58.7,
+    "home_strength_index": 0.5955,
+    "away_strength_index": 0.8073,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::ac303d34438d4cac92187e6acea178bc",
@@ -9173,7 +10648,12 @@
     "away_rating": 70,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-05-08T00:00:00"
+    "deadline_date": "2027-05-08T00:00:00",
+    "home_defensive_opportunity": 42.5,
+    "away_defensive_opportunity": 57.5,
+    "home_strength_index": 0.2136,
+    "away_strength_index": 0.4045,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::66c3335e0e38440c9ac0d7cf1bcb9e18",
@@ -9204,7 +10684,12 @@
     "away_rating": 70,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-05-08T00:00:00"
+    "deadline_date": "2027-05-08T00:00:00",
+    "home_defensive_opportunity": 92.0,
+    "away_defensive_opportunity": 8.0,
+    "home_strength_index": 0.85,
+    "away_strength_index": 0.15,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::fe3e7b866e924613b73b268b6cf0d6db",
@@ -9235,7 +10720,12 @@
     "away_rating": 75,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-05-08T00:00:00"
+    "deadline_date": "2027-05-08T00:00:00",
+    "home_defensive_opportunity": 57.8,
+    "away_defensive_opportunity": 42.2,
+    "home_strength_index": 0.7864,
+    "away_strength_index": 0.7227,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::b9c91bbe320d4eddb968064d3487a05d",
@@ -9266,7 +10756,12 @@
     "away_rating": 72,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-05-08T00:00:00"
+    "deadline_date": "2027-05-08T00:00:00",
+    "home_defensive_opportunity": 46.4,
+    "away_defensive_opportunity": 53.6,
+    "home_strength_index": 0.5318,
+    "away_strength_index": 0.6591,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::8339b7fe52ea471f85294a7a51d89104",
@@ -9297,7 +10792,12 @@
     "away_rating": 71,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-05-08T00:00:00"
+    "deadline_date": "2027-05-08T00:00:00",
+    "home_defensive_opportunity": 65.5,
+    "away_defensive_opportunity": 34.5,
+    "home_strength_index": 0.4682,
+    "away_strength_index": 0.2773,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::59d84233c1284fb0a692d5f80057f7e3",
@@ -9328,7 +10828,12 @@
     "away_rating": 93,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-05-09T12:00:00"
+    "deadline_date": "2027-05-09T12:00:00",
+    "home_defensive_opportunity": 60.8,
+    "away_defensive_opportunity": 39.2,
+    "home_strength_index": 0.8062,
+    "away_strength_index": 0.6923,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::3a911484f575418b82dbc40b41601352",
@@ -9359,7 +10864,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-05-09T13:00:00"
+    "deadline_date": "2027-05-09T13:00:00",
+    "home_defensive_opportunity": 56.7,
+    "away_defensive_opportunity": 43.3,
+    "home_strength_index": 0.3385,
+    "away_strength_index": 0.2938,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::aef6a50f627b4b8f8b658a4f2c0e66ef",
@@ -9390,7 +10900,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-05-09T13:00:00"
+    "deadline_date": "2027-05-09T13:00:00",
+    "home_defensive_opportunity": 50.6,
+    "away_defensive_opportunity": 49.4,
+    "home_strength_index": 0.18,
+    "away_strength_index": 0.2369,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::331e7b670d6a427f86c59bffe0161d77",
@@ -9421,7 +10936,12 @@
     "away_rating": 83,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-05-09T13:00:00"
+    "deadline_date": "2027-05-09T13:00:00",
+    "home_defensive_opportunity": 50.6,
+    "away_defensive_opportunity": 49.4,
+    "home_strength_index": 0.5785,
+    "away_strength_index": 0.6354,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::88940845e4a6411fbda0c3be9b1a5da3",
@@ -9452,7 +10972,12 @@
     "away_rating": 81,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-05-09T13:00:00"
+    "deadline_date": "2027-05-09T13:00:00",
+    "home_defensive_opportunity": 54.9,
+    "away_defensive_opportunity": 45.1,
+    "home_strength_index": 0.3662,
+    "away_strength_index": 0.3508,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::44610749851b4139b8b817a6130a7249",
@@ -9483,7 +11008,12 @@
     "away_rating": 82,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-05-09T13:00:00"
+    "deadline_date": "2027-05-09T13:00:00",
+    "home_defensive_opportunity": 81.3,
+    "away_defensive_opportunity": 18.7,
+    "home_strength_index": 0.92,
+    "away_strength_index": 0.4646,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::7e31314e58c945a59b61f1611b048b09",
@@ -9514,7 +11044,12 @@
     "away_rating": 83,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-05-09T13:00:00"
+    "deadline_date": "2027-05-09T13:00:00",
+    "home_defensive_opportunity": 38.0,
+    "away_defensive_opportunity": 62.0,
+    "home_strength_index": 0.2554,
+    "away_strength_index": 0.5215,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::8605d78ebf6c4a0a8cd71c8ecbff6d0f",
@@ -9545,7 +11080,12 @@
     "away_rating": 94,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-05-22T00:00:00"
+    "deadline_date": "2027-05-22T00:00:00",
+    "home_defensive_opportunity": 36.9,
+    "away_defensive_opportunity": 63.1,
+    "home_strength_index": 0.2938,
+    "away_strength_index": 0.5785,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::24428eb4cda647c6b47cdfb8268dcc9b",
@@ -9576,7 +11116,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-05-22T00:00:00"
+    "deadline_date": "2027-05-22T00:00:00",
+    "home_defensive_opportunity": 46.2,
+    "away_defensive_opportunity": 53.8,
+    "home_strength_index": 0.2369,
+    "away_strength_index": 0.3662,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::bc93da50126e44d283860357f66caf65",
@@ -9607,7 +11152,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-05-22T00:00:00"
+    "deadline_date": "2027-05-22T00:00:00",
+    "home_defensive_opportunity": 65.0,
+    "away_defensive_opportunity": 35.0,
+    "home_strength_index": 0.5215,
+    "away_strength_index": 0.3385,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::6aae027a2a974b799b7d377625d23939",
@@ -9638,7 +11188,12 @@
     "away_rating": 94,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-05-22T00:00:00"
+    "deadline_date": "2027-05-22T00:00:00",
+    "home_defensive_opportunity": 19.8,
+    "away_defensive_opportunity": 80.2,
+    "home_strength_index": 0.3508,
+    "away_strength_index": 0.92,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::c311bd38be5143cf86b61a82f82c27b4",
@@ -9669,7 +11224,12 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-05-22T00:00:00"
+    "deadline_date": "2027-05-22T00:00:00",
+    "home_defensive_opportunity": 71.1,
+    "away_defensive_opportunity": 28.9,
+    "home_strength_index": 0.4646,
+    "away_strength_index": 0.18,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::6bb646cbf9624599886b64075bc8ab06",
@@ -9700,7 +11260,12 @@
     "away_rating": 89,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-05-22T00:00:00"
+    "deadline_date": "2027-05-22T00:00:00",
+    "home_defensive_opportunity": 43.8,
+    "away_defensive_opportunity": 56.2,
+    "home_strength_index": 0.6354,
+    "away_strength_index": 0.8062,
+    "defensive_rating_model": "team-matchup-v5"
   },
   {
     "match_id": "wpll::Football_Match::a142ac12f15d4ec3bf53a787dfee5ab8",
@@ -9731,6 +11296,11 @@
     "away_rating": 80,
     "home_score": 0,
     "away_score": 0,
-    "deadline_date": "2027-05-22T00:00:00"
+    "deadline_date": "2027-05-22T00:00:00",
+    "home_defensive_opportunity": 80.2,
+    "away_defensive_opportunity": 19.8,
+    "home_strength_index": 0.6923,
+    "away_strength_index": 0.2554,
+    "defensive_rating_model": "team-matchup-v5"
   }
 ]
