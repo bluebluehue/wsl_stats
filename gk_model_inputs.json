@@ -1,0 +1,133 @@
+{
+  "_meta": {
+    "version": "gk-cs-save-v1",
+    "season_basis": "2025-26",
+    "notes": [
+      "WSL team GF/GA are final 2025-26 league totals.",
+      "WSL SoT/90 is prior-season attacking shots-on-target rate where available.",
+      "Promoted BIR/CRY/CHA use WSL2 totals and are mapped conservatively onto the WSL scale.",
+      "Keeper save% is only used where a verified prior-season figure is available.",
+      "This file is deliberately editable for transparent preseason/squad adjustments."
+    ]
+  },
+  "teams": {
+    "ARS": {
+      "prior_league": "WSL",
+      "mp": 22,
+      "gf": 53,
+      "ga": 14,
+      "sot_for_per90": 7.0
+    },
+    "AVL": {
+      "prior_league": "WSL",
+      "mp": 22,
+      "gf": 28,
+      "ga": 48,
+      "sot_for_per90": 4.0
+    },
+    "BHA": {
+      "prior_league": "WSL",
+      "mp": 22,
+      "gf": 27,
+      "ga": 28,
+      "sot_for_per90": 4.32
+    },
+    "CHE": {
+      "prior_league": "WSL",
+      "mp": 22,
+      "gf": 44,
+      "ga": 20,
+      "sot_for_per90": 5.86
+    },
+    "EVE": {
+      "prior_league": "WSL",
+      "mp": 22,
+      "gf": 25,
+      "ga": 37,
+      "sot_for_per90": 3.14
+    },
+    "LCL": {
+      "prior_league": "WSL",
+      "mp": 22,
+      "gf": 28,
+      "ga": 35,
+      "sot_for_per90": 4.18
+    },
+    "LIV": {
+      "prior_league": "WSL",
+      "mp": 22,
+      "gf": 21,
+      "ga": 34,
+      "sot_for_per90": 2.59
+    },
+    "MCI": {
+      "prior_league": "WSL",
+      "mp": 22,
+      "gf": 62,
+      "ga": 19,
+      "sot_for_per90": 6.95
+    },
+    "MUN": {
+      "prior_league": "WSL",
+      "mp": 22,
+      "gf": 38,
+      "ga": 22,
+      "sot_for_per90": 5.14
+    },
+    "TOT": {
+      "prior_league": "WSL",
+      "mp": 22,
+      "gf": 35,
+      "ga": 38,
+      "sot_for_per90": 4.27
+    },
+    "WHU": {
+      "prior_league": "WSL",
+      "mp": 22,
+      "gf": 20,
+      "ga": 45,
+      "sot_for_per90": 3.0
+    },
+    "BIR": {
+      "prior_league": "WSL2",
+      "mp": 22,
+      "gf": 46,
+      "ga": 24,
+      "promoted": true
+    },
+    "CRY": {
+      "prior_league": "WSL2",
+      "mp": 22,
+      "gf": 44,
+      "ga": 26,
+      "promoted": true
+    },
+    "CHA": {
+      "prior_league": "WSL2",
+      "mp": 22,
+      "gf": 31,
+      "ga": 21,
+      "promoted": true
+    }
+  },
+  "keepers": {
+    "Courtney Brosnan": {
+      "keeper_save_pct": 72.8,
+      "note": "2025-26 WSL save percentage"
+    },
+    "Hannah Hampton": {
+      "keeper_save_pct": 74.6,
+      "note": "2025-26 WSL save percentage"
+    },
+    "Ayaka Yamashita": {
+      "keeper_save_pct": 72.5,
+      "note": "2025-26 WSL save percentage"
+    },
+    "Kinga Szemik": {
+      "keeper_save_pct": 61.4,
+      "note": "2025-26 WSL save percentage"
+    }
+  },
+  "manual_team_adjustments": {},
+  "manual_keeper_adjustments": {}
+}
