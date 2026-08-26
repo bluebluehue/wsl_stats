@@ -1404,7 +1404,7 @@
                             <th class="text-center px-3 py-2">Coverage</th>
                             <th class="text-center px-3 py-2">Separation</th>
                             <th class="text-center px-3 py-2" title="Average clean-sheet environment across the selected gameweeks. Higher = better.">Avg CS Fix</th>
-                            <th class="text-center px-3 py-2" title="Average overall goalkeeper fantasy environment: clean-sheet opportunity + save opportunity + projected keeper quality. Higher = better.">Avg GK Fix</th>
+                            <th class="text-center px-3 py-2" title="Average goalkeeper fantasy environment: clean-sheet opportunity + chance of a 3-save point + projected keeper quality + safety from the 3+ goals-conceded penalty. Higher = better.">Avg GK Fix</th>
                             <th class="text-left px-3 py-2" id="pairings-extra-header">GK Pair</th>
                         </tr>
                     </thead>
@@ -2302,7 +2302,7 @@
 
                 "Next Fixture Score": {
                     abbr: 'Fix',
-                    full: 'Next gameweek fixture opportunity from 0-100 (higher = better). Goalkeepers use the GK-specific model: clean-sheet environment + save opportunity + keeper quality. Outfield players use the general fixture model.',
+                    full: 'Next gameweek fixture opportunity from 0-100 (higher = better). Goalkeepers use GK Model v2: clean-sheet environment + 3-save point chance + keeper quality + 3+ goals-conceded penalty risk. Outfield players use the general fixture model.',
                     type: 'num',
                     render: function (data, type, row) {
                         const rating = row["Next Fixture Rating"];
@@ -2350,7 +2350,7 @@
                 },
                 "Following Fixture Score": {
                     abbr: 'Fix+1',
-                    full: 'Following gameweek fixture opportunity from 0-100 (higher = better). Goalkeepers use the GK-specific model: clean-sheet environment + save opportunity + keeper quality. Outfield players use the general fixture model.',
+                    full: 'Following gameweek fixture opportunity from 0-100 (higher = better). Goalkeepers use GK Model v2: clean-sheet environment + 3-save point chance + keeper quality + 3+ goals-conceded penalty risk. Outfield players use the general fixture model.',
                     type: 'num',
                     render: function (data, type, row) {
                         const rating = row["Following Fixture Rating"];
@@ -3426,7 +3426,12 @@
                             opponent: away || f.away_short_name || f.away_name || 'TBD',
                             location: 'H',
                             csOpportunity: Number(f.home_cs_opportunity ?? f.home_defensive_opportunity ?? NaN),
-                                saveOpportunity: Number(f.home_save_opportunity ?? NaN)
+                            saveOpportunity: Number(f.home_save_opportunity ?? NaN),
+                            concessionSafety: Number(f.home_concession_safety ?? NaN),
+                            threePlusRisk: Number(f.home_three_plus_conceded_risk ?? NaN),
+                            expectedGa: Number(f.home_expected_goals_against ?? NaN),
+                            estimatedSotFaced: Number(f.home_estimated_sot_faced ?? NaN),
+                            expectedSavesNeutral: Number(f.home_expected_saves_neutral ?? NaN)
                         });
 
                         addFixture(ensureClub(away), {
@@ -3438,7 +3443,12 @@
                             opponent: home || f.home_short_name || f.home_name || 'TBD',
                             location: 'A',
                             csOpportunity: Number(f.away_cs_opportunity ?? f.away_defensive_opportunity ?? NaN),
-                                saveOpportunity: Number(f.away_save_opportunity ?? NaN)
+                            saveOpportunity: Number(f.away_save_opportunity ?? NaN),
+                            concessionSafety: Number(f.away_concession_safety ?? NaN),
+                            threePlusRisk: Number(f.away_three_plus_conceded_risk ?? NaN),
+                            expectedGa: Number(f.away_expected_goals_against ?? NaN),
+                            estimatedSotFaced: Number(f.away_estimated_sot_faced ?? NaN),
+                            expectedSavesNeutral: Number(f.away_expected_saves_neutral ?? NaN)
                         });
                     });
                 }
@@ -3478,36 +3488,82 @@
                 return Math.abs(Math.round((b - a) / 86400000));
             }
 
+
             function projectedKeeperQuality(gk) {
                 if (!gk) return 50;
                 const row = (gkModelInputs.keepers || {})[gk.name] || {};
                 const manual = ((gkModelInputs.manual_keeper_adjustments || {})[gk.name] || {}).quality_adjustment || 0;
-                if (row.keeper_save_pct === null || row.keeper_save_pct === undefined) {
-                    return Math.max(25, Math.min(75, 50 + Number(manual || 0)));
+                let quality = 50 + Number(manual || 0);
+                if (row.keeper_save_pct !== null && row.keeper_save_pct !== undefined) {
+                    quality += (Number(row.keeper_save_pct) - 70) * 1.7;
                 }
-                return Math.max(25, Math.min(75, 50 + (Number(row.keeper_save_pct) - 70) * 2 + Number(manual || 0)));
+                if (row.goals_prevented !== null && row.goals_prevented !== undefined) {
+                    quality += Number(row.goals_prevented);
+                }
+                return Math.max(30, Math.min(70, quality));
             }
 
             function projectedKeeperEvidence(gk) {
-                if (!gk) return { quality: 50, savePct: null, label: 'neutral' };
+                if (!gk) return { quality: 50, savePct: null, savesPer90: null, goalsPrevented: null, label: 'neutral' };
                 const row = (gkModelInputs.keepers || {})[gk.name] || {};
+                const bits = [];
+                if (row.keeper_save_pct !== null && row.keeper_save_pct !== undefined) bits.push(`${Number(row.keeper_save_pct).toFixed(1)}% saves`);
+                if (row.saves_per90 !== null && row.saves_per90 !== undefined) bits.push(`${Number(row.saves_per90).toFixed(1)} saves/90`);
+                if (row.goals_prevented !== null && row.goals_prevented !== undefined) bits.push(`${Number(row.goals_prevented) >= 0 ? '+' : ''}${Number(row.goals_prevented).toFixed(1)} goals prevented`);
                 return {
                     quality: projectedKeeperQuality(gk),
                     savePct: row.keeper_save_pct ?? null,
-                    label: row.keeper_save_pct === null || row.keeper_save_pct === undefined
-                        ? 'neutral prior'
-                        : `${Number(row.keeper_save_pct).toFixed(1)}% save prior`
+                    savesPer90: row.saves_per90 ?? null,
+                    goalsPrevented: row.goals_prevented ?? null,
+                    label: bits.length ? bits.join(' · ') : 'neutral prior'
                 };
             }
 
-            function fixtureGkFix(fixture, projectedGk) {
+            function poissonAtLeast(mean, threshold) {
+                mean = Math.max(0, Number(mean) || 0);
+                if (threshold <= 0) return 1;
+                let cumulative = 0;
+                let factorial = 1;
+                for (let k = 0; k < threshold; k++) {
+                    if (k > 0) factorial *= k;
+                    cumulative += Math.exp(-mean) * Math.pow(mean, k) / factorial;
+                }
+                return Math.max(0, Math.min(1, 1 - cumulative));
+            }
+
+            function fixtureGkComponents(fixture, projectedGk) {
                 if (!fixture) return null;
                 const cs = Number(fixture.csOpportunity);
-                const saves = Number(fixture.saveOpportunity);
                 if (!Number.isFinite(cs)) return null;
-                const saveScore = Number.isFinite(saves) ? saves : 50;
-                const quality = projectedKeeperQuality(projectedGk);
-                return 0.65 * cs + 0.25 * saveScore + 0.10 * quality;
+
+                const keeper = projectedKeeperEvidence(projectedGk);
+                const quality = keeper.quality;
+                const concessionSafety = Number.isFinite(Number(fixture.concessionSafety))
+                    ? Number(fixture.concessionSafety)
+                    : 100 * (1 - (Number(fixture.threePlusRisk) || 0));
+
+                let saveScore = Number(fixture.saveOpportunity);
+                let expectedSaves = Number(fixture.expectedSavesNeutral);
+
+                if (Number.isFinite(Number(fixture.estimatedSotFaced))) {
+                    const savePct = keeper.savePct !== null ? Number(keeper.savePct) : 70;
+                    const fixtureExpected = Number(fixture.estimatedSotFaced) * (savePct / 100);
+                    expectedSaves = keeper.savesPer90 !== null
+                        ? 0.80 * fixtureExpected + 0.20 * Number(keeper.savesPer90)
+                        : fixtureExpected;
+                    expectedSaves = Math.max(0.5, Math.min(6.5, expectedSaves));
+                    saveScore = Math.max(5, Math.min(95, poissonAtLeast(expectedSaves, 3) * 100));
+                } else if (!Number.isFinite(saveScore)) {
+                    saveScore = 50;
+                }
+
+                const final = 0.55 * cs + 0.25 * saveScore + 0.10 * quality + 0.10 * concessionSafety;
+                return { final, cs, saveScore, quality, concessionSafety, expectedSaves };
+            }
+
+            function fixtureGkFix(fixture, projectedGk) {
+                const components = fixtureGkComponents(fixture, projectedGk);
+                return components ? components.final : null;
             }
 
             function buildAllPairings(data, league, fromGw, toGw) {
@@ -3678,9 +3734,12 @@
                 const cs = Number.isFinite(fixture.csOpportunity)
                     ? ` · CS ${fixture.csOpportunity.toFixed(0)}`
                     : '';
-                const gkFix = fixtureGkFix(fixture, projectedGk);
-                const gk = Number.isFinite(gkFix) ? ` · GK ${gkFix.toFixed(0)}` : '';
-                return `${fixture.day || '?'} · ${fixture.opponent}${loc}${cs}${gk}`;
+                const components = fixtureGkComponents(fixture, projectedGk);
+                const gk = components && Number.isFinite(components.final) ? ` · GK ${components.final.toFixed(0)}` : '';
+                const risk = Number.isFinite(Number(fixture.threePlusRisk))
+                    ? ` · 3+ ${(Number(fixture.threePlusRisk) * 100).toFixed(0)}%`
+                    : '';
+                return `${fixture.day || '?'} · ${fixture.opponent}${loc}${cs}${gk}${risk}`;
             }
 
             function pairingDetailHtml(pair) {
