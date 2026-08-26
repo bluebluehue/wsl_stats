@@ -30,6 +30,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add transformed_data.json player_history.json fixtures.json teams.json
+          git add transformed_data.json player_history.json fixtures.json teams.json gk_sanity_audit.json
           git diff --cached --quiet || git commit -m "Refresh WSL fantasy data"
           git push
