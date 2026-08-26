@@ -269,19 +269,27 @@ def load_gk_model_inputs() -> dict[str, Any]:
         return {"teams": {}, "keepers": {}, "manual_team_adjustments": {}, "manual_keeper_adjustments": {}}
 
 
-def minmax_rank_score(value: float, values: list[float], higher_is_better: bool = True) -> float:
-    vals = [safe_float(v) for v in values if v is not None]
-    if not vals:
-        return 50.0
-    lo, hi = min(vals), max(vals)
-    score = 50.0 if abs(hi-lo) < 1e-9 else 100.0*(safe_float(value)-lo)/(hi-lo)
-    if not higher_is_better:
-        score = 100.0-score
-    return max(0.0,min(100.0,score))
+def _valid_number(value: Any) -> bool:
+    return value is not None and value != ""
+
+
+def _average(values: list[float], default: float) -> float:
+    clean = [safe_float(v) for v in values if _valid_number(v)]
+    return (sum(clean) / len(clean)) if clean else default
+
+
+def poisson_prob_at_least(mean: float, threshold: int) -> float:
+    """P(X >= threshold) for a Poisson random variable."""
+    mean = max(0.0, safe_float(mean))
+    if threshold <= 0:
+        return 1.0
+    cumulative = 0.0
+    for k in range(threshold):
+        cumulative += math.exp(-mean) * (mean ** k) / math.factorial(k)
+    return max(0.0, min(1.0, 1.0 - cumulative))
 
 
 TEAM_CODE_ALIASES = {
-    # WSL feed acronym differs from the historical-input shorthand.
     "MNU": "MUN",
 }
 
@@ -290,80 +298,250 @@ def canonical_gk_team_code(code: str | None) -> str:
     return TEAM_CODE_ALIASES.get(raw, raw)
 
 
-def build_gk_team_priors(model_inputs: dict[str, Any]) -> dict[str, dict[str, Any]]:
-    teams=model_inputs.get("teams",{}) or {}
-    manual=model_inputs.get("manual_team_adjustments",{}) or {}
-    wsl=[c for c,x in teams.items() if x.get("prior_league")=="WSL"]
-    prom=[c for c,x in teams.items() if x.get("promoted")]
-    wsl_ga=[safe_float(teams[c].get("ga"))/max(1,safe_float(teams[c].get("mp"),22)) for c in wsl]
-    wsl_gf=[safe_float(teams[c].get("gf"))/max(1,safe_float(teams[c].get("mp"),22)) for c in wsl]
-    wsl_sot=[safe_float(teams[c].get("sot_for_per90")) for c in wsl if teams[c].get("sot_for_per90") is not None]
-    prom_ga=[safe_float(teams[c].get("ga"))/max(1,safe_float(teams[c].get("mp"),22)) for c in prom]
-    prom_gf=[safe_float(teams[c].get("gf"))/max(1,safe_float(teams[c].get("mp"),22)) for c in prom]
-    out={}
-    for code,row in teams.items():
-        mp=max(1.0,safe_float(row.get("mp"),22))
-        ga90=safe_float(row.get("ga"))/mp
-        gf90=safe_float(row.get("gf"))/mp
-        sot=row.get("sot_for_per90")
-        if row.get("prior_league")=="WSL":
-            d=minmax_rank_score(ga90,wsl_ga,False)
-            ga= minmax_rank_score(gf90,wsl_gf,True)
-            if sot is not None and wsl_sot:
-                sa=minmax_rank_score(safe_float(sot),wsl_sot,True)
-                a=.60*ga+.40*sa
-            else:
-                a=ga
-            defense=15+.75*d
-            attack=15+.75*a
-        elif row.get("promoted"):
-            d=minmax_rank_score(ga90,prom_ga,False)
-            a=minmax_rank_score(gf90,prom_gf,True)
-            defense=30+.20*d
-            attack=25+.20*a
-        else:
-            defense=attack=50
-        m=manual.get(code) or {}
-        defense += safe_float(m.get("defense_adjustment"),0)
-        attack += safe_float(m.get("attack_adjustment"),0)
-        out[code]={
-            "cs_defense_prior":round(max(5,min(95,defense)),1),
-            "attack_threat_prior":round(max(5,min(95,attack)),1),
-            "ga_per_game":round(ga90,3),"gf_per_game":round(gf90,3),
-            "sot_for_per90":safe_float(sot) if sot is not None else None,
-            "prior_league":row.get("prior_league"),"promoted":bool(row.get("promoted"))
+def build_gk_team_priors(
+    model_inputs: dict[str, Any],
+    team_strength: dict[str, dict[str, Any]] | None = None,
+) -> dict[str, dict[str, Any]]:
+    teams = model_inputs.get("teams", {}) or {}
+    manual = model_inputs.get("manual_team_adjustments", {}) or {}
+    team_strength = team_strength or {}
+
+    by_league: dict[str, list[dict[str, Any]]] = {}
+    for code, row in teams.items():
+        league = row.get("prior_league")
+        mp = max(1.0, safe_float(row.get("mp"), 22))
+        if league not in {"WSL", "WSL2"}:
+            continue
+        if not (_valid_number(row.get("gf")) and _valid_number(row.get("ga"))):
+            continue
+        by_league.setdefault(league, []).append({
+            "code": code,
+            "ga90": safe_float(row.get("ga")) / mp,
+            "gf90": safe_float(row.get("gf")) / mp,
+            "sot": safe_float(row.get("sot_for_per90")) if _valid_number(row.get("sot_for_per90")) else None,
+            "cs_rate": safe_float(row.get("clean_sheets")) / mp if _valid_number(row.get("clean_sheets")) else None,
+            "saves": safe_float(row.get("saves_per_game")) if _valid_number(row.get("saves_per_game")) else None,
+            "big_chances90": safe_float(row.get("big_chances")) / mp if _valid_number(row.get("big_chances")) else None,
+        })
+
+    baselines: dict[str, dict[str, float]] = {}
+    for league, rows in by_league.items():
+        baselines[league] = {
+            "ga90": _average([r["ga90"] for r in rows], 1.45),
+            "gf90": _average([r["gf90"] for r in rows], 1.45),
+            "sot": _average([r["sot"] for r in rows if r["sot"] is not None], 4.5),
+            "cs_rate": _average([r["cs_rate"] for r in rows if r["cs_rate"] is not None], 0.25),
+            "saves": _average([r["saves"] for r in rows if r["saves"] is not None], 2.8),
+            "big_chances90": _average([r["big_chances90"] for r in rows if r["big_chances90"] is not None], 1.5),
         }
+
+    out: dict[str, dict[str, Any]] = {}
+
+    for code, row in teams.items():
+        prior_league = row.get("prior_league") or "WSL"
+        target_league = "WSL" if row.get("promoted") else "WSL2" if row.get("relegated") else prior_league
+        base = baselines.get(prior_league, baselines.get(target_league, {
+            "ga90": 1.45, "gf90": 1.45, "sot": 4.5, "cs_rate": 0.25,
+            "saves": 2.8, "big_chances90": 1.5,
+        }))
+        target_base = baselines.get(target_league, base)
+        mp = max(1.0, safe_float(row.get("mp"), 22))
+
+        has_history = _valid_number(row.get("gf")) and _valid_number(row.get("ga"))
+        if has_history:
+            ga90 = safe_float(row.get("ga")) / mp
+            gf90 = safe_float(row.get("gf")) / mp
+            sot = safe_float(row.get("sot_for_per90")) if _valid_number(row.get("sot_for_per90")) else None
+            cs_rate = safe_float(row.get("clean_sheets")) / mp if _valid_number(row.get("clean_sheets")) else None
+            saves_pg = safe_float(row.get("saves_per_game")) if _valid_number(row.get("saves_per_game")) else None
+            big90 = safe_float(row.get("big_chances")) / mp if _valid_number(row.get("big_chances")) else None
+
+            ga_component = ga90 / max(base["ga90"], 0.01)
+            if cs_rate is not None:
+                cs_concede_component = (1.0 - cs_rate) / max(1.0 - base["cs_rate"], 0.05)
+                defense_factor = 0.70 * ga_component + 0.30 * cs_concede_component
+            else:
+                defense_factor = ga_component
+
+            attack_parts = [(0.45, gf90 / max(base["gf90"], 0.01))]
+            if sot is not None:
+                attack_parts.append((0.35, sot / max(base["sot"], 0.01)))
+            if big90 is not None:
+                attack_parts.append((0.20, big90 / max(base["big_chances90"], 0.01)))
+            total_w = sum(w for w, _ in attack_parts)
+            attack_factor = sum(w * v for w, v in attack_parts) / max(total_w, 0.01)
+
+            shot_pressure_factor = saves_pg / max(base["saves"], 0.01) if saves_pg is not None else defense_factor
+            data_quality = "historical team data"
+        else:
+            strength = safe_float(team_strength.get(code, {}).get("strength_index"), 0.65 if row.get("relegated") else 0.50)
+            defense_factor = max(0.65, min(1.35, 1.15 - 0.45 * strength))
+            attack_factor = max(0.65, min(1.35, 0.80 + 0.45 * strength))
+            shot_pressure_factor = defense_factor
+            ga90 = target_base["ga90"] * defense_factor
+            gf90 = target_base["gf90"] * attack_factor
+            sot = target_base["sot"] * attack_factor
+            cs_rate = None
+            saves_pg = target_base["saves"] * shot_pressure_factor
+            big90 = None
+            data_quality = "current-roster bridge fallback"
+
+        bridge_note = ""
+        if row.get("promoted"):
+            defense_factor *= 1.18
+            attack_factor *= 0.86
+            shot_pressure_factor *= 1.10
+            sot = (sot if sot is not None else base["sot"] * attack_factor) * 0.92
+            bridge_note = "Promoted WSL2→WSL bridge"
+        elif row.get("relegated"):
+            defense_factor *= 0.85
+            attack_factor *= 1.15
+            shot_pressure_factor *= 0.90
+            bridge_note = "Relegated WSL→WSL2 bridge"
+
+        m = manual.get(code) or {}
+        defense_factor *= max(0.60, 1.0 - safe_float(m.get("defense_adjustment"), 0) / 100.0)
+        attack_factor *= max(0.60, 1.0 + safe_float(m.get("attack_adjustment"), 0) / 100.0)
+
+        defense_factor = max(0.45, min(1.75, defense_factor))
+        attack_factor = max(0.45, min(1.75, attack_factor))
+        shot_pressure_factor = max(0.55, min(1.65, shot_pressure_factor))
+
+        defense_prior = max(5.0, min(95.0, 50.0 + (1.0 - defense_factor) * 45.0))
+        attack_prior = max(5.0, min(95.0, 50.0 + (attack_factor - 1.0) * 45.0))
+
+        out[code] = {
+            "cs_defense_prior": round(defense_prior, 1),
+            "attack_threat_prior": round(attack_prior, 1),
+            "defense_factor": round(defense_factor, 4),
+            "attack_factor": round(attack_factor, 4),
+            "shot_pressure_factor": round(shot_pressure_factor, 4),
+            "ga_per_game": round(ga90, 3),
+            "gf_per_game": round(gf90, 3),
+            "sot_for_per90": round(safe_float(sot), 3) if sot is not None else None,
+            "clean_sheet_rate": round(cs_rate, 4) if cs_rate is not None else None,
+            "saves_per_game": round(safe_float(saves_pg), 3) if saves_pg is not None else None,
+            "big_chances_per90": round(big90, 3) if big90 is not None else None,
+            "prior_league": prior_league,
+            "target_league": target_league,
+            "league_baseline_ga": round(target_base["ga90"], 3),
+            "league_baseline_sot": round(target_base["sot"], 3),
+            "league_baseline_saves": round(target_base["saves"], 3),
+            "promoted": bool(row.get("promoted")),
+            "relegated": bool(row.get("relegated")),
+            "bridge_note": bridge_note,
+            "data_quality": data_quality,
+        }
+
     return out
 
 
-def keeper_quality_score(player_name: str|None, model_inputs: dict[str,Any]) -> tuple[float,dict[str,Any]]:
-    name=str(player_name or '')
-    row=(model_inputs.get('keepers',{}) or {}).get(name,{}) or {}
-    manual=(model_inputs.get('manual_keeper_adjustments',{}) or {}).get(name,{}) or {}
-    sp=row.get('keeper_save_pct')
-    adj=safe_float(manual.get('quality_adjustment'),0)
-    if sp is None:
-        q=50+adj; evidence='neutral (no verified save-rate input)'
+def keeper_quality_score(player_name: str | None, model_inputs: dict[str, Any]) -> tuple[float, dict[str, Any]]:
+    name = str(player_name or "")
+    row = (model_inputs.get("keepers", {}) or {}).get(name, {}) or {}
+    manual = (model_inputs.get("manual_keeper_adjustments", {}) or {}).get(name, {}) or {}
+
+    sp = row.get("keeper_save_pct")
+    gp = row.get("goals_prevented")
+    saves90 = row.get("saves_per90")
+    ga90 = row.get("goals_conceded_per90")
+    adjustment = safe_float(manual.get("quality_adjustment"), 0)
+
+    q = 50.0 + adjustment
+    evidence = []
+    if _valid_number(sp):
+        q += (safe_float(sp) - 70.0) * 1.7
+        evidence.append(f"save% {safe_float(sp):.1f}")
+    if _valid_number(gp):
+        q += safe_float(gp)
+        evidence.append(f"goals prevented {safe_float(gp):+.1f}")
+
+    q = round(max(30.0, min(70.0, q)), 1)
+    if not evidence:
+        evidence = ["neutral (no verified individual GK prior)"]
+
+    return q, {
+        "save_pct": safe_float(sp) if _valid_number(sp) else None,
+        "saves_per90": safe_float(saves90) if _valid_number(saves90) else None,
+        "goals_prevented": safe_float(gp) if _valid_number(gp) else None,
+        "goals_conceded_per90": safe_float(ga90) if _valid_number(ga90) else None,
+        "evidence": " + ".join(evidence),
+    }
+
+
+def gk_fixture_scores(
+    own_team: str | None,
+    opponent: str | None,
+    location: str | None,
+    priors: dict[str, dict[str, Any]],
+    keeper_name: str | None,
+    inputs: dict[str, Any],
+) -> dict[str, Any]:
+    own = priors.get(canonical_gk_team_code(own_team), {}) or {}
+    opp = priors.get(canonical_gk_team_code(opponent), {}) or {}
+
+    own_def_factor = safe_float(own.get("defense_factor"), 1.0)
+    opp_attack_factor = safe_float(opp.get("attack_factor"), 1.0)
+    baseline_ga = safe_float(own.get("league_baseline_ga"), 1.45)
+
+    venue_goal_factor = 0.92 if location == "H" else 1.08 if location == "A" else 1.0
+    expected_ga = baseline_ga * math.sqrt(max(0.20, own_def_factor) * max(0.20, opp_attack_factor)) * venue_goal_factor
+    expected_ga = max(0.25, min(3.25, expected_ga))
+
+    cs_probability = math.exp(-expected_ga)
+    three_plus_risk = poisson_prob_at_least(expected_ga, 3)
+    cs_fix = 100.0 / (1.0 + math.exp(3.0 * (expected_ga - 1.35)))
+    cs_fix = round(max(5.0, min(95.0, cs_fix)), 1)
+    concession_safety = round(max(5.0, min(100.0, (1.0 - three_plus_risk) * 100.0)), 1)
+
+    opp_sot = opp.get("sot_for_per90")
+    if not _valid_number(opp_sot):
+        opp_sot = safe_float(opp.get("league_baseline_sot"), 4.5) * opp_attack_factor
+
+    own_pressure = safe_float(own.get("shot_pressure_factor"), own_def_factor)
+    venue_shot_factor = 0.97 if location == "H" else 1.03 if location == "A" else 1.0
+    estimated_sot_faced = safe_float(opp_sot) * (0.85 + 0.15 * own_pressure) * venue_shot_factor
+    estimated_sot_faced = max(1.0, min(8.5, estimated_sot_faced))
+
+    quality, qd = keeper_quality_score(keeper_name, inputs)
+    save_pct = safe_float(qd.get("save_pct"), 70.0) if qd.get("save_pct") is not None else 70.0
+    fixture_expected_saves = estimated_sot_faced * (save_pct / 100.0)
+
+    if qd.get("saves_per90") is not None:
+        expected_saves = 0.80 * fixture_expected_saves + 0.20 * safe_float(qd.get("saves_per90"))
     else:
-        q=50+(safe_float(sp)-70)*2+adj; evidence=f"save% {safe_float(sp):.1f}"
-    return round(max(25,min(75,q)),1),{"save_pct":safe_float(sp) if sp is not None else None,"evidence":evidence}
+        expected_saves = fixture_expected_saves
 
+    expected_saves = max(0.5, min(6.5, expected_saves))
+    save_point_probability = poisson_prob_at_least(expected_saves, 3)
+    save_opportunity = round(max(5.0, min(95.0, save_point_probability * 100.0)), 1)
 
-def gk_fixture_scores(own_team:str|None, opponent:str|None, location:str|None, priors:dict[str,dict[str,Any]], keeper_name:str|None, inputs:dict[str,Any]) -> dict[str,Any]:
-    own=priors.get(canonical_gk_team_code(own_team),{})
-    opp=priors.get(canonical_gk_team_code(opponent),{})
-    own_def=safe_float(own.get('cs_defense_prior'),50)
-    opp_att=safe_float(opp.get('attack_threat_prior'),50)
-    venue=5 if location=='H' else -5 if location=='A' else 0
-    cs=50+(own_def-50)*.55+(50-opp_att)*.75+venue
-    cs=round(max(5,min(95,cs)),1)
-    sot=opp.get('sot_for_per90')
-    shot=50+(safe_float(sot)-4.5)*10 if sot is not None else opp_att
-    save=.75*shot+.25*(100-own_def)
-    save=round(max(10,min(90,save)),1)
-    quality,qd=keeper_quality_score(keeper_name,inputs)
-    gk=round(max(5,min(95,.65*cs+.25*save+.10*quality)),1)
-    return {"cs_fix":cs,"save_opportunity":save,"keeper_quality":quality,"gk_fix":gk,"own_cs_prior":own_def,"opponent_attack_prior":opp_att,"opponent_sot_per90":safe_float(sot) if sot is not None else None,"venue_adjustment":venue,"keeper_quality_detail":qd}
+    gk_fix = round(max(5.0, min(
+        95.0,
+        0.55 * cs_fix
+        + 0.25 * save_opportunity
+        + 0.10 * quality
+        + 0.10 * concession_safety
+    )), 1)
+
+    return {
+        "cs_fix": cs_fix,
+        "cs_probability": round(cs_probability, 4),
+        "expected_goals_against": round(expected_ga, 3),
+        "three_plus_conceded_risk": round(three_plus_risk, 4),
+        "concession_safety": concession_safety,
+        "estimated_sot_faced": round(estimated_sot_faced, 3),
+        "expected_saves": round(expected_saves, 3),
+        "save_point_probability": round(save_point_probability, 4),
+        "save_opportunity": save_opportunity,
+        "keeper_quality": quality,
+        "gk_fix": gk_fix,
+        "own_cs_prior": safe_float(own.get("cs_defense_prior"), 50.0),
+        "opponent_attack_prior": safe_float(opp.get("attack_threat_prior"), 50.0),
+        "opponent_sot_per90": round(safe_float(opp_sot), 3),
+        "venue_adjustment": 5 if location == "H" else -5 if location == "A" else 0,
+        "keeper_quality_detail": qd,
+    }
 
 
 def normalize_fixture(fixture: dict[str, Any]) -> dict[str, Any]:
@@ -997,11 +1175,20 @@ def build_upcoming_fixture(
         "opponent_transition_note": model_detail.get("opponent_transition_note"),
 
         # Goalkeeper-specific audit fields (null for non-GKs).
-        "gk_model": "team-cs-save-v1" if gk_detail else None,
+        "gk_model": "team-cs-save-v2" if gk_detail else None,
         "gk_cs_fix": gk_detail.get("cs_fix") if gk_detail else None,
+        "gk_cs_probability": gk_detail.get("cs_probability") if gk_detail else None,
+        "gk_expected_goals_against": gk_detail.get("expected_goals_against") if gk_detail else None,
+        "gk_three_plus_conceded_risk": gk_detail.get("three_plus_conceded_risk") if gk_detail else None,
+        "gk_concession_safety": gk_detail.get("concession_safety") if gk_detail else None,
+        "gk_estimated_sot_faced": gk_detail.get("estimated_sot_faced") if gk_detail else None,
+        "gk_expected_saves": gk_detail.get("expected_saves") if gk_detail else None,
+        "gk_save_point_probability": gk_detail.get("save_point_probability") if gk_detail else None,
         "gk_save_opportunity": gk_detail.get("save_opportunity") if gk_detail else None,
         "gk_keeper_quality": gk_detail.get("keeper_quality") if gk_detail else None,
         "gk_keeper_save_pct": (gk_detail.get("keeper_quality_detail") or {}).get("save_pct") if gk_detail else None,
+        "gk_keeper_saves_per90": (gk_detail.get("keeper_quality_detail") or {}).get("saves_per90") if gk_detail else None,
+        "gk_keeper_goals_prevented": (gk_detail.get("keeper_quality_detail") or {}).get("goals_prevented") if gk_detail else None,
         "gk_keeper_quality_evidence": (gk_detail.get("keeper_quality_detail") or {}).get("evidence") if gk_detail else None,
         "gk_own_cs_prior": gk_detail.get("own_cs_prior") if gk_detail else None,
         "gk_opponent_attack_prior": gk_detail.get("opponent_attack_prior") if gk_detail else None,
@@ -1024,7 +1211,7 @@ def fixture_details_text(fixtures: list[dict[str, Any]], position: str) -> str:
         return "No upcoming fixture in feed."
 
     lines = [
-        "Upcoming fixtures — GK Model v1:" if position == "GK"
+        "Upcoming fixtures — GK Model v2:" if position == "GK"
         else "Upcoming fixtures — Fixture Model v5:"
     ]
     opportunities: list[float] = []
@@ -1069,13 +1256,22 @@ def fixture_details_text(fixtures: list[dict[str, Any]], position: str) -> str:
             if position == "GK" and f.get("gk_model"):
                 lines.append(
                     f"  Final GK Fix: {opportunity}/100 "
-                    f"(65% CS + 25% saves + 10% keeper quality); "
+                    f"(55% CS + 25% 3-save chance + 10% keeper quality + 10% 3+ concession safety); "
                     f"opportunity bucket: {score}/5"
                 )
                 lines.append(
-                    f"  CS Fix: {f.get('gk_cs_fix')}/100 | "
-                    f"Save Opp: {f.get('gk_save_opportunity')}/100 | "
-                    f"Keeper Quality: {f.get('gk_keeper_quality')}/100"
+                    f"  CS Fix: {f.get('gk_cs_fix')}/100 "
+                    f"(CS probability {safe_float(f.get('gk_cs_probability'))*100:.0f}%) | "
+                    f"Save Opp: {f.get('gk_save_opportunity')}/100 "
+                    f"(3+ save probability {safe_float(f.get('gk_save_point_probability'))*100:.0f}%)"
+                )
+                lines.append(
+                    f"  Expected GA: {f.get('gk_expected_goals_against')} | "
+                    f"3+ conceded risk: {safe_float(f.get('gk_three_plus_conceded_risk'))*100:.0f}% | "
+                    f"Expected saves: {f.get('gk_expected_saves')}"
+                )
+                lines.append(
+                    f"  Keeper Quality: {f.get('gk_keeper_quality')}/100"
                 )
                 if f.get("gk_keeper_save_pct") is not None:
                     lines.append(f"  Keeper prior save%: {f.get('gk_keeper_save_pct')}%")
@@ -1310,7 +1506,7 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
     fixture_calibration = build_competition_fixture_calibration(players_raw)
     team_strength = build_team_strength_priors(players_raw)
     gk_model_inputs = load_gk_model_inputs()
-    gk_team_priors = build_gk_team_priors(gk_model_inputs)
+    gk_team_priors = build_gk_team_priors(gk_model_inputs, team_strength)
     team_unit_strength = build_team_unit_priors(players_raw, team_strength)
     players = [
         transform_player(p, fixture_calibration, team_strength, gk_team_priors, gk_model_inputs)
@@ -1335,6 +1531,20 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
         aws = gk_fixture_scores(fixture.get("away_id"), fixture.get("home_id"), "A", gk_team_priors, None, gk_model_inputs)
         fixture["home_cs_opportunity"] = hs["cs_fix"]
         fixture["away_cs_opportunity"] = aws["cs_fix"]
+        fixture["home_cs_probability"] = hs["cs_probability"]
+        fixture["away_cs_probability"] = aws["cs_probability"]
+        fixture["home_expected_goals_against"] = hs["expected_goals_against"]
+        fixture["away_expected_goals_against"] = aws["expected_goals_against"]
+        fixture["home_three_plus_conceded_risk"] = hs["three_plus_conceded_risk"]
+        fixture["away_three_plus_conceded_risk"] = aws["three_plus_conceded_risk"]
+        fixture["home_concession_safety"] = hs["concession_safety"]
+        fixture["away_concession_safety"] = aws["concession_safety"]
+        fixture["home_estimated_sot_faced"] = hs["estimated_sot_faced"]
+        fixture["away_estimated_sot_faced"] = aws["estimated_sot_faced"]
+        fixture["home_expected_saves_neutral"] = hs["expected_saves"]
+        fixture["away_expected_saves_neutral"] = aws["expected_saves"]
+        fixture["home_save_point_probability_neutral"] = hs["save_point_probability"]
+        fixture["away_save_point_probability_neutral"] = aws["save_point_probability"]
         fixture["home_save_opportunity"] = hs["save_opportunity"]
         fixture["away_save_opportunity"] = aws["save_opportunity"]
         fixture["home_gk_opportunity_neutral"] = hs["gk_fix"]
@@ -1343,7 +1553,7 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
         fixture["away_cs_prior"] = aws["own_cs_prior"]
         fixture["home_opponent_attack_prior"] = hs["opponent_attack_prior"]
         fixture["away_opponent_attack_prior"] = aws["opponent_attack_prior"]
-        fixture["gk_rating_model"] = "team-cs-save-v1"
+        fixture["gk_rating_model"] = "team-cs-save-v2"
 
     teams = [normalize_team(t) for t in teams_raw]
 
@@ -1357,9 +1567,9 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
         "team_count": len(teams),
         "fantasy_gameweeks": fantasy_gameweeks,
         "gk_fixture_model": {
-            "version": "team-cs-save-v1",
-            "note": "GK modeling is separated from defender fantasy opportunity. CS Fix uses team-level goals against, opponent attacking threat, promotion mapping and venue. Save Opportunity uses opponent shot/attack volume and defensive environment. Player-specific GK Fix = 65% CS Fix + 25% Save Opportunity + 10% verified keeper quality when available. GK player Next Fixture Rating and Decision use this player-specific GK Fix; full fixtures retain neutral components for team-pairing analysis.",
-            "weights": {"cs_fix": 0.65, "save_opportunity": 0.25, "keeper_quality": 0.10},
+            "version": "team-cs-save-v2",
+            "note": "GK model separates clean-sheet environment, probability of reaching the 3-save point threshold, individual shot-stopping quality, and risk of the -1 penalty for conceding 3+ goals. WSL2 team priors use 2025-26 goals, clean sheets, saves/game, shots on target and big chances, with a conservative promotion bridge.",
+            "weights": {"cs_fix": 0.55, "save_opportunity": 0.25, "keeper_quality": 0.10, "concession_safety": 0.10},
             "team_priors": gk_team_priors,
             "input_file": GK_MODEL_INPUTS_PATH.name,
         },
