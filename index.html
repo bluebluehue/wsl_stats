@@ -3504,19 +3504,53 @@
             }
 
             function projectedKeeperEvidence(gk) {
-                if (!gk) return { quality: 50, savePct: null, savesPer90: null, goalsPrevented: null, label: 'neutral' };
+                if (!gk) {
+                    return {
+                        quality: 50,
+                        savePct: null,
+                        savesPer90: null,
+                        goalsPrevented: null,
+                        hasVerifiedPrior: false,
+                        priorStatus: 'neutral_fallback',
+                        label: 'neutral fallback — no matched prior'
+                    };
+                }
+
                 const row = (gkModelInputs.keepers || {})[gk.name] || {};
                 const bits = [];
                 if (row.keeper_save_pct !== null && row.keeper_save_pct !== undefined) bits.push(`${Number(row.keeper_save_pct).toFixed(1)}% saves`);
                 if (row.saves_per90 !== null && row.saves_per90 !== undefined) bits.push(`${Number(row.saves_per90).toFixed(1)} saves/90`);
                 if (row.goals_prevented !== null && row.goals_prevented !== undefined) bits.push(`${Number(row.goals_prevented) >= 0 ? '+' : ''}${Number(row.goals_prevented).toFixed(1)} goals prevented`);
+                if (row.goals_conceded_per90 !== null && row.goals_conceded_per90 !== undefined) bits.push(`${Number(row.goals_conceded_per90).toFixed(1)} GA/90`);
+
+                const hasVerifiedPrior = bits.length > 0;
+
                 return {
                     quality: projectedKeeperQuality(gk),
                     savePct: row.keeper_save_pct ?? null,
                     savesPer90: row.saves_per90 ?? null,
                     goalsPrevented: row.goals_prevented ?? null,
-                    label: bits.length ? bits.join(' · ') : 'neutral prior'
+                    hasVerifiedPrior,
+                    priorStatus: hasVerifiedPrior ? 'verified' : 'neutral_fallback',
+                    label: hasVerifiedPrior
+                        ? bits.join(' · ')
+                        : 'neutral fallback — no matched prior'
                 };
+            }
+
+            function projectedStarter(goalkeepers) {
+                if (!Array.isArray(goalkeepers) || !goalkeepers.length) return null;
+
+                // starterScore was calculated club-relatively from prior points,
+                // current price, and ownership after excluding unavailable/inactive GKs.
+                // Re-select explicitly here rather than relying on array insertion/order.
+                return [...goalkeepers].sort((a, b) => {
+                    const aScore = Number(a.starterScore ?? -1);
+                    const bScore = Number(b.starterScore ?? -1);
+                    if (bScore !== aScore) return bScore - aScore;
+                    if (Number(b.value || 0) !== Number(a.value || 0)) return Number(b.value || 0) - Number(a.value || 0);
+                    return Number(b.selected || 0) - Number(a.selected || 0);
+                })[0] || null;
             }
 
             function poissonAtLeast(mean, threshold) {
@@ -3575,8 +3609,8 @@
                     for (let j = i + 1; j < names.length; j++) {
                         const a = clubs.get(names[i]);
                         const b = clubs.get(names[j]);
-                        const gkA = a.goalkeepers[0] || null;
-                        const gkB = b.goalkeepers[0] || null;
+                        const gkA = projectedStarter(a.goalkeepers);
+                        const gkB = projectedStarter(b.goalkeepers);
 
                         let comparable = 0;
                         let different = 0;
@@ -3811,7 +3845,7 @@
                 $('#pairings-summary').html(
                     `<span class="font-semibold">${leagueLabel}, GW${fromGw}–GW${toGw}:</span> `
                     + `${shown.length} of ${pairs.length} club pairs shown at ≥${minPairingPct}% pairing. `
-                    + `<span class="text-gray-500">Pairing % uses only GWs where both clubs actually have a fixture. Avg GK Fix uses CS environment + save opportunity + the projected starter's keeper-quality prior. Coverage shows how many selected GWs are comparable. League-off/Free Hit weeks and club-specific blanks are tracked separately.</span>`
+                    + `<span class="text-gray-500">Pairing % uses only GWs where both clubs actually have a fixture. Avg GK Fix uses CS environment + save opportunity + the projected starter's keeper-quality prior; unmatched keepers use an explicitly labeled neutral fallback. Coverage shows how many selected GWs are comparable. League-off/Free Hit weeks and club-specific blanks are tracked separately.</span>`
                 );
 
                 const $body = $('#pairings-table-body').empty();
@@ -3829,7 +3863,7 @@
                             extra = `
                                 <div class="font-medium text-gray-800">${pair.gkA.name} + ${pair.gkB.name}</div>
                                 <div class="text-xs text-gray-500">£${pair.gkA.value.toFixed(1)}m + £${pair.gkB.value.toFixed(1)}m = £${pair.combinedGkPrice.toFixed(1)}m</div>
-                                <div class="text-xs text-gray-400">Starter confidence: ${pair.gkA.starterConfidence || 'Low'} / ${pair.gkB.starterConfidence || 'Low'}</div>
+                                <div class="text-xs text-gray-400">Starter confidence: ${pair.gkA.starterConfidence || 'Low'} / ${pair.gkB.starterConfidence || 'Low'} · ${pair.gkA.starterEvidence || 'projection heuristic'} / ${pair.gkB.starterEvidence || 'projection heuristic'}</div>
                                 <div class="text-xs text-gray-400">GK quality: ${projectedKeeperEvidence(pair.gkA).quality.toFixed(0)} (${projectedKeeperEvidence(pair.gkA).label}) / ${projectedKeeperEvidence(pair.gkB).quality.toFixed(0)} (${projectedKeeperEvidence(pair.gkB).label})</div>
                             `;
                         } else {
