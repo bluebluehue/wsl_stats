@@ -2302,7 +2302,7 @@
 
                 "Next Fixture Score": {
                     abbr: 'Fix',
-                    full: 'Next gameweek fixture opportunity from 0-100 (higher = better). Uses ASA xG, recent form, opponent strength, venue, and gameweek volume.',
+                    full: 'Next gameweek fixture opportunity from 0-100 (higher = better). Goalkeepers use the GK-specific model: clean-sheet environment + save opportunity + keeper quality. Outfield players use the general fixture model.',
                     type: 'num',
                     render: function (data, type, row) {
                         const rating = row["Next Fixture Rating"];
@@ -2350,7 +2350,7 @@
                 },
                 "Following Fixture Score": {
                     abbr: 'Fix+1',
-                    full: 'Following gameweek fixture opportunity from 0-100 (higher = better). Uses ASA xG, recent form, opponent strength, venue, and gameweek volume.',
+                    full: 'Following gameweek fixture opportunity from 0-100 (higher = better). Goalkeepers use the GK-specific model: clean-sheet environment + save opportunity + keeper quality. Outfield players use the general fixture model.',
                     type: 'num',
                     render: function (data, type, row) {
                         const rating = row["Following Fixture Rating"];
@@ -3488,6 +3488,18 @@
                 return Math.max(25, Math.min(75, 50 + (Number(row.keeper_save_pct) - 70) * 2 + Number(manual || 0)));
             }
 
+            function projectedKeeperEvidence(gk) {
+                if (!gk) return { quality: 50, savePct: null, label: 'neutral' };
+                const row = (gkModelInputs.keepers || {})[gk.name] || {};
+                return {
+                    quality: projectedKeeperQuality(gk),
+                    savePct: row.keeper_save_pct ?? null,
+                    label: row.keeper_save_pct === null || row.keeper_save_pct === undefined
+                        ? 'neutral prior'
+                        : `${Number(row.keeper_save_pct).toFixed(1)}% save prior`
+                };
+            }
+
             function fixtureGkFix(fixture, projectedGk) {
                 if (!fixture) return null;
                 const cs = Number(fixture.csOpportunity);
@@ -3660,13 +3672,15 @@
                 return 'pairing-percent pairing-percent-low';
             }
 
-            function pairingFixtureLabel(fixture) {
+            function pairingFixtureLabel(fixture, projectedGk) {
                 if (!fixture) return '<span class="text-gray-400">No fixture</span>';
                 const loc = fixture.location ? ` ${fixture.location}` : '';
                 const cs = Number.isFinite(fixture.csOpportunity)
                     ? ` · CS ${fixture.csOpportunity.toFixed(0)}`
                     : '';
-                return `${fixture.day || '?'} · ${fixture.opponent}${loc}${cs}`;
+                const gkFix = fixtureGkFix(fixture, projectedGk);
+                const gk = Number.isFinite(gkFix) ? ` · GK ${gkFix.toFixed(0)}` : '';
+                return `${fixture.day || '?'} · ${fixture.opponent}${loc}${cs}${gk}`;
             }
 
             function pairingDetailHtml(pair) {
@@ -3704,9 +3718,9 @@
 
                     return `<span class="pairing-gw-chip">
                         <strong>GW${d.gw}</strong>
-                        <span>${pairingFixtureLabel(d.a)}</span>
+                        <span>${pairingFixtureLabel(d.a, pair.gkA)}</span>
                         <span class="text-gray-400">/</span>
-                        <span>${pairingFixtureLabel(d.b)}</span>
+                        <span>${pairingFixtureLabel(d.b, pair.gkB)}</span>
                         <span class="${markClass} font-bold">${mark}</span>
                         <span class="text-gray-400">${gapText}${doubleText}</span>
                     </span>`;
@@ -3738,7 +3752,7 @@
                 $('#pairings-summary').html(
                     `<span class="font-semibold">${leagueLabel}, GW${fromGw}–GW${toGw}:</span> `
                     + `${shown.length} of ${pairs.length} club pairs shown at ≥${minPairingPct}% pairing. `
-                    + `<span class="text-gray-500">Pairing % uses only GWs where both clubs actually have a fixture. Coverage shows how many selected GWs are comparable. League-off/Free Hit weeks and club-specific blanks are tracked separately.</span>`
+                    + `<span class="text-gray-500">Pairing % uses only GWs where both clubs actually have a fixture. Avg GK Fix uses CS environment + save opportunity + the projected starter's keeper-quality prior. Coverage shows how many selected GWs are comparable. League-off/Free Hit weeks and club-specific blanks are tracked separately.</span>`
                 );
 
                 const $body = $('#pairings-table-body').empty();
@@ -3757,6 +3771,7 @@
                                 <div class="font-medium text-gray-800">${pair.gkA.name} + ${pair.gkB.name}</div>
                                 <div class="text-xs text-gray-500">£${pair.gkA.value.toFixed(1)}m + £${pair.gkB.value.toFixed(1)}m = £${pair.combinedGkPrice.toFixed(1)}m</div>
                                 <div class="text-xs text-gray-400">Starter confidence: ${pair.gkA.starterConfidence || 'Low'} / ${pair.gkB.starterConfidence || 'Low'}</div>
+                                <div class="text-xs text-gray-400">GK quality: ${projectedKeeperEvidence(pair.gkA).quality.toFixed(0)} (${projectedKeeperEvidence(pair.gkA).label}) / ${projectedKeeperEvidence(pair.gkB).quality.toFixed(0)} (${projectedKeeperEvidence(pair.gkB).label})</div>
                             `;
                         } else {
                             extra = '<span class="text-gray-400">GK data unavailable</span>';
