@@ -280,6 +280,16 @@ def minmax_rank_score(value: float, values: list[float], higher_is_better: bool 
     return max(0.0,min(100.0,score))
 
 
+TEAM_CODE_ALIASES = {
+    # WSL feed acronym differs from the historical-input shorthand.
+    "MNU": "MUN",
+}
+
+def canonical_gk_team_code(code: str | None) -> str:
+    raw = str(code or "").upper()
+    return TEAM_CODE_ALIASES.get(raw, raw)
+
+
 def build_gk_team_priors(model_inputs: dict[str, Any]) -> dict[str, dict[str, Any]]:
     teams=model_inputs.get("teams",{}) or {}
     manual=model_inputs.get("manual_team_adjustments",{}) or {}
@@ -340,8 +350,8 @@ def keeper_quality_score(player_name: str|None, model_inputs: dict[str,Any]) -> 
 
 
 def gk_fixture_scores(own_team:str|None, opponent:str|None, location:str|None, priors:dict[str,dict[str,Any]], keeper_name:str|None, inputs:dict[str,Any]) -> dict[str,Any]:
-    own=priors.get(str(own_team or '').upper(),{})
-    opp=priors.get(str(opponent or '').upper(),{})
+    own=priors.get(canonical_gk_team_code(own_team),{})
+    opp=priors.get(canonical_gk_team_code(opponent),{})
     own_def=safe_float(own.get('cs_defense_prior'),50)
     opp_att=safe_float(opp.get('attack_threat_prior'),50)
     venue=5 if location=='H' else -5 if location=='A' else 0
@@ -908,6 +918,10 @@ def build_upcoming_fixture(
     competition_id: str | None = None,
     fixture_calibration: dict[str, dict[str, float]] | None = None,
     team_strength: dict[str, dict[str, Any]] | None = None,
+    position: str | None = None,
+    player_name: str | None = None,
+    gk_team_priors: dict[str, dict[str, Any]] | None = None,
+    gk_model_inputs: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     difficulty = raw.get("currentRating")
     location = raw.get("location")
@@ -927,6 +941,15 @@ def build_upcoming_fixture(
         fixture_calibration,
         team_strength or {},
     )
+
+    gk_detail: dict[str, Any] | None = None
+    if position == "GK":
+        gk_detail = gk_fixture_scores(
+            own_team_id, opponent_id, location,
+            gk_team_priors or {}, player_name, gk_model_inputs or {},
+        )
+        # For goalkeeper assets, Fixture Rating is the player-specific GK model.
+        opportunity = gk_detail["gk_fix"]
 
     if location == "H":
         home_id, home_name, home_short = own_team_id, own_team_name, own_team_short_name
@@ -973,6 +996,18 @@ def build_upcoming_fixture(
         "own_transition_note": model_detail.get("own_transition_note"),
         "opponent_transition_note": model_detail.get("opponent_transition_note"),
 
+        # Goalkeeper-specific audit fields (null for non-GKs).
+        "gk_model": "team-cs-save-v1" if gk_detail else None,
+        "gk_cs_fix": gk_detail.get("cs_fix") if gk_detail else None,
+        "gk_save_opportunity": gk_detail.get("save_opportunity") if gk_detail else None,
+        "gk_keeper_quality": gk_detail.get("keeper_quality") if gk_detail else None,
+        "gk_keeper_save_pct": (gk_detail.get("keeper_quality_detail") or {}).get("save_pct") if gk_detail else None,
+        "gk_keeper_quality_evidence": (gk_detail.get("keeper_quality_detail") or {}).get("evidence") if gk_detail else None,
+        "gk_own_cs_prior": gk_detail.get("own_cs_prior") if gk_detail else None,
+        "gk_opponent_attack_prior": gk_detail.get("opponent_attack_prior") if gk_detail else None,
+        "gk_opponent_sot_per90": gk_detail.get("opponent_sot_per90") if gk_detail else None,
+        "gk_venue_adjustment": gk_detail.get("venue_adjustment") if gk_detail else None,
+
         "opportunity_rating": opportunity,
         "home_id": home_id or "",
         "home_name": home_name or "",
@@ -988,7 +1023,10 @@ def fixture_details_text(fixtures: list[dict[str, Any]], position: str) -> str:
     if not fixtures:
         return "No upcoming fixture in feed."
 
-    lines = ["Upcoming fixtures — Fixture Model v5:"]
+    lines = [
+        "Upcoming fixtures — GK Model v1:" if position == "GK"
+        else "Upcoming fixtures — Fixture Model v5:"
+    ]
     opportunities: list[float] = []
 
     for f in fixtures:
@@ -1028,12 +1066,31 @@ def fixture_details_text(fixtures: list[dict[str, Any]], position: str) -> str:
 
         if opportunity is not None:
             opportunities.append(float(opportunity))
-            lines.append(
-                f"  Final fixture opportunity: {opportunity}/100 "
-                f"({int(round(safe_float(f.get('source_weight')) * 100))}% source + "
-                f"{int(round(safe_float(f.get('team_matchup_weight')) * 100))}% team matchup); "
-                f"opportunity bucket: {score}/5"
-            )
+            if position == "GK" and f.get("gk_model"):
+                lines.append(
+                    f"  Final GK Fix: {opportunity}/100 "
+                    f"(65% CS + 25% saves + 10% keeper quality); "
+                    f"opportunity bucket: {score}/5"
+                )
+                lines.append(
+                    f"  CS Fix: {f.get('gk_cs_fix')}/100 | "
+                    f"Save Opp: {f.get('gk_save_opportunity')}/100 | "
+                    f"Keeper Quality: {f.get('gk_keeper_quality')}/100"
+                )
+                if f.get("gk_keeper_save_pct") is not None:
+                    lines.append(f"  Keeper prior save%: {f.get('gk_keeper_save_pct')}%")
+                lines.append(
+                    f"  Team CS prior: {f.get('gk_own_cs_prior')}/100 | "
+                    f"Opponent attack: {f.get('gk_opponent_attack_prior')}/100 | "
+                    f"Venue: {safe_float(f.get('gk_venue_adjustment')):+.0f}"
+                )
+            else:
+                lines.append(
+                    f"  Final fixture opportunity: {opportunity}/100 "
+                    f"({int(round(safe_float(f.get('source_weight')) * 100))}% source + "
+                    f"{int(round(safe_float(f.get('team_matchup_weight')) * 100))}% team matchup); "
+                    f"opportunity bucket: {score}/5"
+                )
 
     if opportunities:
         lines.append(
@@ -1094,7 +1151,7 @@ def decision_rating(player: dict[str, Any]) -> float:
     return round(fixture * weights[0] + form * weights[1], 1)
 
 
-def transform_player(raw: dict[str, Any], fixture_calibration: dict[str, dict[str, float]], team_strength: dict[str, dict[str, Any]]) -> dict[str, Any]:
+def transform_player(raw: dict[str, Any], fixture_calibration: dict[str, dict[str, float]], team_strength: dict[str, dict[str, Any]], gk_team_priors: dict[str, dict[str, Any]] | None = None, gk_model_inputs: dict[str, Any] | None = None) -> dict[str, Any]:
     name = f"{raw.get('mediaFirstName', '').strip()} {raw.get('mediaLastName', '').strip()}".strip()
     short_name = raw.get("mediaShortName") or name
     position = POSITION_MAP.get(str(raw.get("skillName") or "").lower(), str(raw.get("skillName") or "").upper())
@@ -1111,7 +1168,8 @@ def transform_player(raw: dict[str, Any], fixture_calibration: dict[str, dict[st
     upcoming = [
         build_upcoming_fixture(
             f, own_team_id, own_team_name, own_team_short_name,
-            competition_id, fixture_calibration, team_strength
+            competition_id, fixture_calibration, team_strength,
+            position, name, gk_team_priors or {}, gk_model_inputs or {}
         )
         for f in raw.get("upcomingFixtures", [])
     ]
@@ -1138,6 +1196,8 @@ def transform_player(raw: dict[str, Any], fixture_calibration: dict[str, dict[st
         "Team Strength Index": safe_float(team_strength.get(str(own_team_id).upper(), {}).get("strength_index"), 0.5),
         "Team Strength Rank": safe_float(team_strength.get(str(own_team_id).upper(), {}).get("within_competition_rank"), 0.5),
         "Position": position,
+        "GK Quality": (keeper_quality_score(name, gk_model_inputs or {})[0] if position == "GK" else None),
+        "GK Save Percentage Prior": (((gk_model_inputs or {}).get("keepers", {}).get(name, {}) or {}).get("keeper_save_pct") if position == "GK" else None),
         "Value": value,
         "Nationality": "",
         "News": availability_text(raw.get("availabilityStatus")),
@@ -1252,7 +1312,10 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
     gk_model_inputs = load_gk_model_inputs()
     gk_team_priors = build_gk_team_priors(gk_model_inputs)
     team_unit_strength = build_team_unit_priors(players_raw, team_strength)
-    players = [transform_player(p, fixture_calibration, team_strength) for p in players_raw]
+    players = [
+        transform_player(p, fixture_calibration, team_strength, gk_team_priors, gk_model_inputs)
+        for p in players_raw
+    ]
     history = update_history(players)
     last_price_change = detect_last_global_price_change_date(history)
 
@@ -1295,7 +1358,7 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
         "fantasy_gameweeks": fantasy_gameweeks,
         "gk_fixture_model": {
             "version": "team-cs-save-v1",
-            "note": "GK modeling is separated from defender fantasy opportunity. CS Fix uses team-level goals against, opponent attacking threat, promotion mapping and venue. Save Opportunity uses opponent shot/attack volume and defensive environment. Player-specific GK Fix = 65% CS Fix + 25% Save Opportunity + 10% verified keeper quality when available.",
+            "note": "GK modeling is separated from defender fantasy opportunity. CS Fix uses team-level goals against, opponent attacking threat, promotion mapping and venue. Save Opportunity uses opponent shot/attack volume and defensive environment. Player-specific GK Fix = 65% CS Fix + 25% Save Opportunity + 10% verified keeper quality when available. GK player Next Fixture Rating and Decision use this player-specific GK Fix; full fixtures retain neutral components for team-pairing analysis.",
             "weights": {"cs_fix": 0.65, "save_opportunity": 0.25, "keeper_quality": 0.10},
             "team_priors": gk_team_priors,
             "input_file": GK_MODEL_INPUTS_PATH.name,
