@@ -1639,6 +1639,79 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
     return output
 
 
+def write_gk_sanity_audit(
+    output: dict[str, Any],
+    team_codes: tuple[str, ...] = ("LCL", "BRC", "MNU", "CHE", "NEW", "AVL"),
+    first_gw: int = 1,
+    last_gw: int = 5,
+) -> None:
+    """Print and save fixture-level GK model inputs for a small sanity-check set."""
+    wanted = {canonical_gk_team_code(code) for code in team_codes}
+    rows: list[dict[str, Any]] = []
+
+    for player in output.get("players", []):
+        if player.get("Position") != "GK":
+            continue
+        club = canonical_gk_team_code(player.get("Club"))
+        if club not in wanted:
+            continue
+
+        for fixture in player.get("upcoming_fixtures", []) or []:
+            try:
+                gw = int(fixture.get("game_week") or 0)
+            except (TypeError, ValueError):
+                continue
+            if not (first_gw <= gw <= last_gw):
+                continue
+
+            rows.append({
+                "GW": gw,
+                "Club": player.get("Club"),
+                "Opponent": fixture.get("opponent_id"),
+                "H/A": fixture.get("location"),
+                "Keeper": player.get("Name"),
+                "CS Fix": fixture.get("gk_cs_fix"),
+                "CS %": round(safe_float(fixture.get("gk_cs_probability")) * 100, 1),
+                "xGA": fixture.get("gk_expected_goals_against"),
+                "SOT Faced": fixture.get("gk_estimated_sot_faced"),
+                "Exp Saves": fixture.get("gk_expected_saves"),
+                "3+ Save %": round(safe_float(fixture.get("gk_save_point_probability")) * 100, 1),
+                "Save Opp": fixture.get("gk_save_opportunity"),
+                "Keeper Quality": fixture.get("gk_keeper_quality"),
+                "Save % Prior": fixture.get("gk_keeper_save_pct"),
+                "Goals Prevented": fixture.get("gk_keeper_goals_prevented"),
+                "Concession Safety": fixture.get("gk_concession_safety"),
+                "Final GK Fix": fixture.get("opportunity_rating"),
+            })
+
+    rows.sort(key=lambda r: (r["Club"] or "", r["GW"], r["Keeper"] or ""))
+
+    audit_path = ROOT / "gk_sanity_audit.json"
+    audit_path.write_text(json.dumps(rows, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    print("\\nGK SANITY AUDIT")
+    print("=" * 150)
+    header = (
+        f"{'GW':>2} {'CLUB':<4} {'OPP':<4} {'H/A':<3} {'KEEPER':<24} "
+        f"{'CSFIX':>6} {'CS%':>6} {'xGA':>5} {'SOT':>5} {'xSV':>5} "
+        f"{'3SV%':>6} {'SVOPP':>6} {'QUAL':>5} {'FINAL':>6}"
+    )
+    print(header)
+    print("-" * len(header))
+    for r in rows:
+        print(
+            f"{r['GW']:>2} {str(r['Club'] or ''):<4} {str(r['Opponent'] or ''):<4} "
+            f"{str(r['H/A'] or ''):<3} {str(r['Keeper'] or '')[:24]:<24} "
+            f"{safe_float(r['CS Fix']):>6.1f} {safe_float(r['CS %']):>6.1f} "
+            f"{safe_float(r['xGA']):>5.2f} {safe_float(r['SOT Faced']):>5.2f} "
+            f"{safe_float(r['Exp Saves']):>5.2f} {safe_float(r['3+ Save %']):>6.1f} "
+            f"{safe_float(r['Save Opp']):>6.1f} {safe_float(r['Keeper Quality']):>5.1f} "
+            f"{safe_float(r['Final GK Fix']):>6.1f}"
+        )
+
+    print(f"\\nSaved full audit rows to {audit_path.name}")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Build WSL Fantasy transformed_data.json")
     parser.add_argument(
@@ -1648,6 +1721,7 @@ def main() -> None:
     )
     args = parser.parse_args()
     output = build_outputs(from_local=args.from_local)
+    write_gk_sanity_audit(output)
     print(
         f"Wrote {TRANSFORMED_PATH.name} with {len(output['players'])} players; "
         f"metadata: {output['metadata']['fixture_count']} fixtures, {output['metadata']['team_count']} teams."
