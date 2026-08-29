@@ -1397,19 +1397,33 @@
                             </select>
                         </label>
 
-                        <label class="text-xs font-semibold text-gray-600">Include teams
-                            <select id="pairings-include-teams" multiple size="4"
-                                class="block mt-1 px-2 py-1 border border-gray-300 rounded-md text-xs bg-white min-w-[110px] max-h-[86px]">
-                            </select>
-                            <span class="block mt-1 text-[10px] font-normal text-gray-400">Pair must contain ≥1 selected</span>
-                        </label>
+                        <div class="text-xs font-semibold text-gray-600 min-w-[150px]">
+                            Include teams
+                            <details class="pairing-team-dropdown relative mt-1">
+                                <summary id="pairings-include-summary"
+                                    class="list-none cursor-pointer h-[38px] px-3 flex items-center justify-between gap-2 border border-gray-300 rounded-md bg-white text-sm font-normal text-gray-700 min-w-[150px] select-none">
+                                    <span>Any team</span><span class="text-gray-400">▾</span>
+                                </summary>
+                                <div class="absolute z-30 mt-1 w-[180px] max-h-64 overflow-y-auto rounded-md border border-gray-200 bg-white shadow-lg p-2">
+                                    <div id="pairings-include-menu" class="space-y-1"></div>
+                                </div>
+                            </details>
+                            <select id="pairings-include-teams" multiple class="hidden"></select>
+                        </div>
 
-                        <label class="text-xs font-semibold text-gray-600">Exclude teams
-                            <select id="pairings-exclude-teams" multiple size="4"
-                                class="block mt-1 px-2 py-1 border border-gray-300 rounded-md text-xs bg-white min-w-[110px] max-h-[86px]">
-                            </select>
-                            <span class="block mt-1 text-[10px] font-normal text-gray-400">Pairs containing selected are hidden</span>
-                        </label>
+                        <div class="text-xs font-semibold text-gray-600 min-w-[150px]">
+                            Exclude teams
+                            <details class="pairing-team-dropdown relative mt-1">
+                                <summary id="pairings-exclude-summary"
+                                    class="list-none cursor-pointer h-[38px] px-3 flex items-center justify-between gap-2 border border-gray-300 rounded-md bg-white text-sm font-normal text-gray-700 min-w-[150px] select-none">
+                                    <span>No exclusions</span><span class="text-gray-400">▾</span>
+                                </summary>
+                                <div class="absolute z-30 mt-1 w-[180px] max-h-64 overflow-y-auto rounded-md border border-gray-200 bg-white shadow-lg p-2">
+                                    <div id="pairings-exclude-menu" class="space-y-1"></div>
+                                </div>
+                            </details>
+                            <select id="pairings-exclude-teams" multiple class="hidden"></select>
+                        </div>
 
                         <button id="pairings-clear-team-filters" type="button"
                             class="px-3 py-2 border border-gray-300 rounded-md text-xs font-semibold text-gray-600 bg-white hover:bg-gray-50">
@@ -3884,10 +3898,30 @@
                 return arr;
             }
 
+            function updatePairingTeamFilterSummary(kind) {
+                const values = selectedMultiValues(`#pairings-${kind}-teams`);
+                const $summary = $(`#pairings-${kind}-summary span:first`);
+                if (!values.length) {
+                    $summary.text(kind === 'include' ? 'Any team' : 'No exclusions');
+                } else if (values.length <= 2) {
+                    $summary.text(values.join(', '));
+                } else {
+                    $summary.text(`${values.length} teams selected`);
+                }
+            }
+
+            function syncPairingTeamCheckboxes(kind) {
+                const selected = new Set(selectedMultiValues(`#pairings-${kind}-teams`));
+                $(`#pairings-${kind}-menu input[type="checkbox"]`).each(function() {
+                    this.checked = selected.has(String(this.value));
+                });
+                updatePairingTeamFilterSummary(kind);
+            }
+
             function populatePairingTeamFilters(pairs) {
                 const clubs = Array.from(new Set(pairs.flatMap(p => [p.a.club, p.b.club]))).sort();
-                const selectors = ['#pairings-include-teams', '#pairings-exclude-teams'];
-                selectors.forEach(selector => {
+                ['include', 'exclude'].forEach(kind => {
+                    const selector = `#pairings-${kind}-teams`;
                     const $el = $(selector);
                     const current = new Set(($el.val() || []).map(String));
                     $el.empty();
@@ -3895,6 +3929,17 @@
                         const selected = current.has(club) ? ' selected' : '';
                         $el.append(`<option value="${club}"${selected}>${club}</option>`);
                     });
+
+                    const $menu = $(`#pairings-${kind}-menu`);
+                    $menu.empty();
+                    clubs.forEach(club => {
+                        const checked = current.has(club) ? ' checked' : '';
+                        $menu.append(`<label class="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-gray-50 cursor-pointer text-xs font-medium text-gray-700">
+                            <input type="checkbox" value="${club}"${checked} class="accent-indigo-600">
+                            <span>${club}</span>
+                        </label>`);
+                    });
+                    updatePairingTeamFilterSummary(kind);
                 });
             }
 
@@ -4050,9 +4095,18 @@
             });
             $('#planner-search').on('input', renderPlanner);
 
-            $('#pairings-from-gw, #pairings-to-gw, #pairings-mode, #pairings-sort, #pairings-include-teams, #pairings-exclude-teams').on('change', renderPairings);
+            $('#pairings-from-gw, #pairings-to-gw, #pairings-mode, #pairings-sort').on('change', renderPairings);
+            $(document).on('change', '#pairings-include-menu input[type="checkbox"], #pairings-exclude-menu input[type="checkbox"]', function() {
+                const kind = $(this).closest('[id$="-menu"]').attr('id').includes('include') ? 'include' : 'exclude';
+                const values = $(`#pairings-${kind}-menu input[type="checkbox"]:checked`).map(function() { return this.value; }).get();
+                $(`#pairings-${kind}-teams`).val(values);
+                updatePairingTeamFilterSummary(kind);
+                renderPairings();
+            });
             $('#pairings-clear-team-filters').on('click', function() {
                 $('#pairings-include-teams, #pairings-exclude-teams').val([]);
+                syncPairingTeamCheckboxes('include');
+                syncPairingTeamCheckboxes('exclude');
                 renderPairings();
             });
             $('#pairings-min-pct').on('input change', function() {
