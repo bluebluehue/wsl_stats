@@ -1386,6 +1386,35 @@
                                     class="inline-flex items-center justify-center min-w-[46px] px-2 py-1 rounded-full bg-indigo-50 text-indigo-700 text-xs font-bold">75%</span>
                             </div>
                         </label>
+
+                        <label class="text-xs font-semibold text-gray-600">Sort
+                            <select id="pairings-sort" class="block mt-1 px-2 py-2 border border-gray-300 rounded-md text-sm bg-white min-w-[170px]">
+                                <option value="pairing" selected>Pairing %</option>
+                                <option value="cost">Total cost (low → high)</option>
+                                <option value="cs">Avg CS Fix (high → low)</option>
+                                <option value="gk">Avg GK Fix (high → low)</option>
+                                <option value="coverage">Coverage (high → low)</option>
+                            </select>
+                        </label>
+
+                        <label class="text-xs font-semibold text-gray-600">Include teams
+                            <select id="pairings-include-teams" multiple size="4"
+                                class="block mt-1 px-2 py-1 border border-gray-300 rounded-md text-xs bg-white min-w-[110px] max-h-[86px]">
+                            </select>
+                            <span class="block mt-1 text-[10px] font-normal text-gray-400">Pair must contain ≥1 selected</span>
+                        </label>
+
+                        <label class="text-xs font-semibold text-gray-600">Exclude teams
+                            <select id="pairings-exclude-teams" multiple size="4"
+                                class="block mt-1 px-2 py-1 border border-gray-300 rounded-md text-xs bg-white min-w-[110px] max-h-[86px]">
+                            </select>
+                            <span class="block mt-1 text-[10px] font-normal text-gray-400">Pairs containing selected are hidden</span>
+                        </label>
+
+                        <button id="pairings-clear-team-filters" type="button"
+                            class="px-3 py-2 border border-gray-300 rounded-md text-xs font-semibold text-gray-600 bg-white hover:bg-gray-50">
+                            Clear teams
+                        </button>
                     </div>
                 </div>
 
@@ -1399,12 +1428,11 @@
                             <th class="text-left px-3 py-2">#</th>
                             <th class="text-left px-3 py-2">Pair</th>
                             <th class="text-center px-3 py-2">Different Days</th>
-                            <th class="text-center px-3 py-2">Same Day</th>
                             <th class="text-center px-3 py-2">Pairing %</th>
                             <th class="text-center px-3 py-2">Coverage</th>
-                            <th class="text-center px-3 py-2">Separation</th>
                             <th class="text-center px-3 py-2" title="Average clean-sheet environment across the selected gameweeks. Higher = better.">Avg CS Fix</th>
                             <th class="text-center px-3 py-2" title="Average goalkeeper fantasy environment: clean-sheet opportunity + chance of a 3-save point + projected keeper quality + safety from the 3+ goals-conceded penalty. Higher = better.">Avg GK Fix</th>
+                            <th class="text-center px-3 py-2" title="Combined price of the two projected starting goalkeepers.">Total Cost</th>
                             <th class="text-left px-3 py-2" id="pairings-extra-header">GK Pair</th>
                         </tr>
                     </thead>
@@ -3268,12 +3296,12 @@
                 if (!gws.length) return;
 
                 const preferred = Number(preferredGw);
-                const startGw = gws.includes(preferred) ? preferred : gws[0];
+                const startGw = gws.includes(1) ? 1 : (gws.includes(preferred) ? preferred : gws[0]);
                 const startIndex = Math.max(0, gws.indexOf(startGw));
-                const defaultEndIndex = Math.min(gws.length - 1, startIndex + 7);
+                const endGw = gws.includes(5) && startGw === 1 ? 5 : gws[Math.min(gws.length - 1, startIndex + 4)];
 
-                $from.val(String(gws[startIndex]));
-                $to.val(String(gws[defaultEndIndex]));
+                $from.val(String(startGw));
+                $to.val(String(endGw));
             }
 
             function getFantasyWindowMeta(gw) {
@@ -3820,6 +3848,56 @@
                 }).join('');
             }
 
+            function selectedMultiValues(selector) {
+                return ($(selector).val() || []).map(String);
+            }
+
+            function sortPairings(pairs, sortMode) {
+                const arr = [...pairs];
+                const finiteOr = (value, fallback) => Number.isFinite(Number(value)) ? Number(value) : fallback;
+
+                arr.sort((x, y) => {
+                    if (sortMode === 'cost') {
+                        const diff = finiteOr(x.combinedGkPrice, 999) - finiteOr(y.combinedGkPrice, 999);
+                        if (diff) return diff;
+                    } else if (sortMode === 'cs') {
+                        const diff = finiteOr(y.combinedCsAvg, -1) - finiteOr(x.combinedCsAvg, -1);
+                        if (diff) return diff;
+                    } else if (sortMode === 'gk') {
+                        const diff = finiteOr(y.combinedGkAvg, -1) - finiteOr(x.combinedGkAvg, -1);
+                        if (diff) return diff;
+                    } else if (sortMode === 'coverage') {
+                        const diff = finiteOr(y.coveragePct, -1) - finiteOr(x.coveragePct, -1);
+                        if (diff) return diff;
+                    }
+
+                    // Default/tie-breaker: pairing quality, then GK environment, then price.
+                    if (y.pct !== x.pct) return y.pct - x.pct;
+                    if (y.coveragePct !== x.coveragePct) return y.coveragePct - x.coveragePct;
+                    if (y.different !== x.different) return y.different - x.different;
+                    const gkDiff = finiteOr(y.combinedGkAvg, -1) - finiteOr(x.combinedGkAvg, -1);
+                    if (gkDiff) return gkDiff;
+                    const priceDiff = finiteOr(x.combinedGkPrice, 999) - finiteOr(y.combinedGkPrice, 999);
+                    if (priceDiff) return priceDiff;
+                    return `${x.a.club}-${x.b.club}`.localeCompare(`${y.a.club}-${y.b.club}`);
+                });
+                return arr;
+            }
+
+            function populatePairingTeamFilters(pairs) {
+                const clubs = Array.from(new Set(pairs.flatMap(p => [p.a.club, p.b.club]))).sort();
+                const selectors = ['#pairings-include-teams', '#pairings-exclude-teams'];
+                selectors.forEach(selector => {
+                    const $el = $(selector);
+                    const current = new Set(($el.val() || []).map(String));
+                    $el.empty();
+                    clubs.forEach(club => {
+                        const selected = current.has(club) ? ' selected' : '';
+                        $el.append(`<option value="${club}"${selected}>${club}</option>`);
+                    });
+                });
+            }
+
             function renderPairings() {
                 if (!fullPlayerData || !fullPlayerData.length) return;
 
@@ -3837,7 +3915,20 @@
                 }
 
                 const pairs = buildAllPairings(fullPlayerData, league, fromGw, toGw);
-                const shown = pairs.filter(pair => pair.comparable > 0 && pair.pct + 0.0001 >= minPairingPct);
+                populatePairingTeamFilters(pairs);
+
+                const includeTeams = new Set(selectedMultiValues('#pairings-include-teams'));
+                const excludeTeams = new Set(selectedMultiValues('#pairings-exclude-teams'));
+                const sortMode = $('#pairings-sort').val() || 'pairing';
+
+                const filtered = pairs.filter(pair => {
+                    if (!(pair.comparable > 0 && pair.pct + 0.0001 >= minPairingPct)) return false;
+                    const clubs = [pair.a.club, pair.b.club];
+                    if (includeTeams.size && !clubs.some(club => includeTeams.has(club))) return false;
+                    if (clubs.some(club => excludeTeams.has(club))) return false;
+                    return true;
+                });
+                const shown = sortPairings(filtered, sortMode);
 
                 $('#pairings-extra-header').text(mode === 'gk' ? 'Projected GK Pair' : 'Day Pattern');
 
@@ -3845,13 +3936,15 @@
                 $('#pairings-summary').html(
                     `<span class="font-semibold">${leagueLabel}, GW${fromGw}–GW${toGw}:</span> `
                     + `${shown.length} of ${pairs.length} club pairs shown at ≥${minPairingPct}% pairing. `
+                    + (includeTeams.size ? `<span class="text-indigo-700">Including: ${Array.from(includeTeams).join(', ')}. </span>` : '')
+                    + (excludeTeams.size ? `<span class="text-red-700">Excluding: ${Array.from(excludeTeams).join(', ')}. </span>` : '')
                     + `<span class="text-gray-500">Pairing % uses only GWs where both clubs actually have a fixture. Avg GK Fix uses CS environment + save opportunity + the projected starter's keeper-quality prior; unmatched keepers use an explicitly labeled neutral fallback. Coverage shows how many selected GWs are comparable. League-off/Free Hit weeks and club-specific blanks are tracked separately.</span>`
                 );
 
                 const $body = $('#pairings-table-body').empty();
 
                 if (!shown.length) {
-                    $body.html('<tr><td colspan="10" class="px-3 py-8 text-center text-gray-500">No pairings meet this minimum pairing percentage for the selected window.</td></tr>');
+                    $body.html('<tr><td colspan="9" class="px-3 py-8 text-center text-gray-500">No pairings meet the current pairing/team filters for the selected window.</td></tr>');
                     return;
                 }
 
@@ -3886,7 +3979,6 @@
                                 <div class="text-xs text-gray-500">${pair.a.league}${pair.a.league !== pair.b.league ? ` + ${pair.b.league}` : ''}</div>
                             </td>
                             <td class="px-3 py-2 text-center font-semibold">${pair.different}/${pair.comparable}</td>
-                            <td class="px-3 py-2 text-center">${pair.same}/${pair.comparable}</td>
                             <td class="px-3 py-2 text-center"><span class="${pairingPercentClass(pair.pct)}">${pair.pct.toFixed(0)}%</span></td>
                             <td class="px-3 py-2 text-center">
                                 <div class="font-semibold">${pair.comparable}/${pair.selectedWindowWeeks}</div>
@@ -3896,19 +3988,18 @@
                                 </div>
                             </td>
                             <td class="px-3 py-2 text-center">
-                                <div class="font-semibold">${pair.separationPoints}</div>
-                                <div class="text-xs text-gray-400">day-gap pts</div>
-                            </td>
-                            <td class="px-3 py-2 text-center">
                                 ${Number.isFinite(pair.combinedCsAvg) ? `<div class="font-semibold">${pair.combinedCsAvg.toFixed(1)}</div><div class="text-xs text-gray-400">${pair.a.club} ${pair.avgCsA.toFixed(0)} · ${pair.b.club} ${pair.avgCsB.toFixed(0)}</div>` : '<span class="text-gray-400">—</span>'}
                             </td>
                             <td class="px-3 py-2 text-center">
                                 ${Number.isFinite(pair.combinedGkAvg) ? `<div class="font-semibold">${pair.combinedGkAvg.toFixed(1)}</div><div class="text-xs text-gray-400">${pair.a.club} ${pair.avgGkA.toFixed(0)} · ${pair.b.club} ${pair.avgGkB.toFixed(0)}</div>` : '<span class="text-gray-400">—</span>'}
                             </td>
+                            <td class="px-3 py-2 text-center">
+                                ${Number.isFinite(pair.combinedGkPrice) ? `<div class="font-semibold">£${pair.combinedGkPrice.toFixed(1)}m</div>` : '<span class="text-gray-400">—</span>'}
+                            </td>
                             <td class="px-3 py-2">${extra}</td>
                         </tr>
                         <tr id="${rowId}" class="pairing-detail-row hidden">
-                            <td colspan="10" class="px-3 py-3">
+                            <td colspan="11" class="px-3 py-3">
                                 <div class="flex flex-wrap gap-2">${pairingDetailHtml(pair)}</div>
                             </td>
                         </tr>
@@ -3959,7 +4050,11 @@
             });
             $('#planner-search').on('input', renderPlanner);
 
-            $('#pairings-from-gw, #pairings-to-gw, #pairings-mode').on('change', renderPairings);
+            $('#pairings-from-gw, #pairings-to-gw, #pairings-mode, #pairings-sort, #pairings-include-teams, #pairings-exclude-teams').on('change', renderPairings);
+            $('#pairings-clear-team-filters').on('click', function() {
+                $('#pairings-include-teams, #pairings-exclude-teams').val([]);
+                renderPairings();
+            });
             $('#pairings-min-pct').on('input change', function() {
                 $('#pairings-min-pct-value').text(`${Number($(this).val()).toFixed(0)}%`);
                 renderPairings();
