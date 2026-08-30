@@ -3146,8 +3146,58 @@
             }
 
             function getFixtureForGameweek(player, gw) {
+                // The official player feed only exposes the next 3 fixtures, but fixtures.json
+                // contains the full canonical fantasy calendar. Prefer the richer player fixture
+                // when available, then fall back to the full fixture feed so the Day Planner can
+                // browse the entire season.
                 const fixtures = Array.isArray(player.upcoming_fixtures) ? player.upcoming_fixtures : [];
-                return fixtures.find(f => String(f.game_week) === String(gw)) || null;
+                const direct = fixtures.find(f => String(f.fantasy_game_week ?? f.game_week) === String(gw));
+                if (direct) return direct;
+
+                if (!Array.isArray(fullFixtureData) || !fullFixtureData.length || !player.Club) return null;
+
+                const club = String(player.Club).toUpperCase();
+                const match = fullFixtureData.find(f => {
+                    const fixtureGw = f.fantasy_game_week ?? f.game_week;
+                    return String(fixtureGw) === String(gw) &&
+                        (String(f.home_id || '').toUpperCase() === club || String(f.away_id || '').toUpperCase() === club);
+                });
+                if (!match) return null;
+
+                const isHome = String(match.home_id || '').toUpperCase() === club;
+                const opponentId = isHome ? match.away_id : match.home_id;
+                const opponentName = isHome ? (match.away_name || match.away_short_name) : (match.home_name || match.home_short_name);
+                const opponentShort = isHome ? (match.away_short_name || match.away_name) : (match.home_short_name || match.home_name);
+
+                // For GK/DEF, fixtures.json has a defensive-opportunity score. For MID/FOR later
+                // than the 3-fixture player feed, leave Fix unrated rather than showing a misleading
+                // defensive number.
+                let opportunity = null;
+                if (player.Position === 'GK' || player.Position === 'DEF') {
+                    const raw = isHome ? match.home_defensive_opportunity : match.away_defensive_opportunity;
+                    const n = Number(raw);
+                    if (Number.isFinite(n)) opportunity = n;
+                }
+
+                return {
+                    match_date_time_utc: match.match_date_time_utc || '',
+                    fixture_date_iso: match.fixture_date_iso || '',
+                    fixture_day: match.fixture_day || '',
+                    fixture_day_short: match.fixture_day_short || (match.fixture_day || '').slice(0,3).toUpperCase(),
+                    fixture_day_number: match.fixture_day_number,
+                    game_date: match.game_date || match.fixture_date_iso || '',
+                    kick_off_time: match.kick_off_time || '',
+                    game_week: String(match.fantasy_game_week ?? match.game_week ?? gw),
+                    fantasy_game_week: String(match.fantasy_game_week ?? match.game_week ?? gw),
+                    match_id: match.match_id || '',
+                    opponent_id: opponentId || '',
+                    opponent_name: opponentName || 'TBD',
+                    opponent_short_name: opponentShort || opponentId || 'TBD',
+                    location: isHome ? 'H' : 'A',
+                    league: player.League || '',
+                    opportunity_rating: opportunity,
+                    planner_full_schedule_fallback: true
+                };
             }
 
             function plannerDayClass(dayShort) {
@@ -3171,10 +3221,23 @@
                 const clubs = new Set();
                 data.forEach(player => {
                     if (player.Club) clubs.add(player.Club);
-                    (player.upcoming_fixtures || []).forEach(f => {
-                        if (f.game_week) gameweeks.add(String(f.game_week));
-                    });
                 });
+
+                // Use the full canonical fixture feed when available. The player feed itself only
+                // carries three upcoming fixtures, which previously capped this dropdown at GW3.
+                if (Array.isArray(fullFixtureData) && fullFixtureData.length) {
+                    fullFixtureData.forEach(f => {
+                        const gw = f.fantasy_game_week ?? f.game_week;
+                        if (gw !== null && gw !== undefined && gw !== '') gameweeks.add(String(gw));
+                    });
+                } else {
+                    data.forEach(player => {
+                        (player.upcoming_fixtures || []).forEach(f => {
+                            const gw = f.fantasy_game_week ?? f.game_week;
+                            if (gw !== null && gw !== undefined && gw !== '') gameweeks.add(String(gw));
+                        });
+                    });
+                }
                 const sortedGws = Array.from(gameweeks).sort((a,b) => Number(a)-Number(b));
                 $('#planner-gameweek').empty();
                 sortedGws.forEach(gw => $('#planner-gameweek').append(`<option value="${gw}">GW${gw}</option>`));
@@ -3250,7 +3313,7 @@
                             </div>
                             <div class="mt-2 flex justify-between gap-2 text-xs">
                                 <span class="font-semibold text-gray-700">${fixture.kick_off_time || ''} · ${opp} (${loc})</span>
-                                <span class="text-gray-500">Fix ${Math.round(Number(fixture.opportunity_rating || 0))}</span>
+                                <span class="text-gray-500">${Number.isFinite(Number(fixture.opportunity_rating)) && fixture.opportunity_rating !== null ? `Fix ${Math.round(Number(fixture.opportunity_rating))}` : 'Fix —'}</span>
                             </div>
                             <div class="mt-1 text-xs text-gray-500">Decision ${Number(player['Decision Rating'] || 0).toFixed(1)} · Selected ${Number(player['Selected Percentage'] || 0).toFixed(0)}%</div>
                         </article>`;
