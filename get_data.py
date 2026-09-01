@@ -1618,6 +1618,32 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
             fixture["market_cs_method"] = None
             fixture["market_cs_updated_at"] = None
 
+    # Full-schedule general + defensive fixture opportunities for leg planning.
+    # These mirror the player-level fixture model so every published GW can be
+    # compared even when the player feed only exposes the next few fixtures.
+    for fixture in fixtures:
+        comp = fixture.get("competition_id")
+        home_general, _ = blended_fixture_opportunity(
+            fixture.get("home_rating"), fixture.get("home_id"), fixture.get("away_id"),
+            "H", comp, fixture_calibration, team_strength
+        )
+        away_general, _ = blended_fixture_opportunity(
+            fixture.get("away_rating"), fixture.get("away_id"), fixture.get("home_id"),
+            "A", comp, fixture_calibration, team_strength
+        )
+        home_def, _ = defensive_fixture_opportunity(
+            fixture.get("home_id"), fixture.get("away_id"), "H", team_unit_strength
+        )
+        away_def, _ = defensive_fixture_opportunity(
+            fixture.get("away_id"), fixture.get("home_id"), "A", team_unit_strength
+        )
+        fixture["home_fixture_opportunity"] = home_general
+        fixture["away_fixture_opportunity"] = away_general
+        fixture["home_fixture_score"] = fixture_rating_to_score(home_general)
+        fixture["away_fixture_score"] = fixture_rating_to_score(away_general)
+        fixture["home_defensive_opportunity"] = home_def
+        fixture["away_defensive_opportunity"] = away_def
+
     # Full-schedule goalkeeper model: clean-sheet environment and save opportunity.
     for fixture in fixtures:
         hs = gk_fixture_scores(fixture.get("home_id"), fixture.get("away_id"), "H", gk_team_priors, None, gk_model_inputs)
@@ -1668,6 +1694,14 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
         "fixture_count": len(fixtures),
         "team_count": len(teams),
         "fantasy_gameweeks": fantasy_gameweeks,
+        "fantasy_legs": [
+            {"leg": 1, "start_gw": 1, "end_gw": 5},
+            {"leg": 2, "start_gw": 6, "end_gw": 11},
+            {"leg": 3, "start_gw": 12, "end_gw": 14},
+            {"leg": 4, "start_gw": 15, "end_gw": 19},
+            {"leg": 5, "start_gw": 20, "end_gw": 23},
+            {"leg": 6, "start_gw": 24, "end_gw": 26},
+        ],
         "gk_fixture_model": {
             "version": "team-cs-save-v2",
             "note": "GK model separates clean-sheet environment, probability of reaching the 3-save point threshold, individual shot-stopping quality, and risk of the -1 penalty for conceding 3+ goals. WSL2 team priors use 2025-26 goals, clean sheets, saves/game, shots on target and big chances, with a conservative promotion bridge.",
