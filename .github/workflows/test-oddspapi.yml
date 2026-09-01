@@ -1,4 +1,4 @@
-name: Test OddsPapi WSL GW1
+name: Test OddsPapi WSL - One Request
 
 on:
   workflow_dispatch:
@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Fetch WSL GW1 fixtures and odds
+      - name: Check quota and fetch WSL odds
         env:
           ODDSPAPI_API_KEY: ${{ secrets.ODDSPAPI_API_KEY }}
         run: |
@@ -21,192 +21,102 @@ jobs:
           import sys
           import urllib.parse
           import urllib.request
+          import urllib.error
 
           API_KEY = os.environ.get("ODDSPAPI_API_KEY")
           if not API_KEY:
-              raise SystemExit(
-                  "Missing repository secret ODDSPAPI_API_KEY. "
-                  "Add it under Settings > Secrets and variables > Actions."
-              )
+              raise SystemExit("Missing ODDSPAPI_API_KEY repository secret.")
 
           BASE = "https://api.oddspapi.io/v4"
+          WSL_TOURNAMENT_ID = 1044  # discovered successfully in the first test run
 
-          def get_json(path, params):
-              params = dict(params)
+          def request_json(path, params=None, save_error_as=None):
+              params = dict(params or {})
               params["apiKey"] = API_KEY
               url = BASE + path + "?" + urllib.parse.urlencode(params)
               req = urllib.request.Request(
                   url,
                   headers={
                       "Accept": "application/json",
-                      "User-Agent": "wsl-stats-oddspapi-test/1.0",
+                      "User-Agent": "wsl-stats-oddspapi-test/2.0",
                   },
               )
               try:
-                  with urllib.request.urlopen(req, timeout=45) as r:
+                  with urllib.request.urlopen(req, timeout=60) as r:
                       return json.load(r)
-              except Exception as e:
-                  # Never print the URL because it contains the API key.
-                  print(f"OddsPapi request failed for {path}: {e}", file=sys.stderr)
+              except urllib.error.HTTPError as e:
+                  body = e.read().decode("utf-8", errors="replace")
+                  if save_error_as:
+                      with open(save_error_as, "w", encoding="utf-8") as f:
+                          f.write(body)
+                  print(f"{path} returned HTTP {e.code}", file=sys.stderr)
+                  print(body[:1000], file=sys.stderr)
                   raise
 
-          def as_list(payload):
+          # /account is unmetered and remains available even when the request
+          # allowance has been exhausted.
+          account = request_json("/account")
+          with open("oddspapi_account.json", "w", encoding="utf-8") as f:
+              json.dump(account, f, indent=2, ensure_ascii=False)
+
+          print("ACCOUNT / QUOTA:")
+          print(json.dumps(account, indent=2)[:4000])
+
+          # We intentionally make exactly ONE billable request below.
+          # odds-by-tournaments returns all fixtures + odds for the WSL in one call.
+          #
+          # We request both bookmakers in the same call. If a bookmaker does not
+          # carry a fixture/market, it simply won't contribute data for that item.
+          odds = request_json(
+              "/odds-by-tournaments",
+              {
+                  "tournamentIds": str(WSL_TOURNAMENT_ID),
+                  "bookmakers": "pinnacle,betpawa.cm",
+                  "language": "en",
+                  "verbosity": 3,
+                  "oddsFormat": "decimal",
+              },
+              save_error_as="oddspapi_odds_error.json",
+          )
+
+          with open("oddspapi_wsl_all_odds.json", "w", encoding="utf-8") as f:
+              json.dump(odds, f, indent=2, ensure_ascii=False)
+
+          # Filter GW1 locally; this costs no additional API requests.
+          def fixture_rows(payload):
               if isinstance(payload, list):
                   return payload
               if isinstance(payload, dict):
-                  for key in ("data", "fixtures", "tournaments", "results", "items"):
-                      if isinstance(payload.get(key), list):
-                          return payload[key]
+                  for key in ("data", "fixtures", "results", "items"):
+                      val = payload.get(key)
+                      if isinstance(val, list):
+                          return val
               return []
 
-          # 1) Find the WSL tournament rather than hard-coding a tournament ID.
-          tournaments_raw = get_json("/tournaments", {"sportId": 10})
-          tournaments = as_list(tournaments_raw)
+          rows = fixture_rows(odds)
+          gw1 = []
+          for fx in rows:
+              start = str(fx.get("startTime", ""))
+              if "2026-09-04" <= start[:10] <= "2026-09-07":
+                  gw1.append(fx)
 
-          def tournament_score(t):
-              name = str(t.get("tournamentName", "")).lower()
-              slug = str(t.get("tournamentSlug", "")).lower()
-              category = str(t.get("categoryName", "")).lower()
-              cslug = str(t.get("categorySlug", "")).lower()
-              hay = " ".join((name, slug, category, cslug))
+          with open("oddspapi_wsl_gw1_odds.json", "w", encoding="utf-8") as f:
+              json.dump(gw1, f, indent=2, ensure_ascii=False)
 
-              score = 0
-              if "england" in hay:
-                  score += 5
-              if "women" in hay or "womens" in hay or "women's" in hay:
-                  score += 6
-              if "super league" in hay:
-                  score += 6
-              if slug in ("wsl", "women-super-league", "womens-super-league"):
-                  score += 10
-              if "super-league" in slug and ("women" in slug or "wsl" in slug):
-                  score += 8
-              return score
-
-          ranked = sorted(tournaments, key=tournament_score, reverse=True)
-          candidates = [t for t in ranked if tournament_score(t) >= 11]
-
-          if not candidates:
-              # Save tournament search output so we can inspect naming if OddsPapi differs.
-              with open("oddspapi_tournaments_debug.json", "w", encoding="utf-8") as f:
-                  json.dump(tournaments_raw, f, indent=2, ensure_ascii=False)
-              raise SystemExit(
-                  "Could not confidently identify the Women's Super League tournament. "
-                  "Download the artifact and inspect oddspapi_tournaments_debug.json."
-              )
-
-          wsl = candidates[0]
-          tournament_id = wsl.get("tournamentId")
-          print("Selected tournament:", wsl.get("tournamentName"), "| ID:", tournament_id)
-
-          # 2) Fetch GW1 fixtures (Sep 4-7, 2026), requiring at least some odds.
-          fixtures_raw = get_json(
-              "/fixtures",
-              {
-                  "sportId": 10,
-                  "tournamentId": tournament_id,
-                  "from": "2026-09-04T00:00:00Z",
-                  "to": "2026-09-08T00:00:00Z",
-                  "statusId": 0,
-                  "hasOdds": "true",
-              },
-          )
-          fixtures = as_list(fixtures_raw)
-
-          print("Fixtures found:", len(fixtures))
-          if not fixtures:
-              with open("oddspapi_fixtures_debug.json", "w", encoding="utf-8") as f:
-                  json.dump(fixtures_raw, f, indent=2, ensure_ascii=False)
-              raise SystemExit(
-                  "No WSL GW1 fixtures with odds were returned. "
-                  "Download the artifact and inspect oddspapi_fixtures_debug.json."
-              )
-
-          # 3) Pull detailed fixture metadata + odds from Pinnacle and betPawa CM.
-          output = {
-              "generated_by": "GitHub Actions OddsPapi WSL test",
-              "sport_id": 10,
-              "selected_tournament": wsl,
-              "date_window": {
-                  "from": "2026-09-04T00:00:00Z",
-                  "to": "2026-09-08T00:00:00Z",
-              },
-              "bookmakers_requested": ["pinnacle", "betpawa.cm"],
-              "fixtures": [],
-          }
-
-          for fx in fixtures:
-              fixture_id = fx.get("fixtureId")
-              if not fixture_id:
-                  continue
-
-              print("Fetching", fixture_id)
-
-              detail = get_json(
-                  "/fixture",
-                  {"fixtureId": fixture_id, "language": "en"},
-              )
-
-              # Ask for both sources together so one fixture costs one odds request.
-              odds = get_json(
-                  "/odds",
-                  {
-                      "fixtureId": fixture_id,
-                      "bookmakers": "pinnacle,betpawa.cm",
-                      "oddsFormat": "decimal",
-                      "language": "en",
-                      "verbosity": 3,
-                  },
-              )
-
-              output["fixtures"].append(
-                  {
-                      "fixture_summary": fx,
-                      "fixture_detail": detail,
-                      "odds": odds,
-                  }
-              )
-
-          # 4) Also pull the market dictionary once. This lets us map IDs to
-          # names such as Team Total / Clean Sheet without guessing.
-          markets = get_json("/markets", {"language": "en"})
-          output["market_dictionary"] = markets
-
-          with open("oddspapi_wsl_gw1_full.json", "w", encoding="utf-8") as f:
-              json.dump(output, f, indent=2, ensure_ascii=False)
-
-          # Smaller human-inspection file with useful market names only.
-          market_list = as_list(markets)
-          interesting = []
-          for m in market_list:
-              text = " ".join(
-                  str(m.get(k, ""))
-                  for k in ("marketName", "marketType", "period")
-              ).lower()
-              if any(term in text for term in (
-                  "clean sheet",
-                  "team total",
-                  "total goals",
-                  "both teams",
-                  "btts",
-              )):
-                  interesting.append(m)
-
-          with open("oddspapi_interesting_markets.json", "w", encoding="utf-8") as f:
-              json.dump(interesting, f, indent=2, ensure_ascii=False)
-
-          print("Done. Saved", len(output["fixtures"]), "WSL fixtures.")
+          print(f"Total WSL fixtures in response: {len(rows)}")
+          print(f"GW1 fixtures retained locally: {len(gw1)}")
+          print("Success: only one billable OddsPapi request was used.")
           PY
 
-      - name: Upload OddsPapi test results
+      - name: Upload OddsPapi results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: oddspapi-wsl-gw1-test
+          name: oddspapi-wsl-one-request
           path: |
-            oddspapi_wsl_gw1_full.json
-            oddspapi_interesting_markets.json
-            oddspapi_tournaments_debug.json
-            oddspapi_fixtures_debug.json
+            oddspapi_account.json
+            oddspapi_wsl_all_odds.json
+            oddspapi_wsl_gw1_odds.json
+            oddspapi_odds_error.json
           if-no-files-found: warn
           retention-days: 7
