@@ -1,8 +1,9 @@
 """Fetch Pinnacle WSL team-total odds through OddsPapi and derive clean-sheet probabilities.
 
-The script intentionally uses one OddsPapi billable request per run. Team names are
-resolved by matching OddsPapi fixture kickoffs to the official WSL fixture feed,
-so no second participant lookup is required.
+The script intentionally uses one OddsPapi billable request per run. It learns a
+participant-ID -> WSL club mapping from fixtures whose kickoff uniquely identifies
+the official match, then uses those learned IDs to resolve simultaneous kickoffs.
+No second participant lookup request is required.
 
 Output: market_odds.json
 """
@@ -22,6 +23,12 @@ OUTPUT_PATH = ROOT / "market_odds.json"
 ODDSPAPI_BASE = "https://api.oddspapi.io/v4"
 WSL_TOURNAMENT_ID = 1044
 WSL_FIXTURES_URL = "https://gaming.wslfootball.com/feeds/fixtures/fixtures_en_1.json?v=3"
+
+TEAM_CODE_ALIASES = {"MNU": "MUN"}
+
+def canonical_team_code(code: str | None) -> str:
+    raw = str(code or "").upper()
+    return TEAM_CODE_ALIASES.get(raw, raw)
 
 
 def parse_dt(value: str | None) -> datetime | None:
@@ -92,6 +99,7 @@ def find_team_total_half(markets: dict[str, Any], side: str) -> dict[str, Any] |
     """Find an active team-total O/U 0.5 pair for home or away."""
     over: tuple[float, bool, bool] | None = None  # price, player active, main line
     under: tuple[float, bool, bool] | None = None
+    matched_market_id: str | None = None
 
     for market in (markets or {}).values():
         if not isinstance(market, dict) or not market.get("marketActive", True):
@@ -109,6 +117,7 @@ def find_team_total_half(markets: dict[str, Any], side: str) -> dict[str, Any] |
                 outcome_id = str(player.get("bookmakerOutcomeId") or "").lower()
                 if outcome_id not in {f"{side}/0.5/over", f"{side}/0.5/under"}:
                     continue
+                matched_market_id = market_id
                 try:
                     price = float(player.get("price"))
                 except (TypeError, ValueError):
@@ -144,30 +153,85 @@ def find_team_total_half(markets: dict[str, Any], side: str) -> dict[str, Any] |
         "overround": round(denom - 1.0, 6),
         "fair_under_probability": round(fair_under, 6),
         "main_line": bool(over[2] or under[2]),
+        "bookmaker_market_id": matched_market_id,
+        "market_type": "teamTotal",
+        "team_total_side": side,
+        "line": 0.5,
     }
 
 
-def match_official_fixture(odd_fixture: dict[str, Any], official: list[dict[str, Any]]) -> dict[str, Any] | None:
+def unique_kickoff_match(odd_fixture: dict[str, Any], official: list[dict[str, Any]]) -> dict[str, Any] | None:
     target = parse_dt(odd_fixture.get("startTime"))
     if not target:
         return None
-
     matches: list[tuple[float, dict[str, Any]]] = []
     for fixture in official:
         dt = parse_dt(fixture.get("matchDateTimeUtc"))
         if not dt:
             continue
         delta = abs((dt - target).total_seconds())
-        if delta <= 10 * 60:  # tolerate small feed discrepancies
+        if delta <= 10 * 60:
             matches.append((delta, fixture))
-
     if not matches:
         return None
     matches.sort(key=lambda x: x[0])
-    # Kickoffs are unique enough for current WSL schedule; reject an ambiguous tie.
     if len(matches) > 1 and matches[0][0] == matches[1][0]:
         return None
     return matches[0][1]
+
+
+def learn_participant_mapping(odds_fixtures: list[dict[str, Any]], official: list[dict[str, Any]]) -> dict[str, str]:
+    """Learn OddsPapi participant IDs from kickoff-unique matches in the same response."""
+    mapping: dict[str, str] = {}
+    conflicts: set[str] = set()
+    for odd_fixture in odds_fixtures:
+        fixture = unique_kickoff_match(odd_fixture, official)
+        if not fixture:
+            continue
+        pairs = [
+            (odd_fixture.get("participant1Id"), fixture.get("homeAcronymName")),
+            (odd_fixture.get("participant2Id"), fixture.get("awayAcronymName")),
+        ]
+        for participant_id, code in pairs:
+            if participant_id in (None, "") or not code:
+                continue
+            key = str(participant_id)
+            canon = canonical_team_code(code)
+            if key in mapping and mapping[key] != canon:
+                conflicts.add(key)
+            else:
+                mapping[key] = canon
+    for key in conflicts:
+        mapping.pop(key, None)
+    return mapping
+
+
+def match_official_fixture(
+    odd_fixture: dict[str, Any],
+    official: list[dict[str, Any]],
+    participant_map: dict[str, str],
+) -> dict[str, Any] | None:
+    """Resolve by learned home/away participant IDs, falling back to unique kickoff."""
+    p1 = participant_map.get(str(odd_fixture.get("participant1Id")))
+    p2 = participant_map.get(str(odd_fixture.get("participant2Id")))
+    target = parse_dt(odd_fixture.get("startTime"))
+
+    if p1 and p2:
+        candidates = []
+        for fixture in official:
+            home = canonical_team_code(fixture.get("homeAcronymName"))
+            away = canonical_team_code(fixture.get("awayAcronymName"))
+            if home != p1 or away != p2:
+                continue
+            if target:
+                dt = parse_dt(fixture.get("matchDateTimeUtc"))
+                if dt and abs((dt - target).total_seconds()) > 24 * 3600:
+                    continue
+            candidates.append(fixture)
+        if len(candidates) == 1:
+            return candidates[0]
+
+    return unique_kickoff_match(odd_fixture, official)
 
 
 def main() -> int:
@@ -200,6 +264,7 @@ def main() -> int:
         return 0
 
     odds_fixtures = flatten_odds_payload(payload)
+    participant_map = learn_participant_mapping(odds_fixtures, official)
     output_rows: list[dict[str, Any]] = []
     unmatched = 0
 
@@ -213,13 +278,13 @@ def main() -> int:
         if not home_tt and not away_tt:
             continue
 
-        fixture = match_official_fixture(odd_fixture, official)
+        fixture = match_official_fixture(odd_fixture, official, participant_map)
         if not fixture:
             unmatched += 1
             continue
 
-        home_code = fixture.get("homeAcronymName") or ""
-        away_code = fixture.get("awayAcronymName") or ""
+        home_code = canonical_team_code(fixture.get("homeAcronymName"))
+        away_code = canonical_team_code(fixture.get("awayAcronymName"))
         # A team's clean sheet is the opponent's probability of scoring under 0.5.
         home_cs = away_tt["fair_under_probability"] if away_tt else None
         away_cs = home_tt["fair_under_probability"] if home_tt else None
@@ -250,7 +315,9 @@ def main() -> int:
             "tournament_id": WSL_TOURNAMENT_ID,
             "fixture_count": len(output_rows),
             "unmatched_fixture_count": unmatched,
-            "note": "A team's CS probability equals the opponent's fair probability of scoring 0 goals. Prices are normalized within the same Pinnacle O/U 0.5 market to remove bookmaker margin.",
+            "learned_participant_count": len(participant_map),
+            "participant_mapping": participant_map,
+            "note": "A team's CS probability equals the opponent's fair probability of scoring 0 goals. Only Pinnacle bookmakerMarketId values explicitly ending in teamTotal with home/away 0.5 over+under outcomes are accepted; prices are normalized within that same market. Participant IDs are learned from kickoff-unique fixtures and reused to resolve simultaneous kickoffs.",
         },
         "fixtures": output_rows,
     }
