@@ -543,7 +543,10 @@ def gk_fixture_scores(
     baseline_ga = safe_float(own.get("league_baseline_ga"), 1.45)
 
     venue_goal_factor = 0.92 if location == "H" else 1.08 if location == "A" else 1.0
-    expected_ga = baseline_ga * math.sqrt(max(0.20, own_def_factor) * max(0.20, opp_attack_factor)) * venue_goal_factor
+    # v3 calibration: opponent attack drives 65% of matchup variation; own
+    # defensive prior is shrunk to 35% so elite historical defenses cannot
+    # overwhelm a brutal opponent run.
+    expected_ga = baseline_ga * (max(0.20, own_def_factor) ** 0.35) * (max(0.20, opp_attack_factor) ** 0.65) * venue_goal_factor
     expected_ga = max(0.25, min(3.25, expected_ga))
 
     cs_probability = math.exp(-expected_ga)
@@ -1010,40 +1013,50 @@ def defensive_fixture_opportunity(
     location: str | None,
     unit_strength: dict[str, dict[str, Any]],
 ) -> tuple[float, dict[str, Any]]:
-    """Estimate GK/defensive fixture favorability, 0..100, higher = better.
+    """Schedule-only defensive fixture favorability, 0..100, higher = easier.
 
-    This deliberately answers a different question from the general fixture
-    score: how favorable is the matchup for keeping goals out?
-
-    Opponent attack carries the largest weight; own defensive strength also
-    matters; home/away is explicit.
+    This is intentionally *not* a clean-sheet projection and does not reward a
+    club for being a strong defense itself. It answers only: how easy is the
+    opponent/venue for a defense in this transfer leg?
     """
-    own = str(own_team_code or "").upper()
     opp = str(opponent_code or "").upper()
-
-    own_info = unit_strength.get(own, {})
     opp_info = unit_strength.get(opp, {})
-
-    own_defense = safe_float(own_info.get("defense_strength_index"), 0.50)
     opp_attack = safe_float(opp_info.get("attack_strength_index"), 0.50)
-
     venue = 5.0 if location == "H" else -5.0 if location == "A" else 0.0
 
-    # Opponent attacking quality is intentionally the dominant term.
-    score = (
-        50.0
-        + ((own_defense - 0.50) * 25.0)
-        + ((0.50 - opp_attack) * 55.0)
-        + venue
-    )
+    score = 50.0 + ((0.50 - opp_attack) * 70.0) + venue
     score = round(max(8.0, min(92.0, score)), 1)
-
     return score, {
-        "own_defense_strength_index": round(own_defense, 4),
         "opponent_attack_strength_index": round(opp_attack, 4),
         "venue_adjustment": venue,
-        "own_defense_transition_note": own_info.get("defense_transition_note", ""),
         "opponent_attack_transition_note": opp_info.get("attack_transition_note", ""),
+        "schedule_only": True,
+    }
+
+
+def attacking_fixture_opportunity(
+    own_team_code: str | None,
+    opponent_code: str | None,
+    location: str | None,
+    unit_strength: dict[str, dict[str, Any]],
+) -> tuple[float, dict[str, Any]]:
+    """Schedule-only attacking fixture favorability, 0..100, higher = easier.
+
+    The score depends on opponent defensive strength plus venue, not the
+    attacking strength of the club being ranked.
+    """
+    opp = str(opponent_code or "").upper()
+    opp_info = unit_strength.get(opp, {})
+    opp_defense = safe_float(opp_info.get("defense_strength_index"), 0.50)
+    venue = 5.0 if location == "H" else -5.0 if location == "A" else 0.0
+
+    score = 50.0 + ((0.50 - opp_defense) * 70.0) + venue
+    score = round(max(8.0, min(92.0, score)), 1)
+    return score, {
+        "opponent_defense_strength_index": round(opp_defense, 4),
+        "venue_adjustment": venue,
+        "opponent_defense_transition_note": opp_info.get("defense_transition_note", ""),
+        "schedule_only": True,
     }
 
 
@@ -1637,12 +1650,20 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
         away_def, _ = defensive_fixture_opportunity(
             fixture.get("away_id"), fixture.get("home_id"), "A", team_unit_strength
         )
+        home_att, _ = attacking_fixture_opportunity(
+            fixture.get("home_id"), fixture.get("away_id"), "H", team_unit_strength
+        )
+        away_att, _ = attacking_fixture_opportunity(
+            fixture.get("away_id"), fixture.get("home_id"), "A", team_unit_strength
+        )
         fixture["home_fixture_opportunity"] = home_general
         fixture["away_fixture_opportunity"] = away_general
         fixture["home_fixture_score"] = fixture_rating_to_score(home_general)
         fixture["away_fixture_score"] = fixture_rating_to_score(away_general)
         fixture["home_defensive_opportunity"] = home_def
         fixture["away_defensive_opportunity"] = away_def
+        fixture["home_attacking_opportunity"] = home_att
+        fixture["away_attacking_opportunity"] = away_att
 
     # Full-schedule goalkeeper model: clean-sheet environment and save opportunity.
     for fixture in fixtures:
@@ -1672,7 +1693,7 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
         fixture["away_cs_prior"] = aws["own_cs_prior"]
         fixture["home_opponent_attack_prior"] = hs["opponent_attack_prior"]
         fixture["away_opponent_attack_prior"] = aws["opponent_attack_prior"]
-        fixture["gk_rating_model"] = "team-cs-save-v2"
+        fixture["gk_rating_model"] = "team-cs-save-v3"
 
     teams = [normalize_team(t) for t in teams_raw]
 
@@ -1741,8 +1762,9 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
             "team_strength_priors": team_strength,
             "defensive_fixture_model": {
                 "version": "unit-strength-defense-v6",
-                "note": "GK/defensive fixture opportunity is distinct from the general fantasy fixture rating. It is driven primarily by opponent attacking strength, then own defensive strength, with explicit home/away. Attack and defense priors use position-specific prior-season fantasy production and the same destination-league promotion/relegation bridge.",
-                "formula": "50 + (own_defense_index - 0.50)*25 + (0.50 - opponent_attack_index)*55 + venue",
+                "note": "Schedule-only attacking and defensive fixture opportunities are distinct from projected team strength. Defensive run uses only opponent attack + venue; attacking run uses only opponent defense + venue. Own team quality is intentionally excluded so the Leg Planner ranks schedule difficulty rather than projected performance.",
+                "defensive_formula": "50 + (0.50 - opponent_attack_index)*70 + venue",
+                "attacking_formula": "50 + (0.50 - opponent_defense_index)*70 + venue",
                 "venue": {"home": 5.0, "away": -5.0},
                 "team_unit_priors": team_unit_strength,
             },
