@@ -1,14 +1,14 @@
 {
   "metadata": {
     "source": "WSL Fantasy public JSON feeds used by create-team UI",
-    "generated_at_utc": "2026-09-01T15:04:30+00:00",
+    "generated_at_utc": "2026-09-01T15:26:32+00:00",
     "market_clean_sheet_data": {
       "available": true,
       "input_file": "market_odds.json",
       "fixture_count": 2,
       "source": "Pinnacle via OddsPapi",
       "method": "Opponent team total Under 0.5, de-vigged against Over 0.5",
-      "generated_at_utc": "2026-09-01T15:04:27+00:00",
+      "generated_at_utc": "2026-09-01T15:26:29+00:00",
       "note": "Market CS% is kept separate from the independent GK model for calibration; it is not yet blended into GK Fix."
     },
     "matchday_id": 1,
@@ -388,6 +388,38 @@
         "window_type": "WSL_ONLY",
         "free_hit_eligible": true,
         "fixture_count": 7
+      }
+    ],
+    "fantasy_legs": [
+      {
+        "leg": 1,
+        "start_gw": 1,
+        "end_gw": 5
+      },
+      {
+        "leg": 2,
+        "start_gw": 6,
+        "end_gw": 11
+      },
+      {
+        "leg": 3,
+        "start_gw": 12,
+        "end_gw": 14
+      },
+      {
+        "leg": 4,
+        "start_gw": 15,
+        "end_gw": 19
+      },
+      {
+        "leg": 5,
+        "start_gw": 20,
+        "end_gw": 23
+      },
+      {
+        "leg": 6,
+        "start_gw": 24,
+        "end_gw": 26
       }
     ],
     "gk_fixture_model": {

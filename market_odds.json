@@ -1,12 +1,19 @@
 {
   "metadata": {
-    "generated_at_utc": "2026-09-01T15:04:27+00:00",
+    "generated_at_utc": "2026-09-01T15:26:29+00:00",
     "source": "Pinnacle via OddsPapi",
     "method": "Opponent team total Under 0.5, de-vigged against Over 0.5",
     "tournament_id": 1044,
     "fixture_count": 2,
     "unmatched_fixture_count": 2,
-    "note": "A team's CS probability equals the opponent's fair probability of scoring 0 goals. Prices are normalized within the same Pinnacle O/U 0.5 market to remove bookmaker margin."
+    "learned_participant_count": 4,
+    "participant_mapping": {
+      "606004": "LCL",
+      "494374": "MUN",
+      "66768": "CHE",
+      "372786": "AVL"
+    },
+    "note": "A team's CS probability equals the opponent's fair probability of scoring 0 goals. Only Pinnacle bookmakerMarketId values explicitly ending in teamTotal with home/away 0.5 over+under outcomes are accepted; prices are normalized within that same market. Participant IDs are learned from kickoff-unique fixtures and reused to resolve simultaneous kickoffs."
   },
   "fixtures": [
     {
@@ -15,7 +22,7 @@
       "pinnacle_fixture_id": "1635071592",
       "start_time_utc": "2026-09-04T18:00:00.000Z",
       "home_team": "LCL",
-      "away_team": "MNU",
+      "away_team": "MUN",
       "home_name": "London City Lionesses",
       "away_name": "Manchester United",
       "home_market_cs_probability": 0.530242,
@@ -26,7 +33,11 @@
         "raw_under_probability": 0.567215,
         "overround": 0.069728,
         "fair_under_probability": 0.530242,
-        "main_line": true
+        "main_line": true,
+        "bookmaker_market_id": "line/29/8713/1635071592/3711242352/1/teamTotal",
+        "market_type": "teamTotal",
+        "team_total_side": "away",
+        "line": 0.5
       },
       "away_opponent_team_total_0_5": {
         "over_odds": 2.16,
@@ -34,7 +45,11 @@
         "raw_under_probability": 0.607903,
         "overround": 0.070866,
         "fair_under_probability": 0.567674,
-        "main_line": true
+        "main_line": true,
+        "bookmaker_market_id": "line/29/8713/1635071592/3711242352/1/teamTotal",
+        "market_type": "teamTotal",
+        "team_total_side": "home",
+        "line": 0.5
       },
       "source": "Pinnacle",
       "method": "opponent_team_total_under_0.5_devig",
@@ -57,7 +72,11 @@
         "raw_under_probability": 0.561482,
         "overround": 0.078545,
         "fair_under_probability": 0.520592,
-        "main_line": true
+        "main_line": true,
+        "bookmaker_market_id": "line/29/8713/1635101495/3711135918/0/teamTotal",
+        "market_type": "teamTotal",
+        "team_total_side": "away",
+        "line": 0.5
       },
       "away_opponent_team_total_0_5": null,
       "source": "Pinnacle",
