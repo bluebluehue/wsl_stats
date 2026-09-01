@@ -1506,8 +1506,10 @@
                         </label>
                         <label class="text-xs font-semibold text-gray-600">Sort
                             <select id="legs-sort" class="block mt-1 px-2 py-2 border border-gray-300 rounded-md text-sm bg-white">
-                                <option value="avg" selected>Best run</option>
+                                <option value="avg" selected>Best general run</option>
+                                <option value="attack">Best attacking run</option>
                                 <option value="defense">Best defensive run</option>
+                                <option value="cs">Highest projected CS</option>
                                 <option value="name">Team A–Z</option>
                             </select>
                         </label>
@@ -4375,34 +4377,70 @@
                 6: [24, 26]
             };
 
-            function legFixtureCell(team, fixture) {
-                if (!fixture) return { html: '<span class="text-gray-400">—</span>', score: null, defense: null };
+            function legMetricClass(value, mode) {
+                if (!Number.isFinite(value)) return 'bg-gray-100 text-gray-700';
+                if (mode === 'cs') {
+                    if (value >= 0.45) return 'bg-green-600 text-white';
+                    if (value >= 0.32) return 'bg-green-200 text-green-900';
+                    if (value >= 0.20) return 'bg-gray-200 text-gray-800';
+                    if (value >= 0.12) return 'bg-red-200 text-red-900';
+                    return 'bg-red-600 text-white';
+                }
+                if (value >= 80) return 'bg-green-600 text-white';
+                if (value >= 65) return 'bg-green-200 text-green-900';
+                if (value >= 45) return 'bg-gray-200 text-gray-800';
+                if (value >= 25) return 'bg-red-200 text-red-900';
+                return 'bg-red-600 text-white';
+            }
+
+            function legFixtureMetrics(team, fixture) {
                 const home = canonicalTeamCodeUI(fixture.home_id);
                 const away = canonicalTeamCodeUI(fixture.away_id);
                 const isHome = home === team;
-                const opponent = isHome ? away : home;
-                const loc = isHome ? 'H' : 'A';
-                const scoreRaw = isHome ? fixture.home_fixture_opportunity : fixture.away_fixture_opportunity;
-                const defRaw = isHome ? fixture.home_cs_probability : fixture.away_cs_probability;
-                const score = (scoreRaw === null || scoreRaw === undefined || scoreRaw === '') ? null : Number(scoreRaw);
-                const defense = (defRaw === null || defRaw === undefined || defRaw === '') ? null : Number(defRaw);
-                let cls = 'bg-gray-100 text-gray-700';
-                if (Number.isFinite(score)) {
-                    if (score >= 80) cls = 'bg-green-600 text-white';
-                    else if (score >= 65) cls = 'bg-green-200 text-green-900';
-                    else if (score >= 45) cls = 'bg-gray-200 text-gray-800';
-                    else if (score >= 25) cls = 'bg-red-200 text-red-900';
-                    else cls = 'bg-red-600 text-white';
-                }
-                const scoreText = Number.isFinite(score) ? Math.round(score) : '—';
-                const day = fixture.fixture_day_short || '';
+                const getNum = (homeKey, awayKey) => {
+                    const raw = isHome ? fixture[homeKey] : fixture[awayKey];
+                    if (raw === null || raw === undefined || raw === '') return null;
+                    const n = Number(raw);
+                    return Number.isFinite(n) ? n : null;
+                };
                 return {
-                    score: Number.isFinite(score) ? score : null,
-                    defense: Number.isFinite(defense) ? defense : null,
-                    html: `<div class="inline-flex flex-col items-center min-w-[72px] px-2 py-1 rounded-md ${cls}" title="${day} ${fixture.kick_off_time || ''}">
-                        <span class="font-bold">${opponent} <span class="opacity-75">${loc}</span></span>
-                        <span class="text-[10px] font-semibold opacity-80">Fix ${scoreText}</span>
-                    </div>`
+                    opponent: isHome ? away : home,
+                    loc: isHome ? 'H' : 'A',
+                    general: getNum('home_fixture_opportunity', 'away_fixture_opportunity'),
+                    attack: getNum('home_attacking_opportunity', 'away_attacking_opportunity'),
+                    defense: getNum('home_defensive_opportunity', 'away_defensive_opportunity'),
+                    cs: getNum('home_cs_probability', 'away_cs_probability'),
+                    day: fixture.fixture_day_short || '',
+                    time: fixture.kick_off_time || ''
+                };
+            }
+
+            function legFixtureCell(team, fixtures, mode) {
+                const list = Array.isArray(fixtures) ? fixtures : (fixtures ? [fixtures] : []);
+                if (!list.length) {
+                    return { html: '<span class="text-gray-400">—</span>', general: [], attack: [], defense: [], cs: [] };
+                }
+
+                const metrics = list.map(f => legFixtureMetrics(team, f));
+                const label = mode === 'attack' ? 'Atk' : mode === 'defense' ? 'Def' : mode === 'cs' ? 'CS' : 'Fix';
+                const boxes = metrics.map(m => {
+                    const value = m[mode === 'avg' ? 'general' : mode];
+                    const cls = legMetricClass(value, mode);
+                    const valueText = Number.isFinite(value)
+                        ? (mode === 'cs' ? `${Math.round(value * 100)}%` : `${Math.round(value)}`)
+                        : '—';
+                    return `<div class="inline-flex flex-col items-center min-w-[72px] px-2 py-1 rounded-md ${cls}" title="${m.day} ${m.time}">
+                        <span class="font-bold">${m.opponent} <span class="opacity-75">${m.loc}</span></span>
+                        <span class="text-[10px] font-semibold opacity-80">${label} ${valueText}</span>
+                    </div>`;
+                }).join('<div class="h-1"></div>');
+
+                return {
+                    html: boxes,
+                    general: metrics.map(m => m.general).filter(Number.isFinite),
+                    attack: metrics.map(m => m.attack).filter(Number.isFinite),
+                    defense: metrics.map(m => m.defense).filter(Number.isFinite),
+                    cs: metrics.map(m => m.cs).filter(Number.isFinite)
                 };
             }
 
@@ -4421,53 +4459,64 @@
                     if (code && !teamLeague.has(code)) teamLeague.set(code, p.League || '');
                 });
                 const teams = Array.from(teamLeague.keys()).filter(t => !league || teamLeague.get(t) === league);
+                const avg = values => values.length ? values.reduce((a,b)=>a+b,0) / values.length : null;
 
                 const rows = teams.map(team => {
                     const cells = [];
                     gws.forEach(gw => {
-                        const fixture = fullFixtureData.find(f => {
+                        const fixtures = fullFixtureData.filter(f => {
                             const fgw = Number(f.fantasy_game_week ?? f.game_week);
                             if (fgw !== gw) return false;
                             return canonicalTeamCodeUI(f.home_id) === team || canonicalTeamCodeUI(f.away_id) === team;
                         });
-                        cells.push({ gw, ...legFixtureCell(team, fixture) });
+                        cells.push({ gw, ...legFixtureCell(team, fixtures, sortMode) });
                     });
-                    const scores = cells.map(c => c.score).filter(Number.isFinite);
-                    const defenses = cells.map(c => c.defense).filter(Number.isFinite);
+                    const general = cells.flatMap(c => c.general);
+                    const attack = cells.flatMap(c => c.attack);
+                    const defense = cells.flatMap(c => c.defense);
+                    const cs = cells.flatMap(c => c.cs);
                     return {
                         team,
                         league: teamLeague.get(team),
                         cells,
-                        avg: scores.length ? scores.reduce((a,b)=>a+b,0)/scores.length : null,
-                        defense: defenses.length ? defenses.reduce((a,b)=>a+b,0)/defenses.length : null,
-                        coverage: scores.length
+                        general: avg(general),
+                        attack: avg(attack),
+                        defense: avg(defense),
+                        cs: avg(cs),
+                        fixtureCount: general.length
                     };
                 });
 
                 rows.sort((a,b) => {
                     if (sortMode === 'name') return a.team.localeCompare(b.team);
-                    if (sortMode === 'defense') return (b.defense ?? -1) - (a.defense ?? -1);
-                    return (b.avg ?? -1) - (a.avg ?? -1);
+                    const key = sortMode === 'avg' ? 'general' : sortMode;
+                    return (b[key] ?? -1) - (a[key] ?? -1);
                 });
 
+                const selectedLabel = sortMode === 'attack' ? 'attacking schedule' : sortMode === 'defense' ? 'defensive schedule' : sortMode === 'cs' ? 'projected clean sheets' : 'general fixture run';
                 $('#legs-table-head').html(`<tr>
                     <th class="text-left px-3 py-2">#</th>
                     <th class="text-left px-3 py-2">Team</th>
                     ${gws.map(gw => `<th class="text-center px-3 py-2">GW${gw}</th>`).join('')}
-                    <th class="text-center px-3 py-2" title="Average general fixture opportunity across this leg.">Avg Fix</th>
-                    <th class="text-center px-3 py-2" title="Average independent clean-sheet probability across this leg.">Avg CS%</th>
+                    <th class="text-center px-3 py-2" title="General fixture opportunity, including the source fixture rating and team matchup model.">Avg Fix</th>
+                    <th class="text-center px-3 py-2" title="Schedule-only attacking favorability: opponent defense + venue. Own attacking strength is excluded.">Avg Atk</th>
+                    <th class="text-center px-3 py-2" title="Schedule-only defensive favorability: opponent attack + venue. Own defensive strength is excluded.">Avg Def</th>
+                    <th class="text-center px-3 py-2" title="Projected clean-sheet probability from the full team-strength model. This is performance projection, not schedule difficulty.">Avg CS%</th>
                 </tr>`);
 
-                $('#legs-summary').html(`<span class="font-semibold">Leg ${leg} · GW${fromGw}–${toGw}:</span> ${rows.length} clubs shown. <span class="text-gray-500">Unlimited transfers are available before the next leg, so Avg Fix ranks the complete run inside this transfer window.</span>`);
+                $('#legs-summary').html(`<span class="font-semibold">Leg ${leg} · GW${fromGw}–${toGw}:</span> ${rows.length} clubs shown, sorted by ${selectedLabel}. <span class="text-gray-500">Atk and Def are schedule-only ratings; CS% separately includes the club's own defensive strength. Double gameweeks display both fixtures in the same GW cell.</span>`);
 
+                const emph = key => (sortMode === key || (sortMode === 'avg' && key === 'general')) ? 'font-bold bg-indigo-50' : '';
                 const body = rows.map((row, idx) => `<tr class="border-t border-gray-100 hover:bg-gray-50">
                     <td class="px-3 py-2 text-gray-400">${idx+1}</td>
                     <td class="px-3 py-2 font-bold"><span class="team-badge badge-${row.team}">${row.team}</span></td>
-                    ${row.cells.map(c => `<td class="px-3 py-2 text-center">${c.html}</td>`).join('')}
-                    <td class="px-3 py-2 text-center font-bold">${row.avg !== null ? row.avg.toFixed(1) : '—'}</td>
-                    <td class="px-3 py-2 text-center">${row.defense !== null ? (row.defense * 100).toFixed(1) + '%' : '—'}</td>
+                    ${row.cells.map(c => `<td class="px-3 py-2 text-center align-top">${c.html}</td>`).join('')}
+                    <td class="px-3 py-2 text-center ${emph('general')}">${row.general !== null ? row.general.toFixed(1) : '—'}</td>
+                    <td class="px-3 py-2 text-center ${emph('attack')}">${row.attack !== null ? row.attack.toFixed(1) : '—'}</td>
+                    <td class="px-3 py-2 text-center ${emph('defense')}">${row.defense !== null ? row.defense.toFixed(1) : '—'}</td>
+                    <td class="px-3 py-2 text-center ${emph('cs')}">${row.cs !== null ? (row.cs * 100).toFixed(1) + '%' : '—'}</td>
                 </tr>`).join('');
-                $('#legs-table-body').html(body || `<tr><td colspan="${gws.length + 4}" class="px-3 py-8 text-center text-gray-500">No teams match this league filter.</td></tr>`);
+                $('#legs-table-body').html(body || `<tr><td colspan="${gws.length + 6}" class="px-3 py-8 text-center text-gray-500">No teams match this league filter.</td></tr>`);
             }
 
             function setMainView(view) {
