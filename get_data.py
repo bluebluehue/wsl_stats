@@ -86,6 +86,16 @@ RELEGATED_WSL2_PROFILES = {
     "LEI": {"strength_band": (0.88, 0.95), "defense_bridge": 0.78, "attack_bridge": 1.24},
 }
 
+# v7: destination-WSL unit priors for promoted clubs.
+# 0.50 is approximately destination-league average. Splitting attack from
+# defense preserves the very different 2025/26 WSL2 profiles of these clubs:
+# Charlton were notably defense-first, while Palace had the stronger attack.
+PROMOTED_WSL_UNIT_STRENGTH = {
+    "BIR": {"attack": 0.40, "defense": 0.42},
+    "CRY": {"attack": 0.34, "defense": 0.38},
+    "CHA": {"attack": 0.24, "defense": 0.36},
+}
+
 # Fixture Model v5. The WSL source rating remains useful, but it is now only
 # one input. The independent team-matchup prior gets the larger weight.
 SOURCE_RATING_WEIGHT = 0.35
@@ -482,11 +492,19 @@ def build_gk_team_priors(
                 0.35 if row.get("promoted") else 0.88,
             )
 
-            # strength 0.50 -> approximately league average.
-            # Lower values produce weaker attack / worse defense; higher values
-            # produce stronger attack / better defense.
-            defense_factor = 1.25 - (0.45 * strength)
-            attack_factor = 0.75 + (0.55 * strength)
+            if row.get("promoted"):
+                unit_profile = PROMOTED_WSL_UNIT_STRENGTH.get(code, {})
+                attack_strength = safe_float(unit_profile.get("attack"), strength)
+                defense_strength = safe_float(unit_profile.get("defense"), strength)
+            else:
+                attack_strength = strength
+                defense_strength = strength
+
+            # 0.50 ~= destination-league average.
+            # Separate unit strengths stop a defense-first promoted side from
+            # inheriting an unrealistically strong WSL attack.
+            defense_factor = 1.25 - (0.45 * defense_strength)
+            attack_factor = 0.75 + (0.55 * attack_strength)
             shot_pressure_factor = defense_factor
 
             # Rebase shot/save environment to the destination league too.
@@ -498,8 +516,8 @@ def build_gk_team_priors(
 
             if row.get("promoted"):
                 bridge_note = (
-                    f"Promoted WSL2→WSL destination rebase "
-                    f"(roster strength {strength:.3f})"
+                    f"Promoted WSL2→WSL split-unit destination rebase "
+                    f"(ATK {attack_strength:.3f}, DEF {defense_strength:.3f})"
                 )
             else:
                 bridge_note = (
@@ -1769,7 +1787,7 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
         fixture["away_cs_prior"] = aws["own_cs_prior"]
         fixture["home_opponent_attack_prior"] = hs["opponent_attack_prior"]
         fixture["away_opponent_attack_prior"] = aws["opponent_attack_prior"]
-        fixture["gk_rating_model"] = "team-cs-save-v6-transition-rebased"
+        fixture["gk_rating_model"] = "team-cs-save-v7-split-promoted-units"
 
     teams = [normalize_team(t) for t in teams_raw]
 
@@ -1800,7 +1818,7 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
             {"leg": 6, "start_gw": 24, "end_gw": 26},
         ],
         "gk_fixture_model": {
-            "version": "team-cs-save-v6-transition-rebased",
+            "version": "team-cs-save-v7-split-promoted-units",
             "note": "GK model separates clean-sheet probability, save opportunity, individual keeper quality, and 3+ concession risk. Expected goals against multiplies independent own-defense and opponent-attack relative-risk factors plus venue. Cross-division clubs are now rebased to the destination league using their destination-calibrated current-roster strength prior, rather than carrying source-division GF/GA ratios across with a small multiplier.",
             "weights": {"cs_fix": 0.55, "save_opportunity": 0.25, "keeper_quality": 0.10, "concession_safety": 0.10},
             "cs_probability_formula": "P(CS)=exp(-xGA), xGA=league_baseline_GA * own_defense_factor * opponent_attack_factor * venue_factor",
