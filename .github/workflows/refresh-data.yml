@@ -21,7 +21,7 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: python -m pip install -e .
+        run: python -m pip install requests
 
       - name: Refresh Pinnacle clean-sheet market data
         env:
