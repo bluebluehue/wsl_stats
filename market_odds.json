@@ -1,0 +1,68 @@
+{
+  "metadata": {
+    "generated_at_utc": "2026-09-01T15:04:27+00:00",
+    "source": "Pinnacle via OddsPapi",
+    "method": "Opponent team total Under 0.5, de-vigged against Over 0.5",
+    "tournament_id": 1044,
+    "fixture_count": 2,
+    "unmatched_fixture_count": 2,
+    "note": "A team's CS probability equals the opponent's fair probability of scoring 0 goals. Prices are normalized within the same Pinnacle O/U 0.5 market to remove bookmaker margin."
+  },
+  "fixtures": [
+    {
+      "match_id": "wpll::Football_Match::54dda4624a104eacb8a662f15f2ff7fa",
+      "fixture_id": "id1000104473345984",
+      "pinnacle_fixture_id": "1635071592",
+      "start_time_utc": "2026-09-04T18:00:00.000Z",
+      "home_team": "LCL",
+      "away_team": "MNU",
+      "home_name": "London City Lionesses",
+      "away_name": "Manchester United",
+      "home_market_cs_probability": 0.530242,
+      "away_market_cs_probability": 0.567674,
+      "home_opponent_team_total_0_5": {
+        "over_odds": 1.99,
+        "under_odds": 1.763,
+        "raw_under_probability": 0.567215,
+        "overround": 0.069728,
+        "fair_under_probability": 0.530242,
+        "main_line": true
+      },
+      "away_opponent_team_total_0_5": {
+        "over_odds": 2.16,
+        "under_odds": 1.645,
+        "raw_under_probability": 0.607903,
+        "overround": 0.070866,
+        "fair_under_probability": 0.567674,
+        "main_line": true
+      },
+      "source": "Pinnacle",
+      "method": "opponent_team_total_under_0.5_devig",
+      "market_updated_at": "2026-08-31T13:18:57.733Z"
+    },
+    {
+      "match_id": "wpll::Football_Match::25ef6af2d5dd4816bdd4c5cf38a12b5e",
+      "fixture_id": "id1000104473345986",
+      "pinnacle_fixture_id": "1635101495",
+      "start_time_utc": "2026-09-05T11:30:00.000Z",
+      "home_team": "CHE",
+      "away_team": "AVL",
+      "home_name": "Chelsea",
+      "away_name": "Aston Villa",
+      "home_market_cs_probability": 0.520592,
+      "away_market_cs_probability": null,
+      "home_opponent_team_total_0_5": {
+        "over_odds": 1.934,
+        "under_odds": 1.781,
+        "raw_under_probability": 0.561482,
+        "overround": 0.078545,
+        "fair_under_probability": 0.520592,
+        "main_line": true
+      },
+      "away_opponent_team_total_0_5": null,
+      "source": "Pinnacle",
+      "method": "opponent_team_total_under_0.5_devig",
+      "market_updated_at": "2026-08-31T13:18:57.824Z"
+    }
+  ]
+}
