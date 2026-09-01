@@ -465,33 +465,48 @@ def build_gk_team_priors(
             data_quality = "current-roster bridge fallback"
 
         bridge_note = ""
-        if row.get("promoted"):
-            profile = PROMOTED_WSL_PROFILES.get(
-                code, {"defense_bridge": 1.18, "attack_bridge": 0.86}
+        if row.get("promoted") or row.get("relegated"):
+            # Cross-division rebasing (v6):
+            #
+            # Do NOT compare a promoted/relegated club's raw source-division
+            # GF/GA/SOT ratios directly with the destination league and then
+            # apply a small multiplier. That caused two opposite distortions:
+            # promoted clubs could remain above-average WSL attacks/defenses,
+            # while relegated Leicester could remain a weak WSL2 side despite
+            # the explicit elite-WSL2 roster prior.
+            #
+            # Instead, use the already destination-calibrated current-roster
+            # strength_index to place the club on the new league's scale.
+            strength = safe_float(
+                team_strength.get(code, {}).get("strength_index"),
+                0.35 if row.get("promoted") else 0.88,
             )
-            defense_bridge = safe_float(profile.get("defense_bridge"), 1.18)
-            attack_bridge = safe_float(profile.get("attack_bridge"), 0.86)
-            defense_factor *= defense_bridge
-            attack_factor *= attack_bridge
-            shot_pressure_factor *= 1.10
-            sot = (sot if sot is not None else base["sot"] * attack_factor) * 0.92
-            bridge_note = (
-                f"Promoted WSL2→WSL club-specific bridge "
-                f"(DEF×{defense_bridge:.2f}, ATK×{attack_bridge:.2f})"
-            )
-        elif row.get("relegated"):
-            profile = RELEGATED_WSL2_PROFILES.get(
-                code, {"defense_bridge": 0.82, "attack_bridge": 1.20}
-            )
-            defense_bridge = safe_float(profile.get("defense_bridge"), 0.82)
-            attack_bridge = safe_float(profile.get("attack_bridge"), 1.20)
-            defense_factor *= defense_bridge
-            attack_factor *= attack_bridge
-            shot_pressure_factor *= 0.88
-            bridge_note = (
-                f"Relegated WSL→WSL2 elite carryover bridge "
-                f"(DEF×{defense_bridge:.2f}, ATK×{attack_bridge:.2f})"
-            )
+
+            # strength 0.50 -> approximately league average.
+            # Lower values produce weaker attack / worse defense; higher values
+            # produce stronger attack / better defense.
+            defense_factor = 1.25 - (0.45 * strength)
+            attack_factor = 0.75 + (0.55 * strength)
+            shot_pressure_factor = defense_factor
+
+            # Rebase shot/save environment to the destination league too.
+            ga90 = target_base["ga90"] * defense_factor
+            gf90 = target_base["gf90"] * attack_factor
+            sot = target_base["sot"] * attack_factor
+            big90 = target_base["big_chances90"] * attack_factor
+            saves_pg = target_base["saves"] * shot_pressure_factor
+
+            if row.get("promoted"):
+                bridge_note = (
+                    f"Promoted WSL2→WSL destination rebase "
+                    f"(roster strength {strength:.3f})"
+                )
+            else:
+                bridge_note = (
+                    f"Relegated WSL→WSL2 destination rebase "
+                    f"(roster strength {strength:.3f})"
+                )
+            data_quality = "cross-division destination prior"
 
         m = manual.get(code) or {}
         defense_factor *= max(0.60, 1.0 - safe_float(m.get("defense_adjustment"), 0) / 100.0)
@@ -1754,7 +1769,7 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
         fixture["away_cs_prior"] = aws["own_cs_prior"]
         fixture["home_opponent_attack_prior"] = hs["opponent_attack_prior"]
         fixture["away_opponent_attack_prior"] = aws["opponent_attack_prior"]
-        fixture["gk_rating_model"] = "team-cs-save-v5-independent-risk"
+        fixture["gk_rating_model"] = "team-cs-save-v6-transition-rebased"
 
     teams = [normalize_team(t) for t in teams_raw]
 
@@ -1785,8 +1800,8 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
             {"leg": 6, "start_gw": 24, "end_gw": 26},
         ],
         "gk_fixture_model": {
-            "version": "team-cs-save-v5-independent-risk",
-            "note": "GK model separates clean-sheet probability, save opportunity, individual keeper quality, and 3+ concession risk. Expected goals against now multiplies independent own-defense and opponent-attack relative-risk factors, plus venue, rather than averaging them with exponents summing to 1. This removes the severe preseason CS-probability compression seen in v3/v4. Promotion/relegation uses club-specific transition priors.",
+            "version": "team-cs-save-v6-transition-rebased",
+            "note": "GK model separates clean-sheet probability, save opportunity, individual keeper quality, and 3+ concession risk. Expected goals against multiplies independent own-defense and opponent-attack relative-risk factors plus venue. Cross-division clubs are now rebased to the destination league using their destination-calibrated current-roster strength prior, rather than carrying source-division GF/GA ratios across with a small multiplier.",
             "weights": {"cs_fix": 0.55, "save_opportunity": 0.25, "keeper_quality": 0.10, "concession_safety": 0.10},
             "cs_probability_formula": "P(CS)=exp(-xGA), xGA=league_baseline_GA * own_defense_factor * opponent_attack_factor * venue_factor",
             "venue_goal_factor": {"home": 0.90, "away": 1.10},
