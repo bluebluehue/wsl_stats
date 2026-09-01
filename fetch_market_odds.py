@@ -12,6 +12,7 @@ from __future__ import annotations
 import json
 import os
 import sys
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -53,6 +54,59 @@ def load_official_fixtures() -> list[dict[str, Any]]:
     response.raise_for_status()
     payload = response.json()
     return payload.get("Data", {}).get("Value", []) or []
+
+
+def fetch_oddspapi_fixture_directory(api_key: str) -> list[dict[str, Any]]:
+    """Fetch WSL fixture metadata with participant names/abbreviations.
+
+    This is a second lightweight OddsPapi request, but it removes the fragile
+    kickoff-only participant guessing and gives us stable participant IDs.
+    """
+    url = f"{ODDSPAPI_BASE}/fixtures"
+    params = {
+        "tournamentId": str(WSL_TOURNAMENT_ID),
+        "bookmakers": "pinnacle",
+        "hasOdds": "true",
+        "language": "en",
+        "apiKey": api_key,
+    }
+    response = requests.get(url, params=params, timeout=45)
+    response.raise_for_status()
+    payload = response.json()
+    return payload if isinstance(payload, list) else flatten_odds_payload(payload)
+
+
+def participant_map_from_directory(rows: list[dict[str, Any]], official: list[dict[str, Any]]) -> dict[str, str]:
+    """Map OddsPapi participant IDs to our canonical WSL club codes."""
+    official_by_code = {}
+    official_by_name = {}
+    for fixture in official:
+        for side in ("home", "away"):
+            code = canonical_team_code(fixture.get(f"{side}AcronymName"))
+            if code:
+                official_by_code[code] = code
+            for key in (f"{side}OfficialName", f"{side}MediaName", f"{side}ShortName", f"{side}MediaShortName"):
+                name = str(fixture.get(key) or "").strip().lower()
+                if name and code:
+                    official_by_name[name] = code
+
+    mapping: dict[str, str] = {}
+    for row in rows:
+        for n in (1, 2):
+            pid = row.get(f"participant{n}Id")
+            if pid in (None, ""):
+                continue
+            abbr = canonical_team_code(row.get(f"participant{n}Abbr"))
+            code = official_by_code.get(abbr)
+            if not code:
+                for key in (f"participant{n}Name", f"participant{n}ShortName"):
+                    name = str(row.get(key) or "").strip().lower()
+                    if name in official_by_name:
+                        code = official_by_name[name]
+                        break
+            if code:
+                mapping[str(pid)] = code
+    return mapping
 
 
 def flatten_odds_payload(payload: Any) -> list[dict[str, Any]]:
@@ -264,7 +318,23 @@ def main() -> int:
         return 0
 
     odds_fixtures = flatten_odds_payload(payload)
-    participant_map = learn_participant_mapping(odds_fixtures, official)
+
+    # Resolve participant IDs from OddsPapi's fixture directory. This endpoint
+    # includes participant names/abbreviations, unlike the compact odds payload.
+    # If it fails or quota is tight, fall back to the kickoff-learning approach.
+    participant_map: dict[str, str] = {}
+    directory_error = None
+    try:
+        time.sleep(1.1)  # respect OddsPapi's documented endpoint cooldown
+        directory_rows = fetch_oddspapi_fixture_directory(api_key)
+        participant_map = participant_map_from_directory(directory_rows, official)
+    except Exception as exc:
+        directory_error = str(exc)
+        print(f"Warning: OddsPapi fixture-directory lookup failed; using kickoff fallback: {exc}")
+
+    learned_fallback = learn_participant_mapping(odds_fixtures, official)
+    for pid, code in learned_fallback.items():
+        participant_map.setdefault(pid, code)
     output_rows: list[dict[str, Any]] = []
     unmatched = 0
 
@@ -317,7 +387,9 @@ def main() -> int:
             "unmatched_fixture_count": unmatched,
             "learned_participant_count": len(participant_map),
             "participant_mapping": participant_map,
-            "note": "A team's CS probability equals the opponent's fair probability of scoring 0 goals. Only Pinnacle bookmakerMarketId values explicitly ending in teamTotal with home/away 0.5 over+under outcomes are accepted; prices are normalized within that same market. Participant IDs are learned from kickoff-unique fixtures and reused to resolve simultaneous kickoffs.",
+            "participant_mapping_method": "OddsPapi /fixtures names+abbreviations, with kickoff fallback",
+            "fixture_directory_error": directory_error,
+            "note": "A team's CS probability equals the opponent's fair probability of scoring 0 goals. Only Pinnacle bookmakerMarketId values explicitly ending in teamTotal with home/away 0.5 over+under outcomes are accepted; prices are normalized within that same market. Participant IDs are resolved from OddsPapi fixture metadata so simultaneous kickoffs can be matched safely.",
         },
         "fixtures": output_rows,
     }
