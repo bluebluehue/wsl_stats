@@ -12,7 +12,6 @@ from __future__ import annotations
 import json
 import os
 import sys
-import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -26,6 +25,19 @@ WSL_TOURNAMENT_ID = 1044
 WSL_FIXTURES_URL = "https://gaming.wslfootball.com/feeds/fixtures/fixtures_en_1.json?v=3"
 
 TEAM_CODE_ALIASES = {"MNU": "MUN"}
+
+# Manually verified OddsPapi participant IDs from the GW1 Pinnacle payload.
+# Keep these as stable overrides so simultaneous kickoffs do not need guessing.
+MANUAL_PARTICIPANT_MAP = {
+    "606004": "LCL",
+    "494374": "MUN",
+    "66768": "CHE",
+    "372786": "AVL",
+    "301890": "TOT",
+    "499630": "WHU",
+    "372788": "BHA",
+    "26243": "ARS",
+}
 
 def canonical_team_code(code: str | None) -> str:
     raw = str(code or "").upper()
@@ -54,59 +66,6 @@ def load_official_fixtures() -> list[dict[str, Any]]:
     response.raise_for_status()
     payload = response.json()
     return payload.get("Data", {}).get("Value", []) or []
-
-
-def fetch_oddspapi_fixture_directory(api_key: str) -> list[dict[str, Any]]:
-    """Fetch WSL fixture metadata with participant names/abbreviations.
-
-    This is a second lightweight OddsPapi request, but it removes the fragile
-    kickoff-only participant guessing and gives us stable participant IDs.
-    """
-    url = f"{ODDSPAPI_BASE}/fixtures"
-    params = {
-        "tournamentId": str(WSL_TOURNAMENT_ID),
-        "bookmakers": "pinnacle",
-        "hasOdds": "true",
-        "language": "en",
-        "apiKey": api_key,
-    }
-    response = requests.get(url, params=params, timeout=45)
-    response.raise_for_status()
-    payload = response.json()
-    return payload if isinstance(payload, list) else flatten_odds_payload(payload)
-
-
-def participant_map_from_directory(rows: list[dict[str, Any]], official: list[dict[str, Any]]) -> dict[str, str]:
-    """Map OddsPapi participant IDs to our canonical WSL club codes."""
-    official_by_code = {}
-    official_by_name = {}
-    for fixture in official:
-        for side in ("home", "away"):
-            code = canonical_team_code(fixture.get(f"{side}AcronymName"))
-            if code:
-                official_by_code[code] = code
-            for key in (f"{side}OfficialName", f"{side}MediaName", f"{side}ShortName", f"{side}MediaShortName"):
-                name = str(fixture.get(key) or "").strip().lower()
-                if name and code:
-                    official_by_name[name] = code
-
-    mapping: dict[str, str] = {}
-    for row in rows:
-        for n in (1, 2):
-            pid = row.get(f"participant{n}Id")
-            if pid in (None, ""):
-                continue
-            abbr = canonical_team_code(row.get(f"participant{n}Abbr"))
-            code = official_by_code.get(abbr)
-            if not code:
-                for key in (f"participant{n}Name", f"participant{n}ShortName"):
-                    name = str(row.get(key) or "").strip().lower()
-                    if name in official_by_name:
-                        code = official_by_name[name]
-                        break
-            if code:
-                mapping[str(pid)] = code
-    return mapping
 
 
 def flatten_odds_payload(payload: Any) -> list[dict[str, Any]]:
@@ -150,38 +109,50 @@ def extract_price(player_entry: Any) -> tuple[float | None, bool]:
 
 
 def find_team_total_half(markets: dict[str, Any], side: str) -> dict[str, Any] | None:
-    """Find an active team-total O/U 0.5 pair for home or away."""
-    over: tuple[float, bool, bool] | None = None  # price, player active, main line
+    """Find an ACTIVE FULL-MATCH team-total O/U 0.5 pair for home or away.
+
+    Pinnacle's OddsPapi market IDs include a period marker immediately before
+    ``teamTotal``. ``/0/teamTotal`` is full match; ``/1/teamTotal`` is first
+    half. We must reject first-half 0.5 lines, otherwise they look like clean-
+    sheet prices but actually mean "team to score in the first half".
+    """
+    over: tuple[float, bool, bool] | None = None
     under: tuple[float, bool, bool] | None = None
     matched_market_id: str | None = None
 
     for market in (markets or {}).values():
         if not isinstance(market, dict) or not market.get("marketActive", True):
             continue
+
         market_id = str(market.get("bookmakerMarketId") or "")
-        if "teamTotal" not in market_id:
+        # Full-match team total only. Examples:
+        # .../0/teamTotal = full match
+        # .../1/teamTotal = first half
+        if not market_id.endswith("/0/teamTotal"):
             continue
-        market_main = False
+
         for outcome in (market.get("outcomes") or {}).values():
             if not isinstance(outcome, dict):
                 continue
             for player in (outcome.get("players") or {}).values():
                 if not isinstance(player, dict):
                     continue
+
                 outcome_id = str(player.get("bookmakerOutcomeId") or "").lower()
                 if outcome_id not in {f"{side}/0.5/over", f"{side}/0.5/under"}:
                     continue
-                matched_market_id = market_id
+
                 try:
                     price = float(player.get("price"))
                 except (TypeError, ValueError):
                     continue
+
                 active = bool(player.get("active", True))
                 main_line = bool(player.get("mainLine", False))
-                market_main = market_main or main_line
                 target = (price, active, main_line)
+                matched_market_id = market_id
+
                 if outcome_id.endswith("/over"):
-                    # Prefer active, then main-line entries if duplicates exist.
                     if over is None or (active, main_line) > (over[1], over[2]):
                         over = target
                 else:
@@ -209,10 +180,10 @@ def find_team_total_half(markets: dict[str, Any], side: str) -> dict[str, Any] |
         "main_line": bool(over[2] or under[2]),
         "bookmaker_market_id": matched_market_id,
         "market_type": "teamTotal",
+        "period": "full_match",
         "team_total_side": side,
         "line": 0.5,
     }
-
 
 def unique_kickoff_match(odd_fixture: dict[str, Any], official: list[dict[str, Any]]) -> dict[str, Any] | None:
     target = parse_dt(odd_fixture.get("startTime"))
@@ -318,22 +289,9 @@ def main() -> int:
         return 0
 
     odds_fixtures = flatten_odds_payload(payload)
-
-    # Resolve participant IDs from OddsPapi's fixture directory. This endpoint
-    # includes participant names/abbreviations, unlike the compact odds payload.
-    # If it fails or quota is tight, fall back to the kickoff-learning approach.
-    participant_map: dict[str, str] = {}
-    directory_error = None
-    try:
-        time.sleep(1.1)  # respect OddsPapi's documented endpoint cooldown
-        directory_rows = fetch_oddspapi_fixture_directory(api_key)
-        participant_map = participant_map_from_directory(directory_rows, official)
-    except Exception as exc:
-        directory_error = str(exc)
-        print(f"Warning: OddsPapi fixture-directory lookup failed; using kickoff fallback: {exc}")
-
-    learned_fallback = learn_participant_mapping(odds_fixtures, official)
-    for pid, code in learned_fallback.items():
+    participant_map = dict(MANUAL_PARTICIPANT_MAP)
+    learned_map = learn_participant_mapping(odds_fixtures, official)
+    for pid, code in learned_map.items():
         participant_map.setdefault(pid, code)
     output_rows: list[dict[str, Any]] = []
     unmatched = 0
@@ -387,9 +345,8 @@ def main() -> int:
             "unmatched_fixture_count": unmatched,
             "learned_participant_count": len(participant_map),
             "participant_mapping": participant_map,
-            "participant_mapping_method": "OddsPapi /fixtures names+abbreviations, with kickoff fallback",
-            "fixture_directory_error": directory_error,
-            "note": "A team's CS probability equals the opponent's fair probability of scoring 0 goals. Only Pinnacle bookmakerMarketId values explicitly ending in teamTotal with home/away 0.5 over+under outcomes are accepted; prices are normalized within that same market. Participant IDs are resolved from OddsPapi fixture metadata so simultaneous kickoffs can be matched safely.",
+            "participant_mapping_method": "manual verified overrides + kickoff-unique fallback",
+            "note": "A team's CS probability equals the opponent's fair probability of scoring 0 goals. Only Pinnacle bookmakerMarketId values explicitly ending in teamTotal with home/away 0.5 over+under outcomes are accepted; prices are normalized within that same market. Participant IDs are learned from kickoff-unique fixtures and reused to resolve simultaneous kickoffs.",
         },
         "fixtures": output_rows,
     }
