@@ -578,12 +578,29 @@ def gk_fixture_scores(
     opp_attack_factor = safe_float(opp.get("attack_factor"), 1.0)
     baseline_ga = safe_float(own.get("league_baseline_ga"), 1.45)
 
-    venue_goal_factor = 0.92 if location == "H" else 1.08 if location == "A" else 1.0
-    # v3 calibration: opponent attack drives 65% of matchup variation; own
-    # defensive prior is shrunk to 35% so elite historical defenses cannot
-    # overwhelm a brutal opponent run.
-    expected_ga = baseline_ga * (max(0.20, own_def_factor) ** 0.35) * (max(0.20, opp_attack_factor) ** 0.65) * venue_goal_factor
-    expected_ga = max(0.25, min(3.25, expected_ga))
+    venue_goal_factor = 0.90 if location == "H" else 1.10 if location == "A" else 1.0
+
+    # v5 calibration: defense and opponent attack are independent relative-risk
+    # components, so multiply them rather than taking a weighted geometric mean.
+    #
+    # The previous v3 formula used exponents summing to 1.0 (DEF^0.35 * ATK^0.65).
+    # That unintentionally compressed almost every matchup back toward league
+    # average and produced implausibly low/flat CS probabilities (for example,
+    # strong home favorites living around 30-36%).
+    #
+    # Multiplication preserves BOTH signals:
+    #   strong defense × weak opponent attack  -> materially lower xGA
+    #   weak defense × strong opponent attack  -> materially higher xGA
+    #
+    # The Leg Planner's schedule-only Def rating remains completely separate and
+    # still excludes own-team strength.
+    expected_ga = (
+        baseline_ga
+        * max(0.20, own_def_factor)
+        * max(0.20, opp_attack_factor)
+        * venue_goal_factor
+    )
+    expected_ga = max(0.20, min(3.50, expected_ga))
 
     cs_probability = math.exp(-expected_ga)
     three_plus_risk = poisson_prob_at_least(expected_ga, 3)
@@ -1737,7 +1754,7 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
         fixture["away_cs_prior"] = aws["own_cs_prior"]
         fixture["home_opponent_attack_prior"] = hs["opponent_attack_prior"]
         fixture["away_opponent_attack_prior"] = aws["opponent_attack_prior"]
-        fixture["gk_rating_model"] = "team-cs-save-v4-transition-calibrated"
+        fixture["gk_rating_model"] = "team-cs-save-v5-independent-risk"
 
     teams = [normalize_team(t) for t in teams_raw]
 
@@ -1768,9 +1785,12 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
             {"leg": 6, "start_gw": 24, "end_gw": 26},
         ],
         "gk_fixture_model": {
-            "version": "team-cs-save-v2",
-            "note": "GK model separates clean-sheet environment, probability of reaching the 3-save point threshold, individual shot-stopping quality, and risk of the -1 penalty for conceding 3+ goals. WSL2 team priors use 2025-26 goals, clean sheets, saves/game, shots on target and big chances, with a conservative promotion bridge.",
+            "version": "team-cs-save-v5-independent-risk",
+            "note": "GK model separates clean-sheet probability, save opportunity, individual keeper quality, and 3+ concession risk. Expected goals against now multiplies independent own-defense and opponent-attack relative-risk factors, plus venue, rather than averaging them with exponents summing to 1. This removes the severe preseason CS-probability compression seen in v3/v4. Promotion/relegation uses club-specific transition priors.",
             "weights": {"cs_fix": 0.55, "save_opportunity": 0.25, "keeper_quality": 0.10, "concession_safety": 0.10},
+            "cs_probability_formula": "P(CS)=exp(-xGA), xGA=league_baseline_GA * own_defense_factor * opponent_attack_factor * venue_factor",
+            "venue_goal_factor": {"home": 0.90, "away": 1.10},
+            "calibration_reference": "Checked against available full-match Pinnacle CS anchors (TOT-WHU, CHE-AVL, BHA-ARS); market prices remain separate and are not blended into the independent model.",
             "team_priors": gk_team_priors,
             "input_file": GK_MODEL_INPUTS_PATH.name,
         },
