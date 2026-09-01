@@ -66,6 +66,26 @@ COMPETITION_LABELS = {
 PROMOTED_TO_WSL = {"BIR", "CRY", "CHA"}
 RELEGATED_TO_WSL2 = {"LEI"}
 
+# Preseason transition profiles. These deliberately distinguish the three
+# promoted clubs rather than treating "promoted" as one generic team type.
+# Factors >1 on defense mean more goals conceded; <1 on attack means weaker
+# attacking output after stepping up a division.
+PROMOTED_WSL_PROFILES = {
+    # 2025/26 WSL2 champions; meaningful WSL-experience added.
+    "BIR": {"strength_band": (0.30, 0.44), "defense_bridge": 1.12, "attack_bridge": 0.90},
+    # 2025/26 runners-up; recent WSL experience plus substantial recruitment.
+    "CRY": {"strength_band": (0.28, 0.42), "defense_bridge": 1.14, "attack_bridge": 0.89},
+    # 2025/26 third/play-off winner; excellent WSL2 defense, but weakest
+    # promoted baseline and the largest step-up penalty of the three.
+    "CHA": {"strength_band": (0.20, 0.32), "defense_bridge": 1.22, "attack_bridge": 0.82},
+}
+
+RELEGATED_WSL2_PROFILES = {
+    # Freshly relegated WSL side retaining substantial top-flight quality.
+    # Start in the elite WSL2 band rather than merely "above average".
+    "LEI": {"strength_band": (0.88, 0.95), "defense_bridge": 0.78, "attack_bridge": 1.24},
+}
+
 # Fixture Model v5. The WSL source rating remains useful, but it is now only
 # one input. The independent team-matchup prior gets the larger weight.
 SOURCE_RATING_WEIGHT = 0.35
@@ -446,16 +466,32 @@ def build_gk_team_priors(
 
         bridge_note = ""
         if row.get("promoted"):
-            defense_factor *= 1.18
-            attack_factor *= 0.86
+            profile = PROMOTED_WSL_PROFILES.get(
+                code, {"defense_bridge": 1.18, "attack_bridge": 0.86}
+            )
+            defense_bridge = safe_float(profile.get("defense_bridge"), 1.18)
+            attack_bridge = safe_float(profile.get("attack_bridge"), 0.86)
+            defense_factor *= defense_bridge
+            attack_factor *= attack_bridge
             shot_pressure_factor *= 1.10
             sot = (sot if sot is not None else base["sot"] * attack_factor) * 0.92
-            bridge_note = "Promoted WSL2→WSL bridge"
+            bridge_note = (
+                f"Promoted WSL2→WSL club-specific bridge "
+                f"(DEF×{defense_bridge:.2f}, ATK×{attack_bridge:.2f})"
+            )
         elif row.get("relegated"):
-            defense_factor *= 0.85
-            attack_factor *= 1.15
-            shot_pressure_factor *= 0.90
-            bridge_note = "Relegated WSL→WSL2 bridge"
+            profile = RELEGATED_WSL2_PROFILES.get(
+                code, {"defense_bridge": 0.82, "attack_bridge": 1.20}
+            )
+            defense_bridge = safe_float(profile.get("defense_bridge"), 0.82)
+            attack_bridge = safe_float(profile.get("attack_bridge"), 1.20)
+            defense_factor *= defense_bridge
+            attack_factor *= attack_bridge
+            shot_pressure_factor *= 0.88
+            bridge_note = (
+                f"Relegated WSL→WSL2 elite carryover bridge "
+                f"(DEF×{defense_bridge:.2f}, ATK×{attack_bridge:.2f})"
+            )
 
         m = manual.get(code) or {}
         defense_factor *= max(0.60, 1.0 - safe_float(m.get("defense_adjustment"), 0) / 100.0)
@@ -866,14 +902,18 @@ def build_team_strength_priors(players_raw: list[dict[str, Any]]) -> dict[str, d
 
         if comp == WSL_COMPETITION_ID:
             if team in PROMOTED_TO_WSL:
-                strength = 0.20 + (0.18 * rank)   # 0.20..0.38
-                note = "Promoted to WSL: lower-WSL preseason strength band"
+                profile = PROMOTED_WSL_PROFILES.get(team, {"strength_band": (0.20, 0.38)})
+                low, high = profile["strength_band"]
+                strength = low + ((high - low) * rank)
+                note = f"Promoted to WSL: club-specific preseason band {low:.2f}..{high:.2f}"
             else:
                 strength = 0.18 + (0.74 * rank)   # 0.18..0.92
         elif comp == WSL2_COMPETITION_ID:
             if team in RELEGATED_TO_WSL2:
-                strength = 0.78 + (0.10 * rank)   # 0.78..0.88
-                note = "Relegated to WSL2: upper-WSL2 preseason strength band"
+                profile = RELEGATED_WSL2_PROFILES.get(team, {"strength_band": (0.82, 0.92)})
+                low, high = profile["strength_band"]
+                strength = low + ((high - low) * rank)
+                note = f"Relegated to WSL2: elite preseason band {low:.2f}..{high:.2f}"
             else:
                 strength = 0.15 + (0.70 * rank)   # 0.15..0.85
         else:
@@ -902,14 +942,18 @@ def map_rank_to_destination_strength(
 
     if competition_id == WSL_COMPETITION_ID:
         if team in PROMOTED_TO_WSL:
-            strength = 0.20 + (0.18 * rank)   # 0.20..0.38
-            note = "Promoted to WSL: lower-WSL preseason unit-strength band"
+            profile = PROMOTED_WSL_PROFILES.get(team, {"strength_band": (0.20, 0.38)})
+            low, high = profile["strength_band"]
+            strength = low + ((high - low) * rank)
+            note = f"Promoted to WSL: club-specific unit band {low:.2f}..{high:.2f}"
         else:
             strength = 0.18 + (0.74 * rank)   # 0.18..0.92
     elif competition_id == WSL2_COMPETITION_ID:
         if team in RELEGATED_TO_WSL2:
-            strength = 0.78 + (0.10 * rank)   # 0.78..0.88
-            note = "Relegated to WSL2: upper-WSL2 preseason unit-strength band"
+            profile = RELEGATED_WSL2_PROFILES.get(team, {"strength_band": (0.82, 0.92)})
+            low, high = profile["strength_band"]
+            strength = low + ((high - low) * rank)
+            note = f"Relegated to WSL2: elite unit band {low:.2f}..{high:.2f}"
         else:
             strength = 0.15 + (0.70 * rank)   # 0.15..0.85
     else:
@@ -1693,7 +1737,7 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
         fixture["away_cs_prior"] = aws["own_cs_prior"]
         fixture["home_opponent_attack_prior"] = hs["opponent_attack_prior"]
         fixture["away_opponent_attack_prior"] = aws["opponent_attack_prior"]
-        fixture["gk_rating_model"] = "team-cs-save-v3"
+        fixture["gk_rating_model"] = "team-cs-save-v4-transition-calibrated"
 
     teams = [normalize_team(t) for t in teams_raw]
 
