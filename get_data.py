@@ -28,6 +28,7 @@ HISTORY_PATH = ROOT / "player_history.json"
 TRANSFORMED_PATH = ROOT / "transformed_data.json"
 FIXTURES_PATH = ROOT / "fixtures.json"
 GK_MODEL_INPUTS_PATH = ROOT / "gk_model_inputs.json"
+MARKET_ODDS_PATH = ROOT / "market_odds.json"
 TEAMS_PATH = ROOT / "teams.json"
 RAW_DIR = ROOT / "raw_feeds"
 
@@ -268,6 +269,63 @@ def load_gk_model_inputs() -> dict[str, Any]:
         print(f"Warning: could not load {GK_MODEL_INPUTS_PATH.name}: {exc}")
         return {"teams": {}, "keepers": {}, "manual_team_adjustments": {}, "manual_keeper_adjustments": {}}
 
+
+
+def load_market_odds() -> tuple[dict[str, Any], dict[str, dict[str, Any]]]:
+    """Load de-vigged Pinnacle clean-sheet probabilities keyed by official WSL match id."""
+    if not MARKET_ODDS_PATH.exists():
+        return {}, {}
+    try:
+        payload = json.loads(MARKET_ODDS_PATH.read_text(encoding="utf-8"))
+    except Exception as exc:
+        print(f"Warning: could not load {MARKET_ODDS_PATH.name}: {exc}")
+        return {}, {}
+
+    if isinstance(payload, list):
+        fixtures = payload
+        metadata = {}
+    else:
+        fixtures = payload.get("fixtures", []) or []
+        metadata = payload.get("metadata", {}) or {}
+
+    lookup = {str(row.get("match_id")): row for row in fixtures if row.get("match_id")}
+    return metadata, lookup
+
+
+def market_fields_for_fixture(
+    match_id: str | None,
+    location: str | None,
+    market_lookup: dict[str, dict[str, Any]] | None,
+) -> dict[str, Any]:
+    row = (market_lookup or {}).get(str(match_id or ""))
+    if not row:
+        return {
+            "market_cs_probability": None,
+            "market_cs_source": None,
+            "market_cs_method": None,
+            "market_cs_updated_at": None,
+            "market_cs_over_odds": None,
+            "market_cs_under_odds": None,
+        }
+
+    if location == "H":
+        probability = row.get("home_market_cs_probability")
+        raw = row.get("home_opponent_team_total_0_5") or {}
+    elif location == "A":
+        probability = row.get("away_market_cs_probability")
+        raw = row.get("away_opponent_team_total_0_5") or {}
+    else:
+        probability = None
+        raw = {}
+
+    return {
+        "market_cs_probability": probability,
+        "market_cs_source": row.get("source"),
+        "market_cs_method": row.get("method"),
+        "market_cs_updated_at": row.get("market_updated_at"),
+        "market_cs_over_odds": raw.get("over_odds"),
+        "market_cs_under_odds": raw.get("under_odds"),
+    }
 
 def _valid_number(value: Any) -> bool:
     return value is not None and value != ""
@@ -1100,6 +1158,7 @@ def build_upcoming_fixture(
     player_name: str | None = None,
     gk_team_priors: dict[str, dict[str, Any]] | None = None,
     gk_model_inputs: dict[str, Any] | None = None,
+    market_lookup: dict[str, dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     difficulty = raw.get("currentRating")
     location = raw.get("location")
@@ -1140,6 +1199,7 @@ def build_upcoming_fixture(
         away_id = away_name = away_short = ""
 
     fixture_dt = fixture_local_dt(raw.get("matchDateTimeUtc"))
+    market_detail = market_fields_for_fixture(raw.get("matchId"), location, market_lookup)
 
     return {
         "match_date_time_utc": raw.get("matchDateTimeUtc"),
@@ -1194,6 +1254,9 @@ def build_upcoming_fixture(
         "gk_opponent_attack_prior": gk_detail.get("opponent_attack_prior") if gk_detail else None,
         "gk_opponent_sot_per90": gk_detail.get("opponent_sot_per90") if gk_detail else None,
         "gk_venue_adjustment": gk_detail.get("venue_adjustment") if gk_detail else None,
+
+        # Market clean-sheet probability from Pinnacle team-total U0.5, if available.
+        **market_detail,
 
         "opportunity_rating": opportunity,
         "home_id": home_id or "",
@@ -1250,6 +1313,12 @@ def fixture_details_text(fixtures: list[dict[str, Any]], position: str) -> str:
         ]
         if notes:
             lines.append("  Division bridge: " + " | ".join(notes))
+
+        if f.get("market_cs_probability") is not None:
+            lines.append(
+                f"  Pinnacle market CS: {safe_float(f.get('market_cs_probability'))*100:.1f}% "
+                f"(de-vigged opponent team total U0.5)"
+            )
 
         if opportunity is not None:
             opportunities.append(float(opportunity))
@@ -1347,7 +1416,7 @@ def decision_rating(player: dict[str, Any]) -> float:
     return round(fixture * weights[0] + form * weights[1], 1)
 
 
-def transform_player(raw: dict[str, Any], fixture_calibration: dict[str, dict[str, float]], team_strength: dict[str, dict[str, Any]], gk_team_priors: dict[str, dict[str, Any]] | None = None, gk_model_inputs: dict[str, Any] | None = None) -> dict[str, Any]:
+def transform_player(raw: dict[str, Any], fixture_calibration: dict[str, dict[str, float]], team_strength: dict[str, dict[str, Any]], gk_team_priors: dict[str, dict[str, Any]] | None = None, gk_model_inputs: dict[str, Any] | None = None, market_lookup: dict[str, dict[str, Any]] | None = None) -> dict[str, Any]:
     name = f"{raw.get('mediaFirstName', '').strip()} {raw.get('mediaLastName', '').strip()}".strip()
     short_name = raw.get("mediaShortName") or name
     position = POSITION_MAP.get(str(raw.get("skillName") or "").lower(), str(raw.get("skillName") or "").upper())
@@ -1365,7 +1434,7 @@ def transform_player(raw: dict[str, Any], fixture_calibration: dict[str, dict[st
         build_upcoming_fixture(
             f, own_team_id, own_team_name, own_team_short_name,
             competition_id, fixture_calibration, team_strength,
-            position, name, gk_team_priors or {}, gk_model_inputs or {}
+            position, name, gk_team_priors or {}, gk_model_inputs or {}, market_lookup or {}
         )
         for f in raw.get("upcomingFixtures", [])
     ]
@@ -1446,9 +1515,12 @@ def transform_player(raw: dict[str, Any], fixture_calibration: dict[str, dict[st
         "Next Fixture H/A": next_fixture.get("location") if next_fixture else "",
         "Sub Flex": max(0, (next_fixture.get("fixture_day_number") or 5) - 5) if next_fixture else 0,
         "Next Fixture Rating": round(next_rating, 1),
+        "Next Market CS Probability": next_fixture.get("market_cs_probability") if next_fixture else None,
+        "Next Market CS Source": next_fixture.get("market_cs_source") if next_fixture else None,
         "Next Fixture Score": fixture_rating_to_score(next_rating) if next_fixture else "-",
         "Next Fixture Details": fixture_details_text(upcoming[:1], position),
         "Following Fixture Rating": round(following_rating, 1),
+        "Following Market CS Probability": following_fixture.get("market_cs_probability") if following_fixture else None,
         "Following Fixture Score": fixture_rating_to_score(following_rating) if following_fixture else "-",
         "Following Fixture Details": fixture_details_text(upcoming[1:2], position),
         "Next Three Fixture Rating": round(
@@ -1506,10 +1578,11 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
     fixture_calibration = build_competition_fixture_calibration(players_raw)
     team_strength = build_team_strength_priors(players_raw)
     gk_model_inputs = load_gk_model_inputs()
+    market_metadata, market_lookup = load_market_odds()
     gk_team_priors = build_gk_team_priors(gk_model_inputs, team_strength)
     team_unit_strength = build_team_unit_priors(players_raw, team_strength)
     players = [
-        transform_player(p, fixture_calibration, team_strength, gk_team_priors, gk_model_inputs)
+        transform_player(p, fixture_calibration, team_strength, gk_team_priors, gk_model_inputs, market_lookup)
         for p in players_raw
     ]
     history = update_history(players)
@@ -1524,6 +1597,26 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
 
     fixtures = [normalize_fixture(f) for f in fixtures_raw]
     fantasy_gameweeks = assign_canonical_fantasy_gameweeks(fixtures)
+
+    # Attach current market clean-sheet probabilities to the full fixture schedule.
+    for fixture in fixtures:
+        market_row = market_lookup.get(str(fixture.get("match_id") or ""))
+        if market_row:
+            fixture["home_market_cs_probability"] = market_row.get("home_market_cs_probability")
+            fixture["away_market_cs_probability"] = market_row.get("away_market_cs_probability")
+            fixture["market_cs_source"] = market_row.get("source")
+            fixture["market_cs_method"] = market_row.get("method")
+            fixture["market_cs_updated_at"] = market_row.get("market_updated_at")
+            fixture["home_market_cs_over_odds"] = (market_row.get("home_opponent_team_total_0_5") or {}).get("over_odds")
+            fixture["home_market_cs_under_odds"] = (market_row.get("home_opponent_team_total_0_5") or {}).get("under_odds")
+            fixture["away_market_cs_over_odds"] = (market_row.get("away_opponent_team_total_0_5") or {}).get("over_odds")
+            fixture["away_market_cs_under_odds"] = (market_row.get("away_opponent_team_total_0_5") or {}).get("under_odds")
+        else:
+            fixture["home_market_cs_probability"] = None
+            fixture["away_market_cs_probability"] = None
+            fixture["market_cs_source"] = None
+            fixture["market_cs_method"] = None
+            fixture["market_cs_updated_at"] = None
 
     # Full-schedule goalkeeper model: clean-sheet environment and save opportunity.
     for fixture in fixtures:
@@ -1560,6 +1653,15 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
     metadata = {
         "source": "WSL Fantasy public JSON feeds used by create-team UI",
         "generated_at_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "market_clean_sheet_data": {
+            "available": bool(market_lookup),
+            "input_file": MARKET_ODDS_PATH.name,
+            "fixture_count": len(market_lookup),
+            "source": market_metadata.get("source", "Pinnacle via OddsPapi" if market_lookup else None),
+            "method": market_metadata.get("method"),
+            "generated_at_utc": market_metadata.get("generated_at_utc"),
+            "note": "Market CS% is kept separate from the independent GK model for calibration; it is not yet blended into GK Fix.",
+        },
         "matchday_id": MATCHDAY_ID,
         "tour_id": TOUR_ID,
         "player_count": len(players),
