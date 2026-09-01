@@ -1417,7 +1417,7 @@
                             <select id="pairings-sort" class="block mt-1 px-2 py-2 border border-gray-300 rounded-md text-sm bg-white min-w-[170px]">
                                 <option value="pairing" selected>Pairing %</option>
                                 <option value="cost">Total cost (low → high)</option>
-                                <option value="cs">Avg CS Fix (high → low)</option>
+                                <option value="cs">Avg CS% (high → low)</option>
                                 <option value="gk">Avg GK Fix (high → low)</option>
                                 <option value="coverage">Coverage (high → low)</option>
                             </select>
@@ -1470,7 +1470,7 @@
                             <th class="text-center px-3 py-2">Different Days</th>
                             <th class="text-center px-3 py-2">Pairing %</th>
                             <th class="text-center px-3 py-2">Coverage</th>
-                            <th class="text-center px-3 py-2" title="Average clean-sheet environment across the selected gameweeks. Higher = better.">Avg CS Fix</th>
+                            <th class="text-center px-3 py-2" title="Average modeled clean-sheet probability across the selected gameweeks.">Avg CS%</th>
                             <th class="text-center px-3 py-2" title="Average goalkeeper fantasy environment: clean-sheet opportunity + chance of a 3-save point + projected keeper quality + safety from the 3+ goals-conceded penalty. Higher = better.">Avg GK Fix</th>
                             <th class="text-center px-3 py-2" title="Combined price of the two projected starting goalkeepers.">Total Cost</th>
                             <th class="text-left px-3 py-2" id="pairings-extra-header">GK Pair</th>
@@ -3659,6 +3659,7 @@
                             opponent: away || f.away_short_name || f.away_name || 'TBD',
                             location: 'H',
                             csOpportunity: Number(f.home_cs_opportunity ?? f.home_defensive_opportunity ?? NaN),
+                            csProbability: Number(f.home_cs_probability ?? NaN),
                             saveOpportunity: Number(f.home_save_opportunity ?? NaN),
                             concessionSafety: Number(f.home_concession_safety ?? NaN),
                             threePlusRisk: Number(f.home_three_plus_conceded_risk ?? NaN),
@@ -3676,6 +3677,7 @@
                             opponent: home || f.home_short_name || f.home_name || 'TBD',
                             location: 'A',
                             csOpportunity: Number(f.away_cs_opportunity ?? f.away_defensive_opportunity ?? NaN),
+                            csProbability: Number(f.away_cs_probability ?? NaN),
                             saveOpportunity: Number(f.away_save_opportunity ?? NaN),
                             concessionSafety: Number(f.away_concession_safety ?? NaN),
                             threePlusRisk: Number(f.away_three_plus_conceded_risk ?? NaN),
@@ -3894,14 +3896,14 @@
                             comparable++;
                             if (sa.status === 'DOUBLE' || sb.status === 'DOUBLE') doubleWeeks++;
 
-                            if (Number.isFinite(fa.csOpportunity)) {
-                                csTotalA += fa.csOpportunity;
+                            if (Number.isFinite(fa.csProbability)) {
+                                csTotalA += fa.csProbability * 100;
                                 const gfA = fixtureGkFix(fa, gkA);
                                 if (Number.isFinite(gfA)) gkTotalA += gfA;
                                 ratingCountA++;
                             }
-                            if (Number.isFinite(fb.csOpportunity)) {
-                                csTotalB += fb.csOpportunity;
+                            if (Number.isFinite(fb.csProbability)) {
+                                csTotalB += fb.csProbability * 100;
                                 const gfB = fixtureGkFix(fb, gkB);
                                 if (Number.isFinite(gfB)) gkTotalB += gfB;
                                 ratingCountB++;
@@ -3998,8 +4000,8 @@
             function pairingFixtureLabel(fixture, projectedGk) {
                 if (!fixture) return '<span class="text-gray-400">No fixture</span>';
                 const loc = fixture.location ? ` ${fixture.location}` : '';
-                const cs = Number.isFinite(fixture.csOpportunity)
-                    ? ` · CS ${fixture.csOpportunity.toFixed(0)}`
+                const cs = Number.isFinite(fixture.csProbability)
+                    ? ` · CS ${Math.round(fixture.csProbability * 100)}%`
                     : '';
                 const components = fixtureGkComponents(fixture, projectedGk);
                 const gk = components && Number.isFinite(components.final) ? ` · GK ${components.final.toFixed(0)}` : '';
@@ -4174,7 +4176,7 @@
                     + `${shown.length} of ${pairs.length} club pairs shown at ≥${minPairingPct}% pairing. `
                     + (includeTeams.size ? `<span class="text-indigo-700">Including: ${Array.from(includeTeams).join(', ')}. </span>` : '')
                     + (excludeTeams.size ? `<span class="text-red-700">Excluding: ${Array.from(excludeTeams).join(', ')}. </span>` : '')
-                    + `<span class="text-gray-500">Pairing % uses only GWs where both clubs actually have a fixture. Avg GK Fix uses CS environment + save opportunity + the projected starter's keeper-quality prior; unmatched keepers use an explicitly labeled neutral fallback. Coverage shows how many selected GWs are comparable. League-off/Free Hit weeks and club-specific blanks are tracked separately.</span>`
+                    + `<span class="text-gray-500">Pairing % uses only GWs where both clubs actually have a fixture. Avg CS% is the modeled clean-sheet probability; Avg GK Fix uses CS environment + save opportunity + the projected starter's keeper-quality prior; unmatched keepers use an explicitly labeled neutral fallback. Coverage shows how many selected GWs are comparable. League-off/Free Hit weeks and club-specific blanks are tracked separately.</span>`
                 );
 
                 const $body = $('#pairings-table-body').empty();
@@ -4224,7 +4226,7 @@
                                 </div>
                             </td>
                             <td class="px-3 py-2 text-center">
-                                ${Number.isFinite(pair.combinedCsAvg) ? `<div class="font-semibold">${pair.combinedCsAvg.toFixed(1)}</div><div class="text-xs text-gray-400">${pair.a.club} ${pair.avgCsA.toFixed(0)} · ${pair.b.club} ${pair.avgCsB.toFixed(0)}</div>` : '<span class="text-gray-400">—</span>'}
+                                ${Number.isFinite(pair.combinedCsAvg) ? `<div class="font-semibold">${pair.combinedCsAvg.toFixed(1)}%</div><div class="text-xs text-gray-400">${pair.a.club} ${pair.avgCsA.toFixed(0)}% · ${pair.b.club} ${pair.avgCsB.toFixed(0)}%</div>` : '<span class="text-gray-400">—</span>'}
                             </td>
                             <td class="px-3 py-2 text-center">
                                 ${Number.isFinite(pair.combinedGkAvg) ? `<div class="font-semibold">${pair.combinedGkAvg.toFixed(1)}</div><div class="text-xs text-gray-400">${pair.a.club} ${pair.avgGkA.toFixed(0)} · ${pair.b.club} ${pair.avgGkB.toFixed(0)}</div>` : '<span class="text-gray-400">—</span>'}
@@ -4469,7 +4471,7 @@
                             if (fgw !== gw) return false;
                             return canonicalTeamCodeUI(f.home_id) === team || canonicalTeamCodeUI(f.away_id) === team;
                         });
-                        cells.push({ gw, ...legFixtureCell(team, fixtures, sortMode) });
+                        cells.push({ gw, ...legFixtureCell(team, fixtures, sortMode === 'name' ? 'avg' : sortMode) });
                     });
                     const general = cells.flatMap(c => c.general);
                     const attack = cells.flatMap(c => c.attack);
@@ -4498,10 +4500,10 @@
                     <th class="text-left px-3 py-2">#</th>
                     <th class="text-left px-3 py-2">Team</th>
                     ${gws.map(gw => `<th class="text-center px-3 py-2">GW${gw}</th>`).join('')}
-                    <th class="text-center px-3 py-2" title="General fixture opportunity, including the source fixture rating and team matchup model.">Avg Fix</th>
-                    <th class="text-center px-3 py-2" title="Schedule-only attacking favorability: opponent defense + venue. Own attacking strength is excluded.">Avg Atk</th>
-                    <th class="text-center px-3 py-2" title="Schedule-only defensive favorability: opponent attack + venue. Own defensive strength is excluded.">Avg Def</th>
-                    <th class="text-center px-3 py-2" title="Projected clean-sheet probability from the full team-strength model. This is performance projection, not schedule difficulty.">Avg CS%</th>
+                    <th class="text-center px-3 py-2 cursor-pointer hover:bg-gray-100 select-none leg-sort-header" data-sort="avg" title="Sort by general fixture opportunity, including the source fixture rating and team matchup model.">Avg Fix${sortMode === 'avg' ? ' ▼' : ''}</th>
+                    <th class="text-center px-3 py-2 cursor-pointer hover:bg-gray-100 select-none leg-sort-header" data-sort="attack" title="Sort by schedule-only attacking favorability: opponent defense + venue. Own attacking strength is excluded.">Avg Atk${sortMode === 'attack' ? ' ▼' : ''}</th>
+                    <th class="text-center px-3 py-2 cursor-pointer hover:bg-gray-100 select-none leg-sort-header" data-sort="defense" title="Sort by schedule-only defensive favorability: opponent attack + venue. Own defensive strength is excluded.">Avg Def${sortMode === 'defense' ? ' ▼' : ''}</th>
+                    <th class="text-center px-3 py-2 cursor-pointer hover:bg-gray-100 select-none leg-sort-header" data-sort="cs" title="Sort by projected clean-sheet probability from the full team-strength model. This is performance projection, not schedule difficulty.">Avg CS%${sortMode === 'cs' ? ' ▼' : ''}</th>
                 </tr>`);
 
                 $('#legs-summary').html(`<span class="font-semibold">Leg ${leg} · GW${fromGw}–${toGw}:</span> ${rows.length} clubs shown, sorted by ${selectedLabel}. <span class="text-gray-500">Atk and Def are schedule-only ratings; CS% separately includes the club's own defensive strength. Double gameweeks display both fixtures in the same GW cell.</span>`);
@@ -4557,6 +4559,12 @@
             $('#clean-sheets-view-tab').on('click', () => setMainView('clean-sheets'));
             $('#legs-view-tab').on('click', () => setMainView('legs'));
             $('#legs-leg, #legs-sort').on('change', renderLegs);
+            $('#legs-table-head').on('click', '.leg-sort-header', function() {
+                const mode = $(this).data('sort');
+                if (!mode) return;
+                $('#legs-sort').val(mode);
+                renderLegs();
+            });
             $('#planner-gameweek, #planner-position, #planner-club, #planner-sort, #planner-my-team').on('change', renderPlanner);
             $('#cs-gameweek, #cs-sort, #cs-market-only').on('change', renderCleanSheets);
 
