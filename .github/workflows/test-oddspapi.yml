@@ -1,4 +1,4 @@
-name: Test OddsPapi WSL - One Request
+name: Test OddsPapi WSL Pinnacle
 
 on:
   workflow_dispatch:
@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check quota and fetch WSL odds
+      - name: Fetch Pinnacle WSL odds
         env:
           ODDSPAPI_API_KEY: ${{ secrets.ODDSPAPI_API_KEY }}
         run: |
@@ -27,96 +27,79 @@ jobs:
           if not API_KEY:
               raise SystemExit("Missing ODDSPAPI_API_KEY repository secret.")
 
+          # WSL tournament ID was successfully discovered by the first test.
+          WSL_TOURNAMENT_ID = "1044"
           BASE = "https://api.oddspapi.io/v4"
-          WSL_TOURNAMENT_ID = 1044  # discovered successfully in the first test run
 
-          def request_json(path, params=None, save_error_as=None):
-              params = dict(params or {})
+          def get_json(path, params, error_file):
+              params = dict(params)
               params["apiKey"] = API_KEY
               url = BASE + path + "?" + urllib.parse.urlencode(params)
+
               req = urllib.request.Request(
                   url,
                   headers={
                       "Accept": "application/json",
-                      "User-Agent": "wsl-stats-oddspapi-test/2.0",
+                      "User-Agent": "wsl-stats-oddspapi-test/3.0",
                   },
               )
+
               try:
                   with urllib.request.urlopen(req, timeout=60) as r:
                       return json.load(r)
               except urllib.error.HTTPError as e:
                   body = e.read().decode("utf-8", errors="replace")
-                  if save_error_as:
-                      with open(save_error_as, "w", encoding="utf-8") as f:
-                          f.write(body)
-                  print(f"{path} returned HTTP {e.code}", file=sys.stderr)
-                  print(body[:1000], file=sys.stderr)
+                  with open(error_file, "w", encoding="utf-8") as f:
+                      f.write(body)
+                  print(f"OddsPapi returned HTTP {e.code}", file=sys.stderr)
+                  print("Response body:", body[:3000], file=sys.stderr)
                   raise
 
-          # /account is unmetered and remains available even when the request
-          # allowance has been exhausted.
-          account = request_json("/account")
-          with open("oddspapi_account.json", "w", encoding="utf-8") as f:
-              json.dump(account, f, indent=2, ensure_ascii=False)
-
-          print("ACCOUNT / QUOTA:")
-          print(json.dumps(account, indent=2)[:4000])
-
-          # We intentionally make exactly ONE billable request below.
-          # odds-by-tournaments returns all fixtures + odds for the WSL in one call.
-          #
-          # We request both bookmakers in the same call. If a bookmaker does not
-          # carry a fixture/market, it simply won't contribute data for that item.
-          odds = request_json(
+          # IMPORTANT:
+          # Use the minimal request shown in OddsPapi's own v4 overview docs.
+          # That example uses the singular parameter `bookmaker=pinnacle`.
+          # We deliberately make only ONE billable request.
+          payload = get_json(
               "/odds-by-tournaments",
               {
-                  "tournamentIds": str(WSL_TOURNAMENT_ID),
-                  "bookmakers": "pinnacle,betpawa.cm",
-                  "language": "en",
-                  "verbosity": 3,
-                  "oddsFormat": "decimal",
+                  "bookmaker": "pinnacle",
+                  "tournamentIds": WSL_TOURNAMENT_ID,
               },
-              save_error_as="oddspapi_odds_error.json",
+              "oddspapi_error.json",
           )
 
-          with open("oddspapi_wsl_all_odds.json", "w", encoding="utf-8") as f:
-              json.dump(odds, f, indent=2, ensure_ascii=False)
+          with open("oddspapi_pinnacle_wsl.json", "w", encoding="utf-8") as f:
+              json.dump(payload, f, indent=2, ensure_ascii=False)
 
-          # Filter GW1 locally; this costs no additional API requests.
-          def fixture_rows(payload):
-              if isinstance(payload, list):
-                  return payload
-              if isinstance(payload, dict):
-                  for key in ("data", "fixtures", "results", "items"):
-                      val = payload.get(key)
-                      if isinstance(val, list):
-                          return val
-              return []
-
-          rows = fixture_rows(odds)
+          # Filter GW1 locally, without another API request.
+          rows = payload if isinstance(payload, list) else []
           gw1 = []
           for fx in rows:
-              start = str(fx.get("startTime", ""))
-              if "2026-09-04" <= start[:10] <= "2026-09-07":
+              date = str(fx.get("startTime", ""))[:10]
+              if "2026-09-04" <= date <= "2026-09-07":
                   gw1.append(fx)
 
-          with open("oddspapi_wsl_gw1_odds.json", "w", encoding="utf-8") as f:
+          with open("oddspapi_pinnacle_wsl_gw1.json", "w", encoding="utf-8") as f:
               json.dump(gw1, f, indent=2, ensure_ascii=False)
 
-          print(f"Total WSL fixtures in response: {len(rows)}")
-          print(f"GW1 fixtures retained locally: {len(gw1)}")
-          print("Success: only one billable OddsPapi request was used.")
+          print(f"Success. WSL fixtures returned: {len(rows)}")
+          print(f"GW1 fixtures retained: {len(gw1)}")
+          for fx in gw1:
+              print(
+                  fx.get("fixtureId"),
+                  fx.get("startTime"),
+                  "hasOdds=", fx.get("hasOdds")
+              )
           PY
 
       - name: Upload OddsPapi results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: oddspapi-wsl-one-request
+          name: oddspapi-pinnacle-wsl-test
           path: |
-            oddspapi_account.json
-            oddspapi_wsl_all_odds.json
-            oddspapi_wsl_gw1_odds.json
-            oddspapi_odds_error.json
+            oddspapi_pinnacle_wsl.json
+            oddspapi_pinnacle_wsl_gw1.json
+            oddspapi_error.json
           if-no-files-found: warn
           retention-days: 7
