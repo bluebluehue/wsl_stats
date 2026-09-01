@@ -1097,6 +1097,9 @@
                 <button id="pairings-view-tab" class="view-tab px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-md text-sm font-semibold shadow-sm">
                     <i class="fa-solid fa-shuffle mr-2"></i>Team Pairings
                 </button>
+                <button id="legs-view-tab" class="view-tab px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-md text-sm font-semibold shadow-sm">
+                    <i class="fa-solid fa-road mr-2"></i>Leg Planner
+                </button>
                 <button id="clean-sheets-view-tab" class="view-tab px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-md text-sm font-semibold shadow-sm">
                     <i class="fa-solid fa-shield-halved mr-2"></i>Clean Sheets
                 </button>
@@ -1474,6 +1477,48 @@
                         </tr>
                     </thead>
                     <tbody id="pairings-table-body"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="legs-view" class="hidden">
+            <div class="bg-white border border-gray-200 rounded-lg p-3 mb-3 shadow-sm">
+                <div class="flex flex-wrap gap-3 items-end justify-between">
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-800">Fantasy Leg Planner</h3>
+                        <p class="text-xs text-gray-500 mt-1">See every club's full run between unlimited-transfer windows. Each GW cell shows opponent, H/A and our general fixture opportunity (higher/easier is better).</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2 items-end">
+                        <label class="text-xs font-semibold text-gray-600">Leg
+                            <select id="legs-leg" class="block mt-1 px-2 py-2 border border-gray-300 rounded-md text-sm bg-white">
+                                <option value="1">Leg 1 · GW1–5</option>
+                                <option value="2">Leg 2 · GW6–11</option>
+                                <option value="3">Leg 3 · GW12–14</option>
+                                <option value="4">Leg 4 · GW15–19</option>
+                                <option value="5">Leg 5 · GW20–23</option>
+                                <option value="6">Leg 6 · GW24–26</option>
+                            </select>
+                        </label>
+                        <label class="text-xs font-semibold text-gray-600">League
+                            <select id="legs-league" class="block mt-1 px-2 py-2 border border-gray-300 rounded-md text-sm bg-white">
+                                <option value="">WSL + WSL2</option><option value="WSL" selected>WSL only</option><option value="WSL2">WSL2 only</option>
+                            </select>
+                        </label>
+                        <label class="text-xs font-semibold text-gray-600">Sort
+                            <select id="legs-sort" class="block mt-1 px-2 py-2 border border-gray-300 rounded-md text-sm bg-white">
+                                <option value="avg" selected>Best run</option>
+                                <option value="defense">Best defensive run</option>
+                                <option value="name">Team A–Z</option>
+                            </select>
+                        </label>
+                    </div>
+                </div>
+                <div id="legs-summary" class="mt-3 text-xs text-gray-600"></div>
+            </div>
+            <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-x-auto">
+                <table class="min-w-full text-sm" id="legs-table">
+                    <thead id="legs-table-head" class="bg-gray-50 text-gray-600 text-xs uppercase tracking-wide"></thead>
+                    <tbody id="legs-table-body"></tbody>
                 </table>
             </div>
         </section>
@@ -1958,7 +2003,6 @@
                     { "label": "Selection Rate (S%)", "key": "Selected Percentage", "unit": "%", "raw_unit": true },
                     { "label": "Selection Change", "key": "Ownership Delta", "unit": "", "raw_unit": true, "delta": true },
                     { "label": "Next Fixture Score (0-100)", "key": "Next Fixture Rating", "unit": "", "raw_unit": true },
-                    { "label": "Market CS%", "key": "Next Market CS Probability", "unit": "", "raw_unit": true, "market_pct": true },
                     <!-- { "label": "Recommendation", "key": "Recommendation", "unit": "", "raw_unit": true }, -->
                     { "label": "Goals Scored", "key": "Total Goals", "unit": "" },
                     { "label": "Assists", "key": "Total Assists", "unit": "" },
@@ -1982,9 +2026,6 @@
                     }
                     if (stat.delta) {
                         displayValue = formatOwnershipDelta(displayValue);
-                    } else if (stat.market_pct) {
-                        const n = Number(displayValue);
-                        displayValue = Number.isFinite(n) ? `${(n * 100).toFixed(1)}%` : '-';
                     } else if (typeof displayValue === 'number' && !stat.raw_unit) {
                         displayValue = safeToFixed(displayValue, 0); 
                     } else if (typeof displayValue === 'number' && (stat.key === 'Selected Percentage' || stat.key === 'Points Per Million Over 4 Gameweeks')) {
@@ -2033,7 +2074,6 @@
                             </div>
                             <div class="flex items-center space-x-3">
                                 <span class="font-medium text-gray-900">${fixture.game_date} @ ${fixture.kick_off_time}</span>
-                                ${Number.isFinite(Number(fixture.market_cs_probability)) ? `<span class="text-xs font-bold text-indigo-700">Mkt CS ${(Number(fixture.market_cs_probability) * 100).toFixed(0)}%</span>` : ''}
                             </div>
                         </div>
                     `;
@@ -2470,24 +2510,6 @@
                     },
                     className: 'dt-center'
                 },
-                "Next Market CS Probability": {
-                    abbr: 'Mkt CS%',
-                    full: 'Pinnacle market-implied clean-sheet probability for the player\'s next fixture, calculated from the opponent team-total Under 0.5 market and de-vigged against Over 0.5. This market estimate is not yet blended into GK Fix.',
-                    type: 'num',
-                    render: function (data, type, row) {
-                        const n = Number(data);
-                        if (type !== 'display') return Number.isFinite(n) ? n : -1;
-                        if (!Number.isFinite(n)) return '<span class="text-gray-400">-</span>';
-                        const pct = n * 100;
-                        let classes = 'cs-prob-pill ';
-                        if (pct >= 45) classes += 'cs-prob-high';
-                        else if (pct >= 28) classes += 'cs-prob-mid';
-                        else classes += 'cs-prob-low';
-                        return `<span class="${classes}" title="${row['Next Market CS Source'] || 'Pinnacle'}">${pct.toFixed(0)}%</span>`;
-                    },
-                    className: 'dt-center'
-                },
-
                 "Following Fixture Score": {
                     abbr: 'Fix+1',
                     full: 'Following gameweek fixture opportunity from 0-100 (higher = better). Goalkeepers use GK Model v2: clean-sheet environment + 3-save point chance + keeper quality + 3+ goals-conceded penalty risk. Outfield players use the general fixture model.',
@@ -4239,6 +4261,7 @@
             }
 
             function csProbPill(value) {
+                if (value === null || value === undefined || value === '') return '<span class="text-gray-400">—</span>';
                 const n = Number(value);
                 if (!Number.isFinite(n)) return '<span class="text-gray-400">—</span>';
                 const pct = n * 100;
@@ -4265,7 +4288,7 @@
 
                     const sides = [
                         {
-                            team: f.home_id, opponent: f.away_id, loc: 'H',
+                            team: canonicalTeamCodeUI(f.home_id), opponent: canonicalTeamCodeUI(f.away_id), loc: 'H',
                             market: f.home_market_cs_probability,
                             model: f.home_cs_probability,
                             fix: f.home_cs_opportunity,
@@ -4273,7 +4296,7 @@
                             underOdds: f.home_market_cs_under_odds
                         },
                         {
-                            team: f.away_id, opponent: f.home_id, loc: 'A',
+                            team: canonicalTeamCodeUI(f.away_id), opponent: canonicalTeamCodeUI(f.home_id), loc: 'A',
                             market: f.away_market_cs_probability,
                             model: f.away_cs_probability,
                             fix: f.away_cs_opportunity,
@@ -4309,7 +4332,7 @@
                 rows.sort((a,b) => score(b)-score(a));
 
                 const withMarket = rows.filter(r => r.market !== null).length;
-                $('#cs-summary').html(`<span class="font-semibold">GW${gw || '-'}:</span> ${rows.length} team fixtures shown; ${withMarket} currently have a Pinnacle team-total U0.5 market. <span class="text-gray-500">Difference = Market CS% − Model CS%.</span>`);
+                $('#cs-summary').html(`<span class="font-semibold">GW${gw || '-'}:</span> ${rows.length} team forecasts across ${Math.ceil(rows.length / 2)} fixtures; ${withMarket} team forecasts currently have a Pinnacle team-total U0.5 market. <span class="text-gray-500">Difference = Market CS% − Model CS%.</span>`);
 
                 const html = rows.map((row, idx) => {
                     let gapHtml = '<span class="text-gray-400">—</span>';
@@ -4337,21 +4360,128 @@
                 $('#cs-table-body').html(html || '<tr><td colspan="10" class="px-3 py-8 text-center text-gray-500">No fixtures match these filters.</td></tr>');
             }
 
+            const FANTASY_LEGS = {
+                1: [1, 5],
+                2: [6, 11],
+                3: [12, 14],
+                4: [15, 19],
+                5: [20, 23],
+                6: [24, 26]
+            };
+
+            function legFixtureCell(team, fixture) {
+                if (!fixture) return { html: '<span class="text-gray-400">—</span>', score: null, defense: null };
+                const home = canonicalTeamCodeUI(fixture.home_id);
+                const away = canonicalTeamCodeUI(fixture.away_id);
+                const isHome = home === team;
+                const opponent = isHome ? away : home;
+                const loc = isHome ? 'H' : 'A';
+                const scoreRaw = isHome ? fixture.home_fixture_opportunity : fixture.away_fixture_opportunity;
+                const defRaw = isHome ? fixture.home_cs_probability : fixture.away_cs_probability;
+                const score = (scoreRaw === null || scoreRaw === undefined || scoreRaw === '') ? null : Number(scoreRaw);
+                const defense = (defRaw === null || defRaw === undefined || defRaw === '') ? null : Number(defRaw);
+                let cls = 'bg-gray-100 text-gray-700';
+                if (Number.isFinite(score)) {
+                    if (score >= 80) cls = 'bg-green-600 text-white';
+                    else if (score >= 65) cls = 'bg-green-200 text-green-900';
+                    else if (score >= 45) cls = 'bg-gray-200 text-gray-800';
+                    else if (score >= 25) cls = 'bg-red-200 text-red-900';
+                    else cls = 'bg-red-600 text-white';
+                }
+                const scoreText = Number.isFinite(score) ? Math.round(score) : '—';
+                const day = fixture.fixture_day_short || '';
+                return {
+                    score: Number.isFinite(score) ? score : null,
+                    defense: Number.isFinite(defense) ? defense : null,
+                    html: `<div class="inline-flex flex-col items-center min-w-[72px] px-2 py-1 rounded-md ${cls}" title="${day} ${fixture.kick_off_time || ''}">
+                        <span class="font-bold">${opponent} <span class="opacity-75">${loc}</span></span>
+                        <span class="text-[10px] font-semibold opacity-80">Fix ${scoreText}</span>
+                    </div>`
+                };
+            }
+
+            function renderLegs() {
+                if (!Array.isArray(fullFixtureData) || !fullFixtureData.length) return;
+                const leg = Number($('#legs-leg').val() || 1);
+                const [fromGw, toGw] = FANTASY_LEGS[leg] || FANTASY_LEGS[1];
+                const league = $('#legs-league').val();
+                const sortMode = $('#legs-sort').val() || 'avg';
+                const gws = [];
+                for (let gw = fromGw; gw <= toGw; gw++) gws.push(gw);
+
+                const teamLeague = new Map();
+                fullPlayerData.forEach(p => {
+                    const code = canonicalTeamCodeUI(p.Club);
+                    if (code && !teamLeague.has(code)) teamLeague.set(code, p.League || '');
+                });
+                const teams = Array.from(teamLeague.keys()).filter(t => !league || teamLeague.get(t) === league);
+
+                const rows = teams.map(team => {
+                    const cells = [];
+                    gws.forEach(gw => {
+                        const fixture = fullFixtureData.find(f => {
+                            const fgw = Number(f.fantasy_game_week ?? f.game_week);
+                            if (fgw !== gw) return false;
+                            return canonicalTeamCodeUI(f.home_id) === team || canonicalTeamCodeUI(f.away_id) === team;
+                        });
+                        cells.push({ gw, ...legFixtureCell(team, fixture) });
+                    });
+                    const scores = cells.map(c => c.score).filter(Number.isFinite);
+                    const defenses = cells.map(c => c.defense).filter(Number.isFinite);
+                    return {
+                        team,
+                        league: teamLeague.get(team),
+                        cells,
+                        avg: scores.length ? scores.reduce((a,b)=>a+b,0)/scores.length : null,
+                        defense: defenses.length ? defenses.reduce((a,b)=>a+b,0)/defenses.length : null,
+                        coverage: scores.length
+                    };
+                });
+
+                rows.sort((a,b) => {
+                    if (sortMode === 'name') return a.team.localeCompare(b.team);
+                    if (sortMode === 'defense') return (b.defense ?? -1) - (a.defense ?? -1);
+                    return (b.avg ?? -1) - (a.avg ?? -1);
+                });
+
+                $('#legs-table-head').html(`<tr>
+                    <th class="text-left px-3 py-2">#</th>
+                    <th class="text-left px-3 py-2">Team</th>
+                    ${gws.map(gw => `<th class="text-center px-3 py-2">GW${gw}</th>`).join('')}
+                    <th class="text-center px-3 py-2" title="Average general fixture opportunity across this leg.">Avg Fix</th>
+                    <th class="text-center px-3 py-2" title="Average independent clean-sheet probability across this leg.">Avg CS%</th>
+                </tr>`);
+
+                $('#legs-summary').html(`<span class="font-semibold">Leg ${leg} · GW${fromGw}–${toGw}:</span> ${rows.length} clubs shown. <span class="text-gray-500">Unlimited transfers are available before the next leg, so Avg Fix ranks the complete run inside this transfer window.</span>`);
+
+                const body = rows.map((row, idx) => `<tr class="border-t border-gray-100 hover:bg-gray-50">
+                    <td class="px-3 py-2 text-gray-400">${idx+1}</td>
+                    <td class="px-3 py-2 font-bold"><span class="team-badge badge-${row.team}">${row.team}</span></td>
+                    ${row.cells.map(c => `<td class="px-3 py-2 text-center">${c.html}</td>`).join('')}
+                    <td class="px-3 py-2 text-center font-bold">${row.avg !== null ? row.avg.toFixed(1) : '—'}</td>
+                    <td class="px-3 py-2 text-center">${row.defense !== null ? (row.defense * 100).toFixed(1) + '%' : '—'}</td>
+                </tr>`).join('');
+                $('#legs-table-body').html(body || `<tr><td colspan="${gws.length + 4}" class="px-3 py-8 text-center text-gray-500">No teams match this league filter.</td></tr>`);
+            }
+
             function setMainView(view) {
                 const planner = view === 'planner';
                 const pairings = view === 'pairings';
                 const cleanSheets = view === 'clean-sheets';
-                const table = !planner && !pairings && !cleanSheets;
+                const legs = view === 'legs';
+                const table = !planner && !pairings && !cleanSheets && !legs;
 
                 $('#table-view').toggleClass('hidden', !table);
                 $('#planner-view').toggleClass('hidden', !planner);
                 $('#pairings-view').toggleClass('hidden', !pairings);
                 $('#clean-sheets-view').toggleClass('hidden', !cleanSheets);
+                $('#legs-view').toggleClass('hidden', !legs);
 
                 $('#table-view-tab').toggleClass('active', table);
                 $('#planner-view-tab').toggleClass('active', planner);
                 $('#pairings-view-tab').toggleClass('active', pairings);
                 $('#clean-sheets-view-tab').toggleClass('active', cleanSheets);
+                $('#legs-view-tab').toggleClass('active', legs);
 
                 if (planner) {
                     renderPlanner();
@@ -4359,6 +4489,8 @@
                     renderPairings();
                 } else if (cleanSheets) {
                     renderCleanSheets();
+                } else if (legs) {
+                    renderLegs();
                 } else if (dataTableInstance) {
                     setTimeout(() => dataTableInstance.columns.adjust().draw(false), 50);
                 }
@@ -4368,6 +4500,8 @@
             $('#planner-view-tab').on('click', () => setMainView('planner'));
             $('#pairings-view-tab').on('click', () => setMainView('pairings'));
             $('#clean-sheets-view-tab').on('click', () => setMainView('clean-sheets'));
+            $('#legs-view-tab').on('click', () => setMainView('legs'));
+            $('#legs-leg, #legs-sort').on('change', renderLegs);
             $('#planner-gameweek, #planner-position, #planner-club, #planner-sort, #planner-my-team').on('change', renderPlanner);
             $('#cs-gameweek, #cs-sort, #cs-market-only').on('change', renderCleanSheets);
 
@@ -4377,6 +4511,7 @@
                 $('#league-filter').val(value);
                 $('#pairings-league').val(value);
                 $('#cs-league').val(value);
+                $('#legs-league').val(value);
                 if (dataTableInstance) dataTableInstance.draw(false);
                 renderPlanner();
                 renderPairings();
@@ -4409,6 +4544,7 @@
                 $('#league-filter').val(value);
                 $('#planner-league').val(value);
                 $('#cs-league').val(value);
+                $('#legs-league').val(value);
                 if (dataTableInstance) dataTableInstance.draw(false);
                 renderPlanner();
                 renderPairings();
@@ -4425,6 +4561,20 @@
                 renderPlanner();
                 renderPairings();
                 renderCleanSheets();
+            });
+
+            $('#legs-league').on('change', function() {
+                const value = $(this).val();
+                saveLeaguePreference(value);
+                $('#league-filter').val(value);
+                $('#planner-league').val(value);
+                $('#pairings-league').val(value);
+                $('#cs-league').val(value);
+                if (dataTableInstance) dataTableInstance.draw(false);
+                renderPlanner();
+                renderPairings();
+                renderCleanSheets();
+                renderLegs();
             });
 
             async function fetchData() {
@@ -4523,6 +4673,7 @@
                     $('#planner-league').val(initialLeaguePreference);
                     $('#pairings-league').val(initialLeaguePreference);
                     $('#cs-league').val(initialLeaguePreference);
+                    $('#legs-league').val(initialLeaguePreference);
 
                     initializeTable(playerData);
                     populatePlannerControls(playerData, transformedMetadata.matchday_id);
@@ -4532,10 +4683,12 @@
                     $('#planner-league').val(initialLeaguePreference);
                     $('#pairings-league').val(initialLeaguePreference);
                     $('#cs-league').val(initialLeaguePreference);
+                    $('#legs-league').val(initialLeaguePreference);
 
                     renderPlanner();
                     renderPairings();
                     renderCleanSheets();
+                    renderLegs();
                     updateDeltaReferenceNote(transformedMetadata);
                     
                 } catch (error) {
