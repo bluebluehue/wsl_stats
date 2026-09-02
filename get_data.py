@@ -96,6 +96,23 @@ PROMOTED_WSL_UNIT_STRENGTH = {
     "CHA": {"attack": 0.24, "defense": 0.36},
 }
 
+# v8 temporary WSL2 preseason calibration. 0.50 ~= WSL2 average.
+# This layer fades linearly to zero after five completed 2026/27 league matches.
+WSL2_PRESEASON_UNIT_CALIBRATION = {
+    "LEI": {"attack": 0.90, "defense": 0.90},
+    "BRC": {"attack": 0.82, "defense": 0.82},
+    "NEW": {"attack": 0.79, "defense": 0.78},
+    "SUN": {"attack": 0.76, "defense": 0.73},
+    "SOU": {"attack": 0.65, "defense": 0.68},
+    "BUR": {"attack": 0.60, "defense": 0.64},
+    "WOL": {"attack": 0.58, "defense": 0.62},
+    "NFO": {"attack": 0.58, "defense": 0.58},
+    "WAT": {"attack": 0.43, "defense": 0.43},
+    "SHU": {"attack": 0.39, "defense": 0.38},
+    "DUR": {"attack": 0.36, "defense": 0.37},
+}
+WSL2_PRESEASON_FADE_MATCHES = 5
+
 # Fixture Model v5. The WSL source rating remains useful, but it is now only
 # one input. The independent team-matchup prior gets the larger weight.
 SOURCE_RATING_WEIGHT = 0.35
@@ -386,13 +403,32 @@ def canonical_gk_team_code(code: str | None) -> str:
     return TEAM_CODE_ALIASES.get(raw, raw)
 
 
+def preseason_calibration_weight(matches_played: int) -> float:
+    mp = max(0, safe_int(matches_played))
+    return max(0.0, min(1.0, (WSL2_PRESEASON_FADE_MATCHES - mp) / WSL2_PRESEASON_FADE_MATCHES))
+
+
+def apply_wsl2_preseason_unit_calibration(team: str, attack: float, defense: float, matches_played: int = 0):
+    profile = WSL2_PRESEASON_UNIT_CALIBRATION.get(str(team or "").upper())
+    weight = preseason_calibration_weight(matches_played) if profile else 0.0
+    if not profile or weight <= 0:
+        return attack, defense, 0.0
+    return (
+        (1-weight)*attack + weight*safe_float(profile["attack"]),
+        (1-weight)*defense + weight*safe_float(profile["defense"]),
+        weight,
+    )
+
+
 def build_gk_team_priors(
     model_inputs: dict[str, Any],
     team_strength: dict[str, dict[str, Any]] | None = None,
+    current_season_matches: dict[str, int] | None = None,
 ) -> dict[str, dict[str, Any]]:
     teams = model_inputs.get("teams", {}) or {}
     manual = model_inputs.get("manual_team_adjustments", {}) or {}
     team_strength = team_strength or {}
+    current_season_matches = current_season_matches or {}
 
     by_league: dict[str, list[dict[str, Any]]] = {}
     for code, row in teams.items():
@@ -525,6 +561,25 @@ def build_gk_team_priors(
                     f"(roster strength {strength:.3f})"
                 )
             data_quality = "cross-division destination prior"
+
+        preseason_weight = 0.0
+        if target_league == "WSL2" and code in WSL2_PRESEASON_UNIT_CALIBRATION:
+            model_attack = (attack_factor - 0.75) / 0.55
+            model_defense = (1.25 - defense_factor) / 0.45
+            ca, cd, preseason_weight = apply_wsl2_preseason_unit_calibration(
+                code, model_attack, model_defense, current_season_matches.get(code, 0)
+            )
+            attack_factor = 0.75 + 0.55 * ca
+            defense_factor = 1.25 - 0.45 * cd
+            shot_pressure_factor = defense_factor
+            ga90 = target_base["ga90"] * defense_factor
+            gf90 = target_base["gf90"] * attack_factor
+            sot = target_base["sot"] * attack_factor
+            big90 = target_base["big_chances90"] * attack_factor
+            saves_pg = target_base["saves"] * shot_pressure_factor
+            if preseason_weight > 0:
+                data_quality = "preseason expert-calibrated prior"
+                bridge_note = ((bridge_note + " | ") if bridge_note else "") + f"WSL2 preseason calibration {preseason_weight:.0%}"
 
         m = manual.get(code) or {}
         defense_factor *= max(0.60, 1.0 - safe_float(m.get("defense_adjustment"), 0) / 100.0)
@@ -1015,6 +1070,7 @@ def map_rank_to_destination_strength(
 def build_team_unit_priors(
     players_raw: list[dict[str, Any]],
     team_strength: dict[str, dict[str, Any]],
+    current_season_matches: dict[str, int] | None = None,
 ) -> dict[str, dict[str, Any]]:
     """Build separate preseason attacking and defensive team-strength priors.
 
@@ -1026,6 +1082,7 @@ def build_team_unit_priors(
     30% whole-team strength to reduce noise when a club has many new signings
     or sparse prior-season data.
     """
+    current_season_matches = current_season_matches or {}
     units: dict[str, dict[str, Any]] = {}
 
     for raw in players_raw:
@@ -1085,6 +1142,12 @@ def build_team_unit_priors(
 
         attack_strength = (0.70 * attack_mapped) + (0.30 * generic_strength)
         defense_strength = (0.70 * defense_mapped) + (0.30 * generic_strength)
+
+        preseason_weight = 0.0
+        if comp == WSL2_COMPETITION_ID and team in WSL2_PRESEASON_UNIT_CALIBRATION:
+            attack_strength, defense_strength, preseason_weight = apply_wsl2_preseason_unit_calibration(
+                team, attack_strength, defense_strength, current_season_matches.get(team, 0)
+            )
 
         priors[team] = {
             "competition_id": comp,
@@ -1671,6 +1734,22 @@ def availability_text(status: Any) -> str | None:
     return mapping.get(status, f"Availability status: {status}")
 
 
+def count_completed_team_matches(fixtures_raw: list[dict[str, Any]]) -> dict[str, int]:
+    counts: dict[str, int] = {}
+    for fixture in fixtures_raw:
+        status = str(fixture.get("status") or fixture.get("providerStatus") or "").lower()
+        hs, aws = fixture.get("homeScore"), fixture.get("awayScore")
+        completed = status in {"played","complete","completed","finished","ft","fulltime","full_time"} or (
+            hs not in (None, "") and aws not in (None, "")
+        )
+        if completed:
+            for key in ("homeAcronymName", "awayAcronymName"):
+                code = canonical_gk_team_code(fixture.get(key))
+                if code:
+                    counts[code] = counts.get(code, 0) + 1
+    return counts
+
+
 def build_outputs(from_local: bool = False) -> dict[str, Any]:
     feeds = {
         key: fetch_json(path, cache_name=f"{key}.json", from_local=from_local)
@@ -1684,10 +1763,11 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
 
     fixture_calibration = build_competition_fixture_calibration(players_raw)
     team_strength = build_team_strength_priors(players_raw)
+    current_season_matches = count_completed_team_matches(fixtures_raw)
     gk_model_inputs = load_gk_model_inputs()
     market_metadata, market_lookup = load_market_odds()
-    gk_team_priors = build_gk_team_priors(gk_model_inputs, team_strength)
-    team_unit_strength = build_team_unit_priors(players_raw, team_strength)
+    gk_team_priors = build_gk_team_priors(gk_model_inputs, team_strength, current_season_matches)
+    team_unit_strength = build_team_unit_priors(players_raw, team_strength, current_season_matches)
     players = [
         transform_player(p, fixture_calibration, team_strength, gk_team_priors, gk_model_inputs, market_lookup)
         for p in players_raw
@@ -1787,7 +1867,7 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
         fixture["away_cs_prior"] = aws["own_cs_prior"]
         fixture["home_opponent_attack_prior"] = hs["opponent_attack_prior"]
         fixture["away_opponent_attack_prior"] = aws["opponent_attack_prior"]
-        fixture["gk_rating_model"] = "team-cs-save-v7-split-promoted-units"
+        fixture["gk_rating_model"] = "team-cs-save-v8-wsl2-preseason-fade"
 
     teams = [normalize_team(t) for t in teams_raw]
 
@@ -1818,7 +1898,7 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
             {"leg": 6, "start_gw": 24, "end_gw": 26},
         ],
         "gk_fixture_model": {
-            "version": "team-cs-save-v7-split-promoted-units",
+            "version": "team-cs-save-v8-wsl2-preseason-fade",
             "note": "GK model separates clean-sheet probability, save opportunity, individual keeper quality, and 3+ concession risk. Expected goals against multiplies independent own-defense and opponent-attack relative-risk factors plus venue. Cross-division clubs are now rebased to the destination league using their destination-calibrated current-roster strength prior, rather than carrying source-division GF/GA ratios across with a small multiplier.",
             "weights": {"cs_fix": 0.55, "save_opportunity": 0.25, "keeper_quality": 0.10, "concession_safety": 0.10},
             "cs_probability_formula": "P(CS)=exp(-xGA), xGA=league_baseline_GA * own_defense_factor * opponent_attack_factor * venue_factor",
@@ -1858,7 +1938,7 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
             },
             "team_strength_priors": team_strength,
             "defensive_fixture_model": {
-                "version": "unit-strength-defense-v6",
+                "version": "unit-strength-defense-v8-wsl2-preseason-fade",
                 "note": "Schedule-only attacking and defensive fixture opportunities are distinct from projected team strength. Defensive run uses only opponent attack + venue; attacking run uses only opponent defense + venue. Own team quality is intentionally excluded so the Leg Planner ranks schedule difficulty rather than projected performance.",
                 "defensive_formula": "50 + (0.50 - opponent_attack_index)*70 + venue",
                 "attacking_formula": "50 + (0.50 - opponent_defense_index)*70 + venue",
