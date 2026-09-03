@@ -1,11 +1,11 @@
 {
   "metadata": {
-    "generated_at_utc": "2026-09-02T12:20:08+00:00",
+    "generated_at_utc": "2026-09-03T12:07:43+00:00",
     "source": "Pinnacle via OddsPapi",
     "method": "Opponent team total Under 0.5, de-vigged against Over 0.5",
     "tournament_id": 1044,
     "fixture_count": 3,
-    "unmatched_fixture_count": 0,
+    "unmatched_fixture_count": 1,
     "learned_participant_count": 8,
     "participant_mapping": {
       "606004": "LCL",
@@ -25,7 +25,7 @@
       "match_id": "wpll::Football_Match::25ef6af2d5dd4816bdd4c5cf38a12b5e",
       "fixture_id": "id1000104473345986",
       "pinnacle_fixture_id": "1635101495",
-      "start_time_utc": "2026-09-05T11:35:00.000Z",
+      "start_time_utc": "2026-09-05T11:30:00.000Z",
       "home_team": "CHE",
       "away_team": "AVL",
       "home_name": "Chelsea",
@@ -48,7 +48,7 @@
       "away_opponent_team_total_0_5": null,
       "source": "Pinnacle",
       "method": "opponent_team_total_under_0.5_devig",
-      "market_updated_at": "2026-09-01T20:48:29.421Z"
+      "market_updated_at": "2026-09-02T22:46:36.060Z"
     },
     {
       "match_id": "wpll::Football_Match::72090b8862974a82bf321b1887f960d9",
@@ -77,7 +77,7 @@
       "away_opponent_team_total_0_5": null,
       "source": "Pinnacle",
       "method": "opponent_team_total_under_0.5_devig",
-      "market_updated_at": "2026-08-31T13:18:57.903Z"
+      "market_updated_at": "2026-09-02T18:57:16.558Z"
     },
     {
       "match_id": "wpll::Football_Match::0312ae31cfc047378ec39fc20e195919",
@@ -106,7 +106,7 @@
       },
       "source": "Pinnacle",
       "method": "opponent_team_total_under_0.5_devig",
-      "market_updated_at": "2026-08-31T13:18:57.972Z"
+      "market_updated_at": "2026-09-02T18:57:16.603Z"
     }
   ]
 }
