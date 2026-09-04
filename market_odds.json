@@ -1,12 +1,12 @@
 {
   "metadata": {
-    "generated_at_utc": "2026-09-03T12:07:43+00:00",
+    "generated_at_utc": "2026-09-04T12:09:13+00:00",
     "source": "Pinnacle via OddsPapi",
     "method": "Opponent team total Under 0.5, de-vigged against Over 0.5",
     "tournament_id": 1044,
     "fixture_count": 3,
     "unmatched_fixture_count": 1,
-    "learned_participant_count": 8,
+    "learned_participant_count": 10,
     "participant_mapping": {
       "606004": "LCL",
       "494374": "MUN",
@@ -15,7 +15,9 @@
       "301890": "TOT",
       "499630": "WHU",
       "372788": "BHA",
-      "26243": "ARS"
+      "26243": "ARS",
+      "142658": "MCI",
+      "66766": "BIR"
     },
     "participant_mapping_method": "manual verified overrides + kickoff-unique fallback",
     "note": "A team's CS probability equals the opponent's fair probability of scoring 0 goals. Only Pinnacle bookmakerMarketId values explicitly ending in teamTotal with home/away 0.5 over+under outcomes are accepted; prices are normalized within that same market. Participant IDs are learned from kickoff-unique fixtures and reused to resolve simultaneous kickoffs."
@@ -30,16 +32,16 @@
       "away_team": "AVL",
       "home_name": "Chelsea",
       "away_name": "Aston Villa",
-      "home_market_cs_probability": 0.520592,
+      "home_market_cs_probability": 0.448461,
       "away_market_cs_probability": null,
       "home_opponent_team_total_0_5": {
-        "over_odds": 1.934,
-        "under_odds": 1.781,
-        "raw_under_probability": 0.561482,
-        "overround": 0.078545,
-        "fair_under_probability": 0.520592,
+        "over_odds": 1.675,
+        "under_odds": 2.06,
+        "raw_under_probability": 0.485437,
+        "overround": 0.082452,
+        "fair_under_probability": 0.448461,
         "main_line": true,
-        "bookmaker_market_id": "line/29/8713/1635101495/3711135918/0/teamTotal",
+        "bookmaker_market_id": "line/29/8713/1635101495/3715383367/0/teamTotal",
         "market_type": "teamTotal",
         "period": "full_match",
         "team_total_side": "away",
@@ -48,7 +50,7 @@
       "away_opponent_team_total_0_5": null,
       "source": "Pinnacle",
       "method": "opponent_team_total_under_0.5_devig",
-      "market_updated_at": "2026-09-02T22:46:36.060Z"
+      "market_updated_at": "2026-09-04T02:17:51.180Z"
     },
     {
       "match_id": "wpll::Football_Match::72090b8862974a82bf321b1887f960d9",
@@ -59,16 +61,16 @@
       "away_team": "WHU",
       "home_name": "Tottenham Hotspur",
       "away_name": "West Ham United",
-      "home_market_cs_probability": 0.375156,
+      "home_market_cs_probability": 0.399185,
       "away_market_cs_probability": null,
       "home_opponent_team_total_0_5": {
-        "over_odds": 1.507,
-        "under_odds": 2.51,
-        "raw_under_probability": 0.398406,
-        "overround": 0.061976,
-        "fair_under_probability": 0.375156,
+        "over_odds": 1.568,
+        "under_odds": 2.36,
+        "raw_under_probability": 0.423729,
+        "overround": 0.061484,
+        "fair_under_probability": 0.399185,
         "main_line": true,
-        "bookmaker_market_id": "line/29/8713/1635193805/3712421063/0/teamTotal",
+        "bookmaker_market_id": "line/29/8713/1635193805/3714911577/0/teamTotal",
         "market_type": "teamTotal",
         "period": "full_match",
         "team_total_side": "away",
@@ -77,7 +79,7 @@
       "away_opponent_team_total_0_5": null,
       "source": "Pinnacle",
       "method": "opponent_team_total_under_0.5_devig",
-      "market_updated_at": "2026-09-02T18:57:16.558Z"
+      "market_updated_at": "2026-09-04T02:17:51.197Z"
     },
     {
       "match_id": "wpll::Football_Match::0312ae31cfc047378ec39fc20e195919",
@@ -106,7 +108,7 @@
       },
       "source": "Pinnacle",
       "method": "opponent_team_total_under_0.5_devig",
-      "market_updated_at": "2026-09-02T18:57:16.603Z"
+      "market_updated_at": "2026-09-04T02:17:51.215Z"
     }
   ]
 }
