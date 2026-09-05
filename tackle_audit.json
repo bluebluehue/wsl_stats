@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "generated_at_utc": "2026-09-05T17:31:05+00:00",
+    "generated_at_utc": "2026-09-05T20:41:27+00:00",
     "purpose": "Audit involvement-point event definitions using settled + latest matches for user-scored players plus Richards/Bronze controls",
     "current_rule": "typeId 7 AND outcome=1 counts as a tackle won",
     "comparison_rule": "all typeId 7 events count as tackles",
@@ -85,7 +85,7 @@
         "def_points_if_all_type7": 0
       },
       "all_event_type_counts": {
-        "1": 103,
+        "1": 102,
         "2": 1,
         "3": 2,
         "5": 3,
@@ -109,12 +109,18 @@
           "player_id": "6679bfd6bjylogbe4ebese85x",
           "team_id": "spi3g782q7m4evjxn1sv6cfa",
           "qualifier_ids": [
+            14,
             56,
             178,
             233,
-            285
+            285,
+            384
           ],
           "qualifiers": [
+            {
+              "id": 6568334817,
+              "qualifierId": 14
+            },
             {
               "id": 6567117165,
               "qualifierId": 56,
@@ -132,6 +138,10 @@
             {
               "id": 6567117167,
               "qualifierId": 285
+            },
+            {
+              "id": 6568334001,
+              "qualifierId": 384
             }
           ],
           "description": null,
@@ -152,7 +162,8 @@
             56,
             178,
             233,
-            285
+            285,
+            384
           ],
           "qualifiers": [
             {
@@ -172,6 +183,10 @@
             {
               "id": 6567541859,
               "qualifierId": 285
+            },
+            {
+              "id": 6570624717,
+              "qualifierId": 384
             }
           ],
           "description": null,
@@ -207,12 +222,18 @@
           "player_id": "6679bfd6bjylogbe4ebese85x",
           "team_id": "spi3g782q7m4evjxn1sv6cfa",
           "qualifier_ids": [
+            14,
             56,
             178,
             233,
-            285
+            285,
+            384
           ],
           "qualifiers": [
+            {
+              "id": 6568334817,
+              "qualifierId": 14
+            },
             {
               "id": 6567117165,
               "qualifierId": 56,
@@ -230,6 +251,10 @@
             {
               "id": 6567117167,
               "qualifierId": 285
+            },
+            {
+              "id": 6568334001,
+              "qualifierId": 384
             }
           ],
           "description": null,
@@ -247,13 +272,18 @@
           "player_id": "6679bfd6bjylogbe4ebese85x",
           "team_id": "spi3g782q7m4evjxn1sv6cfa",
           "qualifier_ids": [
-            56
+            56,
+            385
           ],
           "qualifiers": [
             {
               "id": 6567177889,
               "qualifierId": 56,
               "value": "Left"
+            },
+            {
+              "id": 6568471355,
+              "qualifierId": 385
             }
           ],
           "description": null,
@@ -436,18 +466,18 @@
           "player_id": "6679bfd6bjylogbe4ebese85x",
           "team_id": "spi3g782q7m4evjxn1sv6cfa",
           "qualifier_ids": [
-            14,
-            56
+            56,
+            384
           ],
           "qualifiers": [
-            {
-              "id": 6567537369,
-              "qualifierId": 14
-            },
             {
               "id": 6567534717,
               "qualifierId": 56,
               "value": "Back"
+            },
+            {
+              "id": 6570229715,
+              "qualifierId": 384
             }
           ],
           "description": null,
@@ -468,7 +498,8 @@
             56,
             178,
             233,
-            285
+            285,
+            384
           ],
           "qualifiers": [
             {
@@ -488,6 +519,10 @@
             {
               "id": 6567541859,
               "qualifierId": 285
+            },
+            {
+              "id": 6570624717,
+              "qualifierId": 384
             }
           ],
           "description": null,
@@ -522,10 +557,10 @@
       "all_event_type_counts": {
         "1": 27,
         "10": 4,
-        "43": 1,
+        "43": 2,
         "49": 1,
-        "52": 5,
-        "54": 2,
+        "52": 6,
+        "54": 1,
         "80": 1
       },
       "type7_tackle_events": [],
@@ -544,7 +579,8 @@
             177,
             180,
             182,
-            233
+            233,
+            376
           ],
           "qualifiers": [
             {
@@ -568,6 +604,10 @@
               "id": 6567077007,
               "qualifierId": 233,
               "value": "33"
+            },
+            {
+              "id": 6568224871,
+              "qualifierId": 376
             }
           ],
           "description": null,
@@ -605,7 +645,8 @@
             173,
             178,
             182,
-            190
+            190,
+            377
           ],
           "qualifiers": [
             {
@@ -628,6 +669,10 @@
             {
               "id": 6567259031,
               "qualifierId": 190
+            },
+            {
+              "id": 6568628065,
+              "qualifierId": 377
             }
           ],
           "description": null,
@@ -649,7 +694,8 @@
             174,
             179,
             182,
-            233
+            233,
+            377
           ],
           "qualifiers": [
             {
@@ -673,12 +719,16 @@
               "id": 6567441191,
               "qualifierId": 233,
               "value": "453"
+            },
+            {
+              "id": 6570150915,
+              "qualifierId": 377
             }
           ],
           "description": null,
           "event_name": null,
-          "x": 3.1,
-          "y": 46.7
+          "x": 2.0,
+          "y": 47.8
         },
         {
           "event_id": 821,
@@ -692,9 +742,10 @@
           "qualifier_ids": [
             56,
             173,
-            178,
-            182,
-            233
+            180,
+            183,
+            233,
+            376
           ],
           "qualifiers": [
             {
@@ -707,17 +758,21 @@
               "qualifierId": 173
             },
             {
-              "id": 6567564067,
-              "qualifierId": 178
+              "id": 6570633069,
+              "qualifierId": 180
             },
             {
-              "id": 6567564069,
-              "qualifierId": 182
+              "id": 6570633071,
+              "qualifierId": 183
             },
             {
               "id": 6567571597,
               "qualifierId": 233,
               "value": "614"
+            },
+            {
+              "id": 6570633073,
+              "qualifierId": 376
             }
           ],
           "description": null,
@@ -746,11 +801,11 @@
         "attacking_points": 1
       },
       "counts": {
-        "recoveries": 6,
-        "type7_all": 3,
+        "recoveries": 5,
+        "type7_all": 4,
         "type7_unsuccessful": 2,
         "clearances": 2,
-        "tackles_current": 1,
+        "tackles_current": 2,
         "def_actions_current": 9,
         "def_points_current": 0,
         "def_actions_if_all_type7": 11,
@@ -761,13 +816,14 @@
         "3": 2,
         "4": 1,
         "5": 10,
-        "6": 1,
-        "7": 3,
+        "6": 2,
+        "7": 4,
         "12": 2,
         "15": 2,
+        "43": 1,
         "44": 3,
         "45": 1,
-        "49": 6,
+        "49": 5,
         "61": 5,
         "74": 1,
         "83": 2
@@ -786,7 +842,8 @@
             56,
             178,
             233,
-            285
+            285,
+            385
           ],
           "qualifiers": [
             {
@@ -806,6 +863,10 @@
             {
               "id": 6567073299,
               "qualifierId": 285
+            },
+            {
+              "id": 6568216483,
+              "qualifierId": 385
             }
           ],
           "description": null,
@@ -826,7 +887,8 @@
             56,
             178,
             233,
-            286
+            286,
+            384
           ],
           "qualifiers": [
             {
@@ -846,12 +908,61 @@
             {
               "id": 6567527581,
               "qualifierId": 286
+            },
+            {
+              "id": 6570191739,
+              "qualifierId": 384
             }
           ],
           "description": null,
           "event_name": null,
           "x": 74.2,
           "y": 34.6
+        },
+        {
+          "event_id": 752,
+          "type_id": 7,
+          "outcome": 1,
+          "minute": 70,
+          "second": 27,
+          "period_id": 2,
+          "player_id": "1dg7whnmk3nb1adw7n8a7nnbp",
+          "team_id": "spi3g782q7m4evjxn1sv6cfa",
+          "qualifier_ids": [
+            56,
+            178,
+            233,
+            285,
+            384
+          ],
+          "qualifiers": [
+            {
+              "id": 6567501211,
+              "qualifierId": 56,
+              "value": "Back"
+            },
+            {
+              "id": 6567501215,
+              "qualifierId": 178
+            },
+            {
+              "id": 6567501289,
+              "qualifierId": 233,
+              "value": "554"
+            },
+            {
+              "id": 6567501213,
+              "qualifierId": 285
+            },
+            {
+              "id": 6570213231,
+              "qualifierId": 384
+            }
+          ],
+          "description": null,
+          "event_name": null,
+          "x": 42.7,
+          "y": 82.2
         },
         {
           "event_id": 849,
@@ -866,7 +977,8 @@
             56,
             178,
             233,
-            286
+            286,
+            385
           ],
           "qualifiers": [
             {
@@ -886,6 +998,10 @@
             {
               "id": 6567593471,
               "qualifierId": 286
+            },
+            {
+              "id": 6570645331,
+              "qualifierId": 385
             }
           ],
           "description": null,
@@ -924,7 +1040,8 @@
             56,
             178,
             233,
-            285
+            285,
+            385
           ],
           "qualifiers": [
             {
@@ -944,6 +1061,10 @@
             {
               "id": 6567073299,
               "qualifierId": 285
+            },
+            {
+              "id": 6568216483,
+              "qualifierId": 385
             }
           ],
           "description": null,
@@ -1076,7 +1197,8 @@
             56,
             178,
             233,
-            286
+            286,
+            384
           ],
           "qualifiers": [
             {
@@ -1096,6 +1218,10 @@
             {
               "id": 6567527581,
               "qualifierId": 286
+            },
+            {
+              "id": 6570191739,
+              "qualifierId": 384
             }
           ],
           "description": null,
@@ -1104,20 +1230,49 @@
           "y": 34.6
         },
         {
-          "event_id": 782,
-          "type_id": 49,
+          "event_id": 752,
+          "type_id": 7,
           "outcome": 1,
-          "minute": 74,
-          "second": 23,
+          "minute": 70,
+          "second": 27,
           "period_id": 2,
           "player_id": "1dg7whnmk3nb1adw7n8a7nnbp",
           "team_id": "spi3g782q7m4evjxn1sv6cfa",
-          "qualifier_ids": [],
-          "qualifiers": [],
+          "qualifier_ids": [
+            56,
+            178,
+            233,
+            285,
+            384
+          ],
+          "qualifiers": [
+            {
+              "id": 6567501211,
+              "qualifierId": 56,
+              "value": "Back"
+            },
+            {
+              "id": 6567501215,
+              "qualifierId": 178
+            },
+            {
+              "id": 6567501289,
+              "qualifierId": 233,
+              "value": "554"
+            },
+            {
+              "id": 6567501213,
+              "qualifierId": 285
+            },
+            {
+              "id": 6570213231,
+              "qualifierId": 384
+            }
+          ],
           "description": null,
           "event_name": null,
-          "x": 52.5,
-          "y": 21.6
+          "x": 42.7,
+          "y": 82.2
         },
         {
           "event_id": 806,
@@ -1180,7 +1335,8 @@
             56,
             178,
             233,
-            286
+            286,
+            385
           ],
           "qualifiers": [
             {
@@ -1200,6 +1356,10 @@
             {
               "id": 6567593471,
               "qualifierId": 286
+            },
+            {
+              "id": 6570645331,
+              "qualifierId": 385
             }
           ],
           "description": null,
@@ -1222,11 +1382,11 @@
       },
       "attacking_counts": {
         "shots_on_target": 2,
-        "key_passes": 2,
+        "key_passes": 3,
         "successful_dribbles": 2,
         "successful_crosses": 1,
-        "attacking_actions": 7,
-        "attacking_points": 1
+        "attacking_actions": 8,
+        "attacking_points": 2
       },
       "counts": {
         "interceptions": 2,
@@ -1239,7 +1399,7 @@
         "def_points_if_all_type7": 0
       },
       "all_event_type_counts": {
-        "1": 43,
+        "1": 45,
         "3": 3,
         "5": 9,
         "6": 1,
@@ -1250,7 +1410,7 @@
         "43": 3,
         "44": 3,
         "49": 4,
-        "61": 7,
+        "61": 6,
         "74": 1
       },
       "type7_tackle_events": [
@@ -1267,7 +1427,8 @@
             56,
             178,
             233,
-            285
+            285,
+            385
           ],
           "qualifiers": [
             {
@@ -1280,13 +1441,17 @@
               "qualifierId": 178
             },
             {
-              "id": 6567422929,
+              "id": 6570719053,
               "qualifierId": 233,
               "value": "437"
             },
             {
               "id": 6567422911,
               "qualifierId": 285
+            },
+            {
+              "id": 6570138037,
+              "qualifierId": 385
             }
           ],
           "description": null,
@@ -1306,13 +1471,18 @@
           "player_id": "dfeohozpw604y5jbu01u1dkkq",
           "team_id": "spi3g782q7m4evjxn1sv6cfa",
           "qualifier_ids": [
-            56
+            56,
+            383
           ],
           "qualifiers": [
             {
               "id": 6567255057,
               "qualifierId": 56,
               "value": "Back"
+            },
+            {
+              "id": 6568619483,
+              "qualifierId": 383
             }
           ],
           "description": null,
@@ -1325,7 +1495,7 @@
           "type_id": 49,
           "outcome": 1,
           "minute": 38,
-          "second": 31,
+          "second": 32,
           "period_id": 1,
           "player_id": "dfeohozpw604y5jbu01u1dkkq",
           "team_id": "spi3g782q7m4evjxn1sv6cfa",
@@ -1365,7 +1535,8 @@
             56,
             178,
             233,
-            285
+            285,
+            385
           ],
           "qualifiers": [
             {
@@ -1378,13 +1549,17 @@
               "qualifierId": 178
             },
             {
-              "id": 6567422929,
+              "id": 6570719053,
               "qualifierId": 233,
               "value": "437"
             },
             {
               "id": 6567422911,
               "qualifierId": 285
+            },
+            {
+              "id": 6570138037,
+              "qualifierId": 385
             }
           ],
           "description": null,
@@ -1402,13 +1577,18 @@
           "player_id": "dfeohozpw604y5jbu01u1dkkq",
           "team_id": "spi3g782q7m4evjxn1sv6cfa",
           "qualifier_ids": [
-            56
+            56,
+            384
           ],
           "qualifiers": [
             {
               "id": 6567471801,
               "qualifierId": 56,
               "value": "Left"
+            },
+            {
+              "id": 6570178567,
+              "qualifierId": 384
             }
           ],
           "description": null,
@@ -3318,8 +3498,8 @@
       "successful_dribbles": 0,
       "attacking_actions": 5,
       "attacking_points": 1,
-      "successful_type7_tackles": 1,
-      "all_type7_tackles": 3,
+      "successful_type7_tackles": 2,
+      "all_type7_tackles": 4,
       "unsuccessful_type7_tackles": 2,
       "current_def_actions": 9,
       "current_def_points": 0,
@@ -3332,11 +3512,11 @@
       "player": "Alyssa Thompson",
       "match": "Chelsea vs Aston Villa",
       "shots_on_target": 2,
-      "key_passes": 2,
+      "key_passes": 3,
       "successful_crosses": 1,
       "successful_dribbles": 2,
-      "attacking_actions": 7,
-      "attacking_points": 1,
+      "attacking_actions": 8,
+      "attacking_points": 2,
       "successful_type7_tackles": 0,
       "all_type7_tackles": 1,
       "unsuccessful_type7_tackles": 1,
@@ -3344,8 +3524,8 @@
       "current_def_points": 0,
       "def_actions_if_all_type7_count": 7,
       "def_points_if_all_type7_count": 0,
-      "current_total_involvement_points": 1,
-      "total_involvement_points_if_all_type7_count": 1
+      "current_total_involvement_points": 2,
+      "total_involvement_points_if_all_type7_count": 2
     },
     {
       "player": "Maria Pilar León Cebrián",
