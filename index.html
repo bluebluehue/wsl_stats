@@ -936,6 +936,50 @@
         .inv-empty {
             color: #9ca3af;
         }
+        .inv-live-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.52rem 0.75rem;
+            border-radius: 0.375rem;
+            border: 1px solid #7c3aed;
+            background: #7c3aed;
+            color: white;
+            font-size: 0.8rem;
+            font-weight: 700;
+            line-height: 1;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .inv-live-button:hover { background: #6d28d9; }
+        .inv-live-button:disabled {
+            opacity: 0.65;
+            cursor: wait;
+        }
+        .inv-live-dot {
+            width: 0.5rem;
+            height: 0.5rem;
+            border-radius: 9999px;
+            background: #ef4444;
+            display: inline-block;
+        }
+        .inv-live-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            margin-left: 0.35rem;
+            padding: 0.08rem 0.35rem;
+            border-radius: 9999px;
+            background: #fee2e2;
+            color: #b91c1c;
+            font-size: 0.62rem;
+            font-weight: 800;
+            vertical-align: middle;
+        }
+        .inv-live-note {
+            color: #b91c1c;
+            font-weight: 700;
+        }
 
         /* ------------------------------------------------------------------ */
         /* --- COMPACT DESKTOP HEADER --- */
@@ -1610,6 +1654,10 @@
                                 <option value="">All clubs</option>
                             </select>
                         </label>
+                        <button id="inv-refresh-live" type="button" class="inv-live-button" title="Fetch the latest public Opta event data for matches that have started recently.">
+                            <i class="fa-solid fa-rotate"></i>
+                            Refresh Live
+                        </button>
                     </div>
                 </div>
                 <div id="inv-summary" class="mt-3 text-xs text-gray-600"></div>
@@ -1790,7 +1838,10 @@
         let fullFixtureData = [];
         let gkModelInputs = {teams:{}, keepers:{}, manual_keeper_adjustments:{}};
         let involvementHistoryData = {metadata:{}, matches:[], players_overall:[]};
-        let involvementSort = {key: 'involvement_points', direction: 'desc'}; 
+        let involvementSort = {key: 'involvement_points', direction: 'desc'};
+        let liveInvolvementMatches = new Map();
+        const OPTA_WIDGET_FEED_ID = 'ft1tiv1inq7v1sk3y9tv12yh5';
+        const OPTA_MATCH_EVENT_BASE = 'https://api.performfeeds.com/soccerdata/matchevent'; 
         let myChart = null; 
         // --- NEW GLOBALS ---
 
@@ -4764,6 +4815,310 @@
             }
 
 
+
+            function compactOptaId(value) {
+                const text = String(value || '');
+                return text.includes(':') ? text.split(':').pop() : text;
+            }
+
+            function jsonpRequest(url, timeoutMs = 20000) {
+                return new Promise((resolve, reject) => {
+                    const callbackName = `wslInvLive_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+                    const script = document.createElement('script');
+                    let timer = null;
+
+                    const cleanup = () => {
+                        if (timer) clearTimeout(timer);
+                        try { delete window[callbackName]; } catch (_) { window[callbackName] = undefined; }
+                        script.remove();
+                    };
+
+                    window[callbackName] = payload => {
+                        cleanup();
+                        resolve(payload);
+                    };
+
+                    script.onerror = () => {
+                        cleanup();
+                        reject(new Error('The Opta live feed could not be loaded in this browser.'));
+                    };
+
+                    timer = setTimeout(() => {
+                        cleanup();
+                        reject(new Error('The Opta live feed timed out.'));
+                    }, timeoutMs);
+
+                    const joiner = url.includes('?') ? '&' : '?';
+                    script.src = `${url}${joiner}_rt=c&_lcl=en&_fmt=jsonp&sps=widgets&_clbk=${encodeURIComponent(callbackName)}`;
+                    document.head.appendChild(script);
+                });
+            }
+
+            function optaQualifierIds(event) {
+                const qualifiers = Array.isArray(event?.qualifier)
+                    ? event.qualifier
+                    : (Array.isArray(event?.qualifiers) ? event.qualifiers : []);
+                return new Set(qualifiers.map(q => Number(q?.qualifierId)).filter(Number.isFinite));
+            }
+
+            function optaEventPlayerId(event) {
+                for (const key of ['playerId','participantId','player_id','participant_id']) {
+                    if (event?.[key]) return compactOptaId(event[key]);
+                }
+                return '';
+            }
+
+            function optaEventType(event) {
+                const value = Number(event?.typeId);
+                return Number.isFinite(value) ? value : null;
+            }
+
+            function optaOutcome(event) {
+                const value = Number(event?.outcome);
+                return Number.isFinite(value) ? value : 0;
+            }
+
+            function optaIsKeyPass(event) {
+                return ['keypass','keyPass','key_pass'].some(key => {
+                    const value = event?.[key];
+                    return value === 1 || value === '1' || value === true || value === 'true' || value === 'True';
+                });
+            }
+
+            function aggregateLiveOptaMatch(payload, fixture) {
+                const events = Array.isArray(payload?.liveData?.event) ? payload.liveData.event : [];
+                const byOpta = new Map();
+
+                const playerLookup = new Map();
+                (fullPlayerData || []).forEach(player => {
+                    const optaId = compactOptaId(player['Opta Player ID'] || player.opta_player_id || player.optaPlayerId);
+                    if (optaId) playerLookup.set(optaId, player);
+                });
+
+                const makeCounts = () => ({
+                    shots_on_target: 0,
+                    key_passes: 0,
+                    successful_crosses: 0,
+                    successful_dribbles: 0,
+                    tackles_won: 0,
+                    interceptions: 0,
+                    clearances: 0,
+                    blocks: 0,
+                    recoveries: 0
+                });
+
+                events.forEach(event => {
+                    const type = optaEventType(event);
+                    const pid = optaEventPlayerId(event);
+                    if (type === null || !pid) return;
+
+                    if (!byOpta.has(pid)) byOpta.set(pid, makeCounts());
+                    const row = byOpta.get(pid);
+                    const qids = optaQualifierIds(event);
+                    const outcome = optaOutcome(event);
+
+                    if (type === 15) row.shots_on_target += 1;
+                    else if (type === 16 && !qids.has(28)) row.shots_on_target += 1;
+
+                    if (type === 1 && optaIsKeyPass(event)) row.key_passes += 1;
+                    if (type === 1 && outcome === 1 && qids.has(2)) row.successful_crosses += 1;
+                    if (type === 3 && outcome === 1) row.successful_dribbles += 1;
+
+                    if (type === 7 && outcome === 1) row.tackles_won += 1;
+                    if (type === 8) row.interceptions += 1;
+                    if (type === 12) row.clearances += 1;
+                    if (type === 10 && qids.has(94)) row.blocks += 1;
+                    if (type === 49) row.recoveries += 1;
+                });
+
+                const players = Array.from(byOpta.entries()).map(([optaId, counts]) => {
+                    const player = playerLookup.get(optaId) || {};
+                    const attackingActions =
+                        counts.shots_on_target +
+                        counts.key_passes +
+                        counts.successful_crosses +
+                        counts.successful_dribbles;
+                    const defensiveActions =
+                        counts.tackles_won +
+                        counts.interceptions +
+                        counts.clearances +
+                        counts.blocks +
+                        counts.recoveries;
+
+                    return {
+                        opta_player_id: optaId,
+                        player_id: player['Player ID'] || player.player_id || null,
+                        name: player.Name || `Opta player ${optaId}`,
+                        club: player.Club || null,
+                        league: player.League || null,
+                        position: player.Position || null,
+                        shots_on_target: counts.shots_on_target,
+                        key_passes: counts.key_passes,
+                        successful_crosses: counts.successful_crosses,
+                        successful_dribbles: counts.successful_dribbles,
+                        attacking_actions: attackingActions,
+                        attacking_points: Math.floor(attackingActions / 4),
+                        tackles_won: counts.tackles_won,
+                        interceptions: counts.interceptions,
+                        clearances: counts.clearances,
+                        blocks: counts.blocks,
+                        recoveries: counts.recoveries,
+                        defensive_actions: defensiveActions,
+                        defensive_points: Math.floor(defensiveActions / 10),
+                        involvement_points: Math.floor(attackingActions / 4) + Math.floor(defensiveActions / 10)
+                    };
+                });
+
+                const details = payload?.liveData?.matchDetails || {};
+                const matchInfo = payload?.matchInfo || {};
+                const maxMinute = events.reduce((max, event) => {
+                    const minute = Number(event?.timeMin);
+                    return Number.isFinite(minute) ? Math.max(max, minute) : max;
+                }, 0);
+
+                const rawStatus = String(details.matchStatus || details.status || '').trim();
+                const normalized = rawStatus.toLowerCase();
+                const isFinal = normalized.includes('played') ||
+                                normalized.includes('full') ||
+                                normalized === 'ft' ||
+                                normalized.includes('finished');
+
+                return {
+                    match_id: fixture.match_id,
+                    date: fixture.match_date_time_utc || fixture.fixture_date_iso,
+                    opta_match_id: compactOptaId(fixture.provider_id),
+                    home_id: fixture.home_id,
+                    away_id: fixture.away_id,
+                    competition_id: fixture.competition_id,
+                    league_game_week: fixture.league_game_week || fixture.game_week,
+                    fantasy_game_week: fixture.fantasy_game_week,
+                    description: matchInfo.description || `${fixture.home_name || fixture.home_id} vs ${fixture.away_name || fixture.away_id}`,
+                    match_status: rawStatus || (isFinal ? 'Played' : 'Live'),
+                    last_updated: matchInfo.lastUpdated || new Date().toISOString(),
+                    live: !isFinal && events.length > 0,
+                    live_minute: maxMinute || null,
+                    players,
+                    diagnostics: {event_count: events.length}
+                };
+            }
+
+            function combinedInvolvementMatches() {
+                const staticMatches = (involvementHistoryData.matches || []).map(match => ({...match}));
+                const byId = new Map(staticMatches.map(match => [String(match.opta_match_id || ''), match]));
+
+                liveInvolvementMatches.forEach((match, optaId) => {
+                    byId.set(String(optaId), match);
+                });
+
+                return Array.from(byId.values());
+            }
+
+            function involvementRowsFromMatches(matches) {
+                const byPlayer = new Map();
+                const countFields = [
+                    'shots_on_target','key_passes','successful_crosses','successful_dribbles',
+                    'attacking_actions','attacking_points','tackles_won','interceptions',
+                    'clearances','blocks','recoveries','defensive_actions','defensive_points',
+                    'involvement_points'
+                ];
+
+                matches.forEach(match => {
+                    (match.players || []).forEach(row => {
+                        const id = row.player_id || row.opta_player_id || row.name;
+                        if (!byPlayer.has(id)) {
+                            byPlayer.set(id, {
+                                player_id: row.player_id,
+                                opta_player_id: row.opta_player_id,
+                                name: row.name,
+                                club: row.club,
+                                league: row.league,
+                                position: row.position,
+                                matches_with_data: 0,
+                                has_live_data: false,
+                                ...Object.fromEntries(countFields.map(key => [key, 0]))
+                            });
+                        }
+
+                        const agg = byPlayer.get(id);
+                        agg.matches_with_data += 1;
+                        agg.has_live_data = agg.has_live_data || Boolean(match.live);
+                        countFields.forEach(key => agg[key] += Number(row[key] || 0));
+                    });
+                });
+
+                return Array.from(byPlayer.values());
+            }
+
+            function liveCandidateFixtures() {
+                const now = Date.now();
+                const lookbackMs = 4 * 60 * 60 * 1000;
+                const kickoffGraceMs = 5 * 60 * 1000;
+
+                return (fullFixtureData || []).filter(fixture => {
+                    const optaId = compactOptaId(fixture.provider_id);
+                    if (!optaId) return false;
+
+                    const kickoff = Date.parse(fixture.match_date_time_utc || fixture.deadline_date || '');
+                    if (!Number.isFinite(kickoff)) return false;
+
+                    return kickoff <= now + kickoffGraceMs && kickoff >= now - lookbackMs;
+                });
+            }
+
+            async function refreshLiveInvolvement() {
+                const button = $('#inv-refresh-live');
+                const originalHtml = button.html();
+                button.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> Refreshing…');
+
+                const candidates = liveCandidateFixtures();
+                if (!candidates.length) {
+                    button.prop('disabled', false).html(originalHtml);
+                    $('#inv-summary').html('<span class="font-semibold">No matches appear to be live right now.</span> The saved completed-match data is unchanged.');
+                    return;
+                }
+
+                let refreshed = 0;
+                let withEvents = 0;
+                const errors = [];
+
+                for (const fixture of candidates) {
+                    const optaId = compactOptaId(fixture.provider_id);
+                    try {
+                        const url = `${OPTA_MATCH_EVENT_BASE}/${OPTA_WIDGET_FEED_ID}/${optaId}`;
+                        const payload = await jsonpRequest(url);
+                        const match = aggregateLiveOptaMatch(payload, fixture);
+                        refreshed += 1;
+
+                        if ((match.diagnostics?.event_count || 0) > 0) {
+                            liveInvolvementMatches.set(optaId, match);
+                            withEvents += 1;
+                        }
+                    } catch (error) {
+                        console.warn(`Live involvement refresh failed for ${optaId}`, error);
+                        errors.push(`${fixture.home_id || '?'}–${fixture.away_id || '?'}`);
+                    }
+                }
+
+                renderInvolvement();
+
+                const stamp = new Intl.DateTimeFormat(undefined, {
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    second: '2-digit'
+                }).format(new Date());
+
+                const liveCount = Array.from(liveInvolvementMatches.values()).filter(match => match.live).length;
+                const pieces = [
+                    `<span class="font-semibold">Live refresh: ${stamp}</span>`,
+                    `${withEvents} match${withEvents === 1 ? '' : 'es'} with event data`
+                ];
+                if (liveCount) pieces.push(`<span class="inv-live-note">${liveCount} LIVE</span>`);
+                if (errors.length) pieces.push(`<span class="text-red-600">Could not load: ${errors.join(', ')}</span>`);
+
+                $('#inv-summary').html(pieces.join(' · '));
+                button.prop('disabled', false).html(originalHtml);
+            }
+
             function populateInvolvementControls() {
                 const metadata = involvementHistoryData?.metadata || {};
                 const weeks = (metadata.available_gameweeks || [])
@@ -4789,55 +5144,15 @@
 
             function involvementRowsForSelection() {
                 const gw = $('#inv-gameweek').val() || 'overall';
+                const matches = combinedInvolvementMatches();
 
                 if (gw === 'overall') {
-                    return (involvementHistoryData.players_overall || []).map(row => ({...row}));
+                    return involvementRowsFromMatches(matches);
                 }
 
-                const byPlayer = new Map();
-                (involvementHistoryData.matches || [])
-                    .filter(match => String(match.fantasy_game_week || '') === String(gw))
-                    .forEach(match => {
-                        (match.players || []).forEach(row => {
-                            const id = row.player_id || row.opta_player_id || row.name;
-                            if (!byPlayer.has(id)) {
-                                byPlayer.set(id, {
-                                    player_id: row.player_id,
-                                    opta_player_id: row.opta_player_id,
-                                    name: row.name,
-                                    club: row.club,
-                                    league: row.league,
-                                    position: row.position,
-                                    matches_with_data: 0,
-                                    shots_on_target: 0,
-                                    key_passes: 0,
-                                    successful_crosses: 0,
-                                    successful_dribbles: 0,
-                                    attacking_actions: 0,
-                                    attacking_points: 0,
-                                    tackles_won: 0,
-                                    interceptions: 0,
-                                    clearances: 0,
-                                    blocks: 0,
-                                    recoveries: 0,
-                                    defensive_actions: 0,
-                                    defensive_points: 0,
-                                    involvement_points: 0
-                                });
-                            }
-
-                            const agg = byPlayer.get(id);
-                            agg.matches_with_data += 1;
-                            [
-                                'shots_on_target','key_passes','successful_crosses','successful_dribbles',
-                                'attacking_actions','attacking_points','tackles_won','interceptions',
-                                'clearances','blocks','recoveries','defensive_actions','defensive_points',
-                                'involvement_points'
-                            ].forEach(key => agg[key] += Number(row[key] || 0));
-                        });
-                    });
-
-                return Array.from(byPlayer.values());
+                return involvementRowsFromMatches(
+                    matches.filter(match => String(match.fantasy_game_week || '') === String(gw))
+                );
             }
 
             function renderInvolvement() {
@@ -4897,7 +5212,10 @@
 
                 const body = rows.map(row => `
                     <tr class="border-t border-gray-100 hover:bg-gray-50">
-                        <td class="px-3 py-2 font-semibold whitespace-nowrap">${row.name || '—'}</td>
+                        <td class="px-3 py-2 font-semibold whitespace-nowrap">
+                            ${row.name || '—'}
+                            ${row.has_live_data ? '<span class="inv-live-badge"><span class="inv-live-dot"></span>LIVE</span>' : ''}
+                        </td>
                         <td class="px-3 py-2 text-center"><span class="team-badge badge-${row.club || ''}">${row.club || '—'}</span></td>
                         <td class="px-3 py-2 text-center"><span class="pos-badge badge-${row.position || ''}">${row.position || '—'}</span></td>
                         <td class="px-3 py-2 text-center">${row.matches_with_data ?? '—'}</td>
@@ -4922,15 +5240,20 @@
                     body || '<tr><td colspan="18" class="px-3 py-8 text-center text-gray-500">No players match these filters.</td></tr>'
                 );
 
+                const activeMatches = combinedInvolvementMatches();
                 const matchCount = selectedGw === 'overall'
-                    ? Number(involvementHistoryData?.metadata?.match_count || (involvementHistoryData.matches || []).length)
-                    : (involvementHistoryData.matches || []).filter(m => String(m.fantasy_game_week || '') === String(selectedGw)).length;
+                    ? activeMatches.length
+                    : activeMatches.filter(m => String(m.fantasy_game_week || '') === String(selectedGw)).length;
+                const liveMatchCount = activeMatches.filter(m =>
+                    Boolean(m.live) &&
+                    (selectedGw === 'overall' || String(m.fantasy_game_week || '') === String(selectedGw))
+                ).length;
 
                 const totalIP = rows.reduce((sum, row) => sum + Number(row.involvement_points || 0), 0);
                 $('#inv-summary').html(
                     `<span class="font-semibold">${selectedGw === 'overall' ? 'Overall' : 'GW' + selectedGw}:</span> ` +
-                    `${rows.length} players · ${matchCount} completed match${matchCount === 1 ? '' : 'es'} · ${totalIP} involvement points shown. ` +
-                    `<span class="text-gray-500">${isSingleGw ? 'Yellow action totals are one action short of the next threshold.' : 'Overall points are the sum of match-by-match awards; thresholds are not re-applied to season totals.'}</span>`
+                    `${rows.length} players · ${matchCount} match${matchCount === 1 ? '' : 'es'}${liveMatchCount ? ` · <span class="inv-live-note">${liveMatchCount} LIVE</span>` : ''} · ${totalIP} involvement points shown. ` +
+                    `<span class="text-gray-500">${isSingleGw ? 'Yellow action totals are one action short of the next threshold. Live values are provisional.' : 'Overall points are the sum of match-by-match awards; thresholds are not re-applied to season totals. Live values are provisional.'}</span>`
                 );
             }
 
@@ -4973,6 +5296,7 @@
 
             $('#table-view-tab').on('click', () => setMainView('table'));
             $('#involvement-view-tab').on('click', () => setMainView('involvement'));
+            $('#inv-refresh-live').on('click', refreshLiveInvolvement);
             $('#planner-view-tab').on('click', () => setMainView('planner'));
             $('#pairings-view-tab').on('click', () => setMainView('pairings'));
             $('#clean-sheets-view-tab').on('click', () => setMainView('clean-sheets'));
