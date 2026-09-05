@@ -34,26 +34,40 @@ jobs:
           import json
           from pathlib import Path
 
-          p = Path("involvement_definition_audit.json")
-          if not p.exists():
-              raise SystemExit("Audit output file was not created")
+          path = Path("involvement_definition_audit.json")
+          if not path.exists():
+              raise SystemExit("Audit JSON was not created")
 
-          data = json.loads(p.read_text(encoding="utf-8"))
-          m = data.get("metadata", {})
+          data = json.loads(path.read_text(encoding="utf-8"))
+          meta = data.get("metadata", {})
 
-          if m.get("validation_players") != 18:
-              raise SystemExit(f"Expected 18 validation players, got {m.get('validation_players')}")
+          expected = 37
+          if meta.get("ground_truth_player_count") != expected:
+              raise SystemExit(
+                  f"Expected {expected} screenshot controls, got "
+                  f"{meta.get('ground_truth_player_count')}"
+              )
 
-          if not m.get("loaded_matches"):
-              raise SystemExit("No Opta matches were loaded")
+          if meta.get("players_audited") != expected:
+              raise SystemExit(
+                  f"Expected {expected} audited players, got "
+                  f"{meta.get('players_audited')}"
+              )
 
-          if m.get("players_with_events", 0) == 0:
-              raise SystemExit("No validation players matched any Opta events")
+          if meta.get("players_with_zero_events"):
+              raise SystemExit(
+                  "Some screenshot controls had zero Opta events: "
+                  + repr(meta["players_with_zero_events"])
+              )
 
-          print("Validation passed")
-          print("Loaded matches:", len(m["loaded_matches"]))
-          print("Players with events:", m["players_with_events"])
-          print("Players with zero events:", m.get("players_with_zero_events", []))
+          if not meta.get("loaded_matches"):
+              raise SystemExit("No Opta matches loaded")
+
+          print("Audit validation passed")
+          print("Loaded matches:", len(meta["loaded_matches"]))
+          print("Current ATT exact:", meta.get("exact_current_att"))
+          print("Revised ATT exact:", meta.get("exact_revised_att_hypothesis"))
+          print("Current DEF exact:", meta.get("exact_current_def"))
           PY
 
       - name: Commit audit output
