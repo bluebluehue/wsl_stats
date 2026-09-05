@@ -1,7 +1,7 @@
 {
   "metadata": {
-    "generated_at_utc": "2026-09-05T17:26:56+00:00",
-    "purpose": "Audit tackle definition for involvement points using settled + latest matches",
+    "generated_at_utc": "2026-09-05T17:31:05+00:00",
+    "purpose": "Audit involvement-point event definitions using settled + latest matches for user-scored players plus Richards/Bronze controls",
     "current_rule": "typeId 7 AND outcome=1 counts as a tackle won",
     "comparison_rule": "all typeId 7 events count as tackles",
     "targets": [
@@ -12,14 +12,721 @@
         "opta_player_id": "8dxn6yivrka25tshs6s5r21ud"
       },
       {
+        "name": "Maria Pilar León Cebrián",
+        "club": "LCL",
+        "position": "DEF",
+        "opta_player_id": "4n6mnhjzt6zpicfea3ym678id"
+      },
+      {
+        "name": "Alexia Putellas",
+        "club": "LCL",
+        "position": "MID",
+        "opta_player_id": "5exouoey2r6wtpympr6drg3it"
+      },
+      {
+        "name": "Daniëlle van de Donk",
+        "club": "LCL",
+        "position": "MID",
+        "opta_player_id": "28yvc8jmyyfavb0hetafjdadx"
+      },
+      {
+        "name": "Katie McCabe",
+        "club": "CHE",
+        "position": "DEF",
+        "opta_player_id": "6679bfd6bjylogbe4ebese85x"
+      },
+      {
+        "name": "Hannah Hampton",
+        "club": "CHE",
+        "position": "GK",
+        "opta_player_id": "6bejfvxorcqyawi2fmk2kbco9"
+      },
+      {
         "name": "Lucy Bronze",
         "club": "CHE",
         "position": "DEF",
         "opta_player_id": "1dg7whnmk3nb1adw7n8a7nnbp"
+      },
+      {
+        "name": "Alyssa Thompson",
+        "club": "CHE",
+        "position": "MID",
+        "opta_player_id": "dfeohozpw604y5jbu01u1dkkq"
       }
     ]
   },
   "players": [
+    {
+      "name": "Katie McCabe",
+      "club": "CHE",
+      "position": "DEF",
+      "opta_player_id": "6679bfd6bjylogbe4ebese85x",
+      "match": {
+        "opta_match_id": "xzbzfzta847dmx4bs07ai9ec",
+        "description": "Chelsea vs Aston Villa",
+        "date": "2026-09-05T11:35:00",
+        "fantasy_game_week": "1"
+      },
+      "attacking_counts": {
+        "successful_crosses": 4,
+        "key_passes": 4,
+        "attacking_actions": 8,
+        "attacking_points": 2
+      },
+      "counts": {
+        "recoveries": 2,
+        "type7_all": 2,
+        "tackles_current": 2,
+        "interceptions": 2,
+        "clearances": 3,
+        "def_actions_current": 9,
+        "def_points_current": 0,
+        "def_actions_if_all_type7": 9,
+        "def_points_if_all_type7": 0
+      },
+      "all_event_type_counts": {
+        "1": 103,
+        "2": 1,
+        "3": 2,
+        "5": 3,
+        "7": 2,
+        "8": 2,
+        "12": 3,
+        "49": 2,
+        "55": 1,
+        "61": 3,
+        "74": 1,
+        "83": 2
+      },
+      "type7_tackle_events": [
+        {
+          "event_id": 145,
+          "type_id": 7,
+          "outcome": 1,
+          "minute": 12,
+          "second": 19,
+          "period_id": 1,
+          "player_id": "6679bfd6bjylogbe4ebese85x",
+          "team_id": "spi3g782q7m4evjxn1sv6cfa",
+          "qualifier_ids": [
+            56,
+            178,
+            233,
+            285
+          ],
+          "qualifiers": [
+            {
+              "id": 6567117165,
+              "qualifierId": 56,
+              "value": "Back"
+            },
+            {
+              "id": 6567117169,
+              "qualifierId": 178
+            },
+            {
+              "id": 6567117181,
+              "qualifierId": 233,
+              "value": "81"
+            },
+            {
+              "id": 6567117167,
+              "qualifierId": 285
+            }
+          ],
+          "description": null,
+          "event_name": null,
+          "x": 26.8,
+          "y": 26.4
+        },
+        {
+          "event_id": 802,
+          "type_id": 7,
+          "outcome": 1,
+          "minute": 76,
+          "second": 10,
+          "period_id": 2,
+          "player_id": "6679bfd6bjylogbe4ebese85x",
+          "team_id": "spi3g782q7m4evjxn1sv6cfa",
+          "qualifier_ids": [
+            56,
+            178,
+            233,
+            285
+          ],
+          "qualifiers": [
+            {
+              "id": 6567541857,
+              "qualifierId": 56,
+              "value": "Back"
+            },
+            {
+              "id": 6567541861,
+              "qualifierId": 178
+            },
+            {
+              "id": 6567541941,
+              "qualifierId": 233,
+              "value": "594"
+            },
+            {
+              "id": 6567541859,
+              "qualifierId": 285
+            }
+          ],
+          "description": null,
+          "event_name": null,
+          "x": 21.7,
+          "y": 88.0
+        }
+      ],
+      "defensive_related_events": [
+        {
+          "event_id": 83,
+          "type_id": 49,
+          "outcome": 1,
+          "minute": 5,
+          "second": 49,
+          "period_id": 1,
+          "player_id": "6679bfd6bjylogbe4ebese85x",
+          "team_id": "spi3g782q7m4evjxn1sv6cfa",
+          "qualifier_ids": [],
+          "qualifiers": [],
+          "description": null,
+          "event_name": null,
+          "x": 37.8,
+          "y": 66.6
+        },
+        {
+          "event_id": 145,
+          "type_id": 7,
+          "outcome": 1,
+          "minute": 12,
+          "second": 19,
+          "period_id": 1,
+          "player_id": "6679bfd6bjylogbe4ebese85x",
+          "team_id": "spi3g782q7m4evjxn1sv6cfa",
+          "qualifier_ids": [
+            56,
+            178,
+            233,
+            285
+          ],
+          "qualifiers": [
+            {
+              "id": 6567117165,
+              "qualifierId": 56,
+              "value": "Back"
+            },
+            {
+              "id": 6567117169,
+              "qualifierId": 178
+            },
+            {
+              "id": 6567117181,
+              "qualifierId": 233,
+              "value": "81"
+            },
+            {
+              "id": 6567117167,
+              "qualifierId": 285
+            }
+          ],
+          "description": null,
+          "event_name": null,
+          "x": 26.8,
+          "y": 26.4
+        },
+        {
+          "event_id": 321,
+          "type_id": 8,
+          "outcome": 1,
+          "minute": 26,
+          "second": 12,
+          "period_id": 1,
+          "player_id": "6679bfd6bjylogbe4ebese85x",
+          "team_id": "spi3g782q7m4evjxn1sv6cfa",
+          "qualifier_ids": [
+            56
+          ],
+          "qualifiers": [
+            {
+              "id": 6567177889,
+              "qualifierId": 56,
+              "value": "Left"
+            }
+          ],
+          "description": null,
+          "event_name": null,
+          "x": 60.1,
+          "y": 95.1
+        },
+        {
+          "event_id": 370,
+          "type_id": 49,
+          "outcome": 1,
+          "minute": 30,
+          "second": 46,
+          "period_id": 1,
+          "player_id": "6679bfd6bjylogbe4ebese85x",
+          "team_id": "spi3g782q7m4evjxn1sv6cfa",
+          "qualifier_ids": [],
+          "qualifiers": [],
+          "description": null,
+          "event_name": null,
+          "x": 58.5,
+          "y": 93.5
+        },
+        {
+          "event_id": 391,
+          "type_id": 12,
+          "outcome": 1,
+          "minute": 33,
+          "second": 4,
+          "period_id": 1,
+          "player_id": "6679bfd6bjylogbe4ebese85x",
+          "team_id": "spi3g782q7m4evjxn1sv6cfa",
+          "qualifier_ids": [
+            56,
+            140,
+            141,
+            212,
+            213
+          ],
+          "qualifiers": [
+            {
+              "id": 6567219779,
+              "qualifierId": 56,
+              "value": "Back"
+            },
+            {
+              "id": 6567219781,
+              "qualifierId": 140,
+              "value": "42.8"
+            },
+            {
+              "id": 6567219783,
+              "qualifierId": 141,
+              "value": "83.2"
+            },
+            {
+              "id": 6567219785,
+              "qualifierId": 212,
+              "value": "20.1"
+            },
+            {
+              "id": 6567219787,
+              "qualifierId": 213,
+              "value": "0.65"
+            }
+          ],
+          "description": null,
+          "event_name": null,
+          "x": 27.6,
+          "y": 65.2
+        },
+        {
+          "event_id": 434,
+          "type_id": 12,
+          "outcome": 1,
+          "minute": 38,
+          "second": 16,
+          "period_id": 1,
+          "player_id": "6679bfd6bjylogbe4ebese85x",
+          "team_id": "spi3g782q7m4evjxn1sv6cfa",
+          "qualifier_ids": [
+            56,
+            140,
+            141,
+            167,
+            212,
+            213
+          ],
+          "qualifiers": [
+            {
+              "id": 6567253837,
+              "qualifierId": 56,
+              "value": "Back"
+            },
+            {
+              "id": 6567253839,
+              "qualifierId": 140,
+              "value": "28.0"
+            },
+            {
+              "id": 6567253841,
+              "qualifierId": 141,
+              "value": "100.0"
+            },
+            {
+              "id": 6567253901,
+              "qualifierId": 167
+            },
+            {
+              "id": 6567253843,
+              "qualifierId": 212,
+              "value": "12.6"
+            },
+            {
+              "id": 6567253845,
+              "qualifierId": 213,
+              "value": "1.07"
+            }
+          ],
+          "description": null,
+          "event_name": null,
+          "x": 22.2,
+          "y": 84.8
+        },
+        {
+          "event_id": 683,
+          "type_id": 12,
+          "outcome": 1,
+          "minute": 63,
+          "second": 13,
+          "period_id": 2,
+          "player_id": "6679bfd6bjylogbe4ebese85x",
+          "team_id": "spi3g782q7m4evjxn1sv6cfa",
+          "qualifier_ids": [
+            56,
+            140,
+            141,
+            212,
+            213
+          ],
+          "qualifiers": [
+            {
+              "id": 6567468949,
+              "qualifierId": 56,
+              "value": "Back"
+            },
+            {
+              "id": 6567468951,
+              "qualifierId": 140,
+              "value": "38.0"
+            },
+            {
+              "id": 6567468953,
+              "qualifierId": 141,
+              "value": "78.4"
+            },
+            {
+              "id": 6567468955,
+              "qualifierId": 212,
+              "value": "21.7"
+            },
+            {
+              "id": 6567468957,
+              "qualifierId": 213,
+              "value": "0.88"
+            }
+          ],
+          "description": null,
+          "event_name": null,
+          "x": 24.8,
+          "y": 53.9
+        },
+        {
+          "event_id": 792,
+          "type_id": 8,
+          "outcome": 1,
+          "minute": 75,
+          "second": 15,
+          "period_id": 2,
+          "player_id": "6679bfd6bjylogbe4ebese85x",
+          "team_id": "spi3g782q7m4evjxn1sv6cfa",
+          "qualifier_ids": [
+            14,
+            56
+          ],
+          "qualifiers": [
+            {
+              "id": 6567537369,
+              "qualifierId": 14
+            },
+            {
+              "id": 6567534717,
+              "qualifierId": 56,
+              "value": "Back"
+            }
+          ],
+          "description": null,
+          "event_name": null,
+          "x": 28.0,
+          "y": 45.5
+        },
+        {
+          "event_id": 802,
+          "type_id": 7,
+          "outcome": 1,
+          "minute": 76,
+          "second": 10,
+          "period_id": 2,
+          "player_id": "6679bfd6bjylogbe4ebese85x",
+          "team_id": "spi3g782q7m4evjxn1sv6cfa",
+          "qualifier_ids": [
+            56,
+            178,
+            233,
+            285
+          ],
+          "qualifiers": [
+            {
+              "id": 6567541857,
+              "qualifierId": 56,
+              "value": "Back"
+            },
+            {
+              "id": 6567541861,
+              "qualifierId": 178
+            },
+            {
+              "id": 6567541941,
+              "qualifierId": 233,
+              "value": "594"
+            },
+            {
+              "id": 6567541859,
+              "qualifierId": 285
+            }
+          ],
+          "description": null,
+          "event_name": null,
+          "x": 21.7,
+          "y": 88.0
+        }
+      ]
+    },
+    {
+      "name": "Hannah Hampton",
+      "club": "CHE",
+      "position": "GK",
+      "opta_player_id": "6bejfvxorcqyawi2fmk2kbco9",
+      "match": {
+        "opta_match_id": "xzbzfzta847dmx4bs07ai9ec",
+        "description": "Chelsea vs Aston Villa",
+        "date": "2026-09-05T11:35:00",
+        "fantasy_game_week": "1"
+      },
+      "attacking_counts": {
+        "attacking_actions": 0,
+        "attacking_points": 0
+      },
+      "counts": {
+        "recoveries": 1,
+        "def_actions_current": 1,
+        "def_points_current": 0,
+        "def_actions_if_all_type7": 1,
+        "def_points_if_all_type7": 0
+      },
+      "all_event_type_counts": {
+        "1": 27,
+        "10": 4,
+        "43": 1,
+        "49": 1,
+        "52": 5,
+        "54": 2,
+        "80": 1
+      },
+      "type7_tackle_events": [],
+      "defensive_related_events": [
+        {
+          "event_id": 75,
+          "type_id": 10,
+          "outcome": 1,
+          "minute": 5,
+          "second": 3,
+          "period_id": 1,
+          "player_id": "6bejfvxorcqyawi2fmk2kbco9",
+          "team_id": "spi3g782q7m4evjxn1sv6cfa",
+          "qualifier_ids": [
+            56,
+            177,
+            180,
+            182,
+            233
+          ],
+          "qualifiers": [
+            {
+              "id": 6567075963,
+              "qualifierId": 56,
+              "value": "Back"
+            },
+            {
+              "id": 6567076167,
+              "qualifierId": 177
+            },
+            {
+              "id": 6567076169,
+              "qualifierId": 180
+            },
+            {
+              "id": 6567075961,
+              "qualifierId": 182
+            },
+            {
+              "id": 6567077007,
+              "qualifierId": 233,
+              "value": "33"
+            }
+          ],
+          "description": null,
+          "event_name": null,
+          "x": 2.7,
+          "y": 49.9
+        },
+        {
+          "event_id": 345,
+          "type_id": 49,
+          "outcome": 1,
+          "minute": 28,
+          "second": 36,
+          "period_id": 1,
+          "player_id": "6bejfvxorcqyawi2fmk2kbco9",
+          "team_id": "spi3g782q7m4evjxn1sv6cfa",
+          "qualifier_ids": [],
+          "qualifiers": [],
+          "description": null,
+          "event_name": null,
+          "x": 15.6,
+          "y": 49.7
+        },
+        {
+          "event_id": 439,
+          "type_id": 10,
+          "outcome": 1,
+          "minute": 39,
+          "second": 9,
+          "period_id": 1,
+          "player_id": "6bejfvxorcqyawi2fmk2kbco9",
+          "team_id": "spi3g782q7m4evjxn1sv6cfa",
+          "qualifier_ids": [
+            56,
+            173,
+            178,
+            182,
+            190
+          ],
+          "qualifiers": [
+            {
+              "id": 6567258815,
+              "qualifierId": 56,
+              "value": "Back"
+            },
+            {
+              "id": 6567258795,
+              "qualifierId": 173
+            },
+            {
+              "id": 6567258801,
+              "qualifierId": 178
+            },
+            {
+              "id": 6567258807,
+              "qualifierId": 182
+            },
+            {
+              "id": 6567259031,
+              "qualifierId": 190
+            }
+          ],
+          "description": null,
+          "event_name": null,
+          "x": 1.2,
+          "y": 56.3
+        },
+        {
+          "event_id": 636,
+          "type_id": 10,
+          "outcome": 1,
+          "minute": 57,
+          "second": 41,
+          "period_id": 2,
+          "player_id": "6bejfvxorcqyawi2fmk2kbco9",
+          "team_id": "spi3g782q7m4evjxn1sv6cfa",
+          "qualifier_ids": [
+            56,
+            174,
+            179,
+            182,
+            233
+          ],
+          "qualifiers": [
+            {
+              "id": 6567440439,
+              "qualifierId": 56,
+              "value": "Back"
+            },
+            {
+              "id": 6567441145,
+              "qualifierId": 174
+            },
+            {
+              "id": 6567441147,
+              "qualifierId": 179
+            },
+            {
+              "id": 6567440437,
+              "qualifierId": 182
+            },
+            {
+              "id": 6567441191,
+              "qualifierId": 233,
+              "value": "453"
+            }
+          ],
+          "description": null,
+          "event_name": null,
+          "x": 3.1,
+          "y": 46.7
+        },
+        {
+          "event_id": 821,
+          "type_id": 10,
+          "outcome": 1,
+          "minute": 78,
+          "second": 55,
+          "period_id": 2,
+          "player_id": "6bejfvxorcqyawi2fmk2kbco9",
+          "team_id": "spi3g782q7m4evjxn1sv6cfa",
+          "qualifier_ids": [
+            56,
+            173,
+            178,
+            182,
+            233
+          ],
+          "qualifiers": [
+            {
+              "id": 6567564071,
+              "qualifierId": 56,
+              "value": "Back"
+            },
+            {
+              "id": 6567564065,
+              "qualifierId": 173
+            },
+            {
+              "id": 6567564067,
+              "qualifierId": 178
+            },
+            {
+              "id": 6567564069,
+              "qualifierId": 182
+            },
+            {
+              "id": 6567571597,
+              "qualifierId": 233,
+              "value": "614"
+            }
+          ],
+          "description": null,
+          "event_name": null,
+          "x": 4.2,
+          "y": 50.4
+        }
+      ]
+    },
     {
       "name": "Lucy Bronze",
       "club": "CHE",
@@ -30,6 +737,13 @@
         "description": "Chelsea vs Aston Villa",
         "date": "2026-09-05T11:35:00",
         "fantasy_game_week": "1"
+      },
+      "attacking_counts": {
+        "shots_on_target": 2,
+        "key_passes": 2,
+        "successful_crosses": 1,
+        "attacking_actions": 5,
+        "attacking_points": 1
       },
       "counts": {
         "recoveries": 6,
@@ -496,6 +1210,1139 @@
       ]
     },
     {
+      "name": "Alyssa Thompson",
+      "club": "CHE",
+      "position": "MID",
+      "opta_player_id": "dfeohozpw604y5jbu01u1dkkq",
+      "match": {
+        "opta_match_id": "xzbzfzta847dmx4bs07ai9ec",
+        "description": "Chelsea vs Aston Villa",
+        "date": "2026-09-05T11:35:00",
+        "fantasy_game_week": "1"
+      },
+      "attacking_counts": {
+        "shots_on_target": 2,
+        "key_passes": 2,
+        "successful_dribbles": 2,
+        "successful_crosses": 1,
+        "attacking_actions": 7,
+        "attacking_points": 1
+      },
+      "counts": {
+        "interceptions": 2,
+        "recoveries": 4,
+        "type7_all": 1,
+        "type7_unsuccessful": 1,
+        "def_actions_current": 6,
+        "def_points_current": 0,
+        "def_actions_if_all_type7": 7,
+        "def_points_if_all_type7": 0
+      },
+      "all_event_type_counts": {
+        "1": 43,
+        "3": 3,
+        "5": 9,
+        "6": 1,
+        "7": 1,
+        "8": 2,
+        "13": 2,
+        "15": 2,
+        "43": 3,
+        "44": 3,
+        "49": 4,
+        "61": 7,
+        "74": 1
+      },
+      "type7_tackle_events": [
+        {
+          "event_id": 613,
+          "type_id": 7,
+          "outcome": 0,
+          "minute": 54,
+          "second": 42,
+          "period_id": 2,
+          "player_id": "dfeohozpw604y5jbu01u1dkkq",
+          "team_id": "spi3g782q7m4evjxn1sv6cfa",
+          "qualifier_ids": [
+            56,
+            178,
+            233,
+            285
+          ],
+          "qualifiers": [
+            {
+              "id": 6567422909,
+              "qualifierId": 56,
+              "value": "Back"
+            },
+            {
+              "id": 6567422913,
+              "qualifierId": 178
+            },
+            {
+              "id": 6567422929,
+              "qualifierId": 233,
+              "value": "437"
+            },
+            {
+              "id": 6567422911,
+              "qualifierId": 285
+            }
+          ],
+          "description": null,
+          "event_name": null,
+          "x": 39.8,
+          "y": 94.5
+        }
+      ],
+      "defensive_related_events": [
+        {
+          "event_id": 436,
+          "type_id": 8,
+          "outcome": 1,
+          "minute": 38,
+          "second": 31,
+          "period_id": 1,
+          "player_id": "dfeohozpw604y5jbu01u1dkkq",
+          "team_id": "spi3g782q7m4evjxn1sv6cfa",
+          "qualifier_ids": [
+            56
+          ],
+          "qualifiers": [
+            {
+              "id": 6567255057,
+              "qualifierId": 56,
+              "value": "Back"
+            }
+          ],
+          "description": null,
+          "event_name": null,
+          "x": 22.7,
+          "y": 89.6
+        },
+        {
+          "event_id": 437,
+          "type_id": 49,
+          "outcome": 1,
+          "minute": 38,
+          "second": 31,
+          "period_id": 1,
+          "player_id": "dfeohozpw604y5jbu01u1dkkq",
+          "team_id": "spi3g782q7m4evjxn1sv6cfa",
+          "qualifier_ids": [],
+          "qualifiers": [],
+          "description": null,
+          "event_name": null,
+          "x": 19.9,
+          "y": 85.4
+        },
+        {
+          "event_id": 584,
+          "type_id": 49,
+          "outcome": 1,
+          "minute": 51,
+          "second": 10,
+          "period_id": 2,
+          "player_id": "dfeohozpw604y5jbu01u1dkkq",
+          "team_id": "spi3g782q7m4evjxn1sv6cfa",
+          "qualifier_ids": [],
+          "qualifiers": [],
+          "description": null,
+          "event_name": null,
+          "x": 69.6,
+          "y": 76.3
+        },
+        {
+          "event_id": 613,
+          "type_id": 7,
+          "outcome": 0,
+          "minute": 54,
+          "second": 42,
+          "period_id": 2,
+          "player_id": "dfeohozpw604y5jbu01u1dkkq",
+          "team_id": "spi3g782q7m4evjxn1sv6cfa",
+          "qualifier_ids": [
+            56,
+            178,
+            233,
+            285
+          ],
+          "qualifiers": [
+            {
+              "id": 6567422909,
+              "qualifierId": 56,
+              "value": "Back"
+            },
+            {
+              "id": 6567422913,
+              "qualifierId": 178
+            },
+            {
+              "id": 6567422929,
+              "qualifierId": 233,
+              "value": "437"
+            },
+            {
+              "id": 6567422911,
+              "qualifierId": 285
+            }
+          ],
+          "description": null,
+          "event_name": null,
+          "x": 39.8,
+          "y": 94.5
+        },
+        {
+          "event_id": 688,
+          "type_id": 8,
+          "outcome": 1,
+          "minute": 63,
+          "second": 59,
+          "period_id": 2,
+          "player_id": "dfeohozpw604y5jbu01u1dkkq",
+          "team_id": "spi3g782q7m4evjxn1sv6cfa",
+          "qualifier_ids": [
+            56
+          ],
+          "qualifiers": [
+            {
+              "id": 6567471801,
+              "qualifierId": 56,
+              "value": "Left"
+            }
+          ],
+          "description": null,
+          "event_name": null,
+          "x": 56.0,
+          "y": 79.7
+        },
+        {
+          "event_id": 693,
+          "type_id": 49,
+          "outcome": 1,
+          "minute": 64,
+          "second": 32,
+          "period_id": 2,
+          "player_id": "dfeohozpw604y5jbu01u1dkkq",
+          "team_id": "spi3g782q7m4evjxn1sv6cfa",
+          "qualifier_ids": [],
+          "qualifiers": [],
+          "description": null,
+          "event_name": null,
+          "x": 63.8,
+          "y": 70.2
+        },
+        {
+          "event_id": 894,
+          "type_id": 49,
+          "outcome": 1,
+          "minute": 85,
+          "second": 54,
+          "period_id": 2,
+          "player_id": "dfeohozpw604y5jbu01u1dkkq",
+          "team_id": "spi3g782q7m4evjxn1sv6cfa",
+          "qualifier_ids": [],
+          "qualifiers": [],
+          "description": null,
+          "event_name": null,
+          "x": 54.4,
+          "y": 65.2
+        }
+      ]
+    },
+    {
+      "name": "Maria Pilar León Cebrián",
+      "club": "LCL",
+      "position": "DEF",
+      "opta_player_id": "4n6mnhjzt6zpicfea3ym678id",
+      "match": {
+        "opta_match_id": "xgp7c45ebssvvnnksnginjtg",
+        "description": "London City Lionesses vs Manchester United",
+        "date": "2026-09-04Z",
+        "fantasy_game_week": "1"
+      },
+      "attacking_counts": {
+        "successful_crosses": 3,
+        "attacking_actions": 3,
+        "attacking_points": 0
+      },
+      "counts": {
+        "type7_all": 2,
+        "type7_unsuccessful": 2,
+        "recoveries": 11,
+        "interceptions": 1,
+        "clearances": 1,
+        "def_actions_current": 13,
+        "def_points_current": 1,
+        "def_actions_if_all_type7": 15,
+        "def_points_if_all_type7": 1
+      },
+      "all_event_type_counts": {
+        "1": 94,
+        "2": 1,
+        "4": 1,
+        "5": 3,
+        "7": 2,
+        "8": 1,
+        "12": 1,
+        "44": 1,
+        "49": 11,
+        "61": 3,
+        "83": 1
+      },
+      "type7_tackle_events": [
+        {
+          "event_id": 41,
+          "type_id": 7,
+          "outcome": 0,
+          "minute": 5,
+          "second": 50,
+          "period_id": 1,
+          "player_id": "4n6mnhjzt6zpicfea3ym678id",
+          "team_id": "blzubaa449m1wjt46fasgdvse",
+          "qualifier_ids": [
+            56,
+            178,
+            233,
+            285
+          ],
+          "qualifiers": [
+            {
+              "id": 6565386283,
+              "qualifierId": 56,
+              "value": "Back"
+            },
+            {
+              "id": 6565386287,
+              "qualifierId": 178
+            },
+            {
+              "id": 6565386399,
+              "qualifierId": 233,
+              "value": "67"
+            },
+            {
+              "id": 6565386285,
+              "qualifierId": 285
+            }
+          ],
+          "description": null,
+          "event_name": null,
+          "x": 36.8,
+          "y": 90.4
+        },
+        {
+          "event_id": 962,
+          "type_id": 7,
+          "outcome": 0,
+          "minute": 97,
+          "second": 6,
+          "period_id": 2,
+          "player_id": "4n6mnhjzt6zpicfea3ym678id",
+          "team_id": "blzubaa449m1wjt46fasgdvse",
+          "qualifier_ids": [
+            56,
+            178,
+            233,
+            285
+          ],
+          "qualifiers": [
+            {
+              "id": 6566105355,
+              "qualifierId": 56,
+              "value": "Back"
+            },
+            {
+              "id": 6566105359,
+              "qualifierId": 178
+            },
+            {
+              "id": 6566105389,
+              "qualifierId": 233,
+              "value": "823"
+            },
+            {
+              "id": 6566105357,
+              "qualifierId": 285
+            }
+          ],
+          "description": null,
+          "event_name": null,
+          "x": 15.7,
+          "y": 25.8
+        }
+      ],
+      "defensive_related_events": [
+        {
+          "event_id": 41,
+          "type_id": 7,
+          "outcome": 0,
+          "minute": 5,
+          "second": 50,
+          "period_id": 1,
+          "player_id": "4n6mnhjzt6zpicfea3ym678id",
+          "team_id": "blzubaa449m1wjt46fasgdvse",
+          "qualifier_ids": [
+            56,
+            178,
+            233,
+            285
+          ],
+          "qualifiers": [
+            {
+              "id": 6565386283,
+              "qualifierId": 56,
+              "value": "Back"
+            },
+            {
+              "id": 6565386287,
+              "qualifierId": 178
+            },
+            {
+              "id": 6565386399,
+              "qualifierId": 233,
+              "value": "67"
+            },
+            {
+              "id": 6565386285,
+              "qualifierId": 285
+            }
+          ],
+          "description": null,
+          "event_name": null,
+          "x": 36.8,
+          "y": 90.4
+        },
+        {
+          "event_id": 65,
+          "type_id": 49,
+          "outcome": 1,
+          "minute": 7,
+          "second": 26,
+          "period_id": 1,
+          "player_id": "4n6mnhjzt6zpicfea3ym678id",
+          "team_id": "blzubaa449m1wjt46fasgdvse",
+          "qualifier_ids": [],
+          "qualifiers": [],
+          "description": null,
+          "event_name": null,
+          "x": 47.8,
+          "y": 88.7
+        },
+        {
+          "event_id": 84,
+          "type_id": 49,
+          "outcome": 1,
+          "minute": 10,
+          "second": 25,
+          "period_id": 1,
+          "player_id": "4n6mnhjzt6zpicfea3ym678id",
+          "team_id": "blzubaa449m1wjt46fasgdvse",
+          "qualifier_ids": [],
+          "qualifiers": [],
+          "description": null,
+          "event_name": null,
+          "x": 14.7,
+          "y": 11.5
+        },
+        {
+          "event_id": 114,
+          "type_id": 49,
+          "outcome": 1,
+          "minute": 13,
+          "second": 26,
+          "period_id": 1,
+          "player_id": "4n6mnhjzt6zpicfea3ym678id",
+          "team_id": "blzubaa449m1wjt46fasgdvse",
+          "qualifier_ids": [],
+          "qualifiers": [],
+          "description": null,
+          "event_name": null,
+          "x": 23.5,
+          "y": 51.5
+        },
+        {
+          "event_id": 130,
+          "type_id": 49,
+          "outcome": 1,
+          "minute": 14,
+          "second": 49,
+          "period_id": 1,
+          "player_id": "4n6mnhjzt6zpicfea3ym678id",
+          "team_id": "blzubaa449m1wjt46fasgdvse",
+          "qualifier_ids": [],
+          "qualifiers": [],
+          "description": null,
+          "event_name": null,
+          "x": 24.1,
+          "y": 89.6
+        },
+        {
+          "event_id": 395,
+          "type_id": 49,
+          "outcome": 1,
+          "minute": 41,
+          "second": 29,
+          "period_id": 1,
+          "player_id": "4n6mnhjzt6zpicfea3ym678id",
+          "team_id": "blzubaa449m1wjt46fasgdvse",
+          "qualifier_ids": [],
+          "qualifiers": [],
+          "description": null,
+          "event_name": null,
+          "x": 34.5,
+          "y": 11.4
+        },
+        {
+          "event_id": 502,
+          "type_id": 49,
+          "outcome": 1,
+          "minute": 48,
+          "second": 10,
+          "period_id": 2,
+          "player_id": "4n6mnhjzt6zpicfea3ym678id",
+          "team_id": "blzubaa449m1wjt46fasgdvse",
+          "qualifier_ids": [],
+          "qualifiers": [],
+          "description": null,
+          "event_name": null,
+          "x": 32.2,
+          "y": 80.3
+        },
+        {
+          "event_id": 534,
+          "type_id": 49,
+          "outcome": 1,
+          "minute": 51,
+          "second": 25,
+          "period_id": 2,
+          "player_id": "4n6mnhjzt6zpicfea3ym678id",
+          "team_id": "blzubaa449m1wjt46fasgdvse",
+          "qualifier_ids": [],
+          "qualifiers": [],
+          "description": null,
+          "event_name": null,
+          "x": 26.7,
+          "y": 34.8
+        },
+        {
+          "event_id": 589,
+          "type_id": 8,
+          "outcome": 1,
+          "minute": 56,
+          "second": 30,
+          "period_id": 2,
+          "player_id": "4n6mnhjzt6zpicfea3ym678id",
+          "team_id": "blzubaa449m1wjt46fasgdvse",
+          "qualifier_ids": [
+            56
+          ],
+          "qualifiers": [
+            {
+              "id": 6565830675,
+              "qualifierId": 56,
+              "value": "Center"
+            }
+          ],
+          "description": null,
+          "event_name": null,
+          "x": 59.6,
+          "y": 78.7
+        },
+        {
+          "event_id": 634,
+          "type_id": 49,
+          "outcome": 1,
+          "minute": 60,
+          "second": 54,
+          "period_id": 2,
+          "player_id": "4n6mnhjzt6zpicfea3ym678id",
+          "team_id": "blzubaa449m1wjt46fasgdvse",
+          "qualifier_ids": [],
+          "qualifiers": [],
+          "description": null,
+          "event_name": null,
+          "x": 7.9,
+          "y": 64.5
+        },
+        {
+          "event_id": 647,
+          "type_id": 49,
+          "outcome": 1,
+          "minute": 62,
+          "second": 23,
+          "period_id": 2,
+          "player_id": "4n6mnhjzt6zpicfea3ym678id",
+          "team_id": "blzubaa449m1wjt46fasgdvse",
+          "qualifier_ids": [],
+          "qualifiers": [],
+          "description": null,
+          "event_name": null,
+          "x": 12.8,
+          "y": 93.0
+        },
+        {
+          "event_id": 704,
+          "type_id": 49,
+          "outcome": 1,
+          "minute": 73,
+          "second": 5,
+          "period_id": 2,
+          "player_id": "4n6mnhjzt6zpicfea3ym678id",
+          "team_id": "blzubaa449m1wjt46fasgdvse",
+          "qualifier_ids": [],
+          "qualifiers": [],
+          "description": null,
+          "event_name": null,
+          "x": 23.2,
+          "y": 64.6
+        },
+        {
+          "event_id": 733,
+          "type_id": 12,
+          "outcome": 1,
+          "minute": 75,
+          "second": 34,
+          "period_id": 2,
+          "player_id": "4n6mnhjzt6zpicfea3ym678id",
+          "team_id": "blzubaa449m1wjt46fasgdvse",
+          "qualifier_ids": [
+            56,
+            140,
+            141,
+            212,
+            213
+          ],
+          "qualifiers": [
+            {
+              "id": 6565965173,
+              "qualifierId": 56,
+              "value": "Back"
+            },
+            {
+              "id": 6565965175,
+              "qualifierId": 140,
+              "value": "38.5"
+            },
+            {
+              "id": 6565965177,
+              "qualifierId": 141,
+              "value": "62.9"
+            },
+            {
+              "id": 6565965179,
+              "qualifierId": 212,
+              "value": "20.7"
+            },
+            {
+              "id": 6565965181,
+              "qualifierId": 213,
+              "value": "6.22"
+            }
+          ],
+          "description": null,
+          "event_name": null,
+          "x": 18.8,
+          "y": 64.9
+        },
+        {
+          "event_id": 816,
+          "type_id": 49,
+          "outcome": 1,
+          "minute": 86,
+          "second": 8,
+          "period_id": 2,
+          "player_id": "4n6mnhjzt6zpicfea3ym678id",
+          "team_id": "blzubaa449m1wjt46fasgdvse",
+          "qualifier_ids": [],
+          "qualifiers": [],
+          "description": null,
+          "event_name": null,
+          "x": 26.3,
+          "y": 57.0
+        },
+        {
+          "event_id": 962,
+          "type_id": 7,
+          "outcome": 0,
+          "minute": 97,
+          "second": 6,
+          "period_id": 2,
+          "player_id": "4n6mnhjzt6zpicfea3ym678id",
+          "team_id": "blzubaa449m1wjt46fasgdvse",
+          "qualifier_ids": [
+            56,
+            178,
+            233,
+            285
+          ],
+          "qualifiers": [
+            {
+              "id": 6566105355,
+              "qualifierId": 56,
+              "value": "Back"
+            },
+            {
+              "id": 6566105359,
+              "qualifierId": 178
+            },
+            {
+              "id": 6566105389,
+              "qualifierId": 233,
+              "value": "823"
+            },
+            {
+              "id": 6566105357,
+              "qualifierId": 285
+            }
+          ],
+          "description": null,
+          "event_name": null,
+          "x": 15.7,
+          "y": 25.8
+        }
+      ]
+    },
+    {
+      "name": "Alexia Putellas",
+      "club": "LCL",
+      "position": "MID",
+      "opta_player_id": "5exouoey2r6wtpympr6drg3it",
+      "match": {
+        "opta_match_id": "xgp7c45ebssvvnnksnginjtg",
+        "description": "London City Lionesses vs Manchester United",
+        "date": "2026-09-04Z",
+        "fantasy_game_week": "1"
+      },
+      "attacking_counts": {
+        "successful_dribbles": 1,
+        "key_passes": 1,
+        "attacking_actions": 2,
+        "attacking_points": 0
+      },
+      "counts": {
+        "type7_all": 1,
+        "type7_unsuccessful": 1,
+        "recoveries": 1,
+        "interceptions": 1,
+        "def_actions_current": 2,
+        "def_points_current": 0,
+        "def_actions_if_all_type7": 3,
+        "def_points_if_all_type7": 0
+      },
+      "all_event_type_counts": {
+        "1": 39,
+        "2": 1,
+        "3": 3,
+        "5": 6,
+        "7": 1,
+        "8": 1,
+        "13": 1,
+        "18": 1,
+        "43": 2,
+        "49": 1,
+        "50": 1,
+        "61": 9
+      },
+      "type7_tackle_events": [
+        {
+          "event_id": 526,
+          "type_id": 7,
+          "outcome": 0,
+          "minute": 50,
+          "second": 50,
+          "period_id": 2,
+          "player_id": "5exouoey2r6wtpympr6drg3it",
+          "team_id": "blzubaa449m1wjt46fasgdvse",
+          "qualifier_ids": [
+            56,
+            178,
+            233,
+            285
+          ],
+          "qualifiers": [
+            {
+              "id": 6565788005,
+              "qualifierId": 56,
+              "value": "Right"
+            },
+            {
+              "id": 6565788009,
+              "qualifierId": 178
+            },
+            {
+              "id": 6565788057,
+              "qualifierId": 233,
+              "value": "436"
+            },
+            {
+              "id": 6565788007,
+              "qualifierId": 285
+            }
+          ],
+          "description": null,
+          "event_name": null,
+          "x": 53.8,
+          "y": 12.9
+        }
+      ],
+      "defensive_related_events": [
+        {
+          "event_id": 526,
+          "type_id": 7,
+          "outcome": 0,
+          "minute": 50,
+          "second": 50,
+          "period_id": 2,
+          "player_id": "5exouoey2r6wtpympr6drg3it",
+          "team_id": "blzubaa449m1wjt46fasgdvse",
+          "qualifier_ids": [
+            56,
+            178,
+            233,
+            285
+          ],
+          "qualifiers": [
+            {
+              "id": 6565788005,
+              "qualifierId": 56,
+              "value": "Right"
+            },
+            {
+              "id": 6565788009,
+              "qualifierId": 178
+            },
+            {
+              "id": 6565788057,
+              "qualifierId": 233,
+              "value": "436"
+            },
+            {
+              "id": 6565788007,
+              "qualifierId": 285
+            }
+          ],
+          "description": null,
+          "event_name": null,
+          "x": 53.8,
+          "y": 12.9
+        },
+        {
+          "event_id": 527,
+          "type_id": 49,
+          "outcome": 1,
+          "minute": 50,
+          "second": 51,
+          "period_id": 2,
+          "player_id": "5exouoey2r6wtpympr6drg3it",
+          "team_id": "blzubaa449m1wjt46fasgdvse",
+          "qualifier_ids": [],
+          "qualifiers": [],
+          "description": null,
+          "event_name": null,
+          "x": 51.1,
+          "y": 16.4
+        },
+        {
+          "event_id": 723,
+          "type_id": 8,
+          "outcome": 1,
+          "minute": 74,
+          "second": 53,
+          "period_id": 2,
+          "player_id": "5exouoey2r6wtpympr6drg3it",
+          "team_id": "blzubaa449m1wjt46fasgdvse",
+          "qualifier_ids": [
+            56
+          ],
+          "qualifiers": [
+            {
+              "id": 6565960297,
+              "qualifierId": 56,
+              "value": "Back"
+            }
+          ],
+          "description": null,
+          "event_name": null,
+          "x": 18.1,
+          "y": 34.9
+        }
+      ]
+    },
+    {
+      "name": "Daniëlle van de Donk",
+      "club": "LCL",
+      "position": "MID",
+      "opta_player_id": "28yvc8jmyyfavb0hetafjdadx",
+      "match": {
+        "opta_match_id": "xgp7c45ebssvvnnksnginjtg",
+        "description": "London City Lionesses vs Manchester United",
+        "date": "2026-09-04Z",
+        "fantasy_game_week": "1"
+      },
+      "attacking_counts": {
+        "shots_on_target": 1,
+        "attacking_actions": 1,
+        "attacking_points": 0
+      },
+      "counts": {
+        "recoveries": 3,
+        "clearances": 2,
+        "type7_all": 1,
+        "tackles_current": 1,
+        "def_actions_current": 6,
+        "def_points_current": 0,
+        "def_actions_if_all_type7": 6,
+        "def_points_if_all_type7": 0
+      },
+      "all_event_type_counts": {
+        "1": 47,
+        "3": 2,
+        "4": 3,
+        "5": 9,
+        "6": 1,
+        "7": 1,
+        "12": 2,
+        "13": 1,
+        "16": 1,
+        "43": 2,
+        "44": 2,
+        "49": 3,
+        "50": 5,
+        "61": 6,
+        "74": 1,
+        "83": 2
+      },
+      "type7_tackle_events": [
+        {
+          "event_id": 804,
+          "type_id": 7,
+          "outcome": 1,
+          "minute": 85,
+          "second": 22,
+          "period_id": 2,
+          "player_id": "28yvc8jmyyfavb0hetafjdadx",
+          "team_id": "blzubaa449m1wjt46fasgdvse",
+          "qualifier_ids": [
+            56,
+            178,
+            233,
+            285
+          ],
+          "qualifiers": [
+            {
+              "id": 6566031501,
+              "qualifierId": 56,
+              "value": "Left"
+            },
+            {
+              "id": 6566031509,
+              "qualifierId": 178
+            },
+            {
+              "id": 6566031559,
+              "qualifierId": 233,
+              "value": "696"
+            },
+            {
+              "id": 6566031563,
+              "qualifierId": 285
+            }
+          ],
+          "description": null,
+          "event_name": null,
+          "x": 66.6,
+          "y": 83.8
+        }
+      ],
+      "defensive_related_events": [
+        {
+          "event_id": 682,
+          "type_id": 49,
+          "outcome": 1,
+          "minute": 71,
+          "second": 14,
+          "period_id": 2,
+          "player_id": "28yvc8jmyyfavb0hetafjdadx",
+          "team_id": "blzubaa449m1wjt46fasgdvse",
+          "qualifier_ids": [],
+          "qualifiers": [],
+          "description": null,
+          "event_name": null,
+          "x": 26.6,
+          "y": 90.2
+        },
+        {
+          "event_id": 731,
+          "type_id": 12,
+          "outcome": 1,
+          "minute": 75,
+          "second": 31,
+          "period_id": 2,
+          "player_id": "28yvc8jmyyfavb0hetafjdadx",
+          "team_id": "blzubaa449m1wjt46fasgdvse",
+          "qualifier_ids": [
+            56,
+            140,
+            141,
+            212,
+            213
+          ],
+          "qualifiers": [
+            {
+              "id": 6565964897,
+              "qualifierId": 56,
+              "value": "Back"
+            },
+            {
+              "id": 6565964899,
+              "qualifierId": 140,
+              "value": "17.7"
+            },
+            {
+              "id": 6565964901,
+              "qualifierId": 141,
+              "value": "73.0"
+            },
+            {
+              "id": 6565964903,
+              "qualifierId": 212,
+              "value": "7.8"
+            },
+            {
+              "id": 6565964905,
+              "qualifierId": 213,
+              "value": "5.46"
+            }
+          ],
+          "description": null,
+          "event_name": null,
+          "x": 12.7,
+          "y": 81.4
+        },
+        {
+          "event_id": 804,
+          "type_id": 7,
+          "outcome": 1,
+          "minute": 85,
+          "second": 22,
+          "period_id": 2,
+          "player_id": "28yvc8jmyyfavb0hetafjdadx",
+          "team_id": "blzubaa449m1wjt46fasgdvse",
+          "qualifier_ids": [
+            56,
+            178,
+            233,
+            285
+          ],
+          "qualifiers": [
+            {
+              "id": 6566031501,
+              "qualifierId": 56,
+              "value": "Left"
+            },
+            {
+              "id": 6566031509,
+              "qualifierId": 178
+            },
+            {
+              "id": 6566031559,
+              "qualifierId": 233,
+              "value": "696"
+            },
+            {
+              "id": 6566031563,
+              "qualifierId": 285
+            }
+          ],
+          "description": null,
+          "event_name": null,
+          "x": 66.6,
+          "y": 83.8
+        },
+        {
+          "event_id": 848,
+          "type_id": 49,
+          "outcome": 1,
+          "minute": 88,
+          "second": 39,
+          "period_id": 2,
+          "player_id": "28yvc8jmyyfavb0hetafjdadx",
+          "team_id": "blzubaa449m1wjt46fasgdvse",
+          "qualifier_ids": [],
+          "qualifiers": [],
+          "description": null,
+          "event_name": null,
+          "x": 85.6,
+          "y": 94.7
+        },
+        {
+          "event_id": 967,
+          "type_id": 12,
+          "outcome": 1,
+          "minute": 97,
+          "second": 58,
+          "period_id": 2,
+          "player_id": "28yvc8jmyyfavb0hetafjdadx",
+          "team_id": "blzubaa449m1wjt46fasgdvse",
+          "qualifier_ids": [
+            56,
+            140,
+            141,
+            212,
+            213
+          ],
+          "qualifiers": [
+            {
+              "id": 6566109139,
+              "qualifierId": 56,
+              "value": "Back"
+            },
+            {
+              "id": 6566109141,
+              "qualifierId": 140,
+              "value": "32.2"
+            },
+            {
+              "id": 6566109143,
+              "qualifierId": 141,
+              "value": "37.1"
+            },
+            {
+              "id": 6566109145,
+              "qualifierId": 212,
+              "value": "21.5"
+            },
+            {
+              "id": 6566109147,
+              "qualifierId": 213,
+              "value": "0.00"
+            }
+          ],
+          "description": null,
+          "event_name": null,
+          "x": 11.7,
+          "y": 37.0
+        },
+        {
+          "event_id": 971,
+          "type_id": 49,
+          "outcome": 1,
+          "minute": 98,
+          "second": 22,
+          "period_id": 2,
+          "player_id": "28yvc8jmyyfavb0hetafjdadx",
+          "team_id": "blzubaa449m1wjt46fasgdvse",
+          "qualifier_ids": [],
+          "qualifiers": [],
+          "description": null,
+          "event_name": null,
+          "x": 20.8,
+          "y": 14.0
+        }
+      ]
+    },
+    {
       "name": "Jade Richards",
       "club": "BUR",
       "position": "DEF",
@@ -505,6 +2352,10 @@
         "description": "Watford vs Burnley",
         "date": "2026-09-04Z",
         "fantasy_game_week": "1"
+      },
+      "attacking_counts": {
+        "attacking_actions": 0,
+        "attacking_points": 0
       },
       "counts": {
         "clearances": 10,
@@ -1421,26 +3272,156 @@
   ],
   "quick_comparison": [
     {
+      "player": "Katie McCabe",
+      "match": "Chelsea vs Aston Villa",
+      "shots_on_target": 0,
+      "key_passes": 4,
+      "successful_crosses": 4,
+      "successful_dribbles": 0,
+      "attacking_actions": 8,
+      "attacking_points": 2,
+      "successful_type7_tackles": 2,
+      "all_type7_tackles": 2,
+      "unsuccessful_type7_tackles": 0,
+      "current_def_actions": 9,
+      "current_def_points": 0,
+      "def_actions_if_all_type7_count": 9,
+      "def_points_if_all_type7_count": 0,
+      "current_total_involvement_points": 2,
+      "total_involvement_points_if_all_type7_count": 2
+    },
+    {
+      "player": "Hannah Hampton",
+      "match": "Chelsea vs Aston Villa",
+      "shots_on_target": 0,
+      "key_passes": 0,
+      "successful_crosses": 0,
+      "successful_dribbles": 0,
+      "attacking_actions": 0,
+      "attacking_points": 0,
+      "successful_type7_tackles": 0,
+      "all_type7_tackles": 0,
+      "unsuccessful_type7_tackles": 0,
+      "current_def_actions": 1,
+      "current_def_points": 0,
+      "def_actions_if_all_type7_count": 1,
+      "def_points_if_all_type7_count": 0,
+      "current_total_involvement_points": 0,
+      "total_involvement_points_if_all_type7_count": 0
+    },
+    {
       "player": "Lucy Bronze",
       "match": "Chelsea vs Aston Villa",
+      "shots_on_target": 2,
+      "key_passes": 2,
+      "successful_crosses": 1,
+      "successful_dribbles": 0,
+      "attacking_actions": 5,
+      "attacking_points": 1,
       "successful_type7_tackles": 1,
       "all_type7_tackles": 3,
       "unsuccessful_type7_tackles": 2,
       "current_def_actions": 9,
       "current_def_points": 0,
       "def_actions_if_all_type7_count": 11,
-      "def_points_if_all_type7_count": 1
+      "def_points_if_all_type7_count": 1,
+      "current_total_involvement_points": 1,
+      "total_involvement_points_if_all_type7_count": 2
+    },
+    {
+      "player": "Alyssa Thompson",
+      "match": "Chelsea vs Aston Villa",
+      "shots_on_target": 2,
+      "key_passes": 2,
+      "successful_crosses": 1,
+      "successful_dribbles": 2,
+      "attacking_actions": 7,
+      "attacking_points": 1,
+      "successful_type7_tackles": 0,
+      "all_type7_tackles": 1,
+      "unsuccessful_type7_tackles": 1,
+      "current_def_actions": 6,
+      "current_def_points": 0,
+      "def_actions_if_all_type7_count": 7,
+      "def_points_if_all_type7_count": 0,
+      "current_total_involvement_points": 1,
+      "total_involvement_points_if_all_type7_count": 1
+    },
+    {
+      "player": "Maria Pilar León Cebrián",
+      "match": "London City Lionesses vs Manchester United",
+      "shots_on_target": 0,
+      "key_passes": 0,
+      "successful_crosses": 3,
+      "successful_dribbles": 0,
+      "attacking_actions": 3,
+      "attacking_points": 0,
+      "successful_type7_tackles": 0,
+      "all_type7_tackles": 2,
+      "unsuccessful_type7_tackles": 2,
+      "current_def_actions": 13,
+      "current_def_points": 1,
+      "def_actions_if_all_type7_count": 15,
+      "def_points_if_all_type7_count": 1,
+      "current_total_involvement_points": 1,
+      "total_involvement_points_if_all_type7_count": 1
+    },
+    {
+      "player": "Alexia Putellas",
+      "match": "London City Lionesses vs Manchester United",
+      "shots_on_target": 0,
+      "key_passes": 1,
+      "successful_crosses": 0,
+      "successful_dribbles": 1,
+      "attacking_actions": 2,
+      "attacking_points": 0,
+      "successful_type7_tackles": 0,
+      "all_type7_tackles": 1,
+      "unsuccessful_type7_tackles": 1,
+      "current_def_actions": 2,
+      "current_def_points": 0,
+      "def_actions_if_all_type7_count": 3,
+      "def_points_if_all_type7_count": 0,
+      "current_total_involvement_points": 0,
+      "total_involvement_points_if_all_type7_count": 0
+    },
+    {
+      "player": "Daniëlle van de Donk",
+      "match": "London City Lionesses vs Manchester United",
+      "shots_on_target": 1,
+      "key_passes": 0,
+      "successful_crosses": 0,
+      "successful_dribbles": 0,
+      "attacking_actions": 1,
+      "attacking_points": 0,
+      "successful_type7_tackles": 1,
+      "all_type7_tackles": 1,
+      "unsuccessful_type7_tackles": 0,
+      "current_def_actions": 6,
+      "current_def_points": 0,
+      "def_actions_if_all_type7_count": 6,
+      "def_points_if_all_type7_count": 0,
+      "current_total_involvement_points": 0,
+      "total_involvement_points_if_all_type7_count": 0
     },
     {
       "player": "Jade Richards",
       "match": "Watford vs Burnley",
+      "shots_on_target": 0,
+      "key_passes": 0,
+      "successful_crosses": 0,
+      "successful_dribbles": 0,
+      "attacking_actions": 0,
+      "attacking_points": 0,
       "successful_type7_tackles": 1,
       "all_type7_tackles": 2,
       "unsuccessful_type7_tackles": 1,
       "current_def_actions": 19,
       "current_def_points": 1,
       "def_actions_if_all_type7_count": 20,
-      "def_points_if_all_type7_count": 2
+      "def_points_if_all_type7_count": 2,
+      "current_total_involvement_points": 1,
+      "total_involvement_points_if_all_type7_count": 2
     }
   ]
 }
