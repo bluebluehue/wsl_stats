@@ -162,7 +162,8 @@ for name,oa,od in GROUND_TRUTH:
     types={}
     for e in evs: types[str(typ(e))]=types.get(str(typ(e)),0)+1
     results.append({
-      "player":name,"matched_name":pname(p),"player_ids":sorted(ids),"match_ids":mids,\n      "matched_player_record_keys": sorted(str(k) for k in p.keys()),
+      "player":name,"matched_name":pname(p),"player_ids":sorted(ids),"match_ids":mids,
+      "matched_player_record_keys": sorted(str(k) for k in p.keys()),
       "official_wsl_ui":{"attacking_actions":oa,"defensive_actions":od},
       "current_parser":{**cnt,"attacking_actions":att,"defensive_actions":de,
                         "att_delta_vs_wsl":att-oa,"def_delta_vs_wsl":de-od},
