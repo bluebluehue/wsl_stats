@@ -1,8 +1,8 @@
 {
   "metadata": {
-    "generated_at": "2026-09-05T14:34:18.725882Z",
+    "generated_at": "2026-09-05T16:54:41.211579Z",
     "refresh_interval_minutes": 15,
-    "candidate_match_count": 1,
+    "candidate_match_count": 0,
     "match_count": 1,
     "failures": []
   },
@@ -638,7 +638,8 @@
           "involvement_points": 1
         }
       ],
-      "event_count": 1687
+      "event_count": 1687,
+      "carried_forward": true
     }
   ]
 }
