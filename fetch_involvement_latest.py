@@ -23,6 +23,7 @@ ROOT = Path(__file__).resolve().parent
 FIXTURES_FILE = ROOT / "fixtures.json"
 PLAYERS_FILE = ROOT / "transformed_data.json"
 OUTPUT_FILE = ROOT / "involvement_live.json"
+HISTORY_FILE = ROOT / "involvement_history.json"
 
 OPTA_WIDGET_FEED_ID = os.getenv("OPTA_WIDGET_FEED_ID", "ft1tiv1inq7v1sk3y9tv12yh5")
 OPTA_BASE = "https://api.performfeeds.com/soccerdata/matchevent"
@@ -240,18 +241,48 @@ def main():
         except Exception as exc:
             failures.append({"opta_match_id": oid, "error": str(exc)})
 
+    # Keep a finished latest snapshot until permanent history contains that match.
+    history_ids = set()
+    if HISTORY_FILE.exists():
+        try:
+            history = load_json(HISTORY_FILE)
+            history_ids = {
+                str(m.get("opta_match_id") or "")
+                for m in (history.get("matches") or [])
+                if m.get("opta_match_id")
+            }
+        except Exception as exc:
+            failures.append({"stage": "history_read", "error": str(exc)})
+
+    merged = {str(m.get("opta_match_id") or ""): m for m in matches if m.get("opta_match_id")}
+
+    if OUTPUT_FILE.exists():
+        try:
+            previous = load_json(OUTPUT_FILE)
+            for old_match in previous.get("matches") or []:
+                oid = str(old_match.get("opta_match_id") or "")
+                if not oid or oid in merged or oid in history_ids:
+                    continue
+                kickoff = parse_utc(old_match.get("date"))
+                if kickoff and now <= kickoff + timedelta(hours=36):
+                    old_match["carried_forward"] = True
+                    merged[oid] = old_match
+        except Exception as exc:
+            failures.append({"stage": "previous_snapshot_read", "error": str(exc)})
+
+    final_matches = list(merged.values())
     snapshot = {
         "metadata": {
             "generated_at": now.isoformat().replace("+00:00", "Z"),
             "refresh_interval_minutes": 15,
             "candidate_match_count": len(candidates),
-            "match_count": len(matches),
+            "match_count": len(final_matches),
             "failures": failures,
         },
-        "matches": matches,
+        "matches": final_matches,
     }
     write_json(OUTPUT_FILE, snapshot)
-    print(f"Wrote {OUTPUT_FILE.name}: {len(matches)} matches, {len(failures)} failures.")
+    print(f"Wrote {OUTPUT_FILE.name}: {len(final_matches)} matches, {len(failures)} failures.")
 
 if __name__ == "__main__":
     main()
