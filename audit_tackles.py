@@ -43,6 +43,7 @@ import requests
 ROOT = Path(__file__).resolve().parent
 TRANSFORMED_PATH = ROOT / "transformed_data.json"
 HISTORY_PATH = ROOT / "involvement_history.json"
+LIVE_PATH = ROOT / "involvement_live.json"
 RAW_EVENT_DIR = ROOT / "raw_opta_events"
 OUTPUT_PATH = ROOT / "tackle_audit.json"
 
@@ -263,7 +264,7 @@ def main() -> None:
     output = {
         "metadata": {
             "generated_at_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-            "purpose": "Audit tackle definition for involvement points",
+            "purpose": "Audit tackle definition for involvement points using settled + latest matches",
             "current_rule": "typeId 7 AND outcome=1 counts as a tackle won",
             "comparison_rule": "all typeId 7 events count as tackles",
             "targets": list(targets.values()),
@@ -271,11 +272,21 @@ def main() -> None:
         "players": [],
     }
 
+    live = load_json(LIVE_PATH, {})
+
+    # Audit the union of settled history and latest snapshot, preferring settled
+    # metadata if the same Opta match appears in both.
+    combined_matches = {}
+    for match in live.get("matches", []) or []:
+        opta_match_id = str(match.get("opta_match_id") or "")
+        if opta_match_id:
+            combined_matches[opta_match_id] = match
     for match in history.get("matches", []) or []:
         opta_match_id = str(match.get("opta_match_id") or "")
-        if not opta_match_id:
-            continue
+        if opta_match_id:
+            combined_matches[opta_match_id] = match
 
+    for opta_match_id, match in combined_matches.items():
         payload = fetch_match_events(opta_match_id)
         events = live_events(payload)
         player_ids_in_match = {event_player_id(e) for e in events}
