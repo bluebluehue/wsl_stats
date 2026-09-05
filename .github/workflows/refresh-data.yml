@@ -31,8 +31,8 @@ jobs:
       - name: Build data files
         run: python get_data.py
 
-      - name: Build involvement stats test
-        run: python fetch_involvement_points_test.py
+      - name: Build involvement stats
+        run: python fetch_involvement_points.py
 
       - name: Commit updated data
         run: |
