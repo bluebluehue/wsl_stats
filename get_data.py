@@ -103,10 +103,11 @@ WSL2_PRESEASON_UNIT_CALIBRATION = {
     "BRC": {"attack": 0.82, "defense": 0.82},
     "NEW": {"attack": 0.79, "defense": 0.78},
     "SUN": {"attack": 0.76, "defense": 0.73},
-    "SOU": {"attack": 0.65, "defense": 0.68},
+    "NFO": {"attack": 0.62, "defense": 0.61},
+    "SOU": {"attack": 0.58, "defense": 0.63},
     "BUR": {"attack": 0.60, "defense": 0.64},
     "WOL": {"attack": 0.58, "defense": 0.62},
-    "NFO": {"attack": 0.58, "defense": 0.58},
+    "IPS": {"attack": 0.52, "defense": 0.50},
     "WAT": {"attack": 0.43, "defense": 0.43},
     "SHU": {"attack": 0.39, "defense": 0.38},
     "DUR": {"attack": 0.36, "defense": 0.37},
@@ -808,9 +809,180 @@ def update_history(players: list[dict[str, Any]]) -> dict[str, dict[str, dict[st
         history.setdefault(key, {})[today] = {
             "Value": safe_float(player.get("Value")),
             "Selected Percentage": safe_float(player.get("Selected Percentage")),
+            # Store the official cumulative fantasy total as well.  This lets us
+            # reconstruct per-Fantasy-GW scores even though the public player feed
+            # currently exposes season totals but no matchPoints/matchwisePoints list.
+            "Total Points": safe_float(player.get("Total Points")),
         }
     HISTORY_PATH.write_text(json.dumps(history, ensure_ascii=False, indent=2, sort_keys=True), encoding="utf-8")
     return history
+
+
+
+def _snapshot_total_points(snapshots: dict[str, Any], predicate) -> tuple[str | None, float | None]:
+    """Return the latest snapshot date/value satisfying predicate and containing Total Points."""
+    candidates: list[tuple[str, float]] = []
+    for date_str, row in (snapshots or {}).items():
+        if not isinstance(row, dict) or "Total Points" not in row:
+            continue
+        try:
+            d = datetime.fromisoformat(date_str).date()
+        except ValueError:
+            continue
+        if predicate(d):
+            candidates.append((date_str, safe_float(row.get("Total Points"))))
+    if not candidates:
+        return None, None
+    candidates.sort(key=lambda item: item[0])
+    return candidates[-1]
+
+
+def populate_weekly_points_from_history(
+    players: list[dict[str, Any]],
+    history: dict[str, Any],
+    fantasy_gameweeks: list[dict[str, Any]],
+) -> None:
+    """Populate numbered GW columns from cumulative official fantasy totals.
+
+    The public WSL fantasy player feed currently updates totalPoints after matches,
+    but does not expose the matchPoints/matchwisePoints arrays this parser originally
+    anticipated.  We therefore derive each Fantasy GW as the change in cumulative
+    total between the snapshot immediately before that GW and the final snapshot
+    before the next GW starts.
+
+    During an active GW the value is live/partial and updates on every refresh.
+    """
+    today = datetime.now(timezone.utc).date()
+    windows = sorted(
+        fantasy_gameweeks,
+        key=lambda w: int(w.get("fantasy_game_week") or 999),
+    )
+
+    for player in players:
+        snapshots = history.get(player.get("Name"), {}) or {}
+
+        for idx, window in enumerate(windows):
+            gw = str(window.get("fantasy_game_week") or "")
+            if not gw or gw not in player:
+                continue
+
+            try:
+                start = datetime.fromisoformat(str(window.get("start_date"))).date()
+            except Exception:
+                continue
+
+            if today < start:
+                continue
+
+            next_start = None
+            if idx + 1 < len(windows):
+                try:
+                    next_start = datetime.fromisoformat(
+                        str(windows[idx + 1].get("start_date"))
+                    ).date()
+                except Exception:
+                    next_start = None
+
+            # Baseline: latest official cumulative total from before this GW.
+            _, baseline = _snapshot_total_points(
+                snapshots,
+                lambda d, start=start: d < start,
+            )
+
+            # GW1 starts from zero because totalPoints is a current-season total.
+            if baseline is None and gw == "1":
+                baseline = 0.0
+
+            # We can only reconstruct later GWs once a pre-GW Total Points snapshot exists.
+            if baseline is None:
+                continue
+
+            if next_start and today >= next_start:
+                endpoint_date, endpoint = _snapshot_total_points(
+                    snapshots,
+                    lambda d, next_start=next_start: d < next_start,
+                )
+                is_final = True
+            else:
+                endpoint_date, endpoint = _snapshot_total_points(
+                    snapshots,
+                    lambda d, today=today: d <= today,
+                )
+                is_final = False
+
+            if endpoint is None:
+                continue
+
+            pts = safe_int(endpoint - baseline)
+            state = "final" if is_final else "live/partial"
+            player[gw] = {
+                "points": pts,
+                "base_points": pts,
+                "visionary_bonus": 0,
+                "tooltip": (
+                    f"Fantasy GW{gw}: {pts} pts ({state})\\n"
+                    f"Derived from official cumulative totalPoints snapshots"
+                    + (f" through {endpoint_date}" if endpoint_date else "")
+                ),
+            }
+
+
+def _flatten_scalar_paths(value: Any, prefix: str = "", depth: int = 0) -> dict[str, Any]:
+    """Compact diagnostic view of a raw player record for discovering useful feed fields."""
+    out: dict[str, Any] = {}
+    if depth > 4:
+        return out
+    if isinstance(value, dict):
+        for key, child in value.items():
+            path = f"{prefix}.{key}" if prefix else str(key)
+            out.update(_flatten_scalar_paths(child, path, depth + 1))
+    elif isinstance(value, list):
+        # Record list length and inspect only the first two entries so metadata stays small.
+        out[f"{prefix}.__len__"] = len(value)
+        for i, child in enumerate(value[:2]):
+            out.update(_flatten_scalar_paths(child, f"{prefix}[{i}]", depth + 1))
+    elif isinstance(value, (str, int, float, bool)) or value is None:
+        out[prefix] = value
+    return out
+
+
+def build_player_feed_audit(players_raw: list[dict[str, Any]]) -> dict[str, Any]:
+    """Expose enough raw-feed structure to discover match/action fields after real games."""
+    top_level_keys = sorted({str(k) for p in players_raw for k in p.keys()})
+    interesting_tokens = (
+        "point", "match", "stat", "attack", "defen", "shot", "pass", "cross",
+        "drib", "tack", "inter", "clear", "block", "recover", "minute", "assist",
+        "goal", "bonus",
+    )
+
+    samples = []
+    scored = sorted(
+        players_raw,
+        key=lambda p: safe_float(p.get("totalPoints")),
+        reverse=True,
+    )
+    for raw in scored[:8]:
+        flat = _flatten_scalar_paths(raw)
+        interesting = {
+            k: v for k, v in flat.items()
+            if any(token in k.lower() for token in interesting_tokens)
+        }
+        samples.append({
+            "name": f"{raw.get('mediaFirstName', '').strip()} {raw.get('mediaLastName', '').strip()}".strip(),
+            "club": raw.get("teamAcronymName") or raw.get("teamShortName"),
+            "totalPoints": raw.get("totalPoints"),
+            "fields": interesting,
+        })
+
+    return {
+        "top_level_keys": top_level_keys,
+        "sample_count": len(samples),
+        "samples": samples,
+        "note": (
+            "Temporary diagnostic to identify whether the official fantasy feed now exposes "
+            "per-match or Opta involvement-action fields after completed 2026/27 matches."
+        ),
+    }
 
 
 def selected_delta(history: dict[str, Any], name: str, current: float, days_back: int = 7) -> float:
@@ -1785,6 +1957,11 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
     fixtures = [normalize_fixture(f) for f in fixtures_raw]
     fantasy_gameweeks = assign_canonical_fantasy_gameweeks(fixtures)
 
+    # The frontend already knows how to display numbered GW objects.  Populate
+    # them from the official cumulative totalPoints history now that the shared
+    # WSL/WSL2 Fantasy GW windows are known.
+    populate_weekly_points_from_history(players, history, fantasy_gameweeks)
+
     # Attach current market clean-sheet probabilities to the full fixture schedule.
     for fixture in fixtures:
         market_row = market_lookup.get(str(fixture.get("match_id") or ""))
@@ -1867,7 +2044,7 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
         fixture["away_cs_prior"] = aws["own_cs_prior"]
         fixture["home_opponent_attack_prior"] = hs["opponent_attack_prior"]
         fixture["away_opponent_attack_prior"] = aws["opponent_attack_prior"]
-        fixture["gk_rating_model"] = "team-cs-save-v8-wsl2-preseason-fade"
+        fixture["gk_rating_model"] = "team-cs-save-v8.1-wsl2-preseason-fade"
 
     teams = [normalize_team(t) for t in teams_raw]
 
@@ -1889,6 +2066,12 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
         "fixture_count": len(fixtures),
         "team_count": len(teams),
         "fantasy_gameweeks": fantasy_gameweeks,
+        "weekly_points_model": {
+            "version": "cumulative-snapshot-delta-v1",
+            "source": "official player totalPoints feed",
+            "note": "Per-Fantasy-GW points are reconstructed from daily cumulative totalPoints snapshots because the current public player feed does not expose matchPoints/matchwisePoints. Active-GW values are live/partial; past-GW values freeze at the last snapshot before the next Fantasy GW starts."
+        },
+        "player_feed_audit": build_player_feed_audit(players_raw),
         "fantasy_legs": [
             {"leg": 1, "start_gw": 1, "end_gw": 5},
             {"leg": 2, "start_gw": 6, "end_gw": 11},
@@ -1898,7 +2081,7 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
             {"leg": 6, "start_gw": 24, "end_gw": 26},
         ],
         "gk_fixture_model": {
-            "version": "team-cs-save-v8-wsl2-preseason-fade",
+            "version": "team-cs-save-v8.1-wsl2-preseason-fade",
             "note": "GK model separates clean-sheet probability, save opportunity, individual keeper quality, and 3+ concession risk. Expected goals against multiplies independent own-defense and opponent-attack relative-risk factors plus venue. Cross-division clubs are now rebased to the destination league using their destination-calibrated current-roster strength prior, rather than carrying source-division GF/GA ratios across with a small multiplier.",
             "weights": {"cs_fix": 0.55, "save_opportunity": 0.25, "keeper_quality": 0.10, "concession_safety": 0.10},
             "cs_probability_formula": "P(CS)=exp(-xGA), xGA=league_baseline_GA * own_defense_factor * opponent_attack_factor * venue_factor",
@@ -1938,7 +2121,7 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
             },
             "team_strength_priors": team_strength,
             "defensive_fixture_model": {
-                "version": "unit-strength-defense-v8-wsl2-preseason-fade",
+                "version": "unit-strength-defense-v8.1-wsl2-preseason-fade",
                 "note": "Schedule-only attacking and defensive fixture opportunities are distinct from projected team strength. Defensive run uses only opponent attack + venue; attacking run uses only opponent defense + venue. Own team quality is intentionally excluded so the Leg Planner ranks schedule difficulty rather than projected performance.",
                 "defensive_formula": "50 + (0.50 - opponent_attack_index)*70 + venue",
                 "attacking_formula": "50 + (0.50 - opponent_defense_index)*70 + venue",
