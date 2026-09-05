@@ -40,16 +40,24 @@ def rows(d):
     return []
 
 def pname(p):
-    for k in ("Player","player_name","name","fullName","displayName"):
+    for k in ("Name","Player","player_name","name","fullName","displayName"):
         if p.get(k): return str(p[k])
     return (str(p.get("firstName",""))+" "+str(p.get("lastName",""))).strip()
 
 def pids(p):
     out=[]
+    explicit_keys = (
+        "Opta ID","OptaID","opta_id","optaId","optaPlayerId","opta_player_id",
+        "Player ID","PlayerID","playerId","player_id","id","ID"
+    )
+    for k in explicit_keys:
+        v = p.get(k)
+        if isinstance(v,(str,int)) and str(v).strip():
+            out.append(str(v).replace("opta:player:","").strip())
     for k,v in p.items():
         kl=str(k).lower()
-        if ("opta" in kl or kl in ("id","playerid","player_id")) and isinstance(v,(str,int)):
-            out.append(str(v).replace("opta:player:",""))
+        if "opta" in kl and isinstance(v,(str,int)) and str(v).strip():
+            out.append(str(v).replace("opta:player:","").strip())
     return list(dict.fromkeys(out))
 
 def find_player(name, ps):
@@ -154,7 +162,7 @@ for name,oa,od in GROUND_TRUTH:
     types={}
     for e in evs: types[str(typ(e))]=types.get(str(typ(e)),0)+1
     results.append({
-      "player":name,"matched_name":pname(p),"player_ids":sorted(ids),"match_ids":mids,
+      "player":name,"matched_name":pname(p),"player_ids":sorted(ids),"match_ids":mids,\n      "matched_player_record_keys": sorted(str(k) for k in p.keys()),
       "official_wsl_ui":{"attacking_actions":oa,"defensive_actions":od},
       "current_parser":{**cnt,"attacking_actions":att,"defensive_actions":de,
                         "att_delta_vs_wsl":att-oa,"def_delta_vs_wsl":de-od},
