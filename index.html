@@ -4821,6 +4821,19 @@
                 return text.includes(':') ? text.split(':').pop() : text;
             }
 
+  function parseFixtureKickoff(value) {
+    if (!value) return NaN;
+    const text = String(value).trim();
+
+    // The WSL fixture feed labels match_date_time_utc as UTC but currently
+    // supplies values such as "2026-09-05T11:30:00" with no Z/offset.
+    // Browsers otherwise interpret that as LOCAL time, shifting kickoff by
+    // four/five hours for US users.
+    const hasTimezone = /(?:Z|[+-]\d{2}:?\d{2})$/i.test(text);
+    return Date.parse(hasTimezone ? text : `${text}Z`);
+  }
+
+
             function jsonpRequest(url, timeoutMs = 20000) {
                 return new Promise((resolve, reject) => {
                     const callbackName = `wslInvLive_${Date.now()}_${Math.random().toString(36).slice(2)}`;
@@ -5058,7 +5071,7 @@
                     const optaId = compactOptaId(fixture.provider_id);
                     if (!optaId) return false;
 
-                    const kickoff = Date.parse(fixture.match_date_time_utc || fixture.deadline_date || '');
+                    const kickoff = parseFixtureKickoff(fixture.match_date_time_utc || fixture.deadline_date || '');
                     if (!Number.isFinite(kickoff)) return false;
 
                     return kickoff <= now + kickoffGraceMs && kickoff >= now - lookbackMs;
