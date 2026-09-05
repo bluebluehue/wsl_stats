@@ -64,8 +64,24 @@ DEFENSIVE_SAVE_OR_BLOCK = 10
 CLEARANCE = 12
 BALL_RECOVERY = 49
 DEF_BLOCK_QUALIFIER = 94
+CROSS_QUALIFIER = 2
+PASS = 1
+TAKE_ON = 3
+SHOT_SAVED = 15
+GOAL = 16
+OWN_GOAL_QUALIFIER = 28
 
-TARGET_SURNAMES = {"richards", "bronze"}
+TARGET_NAMES = {
+    "jade richards",
+    "lucy bronze",
+    "maria pilar leon cebrian",
+    "danielle van de donk",
+    "alexia putellas",
+    "claudia mummery-walker",
+    "hannah hampton",
+    "katie mccabe",
+    "alyssa thompson",
+}
 
 
 def load_json(path: Path, default: Any) -> Any:
@@ -236,12 +252,79 @@ def defensive_counts(events: list[dict[str, Any]], pid: str) -> dict[str, int]:
     return dict(counts)
 
 
+def attacking_counts(events: list[dict[str, Any]], pid: str) -> dict[str, int]:
+    counts = Counter()
+    for event in events:
+        if event_player_id(event) != pid:
+            continue
+        typ = event_type(event)
+        outcome = event_outcome(event)
+        qids = set(qualifier_ids(event))
+
+        # Same attacking definitions as the involvement parser.
+        if typ == SHOT_SAVED:
+            counts["shots_on_target"] += 1
+        if typ == GOAL and OWN_GOAL_QUALIFIER not in qids:
+            counts["shots_on_target"] += 1
+        if typ == PASS:
+            if event.get("keypass") or event.get("keyPass"):
+                counts["key_passes"] += 1
+            if outcome == 1 and CROSS_QUALIFIER in qids:
+                counts["successful_crosses"] += 1
+        if typ == TAKE_ON and outcome == 1:
+            counts["successful_dribbles"] += 1
+
+    total = (
+        counts["shots_on_target"]
+        + counts["key_passes"]
+        + counts["successful_crosses"]
+        + counts["successful_dribbles"]
+    )
+    counts["attacking_actions"] = total
+    counts["attacking_points"] = total // 4
+    return dict(counts)
+
+
+def normalize_name(value: Any) -> str:
+    text = str(value or "").strip().lower()
+    text = (
+        text.replace("í", "i")
+            .replace("é", "e")
+            .replace("è", "e")
+            .replace("ë", "e")
+            .replace("á", "a")
+            .replace("à", "a")
+            .replace("ä", "a")
+            .replace("ó", "o")
+            .replace("ö", "o")
+            .replace("ú", "u")
+            .replace("ü", "u")
+            .replace("ñ", "n")
+    )
+    text = re.sub(r"[^a-z0-9]+", " ", text)
+    return re.sub(r"\s+", " ", text).strip()
+
+
+TARGET_NORMALIZED = {normalize_name(name) for name in TARGET_NAMES}
+
+# Common display/feed variants seen in the fantasy data.
+TARGET_ALIASES = {
+    "mapi leon": "maria pilar leon cebrian",
+    "maria pilar leon": "maria pilar leon cebrian",
+    "maria pilar leon cebrian": "maria pilar leon cebrian",
+    "claudia walker": "claudia mummery-walker",
+    "claudia mummery walker": "claudia mummery-walker",
+    "claudia mummery-walker": "claudia mummery-walker",
+}
+
+
 def find_targets(transformed: dict[str, Any]) -> dict[str, dict[str, Any]]:
     targets = {}
     for player in transformed.get("players", []) or []:
         name = str(player.get("Name") or "").strip()
-        surname = name.split()[-1].lower() if name else ""
-        if surname in TARGET_SURNAMES:
+        norm = normalize_name(name)
+        canonical = TARGET_ALIASES.get(norm, norm)
+        if canonical in TARGET_NORMALIZED:
             pid = compact_opta_id(player.get("Opta Player ID"))
             if pid:
                 targets[pid] = {
@@ -264,7 +347,7 @@ def main() -> None:
     output = {
         "metadata": {
             "generated_at_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-            "purpose": "Audit tackle definition for involvement points using settled + latest matches",
+            "purpose": "Audit involvement-point event definitions using settled + latest matches for user-scored players plus Richards/Bronze controls",
             "current_rule": "typeId 7 AND outcome=1 counts as a tackle won",
             "comparison_rule": "all typeId 7 events count as tackles",
             "targets": list(targets.values()),
@@ -315,6 +398,7 @@ def main() -> None:
                     "date": match.get("date"),
                     "fantasy_game_week": match.get("fantasy_game_week"),
                 },
+                "attacking_counts": attacking_counts(events, pid),
                 "counts": defensive_counts(events, pid),
                 "all_event_type_counts": {str(k): v for k, v in sorted(type_counts.items())},
                 "type7_tackle_events": [compact_event(e) for e in type7],
@@ -326,9 +410,16 @@ def main() -> None:
     conclusions = []
     for row in output["players"]:
         c = row["counts"]
+        a = row.get("attacking_counts", {})
         conclusions.append({
             "player": row["name"],
             "match": row["match"]["description"],
+            "shots_on_target": a.get("shots_on_target", 0),
+            "key_passes": a.get("key_passes", 0),
+            "successful_crosses": a.get("successful_crosses", 0),
+            "successful_dribbles": a.get("successful_dribbles", 0),
+            "attacking_actions": a.get("attacking_actions", 0),
+            "attacking_points": a.get("attacking_points", 0),
             "successful_type7_tackles": c.get("tackles_current", 0),
             "all_type7_tackles": c.get("type7_all", 0),
             "unsuccessful_type7_tackles": c.get("type7_unsuccessful", 0),
@@ -336,6 +427,8 @@ def main() -> None:
             "current_def_points": c.get("def_points_current", 0),
             "def_actions_if_all_type7_count": c.get("def_actions_if_all_type7", 0),
             "def_points_if_all_type7_count": c.get("def_points_if_all_type7", 0),
+            "current_total_involvement_points": a.get("attacking_points", 0) + c.get("def_points_current", 0),
+            "total_involvement_points_if_all_type7_count": a.get("attacking_points", 0) + c.get("def_points_if_all_type7", 0),
         })
     output["quick_comparison"] = conclusions
 
@@ -345,10 +438,11 @@ def main() -> None:
     print(f"Wrote {OUTPUT_PATH.name}")
     for row in conclusions:
         print(
-            f"{row['player']}: current {row['current_def_actions']} "
-            f"({row['successful_type7_tackles']} successful type-7); "
-            f"all type-7 => {row['def_actions_if_all_type7_count']} "
-            f"({row['all_type7_tackles']} type-7 total)"
+            f"{row['player']}: att {row['attacking_actions']} => {row['attacking_points']} IP; "
+            f"def current {row['current_def_actions']} => {row['current_def_points']} IP "
+            f"({row['successful_type7_tackles']} won / {row['all_type7_tackles']} all type-7); "
+            f"def all-type7 {row['def_actions_if_all_type7_count']} => {row['def_points_if_all_type7_count']} IP; "
+            f"combined {row['current_total_involvement_points']} vs {row['total_involvement_points_if_all_type7_count']}"
         )
 
 
