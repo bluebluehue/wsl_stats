@@ -896,6 +896,47 @@
         .cs-gap-positive { color: #047857; font-weight: 700; }
         .cs-gap-negative { color: #b91c1c; font-weight: 700; }
 
+
+        /* ------------------------------------------------------------------ */
+        /* --- INVOLVEMENT POINTS VIEW --- */
+        /* ------------------------------------------------------------------ */
+        .inv-th {
+            cursor: pointer;
+            user-select: none;
+            white-space: nowrap;
+        }
+        .inv-th:hover {
+            background: #f3f4f6;
+        }
+        .inv-sort-active {
+            background: #eef2ff !important;
+            color: #3730a3 !important;
+        }
+        .inv-total-pill {
+            display: inline-flex;
+            min-width: 2rem;
+            justify-content: center;
+            padding: 0.15rem 0.42rem;
+            border-radius: 9999px;
+            font-weight: 700;
+            background: #eef2ff;
+            color: #3730a3;
+        }
+        .inv-point-cell {
+            font-weight: 700;
+            background: #f5f3ff;
+        }
+        .inv-actions-near {
+            background: #fef3c7;
+            color: #92400e;
+            font-weight: 700;
+            border-radius: 0.25rem;
+            padding: 0.08rem 0.25rem;
+        }
+        .inv-empty {
+            color: #9ca3af;
+        }
+
         /* ------------------------------------------------------------------ */
         /* --- COMPACT DESKTOP HEADER --- */
         /* ------------------------------------------------------------------ */
@@ -1090,6 +1131,9 @@
             <div class="flex flex-wrap justify-center gap-2" id="view-tabs">
                 <button id="table-view-tab" class="view-tab active px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-md text-sm font-semibold shadow-sm">
                     <i class="fa-solid fa-table mr-2"></i>Player Table
+                </button>
+                <button id="involvement-view-tab" class="view-tab px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-md text-sm font-semibold shadow-sm">
+                    <i class="fa-solid fa-bolt mr-2"></i>Involvement Points
                 </button>
                 <button id="planner-view-tab" class="view-tab px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-md text-sm font-semibold shadow-sm">
                     <i class="fa-solid fa-calendar-days mr-2"></i>Matchweek Planner
@@ -1529,6 +1573,77 @@
             </div>
         </section>
 
+        <section id="involvement-view" class="hidden">
+            <div class="bg-white border border-gray-200 rounded-lg p-3 mb-3 shadow-sm">
+                <div class="flex flex-wrap gap-3 items-end justify-between">
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-800">Involvement Points</h3>
+                        <p class="text-xs text-gray-500 mt-1">
+                            Official Opta event actions behind WSL Fantasy attacking and defensive involvement points.
+                            Thresholds are applied per match: 1 attacking point per 4 actions and 1 defensive point per 10 actions.
+                        </p>
+                    </div>
+                    <div class="flex flex-wrap gap-2 items-end">
+                        <label class="text-xs font-semibold text-gray-600">Matchweek
+                            <select id="inv-gameweek" class="block mt-1 px-2 py-2 border border-gray-300 rounded-md text-sm bg-white">
+                                <option value="overall">Overall</option>
+                            </select>
+                        </label>
+                        <label class="text-xs font-semibold text-gray-600">League
+                            <select id="inv-league" class="block mt-1 px-2 py-2 border border-gray-300 rounded-md text-sm bg-white">
+                                <option value="">WSL + WSL2</option>
+                                <option value="WSL">WSL only</option>
+                                <option value="WSL2">WSL2 only</option>
+                            </select>
+                        </label>
+                        <label class="text-xs font-semibold text-gray-600">Position
+                            <select id="inv-position" class="block mt-1 px-2 py-2 border border-gray-300 rounded-md text-sm bg-white">
+                                <option value="">All</option>
+                                <option value="GK">GK</option>
+                                <option value="DEF">DEF</option>
+                                <option value="MID">MID</option>
+                                <option value="FOR">FOR</option>
+                            </select>
+                        </label>
+                        <label class="text-xs font-semibold text-gray-600">Club
+                            <select id="inv-club" class="block mt-1 px-2 py-2 border border-gray-300 rounded-md text-sm bg-white">
+                                <option value="">All clubs</option>
+                            </select>
+                        </label>
+                    </div>
+                </div>
+                <div id="inv-summary" class="mt-3 text-xs text-gray-600"></div>
+            </div>
+
+            <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-x-auto">
+                <table class="min-w-full text-sm" id="inv-table">
+                    <thead class="bg-gray-50 text-gray-600 text-xs uppercase tracking-wide">
+                        <tr>
+                            <th class="text-left px-3 py-2 inv-th" data-inv-sort="name">Player</th>
+                            <th class="text-center px-3 py-2 inv-th" data-inv-sort="club">Club</th>
+                            <th class="text-center px-3 py-2 inv-th" data-inv-sort="position">Pos</th>
+                            <th class="text-center px-3 py-2 inv-th" data-inv-sort="matches_with_data" title="Completed Opta-covered matches included in this view.">M</th>
+                            <th class="text-center px-3 py-2 inv-th" data-inv-sort="shots_on_target" title="Shots on target">SOT</th>
+                            <th class="text-center px-3 py-2 inv-th" data-inv-sort="key_passes" title="Key passes">KP</th>
+                            <th class="text-center px-3 py-2 inv-th" data-inv-sort="successful_crosses" title="Successful crosses">Cross</th>
+                            <th class="text-center px-3 py-2 inv-th" data-inv-sort="successful_dribbles" title="Successful dribbles">Drib</th>
+                            <th class="text-center px-3 py-2 inv-th" data-inv-sort="attacking_actions" title="SOT + key passes + successful crosses + successful dribbles">Att Actions</th>
+                            <th class="text-center px-3 py-2 inv-th" data-inv-sort="attacking_points">Att Pts</th>
+                            <th class="text-center px-3 py-2 inv-th" data-inv-sort="tackles_won" title="Tackles won">Tkl</th>
+                            <th class="text-center px-3 py-2 inv-th" data-inv-sort="interceptions">Int</th>
+                            <th class="text-center px-3 py-2 inv-th" data-inv-sort="clearances">Clr</th>
+                            <th class="text-center px-3 py-2 inv-th" data-inv-sort="blocks">Blk</th>
+                            <th class="text-center px-3 py-2 inv-th" data-inv-sort="recoveries">Rec</th>
+                            <th class="text-center px-3 py-2 inv-th" data-inv-sort="defensive_actions" title="Tackles won + interceptions + clearances + blocks + recoveries">Def Actions</th>
+                            <th class="text-center px-3 py-2 inv-th" data-inv-sort="defensive_points">Def Pts</th>
+                            <th class="text-center px-3 py-2 inv-th" data-inv-sort="involvement_points">Total IP</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inv-table-body"></tbody>
+                </table>
+            </div>
+        </section>
+
         <section id="clean-sheets-view" class="hidden">
             <div class="bg-white border border-gray-200 rounded-lg p-3 mb-3 shadow-sm">
                 <div class="flex flex-wrap gap-3 items-end justify-between">
@@ -1668,11 +1783,14 @@
         const PLAYER_HISTORY_PATH = 'player_history.json'; 
         const TRANSFORMED_DATA_PATH = 'transformed_data.json';
         const FIXTURES_PATH = 'fixtures.json';
-        const GK_MODEL_INPUTS_PATH = 'gk_model_inputs.json'; 
+        const GK_MODEL_INPUTS_PATH = 'gk_model_inputs.json';
+        const INVOLVEMENT_HISTORY_PATH = 'involvement_history.json'; 
         
         let playerHistoryData = {};
         let fullFixtureData = [];
-        let gkModelInputs = {teams:{}, keepers:{}, manual_keeper_adjustments:{}}; 
+        let gkModelInputs = {teams:{}, keepers:{}, manual_keeper_adjustments:{}};
+        let involvementHistoryData = {metadata:{}, matches:[], players_overall:[]};
+        let involvementSort = {key: 'involvement_points', direction: 'desc'}; 
         let myChart = null; 
         // --- NEW GLOBALS ---
 
@@ -4645,24 +4763,198 @@
                 $('#legs-table-body').html(body || `<tr><td colspan="${gws.length + 6}" class="px-3 py-8 text-center text-gray-500">No teams match this league filter.</td></tr>`);
             }
 
+
+            function populateInvolvementControls() {
+                const metadata = involvementHistoryData?.metadata || {};
+                const weeks = (metadata.available_gameweeks || [])
+                    .map(String)
+                    .sort((a, b) => Number(a) - Number(b));
+
+                $('#inv-gameweek').html(
+                    '<option value="overall">Overall</option>' +
+                    weeks.map(gw => `<option value="${gw}">GW${gw}</option>`).join('')
+                );
+
+                const clubs = Array.from(new Set(
+                    (involvementHistoryData.players_overall || [])
+                        .map(p => p.club)
+                        .filter(Boolean)
+                )).sort();
+
+                $('#inv-club').html(
+                    '<option value="">All clubs</option>' +
+                    clubs.map(club => `<option value="${club}">${club}</option>`).join('')
+                );
+            }
+
+            function involvementRowsForSelection() {
+                const gw = $('#inv-gameweek').val() || 'overall';
+
+                if (gw === 'overall') {
+                    return (involvementHistoryData.players_overall || []).map(row => ({...row}));
+                }
+
+                const byPlayer = new Map();
+                (involvementHistoryData.matches || [])
+                    .filter(match => String(match.fantasy_game_week || '') === String(gw))
+                    .forEach(match => {
+                        (match.players || []).forEach(row => {
+                            const id = row.player_id || row.opta_player_id || row.name;
+                            if (!byPlayer.has(id)) {
+                                byPlayer.set(id, {
+                                    player_id: row.player_id,
+                                    opta_player_id: row.opta_player_id,
+                                    name: row.name,
+                                    club: row.club,
+                                    league: row.league,
+                                    position: row.position,
+                                    matches_with_data: 0,
+                                    shots_on_target: 0,
+                                    key_passes: 0,
+                                    successful_crosses: 0,
+                                    successful_dribbles: 0,
+                                    attacking_actions: 0,
+                                    attacking_points: 0,
+                                    tackles_won: 0,
+                                    interceptions: 0,
+                                    clearances: 0,
+                                    blocks: 0,
+                                    recoveries: 0,
+                                    defensive_actions: 0,
+                                    defensive_points: 0,
+                                    involvement_points: 0
+                                });
+                            }
+
+                            const agg = byPlayer.get(id);
+                            agg.matches_with_data += 1;
+                            [
+                                'shots_on_target','key_passes','successful_crosses','successful_dribbles',
+                                'attacking_actions','attacking_points','tackles_won','interceptions',
+                                'clearances','blocks','recoveries','defensive_actions','defensive_points',
+                                'involvement_points'
+                            ].forEach(key => agg[key] += Number(row[key] || 0));
+                        });
+                    });
+
+                return Array.from(byPlayer.values());
+            }
+
+            function renderInvolvement() {
+                if (!involvementHistoryData || !(involvementHistoryData.matches || []).length) {
+                    $('#inv-summary').text('No completed-match involvement data available yet.');
+                    $('#inv-table-body').html('<tr><td colspan="18" class="px-3 py-8 text-center text-gray-500">No involvement data available.</td></tr>');
+                    return;
+                }
+
+                const league = $('#inv-league').val() || '';
+                const position = $('#inv-position').val() || '';
+                const club = $('#inv-club').val() || '';
+                const selectedGw = $('#inv-gameweek').val() || 'overall';
+
+                let rows = involvementRowsForSelection().filter(row => {
+                    if (league && row.league !== league) return false;
+                    if (position && row.position !== position) return false;
+                    if (club && row.club !== club) return false;
+                    return true;
+                });
+
+                const {key, direction} = involvementSort;
+                const dir = direction === 'asc' ? 1 : -1;
+
+                rows.sort((a, b) => {
+                    const av = a[key];
+                    const bv = b[key];
+
+                    if (typeof av === 'string' || typeof bv === 'string') {
+                        return String(av || '').localeCompare(String(bv || '')) * dir;
+                    }
+
+                    const an = Number(av ?? -Infinity);
+                    const bn = Number(bv ?? -Infinity);
+                    if (an !== bn) return (an - bn) * dir;
+                    return String(a.name || '').localeCompare(String(b.name || ''));
+                });
+
+                $('#inv-table thead .inv-th').removeClass('inv-sort-active');
+                const activeHeader = $(`#inv-table thead .inv-th[data-inv-sort="${key}"]`);
+                activeHeader.addClass('inv-sort-active');
+                activeHeader.attr('title', (activeHeader.attr('title') || '') + (direction === 'asc' ? ' · sorted ascending' : ' · sorted descending'));
+
+                const isSingleGw = selectedGw !== 'overall';
+                const attDisplay = value => {
+                    if (!isSingleGw) return value;
+                    const remainder = Number(value || 0) % 4;
+                    if (remainder === 3) return `<span class="inv-actions-near" title="One attacking action short of the next point">${value}</span>`;
+                    return value;
+                };
+                const defDisplay = value => {
+                    if (!isSingleGw) return value;
+                    const remainder = Number(value || 0) % 10;
+                    if (remainder === 9) return `<span class="inv-actions-near" title="One defensive action short of the next point">${value}</span>`;
+                    return value;
+                };
+
+                const body = rows.map(row => `
+                    <tr class="border-t border-gray-100 hover:bg-gray-50">
+                        <td class="px-3 py-2 font-semibold whitespace-nowrap">${row.name || '—'}</td>
+                        <td class="px-3 py-2 text-center"><span class="team-badge badge-${row.club || ''}">${row.club || '—'}</span></td>
+                        <td class="px-3 py-2 text-center"><span class="pos-badge badge-${row.position || ''}">${row.position || '—'}</span></td>
+                        <td class="px-3 py-2 text-center">${row.matches_with_data ?? '—'}</td>
+                        <td class="px-3 py-2 text-center">${row.shots_on_target ?? 0}</td>
+                        <td class="px-3 py-2 text-center">${row.key_passes ?? 0}</td>
+                        <td class="px-3 py-2 text-center">${row.successful_crosses ?? 0}</td>
+                        <td class="px-3 py-2 text-center">${row.successful_dribbles ?? 0}</td>
+                        <td class="px-3 py-2 text-center">${attDisplay(row.attacking_actions ?? 0)}</td>
+                        <td class="px-3 py-2 text-center inv-point-cell">${row.attacking_points ?? 0}</td>
+                        <td class="px-3 py-2 text-center">${row.tackles_won ?? 0}</td>
+                        <td class="px-3 py-2 text-center">${row.interceptions ?? 0}</td>
+                        <td class="px-3 py-2 text-center">${row.clearances ?? 0}</td>
+                        <td class="px-3 py-2 text-center">${row.blocks ?? 0}</td>
+                        <td class="px-3 py-2 text-center">${row.recoveries ?? 0}</td>
+                        <td class="px-3 py-2 text-center">${defDisplay(row.defensive_actions ?? 0)}</td>
+                        <td class="px-3 py-2 text-center inv-point-cell">${row.defensive_points ?? 0}</td>
+                        <td class="px-3 py-2 text-center"><span class="inv-total-pill">${row.involvement_points ?? 0}</span></td>
+                    </tr>
+                `).join('');
+
+                $('#inv-table-body').html(
+                    body || '<tr><td colspan="18" class="px-3 py-8 text-center text-gray-500">No players match these filters.</td></tr>'
+                );
+
+                const matchCount = selectedGw === 'overall'
+                    ? Number(involvementHistoryData?.metadata?.match_count || (involvementHistoryData.matches || []).length)
+                    : (involvementHistoryData.matches || []).filter(m => String(m.fantasy_game_week || '') === String(selectedGw)).length;
+
+                const totalIP = rows.reduce((sum, row) => sum + Number(row.involvement_points || 0), 0);
+                $('#inv-summary').html(
+                    `<span class="font-semibold">${selectedGw === 'overall' ? 'Overall' : 'GW' + selectedGw}:</span> ` +
+                    `${rows.length} players · ${matchCount} completed match${matchCount === 1 ? '' : 'es'} · ${totalIP} involvement points shown. ` +
+                    `<span class="text-gray-500">${isSingleGw ? 'Yellow action totals are one action short of the next threshold.' : 'Overall points are the sum of match-by-match awards; thresholds are not re-applied to season totals.'}</span>`
+                );
+            }
+
             function setMainView(view) {
                 const planner = view === 'planner';
                 const pairings = view === 'pairings';
                 const cleanSheets = view === 'clean-sheets';
                 const legs = view === 'legs';
-                const table = !planner && !pairings && !cleanSheets && !legs;
+                const involvement = view === 'involvement';
+                const table = !planner && !pairings && !cleanSheets && !legs && !involvement;
 
                 $('#table-view').toggleClass('hidden', !table);
                 $('#planner-view').toggleClass('hidden', !planner);
                 $('#pairings-view').toggleClass('hidden', !pairings);
                 $('#clean-sheets-view').toggleClass('hidden', !cleanSheets);
                 $('#legs-view').toggleClass('hidden', !legs);
+                $('#involvement-view').toggleClass('hidden', !involvement);
 
                 $('#table-view-tab').toggleClass('active', table);
                 $('#planner-view-tab').toggleClass('active', planner);
                 $('#pairings-view-tab').toggleClass('active', pairings);
                 $('#clean-sheets-view-tab').toggleClass('active', cleanSheets);
                 $('#legs-view-tab').toggleClass('active', legs);
+                $('#involvement-view-tab').toggleClass('active', involvement);
 
                 if (planner) {
                     renderPlanner();
@@ -4670,6 +4962,8 @@
                     renderPairings();
                 } else if (cleanSheets) {
                     renderCleanSheets();
+                } else if (involvement) {
+                    renderInvolvement();
                 } else if (legs) {
                     renderLegs();
                 } else if (dataTableInstance) {
@@ -4678,6 +4972,7 @@
             }
 
             $('#table-view-tab').on('click', () => setMainView('table'));
+            $('#involvement-view-tab').on('click', () => setMainView('involvement'));
             $('#planner-view-tab').on('click', () => setMainView('planner'));
             $('#pairings-view-tab').on('click', () => setMainView('pairings'));
             $('#clean-sheets-view-tab').on('click', () => setMainView('clean-sheets'));
@@ -4691,6 +4986,34 @@
             });
             $('#planner-gameweek, #planner-position, #planner-club, #planner-sort, #planner-my-team').on('change', renderPlanner);
             $('#cs-gameweek, #cs-sort, #cs-market-only').on('change', renderCleanSheets);
+            $('#inv-gameweek, #inv-position, #inv-club').on('change', renderInvolvement);
+            $('#inv-league').on('change', function() {
+                const value = $(this).val();
+                saveLeaguePreference(value);
+                $('#league-filter').val(value);
+                $('#planner-league').val(value);
+                $('#pairings-league').val(value);
+                $('#cs-league').val(value);
+                $('#legs-league').val(value);
+                $('#inv-league').val(value);
+                if (dataTableInstance) dataTableInstance.draw(false);
+                renderPlanner();
+                renderPairings();
+                renderCleanSheets();
+                renderLegs();
+                renderInvolvement();
+            });
+            $('#inv-table thead').on('click', '.inv-th', function() {
+                const key = $(this).data('inv-sort');
+                if (!key) return;
+                if (involvementSort.key === key) {
+                    involvementSort.direction = involvementSort.direction === 'desc' ? 'asc' : 'desc';
+                } else {
+                    involvementSort.key = key;
+                    involvementSort.direction = ['name','club','position'].includes(key) ? 'asc' : 'desc';
+                }
+                renderInvolvement();
+            });
 
             $('#planner-league').on('change', function() {
                 const value = $(this).val();
@@ -4699,6 +5022,7 @@
                 $('#pairings-league').val(value);
                 $('#cs-league').val(value);
                 $('#legs-league').val(value);
+                $('#inv-league').val(value);
                 if (dataTableInstance) dataTableInstance.draw(false);
                 renderPlanner();
                 renderPairings();
@@ -4732,6 +5056,7 @@
                 $('#planner-league').val(value);
                 $('#cs-league').val(value);
                 $('#legs-league').val(value);
+                $('#inv-league').val(value);
                 if (dataTableInstance) dataTableInstance.draw(false);
                 renderPlanner();
                 renderPairings();
@@ -4768,11 +5093,12 @@
                 try {
                     const cacheBuster = '?t=' + new Date().getTime();
 
-                    const [transformedResponse, historyResponse, fixturesResponse, gkModelResponse] = await Promise.all([
+                    const [transformedResponse, historyResponse, fixturesResponse, gkModelResponse, involvementResponse] = await Promise.all([
                         fetch(TRANSFORMED_DATA_PATH + cacheBuster),
                         fetch(PLAYER_HISTORY_PATH + cacheBuster),
                         fetch(FIXTURES_PATH + cacheBuster),
-                        fetch(GK_MODEL_INPUTS_PATH + cacheBuster)
+                        fetch(GK_MODEL_INPUTS_PATH + cacheBuster),
+                        fetch(INVOLVEMENT_HISTORY_PATH + cacheBuster)
                     ]);
 
                     if (!transformedResponse.ok) {
@@ -4805,6 +5131,18 @@
                     } catch (gkModelError) {
                         console.warn('Could not parse gk_model_inputs.json.', gkModelError);
                         gkModelInputs = {teams:{},keepers:{},manual_keeper_adjustments:{}};
+                    }
+
+                    try {
+                        if (involvementResponse.ok) {
+                            involvementHistoryData = await involvementResponse.json();
+                        } else {
+                            console.warn(`Involvement data network response was not ok: ${involvementResponse.statusText}.`);
+                            involvementHistoryData = {metadata:{}, matches:[], players_overall:[]};
+                        }
+                    } catch (involvementError) {
+                        console.warn('Could not parse involvement_history.json.', involvementError);
+                        involvementHistoryData = {metadata:{}, matches:[], players_overall:[]};
                     }
 
                     try {
@@ -4861,21 +5199,25 @@
                     $('#pairings-league').val(initialLeaguePreference);
                     $('#cs-league').val(initialLeaguePreference);
                     $('#legs-league').val(initialLeaguePreference);
+                    $('#inv-league').val(initialLeaguePreference);
 
                     initializeTable(playerData);
                     populatePlannerControls(playerData, transformedMetadata.matchday_id);
                     populatePairingsControls(playerData, transformedMetadata.matchday_id);
                     populateCleanSheetControls(transformedMetadata.matchday_id);
+                    populateInvolvementControls();
 
                     $('#planner-league').val(initialLeaguePreference);
                     $('#pairings-league').val(initialLeaguePreference);
                     $('#cs-league').val(initialLeaguePreference);
                     $('#legs-league').val(initialLeaguePreference);
+                    $('#inv-league').val(initialLeaguePreference);
 
                     renderPlanner();
                     renderPairings();
                     renderCleanSheets();
                     renderLegs();
+                    renderInvolvement();
                     updateDeltaReferenceNote(transformedMetadata);
                     
                 } catch (error) {
