@@ -1,613 +1,767 @@
 #!/usr/bin/env python3
 """
-WSL Fantasy involvement-definition reconciliation audit v4.
+WSL Fantasy involvement-definition reconciliation audit v5.
 
-This is DIAGNOSTIC ONLY. It does not modify production involvement logic.
+DIAGNOSTIC ONLY. This script does NOT modify production involvement logic.
 
-What it does:
-1) Loads transformed_data.json and fixtures.json.
-2) Matches the fixed official-WSL screenshot validation players.
-3) Finds season fixtures whose kickoff has already happened.
-4) Uses each fixture's provider_id (opta:Match:...) to load/fetch the public
-   Stats Perform matchevent feed.
-5) Normalizes Opta IDs consistently (important: transformed data uses
-   opta:Player:..., while event feeds may use bare IDs).
-6) Dumps every event belonging to each validation player, plus:
-   - current parser component totals
-   - alternative event counts for hypothesis testing
-   - official WSL ATT/DEF totals
-   - deltas vs WSL
-7) Fails loudly if zero matches or zero target-player events are found.
+It deliberately reuses the SAME match-discovery, Opta-player mapping, public
+Stats Perform fetching, JSONP parsing, and current action definitions as the
+working production fetch_involvement_points.py supplied on 2026-09-05.
+
+It then layers on:
+- Official WSL Fantasy screenshot ground truth for the current MW1 control set.
+- Full target-player event dumps.
+- Current production-parser totals.
+- Candidate alternative counts (q82 blocked shots, non-PASS keyPass flags,
+  Type 10/52/54/59/74 GK/defensive events, outcome variants, etc.).
+- A "revised_att_hypothesis" that is reported ONLY as a diagnostic:
+    SOT = Type 15 excluding qualifier 82 + non-own-goal Type 16
+    KP  = any event carrying keyPass/keypass/key_pass
+  The production parser is NOT changed.
+- Hard failures if player matching, match loading, or event matching silently fail.
+
+Inputs:
+  transformed_data.json
+  fixtures.json
+  raw_feeds/players.json
 
 Output:
   involvement_definition_audit.json
+
+Optional env:
+  OPTA_WIDGET_FEED_ID
 """
+
+from __future__ import annotations
 
 import json
 import os
 import re
-from pathlib import Path
+from collections import Counter, defaultdict
 from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any
 
 import requests
 
-TRANSFORMED = Path("transformed_data.json")
-FIXTURES = Path("fixtures.json")
-CACHE_DIR = Path("raw_opta_events")
-OUT = Path("involvement_definition_audit.json")
+ROOT = Path(__file__).resolve().parent
+TRANSFORMED_PATH = ROOT / "transformed_data.json"
+FIXTURES_PATH = ROOT / "fixtures.json"
+RAW_PLAYERS_PATH = ROOT / "raw_feeds" / "players.json"
+OUTPUT_PATH = ROOT / "involvement_definition_audit.json"
+RAW_EVENT_DIR = ROOT / "raw_opta_events"
 
-FEED_ID = os.getenv("OPTA_WIDGET_FEED_ID", "ft1tiv1inq7v1sk3y9tv12yh5")
-BASE_URL = "https://api.performfeeds.com/soccerdata/matchevent"
-HEADERS = {
+DEFAULT_WIDGET_FEED_ID = "ft1tiv1inq7v1sk3y9tv12yh5"
+WIDGET_FEED_ID = os.getenv("OPTA_WIDGET_FEED_ID", DEFAULT_WIDGET_FEED_ID)
+PERFORMFEEDS_BASE = "https://api.performfeeds.com/soccerdata/matchevent"
+
+# Production event IDs
+PASS = 1
+TAKE_ON = 3
+TACKLE = 7
+INTERCEPTION = 8
+DEFENSIVE_SAVE_OR_BLOCK = 10
+CLEARANCE = 12
+ATTEMPT_SAVED = 15
+GOAL = 16
+BALL_RECOVERY_COMMON = 49
+BALL_RECOVERY_ALT = 32
+
+# Additional diagnostic event IDs seen in public Opta feeds
+KEEPER_PICKUP = 52
+KEEPER_SMOTHER = 54
+TYPE_59 = 59
+TYPE_61 = 61
+BLOCKED_PASS = 74
+
+# Qualifiers
+CROSS_QUALIFIER = 2
+OWN_GOAL_QUALIFIER = 28
+SHOT_BLOCKED_QUALIFIER = 82
+DEF_BLOCK_QUALIFIER = 94
+
+REQUEST_HEADERS = {
     "User-Agent": "Mozilla/5.0 WSL fantasy involvement definition audit",
     "Accept": "*/*",
     "Referer": "https://optaplayerstats.statsperform.com/",
 }
 
-# Exact official WSL Fantasy UI totals transcribed from screenshots.
+# Official WSL Fantasy UI values from screenshot controls.
+# Only ATT/DEF are required for reconciliation; other popup categories live in
+# the companion spreadsheet and are intentionally not duplicated here.
 GROUND_TRUTH = [
-    {"name": "Lucy Bronze", "att": 6, "def": 9},
-    {"name": "Jade Richards", "att": 0, "def": 17},
-    {"name": "Maria Pilar León Cebrián", "aliases": ["Mapi León", "Mapi Leon"], "att": 3, "def": 13},
-    {"name": "Katie McCabe", "att": 8, "def": 9},
-    {"name": "Alyssa Thompson", "att": 8, "def": 7},
-    {"name": "Hannah Hampton", "att": 0, "def": 6},
-    {"name": "Alexia Putellas", "att": 3, "def": 2},
-    {"name": "Daniëlle van de Donk", "aliases": ["Danielle van de Donk"], "att": 1, "def": 6},
-    {"name": "Claudia Mummery-Walker", "aliases": ["Claudia Walker"], "att": 2, "def": 2},
-    {"name": "Safia Middleton-Patel", "att": 0, "def": 18},
-    {"name": "Lauren James", "att": 12, "def": 6},
-    {"name": "Keira Walsh", "att": 4, "def": 9},
-    {"name": "Grace Geyoro", "att": 2, "def": 10},
-    {"name": "Emma Siddall", "att": 6, "def": 8},
-    {"name": "Maddi Wilde", "att": 3, "def": 15},
-    {"name": "Andrea Medina", "att": 0, "def": 21},
-    {"name": "Poppy Wilson", "att": 3, "def": 6},
-    {"name": "Coral-Jade Haines", "att": 5, "def": 5},
+    # Chelsea 1-1 Aston Villa
+    {"name": "Lucy Bronze", "club": "Chelsea", "att": 6, "def": 9},
+    {"name": "Katie McCabe", "club": "Chelsea", "att": 8, "def": 9},
+    {"name": "Alyssa Thompson", "club": "Chelsea", "att": 8, "def": 7},
+    {"name": "Hannah Hampton", "club": "Chelsea", "att": 0, "def": 6},
+    {"name": "Lauren James", "club": "Chelsea", "att": 12, "def": 6},
+    {"name": "Keira Walsh", "club": "Chelsea", "att": 4, "def": 9},
+    {"name": "Ellie Carpenter", "club": "Chelsea", "att": 6, "def": 4},
+    {"name": "Akane Okuma", "club": "Aston Villa", "att": 0, "def": 11},
+    {"name": "Noëlle Maritz", "aliases": ["Noelle Maritz"], "club": "Aston Villa", "att": 3, "def": 12},
+    {"name": "Lucia Kendall", "club": "Aston Villa", "att": 0, "def": 4},
+    {"name": "Lynn Wilms", "club": "Aston Villa", "att": 1, "def": 9},
+    {"name": "Mia McAulay", "club": "Aston Villa", "att": 1, "def": 3},
+
+    # London City Lionesses 2-1 Manchester United
+    {"name": "Maria Pilar León Cebrián", "aliases": ["Mapi León", "Mapi Leon"], "club": "London City Lionesses", "att": 3, "def": 13},
+    {"name": "Alexia Putellas", "club": "London City Lionesses", "att": 3, "def": 2},
+    {"name": "Daniëlle van de Donk", "aliases": ["Danielle van de Donk"], "club": "London City Lionesses", "att": 1, "def": 6},
+    {"name": "Grace Geyoro", "club": "London City Lionesses", "att": 2, "def": 10},
+    {"name": "Elene Lete", "club": "London City Lionesses", "att": 0, "def": 4},
+    {"name": "Alanna Kennedy", "club": "London City Lionesses", "att": 2, "def": 14},
+    {"name": "Lucía Corrales", "aliases": ["Lucia Corrales"], "club": "London City Lionesses", "att": 2, "def": 9},
+
+    {"name": "Phallon Tullis-Joyce", "club": "Manchester United", "att": 0, "def": 13},
+    {"name": "Jayde Riviere", "club": "Manchester United", "att": 1, "def": 3},
+    {"name": "Maya Le Tissier", "club": "Manchester United", "att": 2, "def": 13},
+    {"name": "Simi Awujo", "club": "Manchester United", "att": 1, "def": 4},
+    {"name": "Hinata Miyazawa", "club": "Manchester United", "att": 0, "def": 17},
+    {"name": "Jess Park", "club": "Manchester United", "att": 3, "def": 3},
+    {"name": "Anna Sandberg", "club": "Manchester United", "att": 0, "def": 3},
+
+    # Watford 0-0 Burnley
+    {"name": "Safia Middleton-Patel", "club": "Watford", "att": 0, "def": 18},
+    {"name": "Zara Bailey", "club": "Watford", "att": 1, "def": 6},
+    {"name": "Poppy Wilson", "club": "Watford", "att": 3, "def": 6},
+    {"name": "Coral-Jade Haines", "club": "Watford", "att": 5, "def": 5},
+
+    {"name": "Kirstie Levell", "club": "Burnley", "att": 0, "def": 11},
+    {"name": "Jade Richards", "club": "Burnley", "att": 0, "def": 17},
+    {"name": "Emma Siddall", "club": "Burnley", "att": 6, "def": 8},
+    {"name": "Maddi Wilde", "club": "Burnley", "att": 3, "def": 15},
+    {"name": "Andrea Medina", "club": "Burnley", "att": 0, "def": 21},
+    {"name": "Alethea Paul", "club": "Burnley", "att": 0, "def": 9},
+    {"name": "Claudia Mummery-Walker", "aliases": ["Claudia Walker"], "club": "Burnley", "att": 2, "def": 2},
 ]
 
-def load_json(path, default=None):
-    try:
-        return json.loads(Path(path).read_text(encoding="utf-8"))
-    except Exception:
+
+def load_json(path: Path, default: Any) -> Any:
+    if not path.exists():
         return default
+    return json.loads(path.read_text(encoding="utf-8"))
 
-def normalize_id(value):
-    """Return bare final Opta/provider token, lowercased, regardless of prefix case."""
-    if value is None:
-        return None
-    s = str(value).strip()
-    if not s:
-        return None
-    if ":" in s:
-        s = s.split(":")[-1]
-    return s.lower()
 
-def norm_name(value):
-    s = str(value or "").lower()
-    repl = str.maketrans(
-        "áàäâãåéèëêíìïîóòöôõúùüûñç",
-        "aaaaaaeeeeiiiiooooouuuunc"
-    )
-    return re.sub(r"[^a-z0-9]+", " ", s.translate(repl)).strip()
+def value_of(feed: dict[str, Any]) -> Any:
+    return feed.get("Data", {}).get("Value")
 
-def player_rows(data):
-    if isinstance(data, list):
-        return data
-    if isinstance(data, dict):
-        for k in ("players", "data", "results"):
-            if isinstance(data.get(k), list):
-                return data[k]
-    return []
 
-def player_name(p):
-    for k in ("Name", "Player", "player_name", "name", "fullName", "displayName"):
-        if p.get(k):
-            return str(p[k])
-    return (str(p.get("firstName", "")) + " " + str(p.get("lastName", ""))).strip()
+def compact_opta_id(value: Any) -> str:
+    text = str(value or "")
+    return text.rsplit(":", 1)[-1]
 
-def player_opta_ids(p):
-    out = []
-    explicit = (
-        "Opta Player ID", "Opta ID", "OptaID", "opta_id", "optaId",
-        "optaPlayerId", "opta_player_id"
-    )
-    for k in explicit:
-        v = p.get(k)
-        nv = normalize_id(v)
-        if nv:
-            out.append(nv)
-    # Only accept generic player IDs if they themselves are opta-prefixed.
-    for k in ("Player ID", "PlayerID", "playerId", "player_id", "ID", "id"):
-        v = p.get(k)
-        if isinstance(v, str) and v.lower().startswith("opta:"):
-            nv = normalize_id(v)
-            if nv:
-                out.append(nv)
-    return list(dict.fromkeys(out))
 
-def match_player(gt, players):
-    wanted = {norm_name(gt["name"])}
-    wanted.update(norm_name(x) for x in gt.get("aliases", []))
-    for p in players:
-        if norm_name(player_name(p)) in wanted:
-            return p
-    return None
-
-def parse_iso_utc(value):
-    if not value:
-        return None
-    s = str(value).strip()
-    if s.endswith("Z"):
-        s = s[:-1] + "+00:00"
-    try:
-        dt = datetime.fromisoformat(s)
-    except ValueError:
-        return None
-    if dt.tzinfo is None:
-        dt = dt.replace(tzinfo=timezone.utc)
-    return dt.astimezone(timezone.utc)
-
-def fixture_rows(data):
-    if isinstance(data, list):
-        return data
-    if isinstance(data, dict):
-        for k in ("fixtures", "matches", "data", "results"):
-            if isinstance(data.get(k), list):
-                return data[k]
-    return []
-
-def match_opta_id(fixture):
-    for k in ("provider_id", "providerId", "opta_match_id", "optaMatchId"):
-        v = fixture.get(k)
-        if v:
-            return normalize_id(v)
-    return None
-
-def unwrap_jsonp(text):
+def strip_jsonp(text: str) -> Any:
     text = text.strip()
-    if text.startswith("{") or text.startswith("["):
+    try:
         return json.loads(text)
-    # Strip "callback(" prefix and trailing ");"
-    first = text.find("(")
-    last = text.rfind(")")
-    if first == -1 or last == -1 or last <= first:
-        raise ValueError("Stats Perform response was neither JSON nor recognizable JSONP")
-    return json.loads(text[first + 1:last])
+    except json.JSONDecodeError:
+        pass
+    match = re.match(r"^[^(]+\((.*)\)\s*;?\s*$", text, flags=re.S)
+    if not match:
+        raise ValueError("Response was neither JSON nor recognizable JSONP.")
+    return json.loads(match.group(1))
 
-def fetch_match_event(opta_match_id):
-    CACHE_DIR.mkdir(parents=True, exist_ok=True)
-    path = CACHE_DIR / f"{opta_match_id}.json"
 
-    if path.exists():
-        cached = load_json(path)
-        if cached is not None:
-            return cached, "cache"
+def fetch_match_events(opta_match_id: str, force: bool = False) -> tuple[dict[str, Any], str]:
+    RAW_EVENT_DIR.mkdir(exist_ok=True)
+    cache_path = RAW_EVENT_DIR / f"{opta_match_id}.json"
 
-    callback = "wslInvolvementAudit"
-    url = f"{BASE_URL}/{FEED_ID}/{opta_match_id}"
+    if cache_path.exists() and not force:
+        return json.loads(cache_path.read_text(encoding="utf-8")), "cache"
+
     params = {
         "_rt": "c",
         "_lcl": "en",
         "_fmt": "jsonp",
         "sps": "widgets",
-        "_clbk": callback,
+        "_clbk": "wslFantasyInvolvementAudit",
     }
-    response = requests.get(url, params=params, headers=HEADERS, timeout=30)
+    url = f"{PERFORMFEEDS_BASE}/{WIDGET_FEED_ID}/{opta_match_id}"
+    response = requests.get(url, params=params, headers=REQUEST_HEADERS, timeout=45)
     response.raise_for_status()
-    data = unwrap_jsonp(response.text)
-    path.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
-    return data, "fetched"
+    payload = strip_jsonp(response.text)
 
-def find_event_list(obj):
-    if isinstance(obj, dict):
-        live = obj.get("liveData")
-        if isinstance(live, dict) and isinstance(live.get("event"), list):
-            return live["event"]
-        for v in obj.values():
-            found = find_event_list(v)
-            if found is not None:
-                return found
-    elif isinstance(obj, list):
-        for v in obj:
-            found = find_event_list(v)
-            if found is not None:
-                return found
-    return None
+    cache_path.write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+    return payload, "fetched"
 
-def event_player_id(e):
-    for k in ("playerId", "player_id", "playerID"):
-        if e.get(k) not in (None, ""):
-            return normalize_id(e[k])
-    p = e.get("player")
-    if isinstance(p, dict):
-        for k in ("id", "playerId"):
-            if p.get(k) not in (None, ""):
-                return normalize_id(p[k])
-    return None
 
-def event_team_id(e):
-    for k in ("contestantId", "teamId", "team_id"):
-        if e.get(k) not in (None, ""):
-            return normalize_id(e[k])
-    return None
+def qualifiers(event: dict[str, Any]) -> list[dict[str, Any]]:
+    q = event.get("qualifier") or event.get("qualifiers") or []
+    if isinstance(q, list):
+        return [x for x in q if isinstance(x, dict)]
+    if isinstance(q, dict):
+        return [q]
+    return []
 
-def type_id(e):
-    v = e.get("typeId", e.get("type_id"))
-    if v is None and isinstance(e.get("type"), dict):
-        v = e["type"].get("id")
-    try:
-        return int(v)
-    except Exception:
-        return None
 
-def outcome(e):
-    v = e.get("outcome", e.get("outcomeId", e.get("outcome_id")))
-    try:
-        return int(v)
-    except Exception:
-        return v
-
-def qualifiers(e):
-    raw = e.get("qualifier", e.get("qualifiers", [])) or []
-    if isinstance(raw, dict):
-        raw = [raw]
-    out = []
-    for q in raw:
-        if not isinstance(q, dict):
-            continue
-        qid = q.get("qualifierId", q.get("id", q.get("typeId")))
+def qualifier_ids(event: dict[str, Any]) -> set[int]:
+    out: set[int] = set()
+    for q in qualifiers(event):
+        raw = q.get("qualifierId", q.get("id", q.get("typeId")))
         try:
-            qid = int(qid)
-        except Exception:
-            pass
-        out.append({
-            "id": qid,
-            "value": q.get("value", q.get("qualifierValue")),
-        })
+            out.add(int(raw))
+        except (TypeError, ValueError):
+            continue
     return out
 
-def qualifier_ids(e):
-    return {q["id"] for q in qualifiers(e)}
 
-def is_key_pass(e):
-    for k in ("keypass", "keyPass", "key_pass"):
-        if e.get(k) in (True, 1, "1", "true", "True"):
+def event_player_id(event: dict[str, Any]) -> str:
+    for key in ("playerId", "participantId", "player_id", "participant_id"):
+        if event.get(key):
+            return compact_opta_id(event.get(key))
+    return ""
+
+
+def event_type(event: dict[str, Any]) -> int | None:
+    raw = event.get("typeId")
+    try:
+        return int(raw)
+    except (TypeError, ValueError):
+        return None
+
+
+def event_outcome(event: dict[str, Any]) -> int:
+    raw = event.get("outcome")
+    try:
+        return int(raw)
+    except (TypeError, ValueError):
+        return 0
+
+
+def is_key_pass(event: dict[str, Any]) -> bool:
+    for key in ("keypass", "keyPass", "key_pass"):
+        value = event.get(key)
+        if value in (1, "1", True, "true", "True"):
             return True
     return False
 
-def is_own_goal(e):
-    return 28 in qualifier_ids(e)
 
-def current_classes(e):
-    t = type_id(e)
-    o = outcome(e)
-    qs = qualifier_ids(e)
-    cats = []
+def live_events(payload: dict[str, Any]) -> list[dict[str, Any]]:
+    live = payload.get("liveData") or {}
+    events = live.get("event") or []
+    return events if isinstance(events, list) else []
 
-    if t == 15:
-        cats.append("shot_on_target")
-    if t == 16 and not is_own_goal(e):
-        cats.append("shot_on_target")
-    if t == 1 and is_key_pass(e):
-        cats.append("key_pass")
-    if t == 1 and o == 1 and 2 in qs:
-        cats.append("successful_cross")
-    if t == 3 and o == 1:
-        cats.append("successful_dribble")
 
-    if t == 7 and o == 1:
-        cats.append("tackle_won")
-    if t == 8:
-        cats.append("interception")
-    if t == 12:
-        cats.append("clearance")
-    if t == 10 and 94 in qs:
-        cats.append("blocked_shot")
-    if t == 49:
-        cats.append("recovery")
-
-    return cats
-
-def compact_event(e):
-    # Preserve all scalar top-level fields so unknown types/flags can be investigated,
-    # while representing qualifiers cleanly and avoiding giant nested structures.
-    scalars = {}
-    for k, v in e.items():
-        if isinstance(v, (str, int, float, bool)) or v is None:
-            scalars[k] = v
+def match_metadata(payload: dict[str, Any]) -> dict[str, Any]:
+    mi = payload.get("matchInfo") or {}
+    live = payload.get("liveData") or {}
+    md = live.get("matchDetails") or {}
     return {
-        "event_id": e.get("eventId", e.get("id")),
-        "type_id": type_id(e),
-        "outcome": outcome(e),
-        "player_id_normalized": event_player_id(e),
-        "team_id_normalized": event_team_id(e),
-        "period": e.get("periodId", e.get("period")),
-        "minute": e.get("timeMin", e.get("minute", e.get("min"))),
-        "second": e.get("timeSec", e.get("second", e.get("sec"))),
-        "x": e.get("x"),
-        "y": e.get("y"),
-        "keypass_flag": is_key_pass(e),
-        "qualifiers": qualifiers(e),
-        "current_classification": current_classes(e),
-        "raw_scalar_fields": scalars,
+        "description": mi.get("description"),
+        "date": mi.get("date") or mi.get("localDate"),
+        "match_status": md.get("matchStatus"),
+        "coverage_level": mi.get("coverageLevel"),
+        "last_updated": mi.get("lastUpdated"),
     }
 
-def alt_counts(events):
-    """Counts useful for testing alternative definitions without rerunning."""
-    def count(pred):
+
+def build_completed_match_map(
+    raw_players: list[dict[str, Any]],
+    fixtures: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """
+    Exact production discovery logic:
+    completed matches come from raw player match arrays because fixtures can lag.
+    """
+    seen: dict[str, dict[str, Any]] = {}
+
+    for player in raw_players:
+        for match in player.get("matches", []) or []:
+            match_id = str(match.get("matchId") or "")
+            if not match_id:
+                continue
+
+            status = match.get("matchdayStatus")
+            try:
+                completed = int(status) == 5
+            except (TypeError, ValueError):
+                completed = False
+
+            if not completed:
+                continue
+
+            seen.setdefault(match_id, {
+                "match_id": match_id,
+                "date": match.get("matchDateTimeUtc"),
+                "matchday_id": match.get("matchdayId"),
+            })
+
+    fixture_by_id = {str(f.get("match_id") or ""): f for f in fixtures}
+
+    out = []
+    for match_id, row in seen.items():
+        fixture = fixture_by_id.get(match_id, {})
+        provider_id = fixture.get("provider_id")
+        opta_match_id = compact_opta_id(provider_id)
+        if not opta_match_id:
+            continue
+
+        out.append({
+            **row,
+            "opta_match_id": opta_match_id,
+            "home_id": fixture.get("home_id"),
+            "away_id": fixture.get("away_id"),
+            "competition_id": fixture.get("competition_id"),
+            "league_game_week": fixture.get("league_game_week") or fixture.get("game_week"),
+            "fantasy_game_week": fixture.get("fantasy_game_week"),
+        })
+
+    return sorted(out, key=lambda r: (str(r.get("date") or ""), r["opta_match_id"]))
+
+
+def normalize_name(value: Any) -> str:
+    s = str(value or "").casefold()
+    translation = str.maketrans({
+        "á":"a","à":"a","ä":"a","â":"a","ã":"a","å":"a",
+        "é":"e","è":"e","ë":"e","ê":"e",
+        "í":"i","ì":"i","ï":"i","î":"i",
+        "ó":"o","ò":"o","ö":"o","ô":"o","õ":"o",
+        "ú":"u","ù":"u","ü":"u","û":"u",
+        "ñ":"n","ç":"c","ë":"e","ö":"o",
+    })
+    s = s.translate(translation)
+    return re.sub(r"[^a-z0-9]+", " ", s).strip()
+
+
+def match_ground_truth_player(
+    gt: dict[str, Any],
+    players: list[dict[str, Any]],
+) -> dict[str, Any] | None:
+    wanted_names = {normalize_name(gt["name"])}
+    wanted_names.update(normalize_name(x) for x in gt.get("aliases", []))
+    wanted_club = normalize_name(gt.get("club"))
+
+    candidates = []
+    for p in players:
+        name = normalize_name(p.get("Name"))
+        if name not in wanted_names:
+            continue
+        candidates.append(p)
+
+    if not candidates:
+        return None
+
+    # Club disambiguation if needed.
+    if wanted_club:
+        for p in candidates:
+            if normalize_name(p.get("Club") or p.get("Club Name")) == wanted_club:
+                return p
+
+    return candidates[0]
+
+
+def current_production_counts(events: list[dict[str, Any]]) -> dict[str, int]:
+    """
+    EXACT current production classification copied from fetch_involvement_points.py.
+    """
+    c = Counter()
+
+    for event in events:
+        typ = event_type(event)
+        if typ is None:
+            continue
+        qids = qualifier_ids(event)
+        outcome = event_outcome(event)
+
+        if typ == ATTEMPT_SAVED:
+            c["shots_on_target"] += 1
+        elif typ == GOAL and OWN_GOAL_QUALIFIER not in qids:
+            c["shots_on_target"] += 1
+
+        if typ == PASS and is_key_pass(event):
+            c["key_passes"] += 1
+
+        if typ == PASS and outcome == 1 and CROSS_QUALIFIER in qids:
+            c["successful_crosses"] += 1
+
+        if typ == TAKE_ON and outcome == 1:
+            c["successful_dribbles"] += 1
+
+        if typ == TACKLE and outcome == 1:
+            c["tackles_won"] += 1
+
+        if typ == INTERCEPTION:
+            c["interceptions"] += 1
+
+        if typ == CLEARANCE:
+            c["clearances"] += 1
+
+        if typ == DEFENSIVE_SAVE_OR_BLOCK and DEF_BLOCK_QUALIFIER in qids:
+            c["blocks"] += 1
+
+        if typ == BALL_RECOVERY_COMMON:
+            c["recoveries"] += 1
+
+        if typ == BALL_RECOVERY_ALT:
+            c["recovery_type32_diagnostic"] += 1
+
+    attacking = (
+        c["shots_on_target"] + c["key_passes"] +
+        c["successful_crosses"] + c["successful_dribbles"]
+    )
+    defensive = (
+        c["tackles_won"] + c["interceptions"] + c["clearances"] +
+        c["blocks"] + c["recoveries"]
+    )
+
+    return {
+        "shots_on_target": c["shots_on_target"],
+        "key_passes": c["key_passes"],
+        "successful_crosses": c["successful_crosses"],
+        "successful_dribbles": c["successful_dribbles"],
+        "attacking_actions": attacking,
+        "attacking_points": attacking // 4,
+        "tackles_won": c["tackles_won"],
+        "interceptions": c["interceptions"],
+        "clearances": c["clearances"],
+        "blocks": c["blocks"],
+        "recoveries": c["recoveries"],
+        "defensive_actions": defensive,
+        "defensive_points": defensive // 10,
+        "involvement_points": attacking // 4 + defensive // 10,
+        "recovery_type32_diagnostic": c["recovery_type32_diagnostic"],
+    }
+
+
+def revised_att_hypothesis(events: list[dict[str, Any]]) -> dict[str, int]:
+    """
+    Diagnostic hypothesis only. Does not alter production:
+    - Type 15 q82 is excluded from SOT.
+    - keyPass flag can live on event types other than PASS.
+    """
+    c = Counter()
+    for event in events:
+        typ = event_type(event)
+        if typ is None:
+            continue
+        qids = qualifier_ids(event)
+        outcome = event_outcome(event)
+
+        if typ == ATTEMPT_SAVED and SHOT_BLOCKED_QUALIFIER not in qids:
+            c["shots_on_target"] += 1
+        elif typ == GOAL and OWN_GOAL_QUALIFIER not in qids:
+            c["shots_on_target"] += 1
+
+        if is_key_pass(event):
+            c["key_passes"] += 1
+
+        if typ == PASS and outcome == 1 and CROSS_QUALIFIER in qids:
+            c["successful_crosses"] += 1
+
+        if typ == TAKE_ON and outcome == 1:
+            c["successful_dribbles"] += 1
+
+    total = sum(c[k] for k in (
+        "shots_on_target", "key_passes", "successful_crosses", "successful_dribbles"
+    ))
+    return {
+        "shots_on_target": c["shots_on_target"],
+        "key_passes": c["key_passes"],
+        "successful_crosses": c["successful_crosses"],
+        "successful_dribbles": c["successful_dribbles"],
+        "attacking_actions": total,
+        "attacking_points": total // 4,
+    }
+
+
+def alternative_counts(events: list[dict[str, Any]]) -> dict[str, int]:
+    def count(pred) -> int:
         return sum(1 for e in events if pred(e))
 
     return {
-        "type1_pass_all": count(lambda e: type_id(e) == 1),
-        "type1_keypass": count(lambda e: type_id(e) == 1 and is_key_pass(e)),
-        "type1_cross_all": count(lambda e: type_id(e) == 1 and 2 in qualifier_ids(e)),
-        "type1_cross_outcome1": count(lambda e: type_id(e) == 1 and outcome(e) == 1 and 2 in qualifier_ids(e)),
-        "type3_takeon_all": count(lambda e: type_id(e) == 3),
-        "type3_takeon_outcome1": count(lambda e: type_id(e) == 3 and outcome(e) == 1),
-        "type7_tackle_all": count(lambda e: type_id(e) == 7),
-        "type7_tackle_outcome1": count(lambda e: type_id(e) == 7 and outcome(e) == 1),
-        "type7_tackle_outcome0": count(lambda e: type_id(e) == 7 and outcome(e) == 0),
-        "type8_interception_all": count(lambda e: type_id(e) == 8),
-        "type8_interception_outcome1": count(lambda e: type_id(e) == 8 and outcome(e) == 1),
-        "type8_interception_outcome0": count(lambda e: type_id(e) == 8 and outcome(e) == 0),
-        "type10_all": count(lambda e: type_id(e) == 10),
-        "type10_q94": count(lambda e: type_id(e) == 10 and 94 in qualifier_ids(e)),
-        "type11_all": count(lambda e: type_id(e) == 11),
-        "type12_clearance_all": count(lambda e: type_id(e) == 12),
-        "type12_clearance_outcome1": count(lambda e: type_id(e) == 12 and outcome(e) == 1),
-        "type12_clearance_outcome0": count(lambda e: type_id(e) == 12 and outcome(e) == 0),
-        "type13_miss_all": count(lambda e: type_id(e) == 13),
-        "type14_post_all": count(lambda e: type_id(e) == 14),
-        "type15_attempt_saved_all": count(lambda e: type_id(e) == 15),
-        "type16_goal_all": count(lambda e: type_id(e) == 16),
-        "type16_non_own_goal": count(lambda e: type_id(e) == 16 and not is_own_goal(e)),
-        "type32_all": count(lambda e: type_id(e) == 32),
-        "type49_recovery_all": count(lambda e: type_id(e) == 49),
-        "type49_recovery_outcome1": count(lambda e: type_id(e) == 49 and outcome(e) == 1),
-        "type49_recovery_outcome0": count(lambda e: type_id(e) == 49 and outcome(e) == 0),
+        # ATT candidates
+        "type15_all": count(lambda e: event_type(e) == 15),
+        "type15_q82_blocked": count(lambda e: event_type(e) == 15 and 82 in qualifier_ids(e)),
+        "type15_without_q82": count(lambda e: event_type(e) == 15 and 82 not in qualifier_ids(e)),
+        "type16_non_own_goal": count(lambda e: event_type(e) == 16 and 28 not in qualifier_ids(e)),
+        "keypass_any_event": count(is_key_pass),
+        "keypass_type1": count(lambda e: event_type(e) == 1 and is_key_pass(e)),
+        "keypass_non_type1": count(lambda e: event_type(e) != 1 and is_key_pass(e)),
+        "cross_type1_all": count(lambda e: event_type(e) == 1 and 2 in qualifier_ids(e)),
+        "cross_type1_successful": count(lambda e: event_type(e) == 1 and event_outcome(e) == 1 and 2 in qualifier_ids(e)),
+        "takeon_all": count(lambda e: event_type(e) == 3),
+        "takeon_successful": count(lambda e: event_type(e) == 3 and event_outcome(e) == 1),
+
+        # DEF candidates
+        "tackle_type7_all": count(lambda e: event_type(e) == 7),
+        "tackle_type7_won": count(lambda e: event_type(e) == 7 and event_outcome(e) == 1),
+        "tackle_type7_lost": count(lambda e: event_type(e) == 7 and event_outcome(e) == 0),
+        "interception_type8_all": count(lambda e: event_type(e) == 8),
+        "interception_type8_outcome1": count(lambda e: event_type(e) == 8 and event_outcome(e) == 1),
+        "interception_type8_outcome0": count(lambda e: event_type(e) == 8 and event_outcome(e) == 0),
+        "clearance_type12_all": count(lambda e: event_type(e) == 12),
+        "clearance_type12_outcome1": count(lambda e: event_type(e) == 12 and event_outcome(e) == 1),
+        "clearance_type12_outcome0": count(lambda e: event_type(e) == 12 and event_outcome(e) == 0),
+        "type10_all": count(lambda e: event_type(e) == 10),
+        "type10_q94": count(lambda e: event_type(e) == 10 and 94 in qualifier_ids(e)),
+        "type32_all": count(lambda e: event_type(e) == 32),
+        "type49_all": count(lambda e: event_type(e) == 49),
+        "type49_outcome1": count(lambda e: event_type(e) == 49 and event_outcome(e) == 1),
+        "type49_outcome0": count(lambda e: event_type(e) == 49 and event_outcome(e) == 0),
+        "type52_keeper_pickup": count(lambda e: event_type(e) == 52),
+        "type54_keeper_smother": count(lambda e: event_type(e) == 54),
+        "type59_all": count(lambda e: event_type(e) == 59),
+        "type61_all": count(lambda e: event_type(e) == 61),
+        "type74_blocked_pass": count(lambda e: event_type(e) == 74),
         "q94_any_type": count(lambda e: 94 in qualifier_ids(e)),
         "q82_any_type": count(lambda e: 82 in qualifier_ids(e)),
     }
 
-# ---------- Load repo data ----------
-transformed = load_json(TRANSFORMED)
-fixtures_data = load_json(FIXTURES)
 
-if transformed is None:
-    raise SystemExit("ERROR: transformed_data.json could not be loaded")
-if fixtures_data is None:
-    raise SystemExit("ERROR: fixtures.json could not be loaded")
+def compact_event(event: dict[str, Any]) -> dict[str, Any]:
+    scalars = {
+        k: v for k, v in event.items()
+        if isinstance(v, (str, int, float, bool)) or v is None
+    }
+    return {
+        "event_id": event.get("eventId", event.get("id")),
+        "type_id": event_type(event),
+        "outcome": event_outcome(event),
+        "player_id": event_player_id(event),
+        "player_name": event.get("playerName"),
+        "period": event.get("periodId"),
+        "minute": event.get("timeMin"),
+        "second": event.get("timeSec"),
+        "x": event.get("x"),
+        "y": event.get("y"),
+        "key_pass": is_key_pass(event),
+        "qualifiers": [
+            {
+                "id": q.get("qualifierId", q.get("id", q.get("typeId"))),
+                "value": q.get("value", q.get("qualifierValue")),
+            }
+            for q in qualifiers(event)
+        ],
+        "raw_scalar_fields": scalars,
+    }
 
-players = player_rows(transformed)
-fixtures = fixture_rows(fixtures_data)
 
-if not players:
-    raise SystemExit("ERROR: No players found in transformed_data.json")
-if not fixtures:
-    raise SystemExit("ERROR: No fixtures found in fixtures.json")
+def main() -> None:
+    transformed = load_json(TRANSFORMED_PATH, {})
+    fixtures = load_json(FIXTURES_PATH, [])
+    raw_player_feed = load_json(RAW_PLAYERS_PATH, {})
 
-# ---------- Match all validation players ----------
-targets = []
-unmatched = []
+    players = transformed.get("players", []) if isinstance(transformed, dict) else []
+    raw_players = value_of(raw_player_feed) or []
 
-for gt in GROUND_TRUTH:
-    p = match_player(gt, players)
-    if p is None:
-        unmatched.append(gt["name"])
-        continue
+    if not players:
+        raise SystemExit("ERROR: No players found in transformed_data.json")
+    if not raw_players:
+        raise SystemExit(
+            "ERROR: No raw player feed found at raw_feeds/players.json. Run get_data.py first."
+        )
 
-    ids = player_opta_ids(p)
-    targets.append({
-        "gt": gt,
-        "record": p,
-        "ids": ids,
-    })
+    # Exact production Opta -> transformed-player mapping.
+    opta_to_player: dict[str, dict[str, Any]] = {}
+    for player in players:
+        opta_id = compact_opta_id(player.get("Opta Player ID"))
+        if opta_id:
+            opta_to_player[opta_id] = player
 
-if unmatched:
-    raise SystemExit("ERROR: Unmatched validation players: " + ", ".join(unmatched))
+    completed_matches = build_completed_match_map(raw_players, fixtures)
+    if not completed_matches:
+        raise SystemExit("ERROR: No completed matches discovered from raw player match arrays.")
 
-missing_opta_ids = [x["gt"]["name"] for x in targets if not x["ids"]]
-if missing_opta_ids:
-    raise SystemExit("ERROR: Validation players missing Opta Player ID: " + ", ".join(missing_opta_ids))
+    # Match every screenshot control to transformed_data before touching events.
+    target_by_opta_id: dict[str, dict[str, Any]] = {}
+    unmatched_controls = []
 
-# ---------- Identify already-kicked-off season fixtures ----------
-now = datetime.now(timezone.utc)
-past_fixtures = []
+    for gt in GROUND_TRUTH:
+        player = match_ground_truth_player(gt, players)
+        if player is None:
+            unmatched_controls.append(gt["name"])
+            continue
+        opta_id = compact_opta_id(player.get("Opta Player ID"))
+        if not opta_id:
+            unmatched_controls.append(gt["name"] + " [missing Opta Player ID]")
+            continue
+        target_by_opta_id[opta_id] = {
+            "gt": gt,
+            "player": player,
+            "events": [],
+            "match_ids": [],
+        }
 
-for f in fixtures:
-    kickoff = parse_iso_utc(
-        f.get("match_date_time_utc")
-        or f.get("matchDateTimeUtc")
-        or f.get("deadline_date")
-    )
-    mid = match_opta_id(f)
+    if unmatched_controls:
+        raise SystemExit(
+            "ERROR: Screenshot controls failed player mapping: " + ", ".join(unmatched_controls)
+        )
 
-    if kickoff is None or mid is None:
-        continue
-    if kickoff <= now:
-        past_fixtures.append((kickoff, mid, f))
+    loaded_matches = []
+    fetch_failures = []
 
-past_fixtures.sort(key=lambda x: x[0])
+    for match in completed_matches:
+        opta_match_id = match["opta_match_id"]
+        print(f"Loading Opta match {opta_match_id} ...")
+        try:
+            payload, source = fetch_match_events(opta_match_id)
+            events = live_events(payload)
+            if not events:
+                raise ValueError("No liveData.event rows found")
 
-if not past_fixtures:
-    raise SystemExit("ERROR: No already-kicked-off fixtures with Opta provider IDs were found")
+            loaded_matches.append({
+                **match,
+                **match_metadata(payload),
+                "source": source,
+                "event_count": len(events),
+            })
 
-# ---------- Fetch/load event feeds ----------
-loaded_matches = []
-fetch_failures = []
+            # Assign only target player events, preserving match IDs.
+            hit_ids = set()
+            for event in events:
+                pid = event_player_id(event)
+                if pid in target_by_opta_id:
+                    target_by_opta_id[pid]["events"].append(event)
+                    hit_ids.add(pid)
+            for pid in hit_ids:
+                target_by_opta_id[pid]["match_ids"].append(opta_match_id)
 
-for kickoff, mid, fixture in past_fixtures:
-    try:
-        data, source = fetch_match_event(mid)
-        events = find_event_list(data)
-        if not isinstance(events, list):
-            raise ValueError("No liveData.event list found")
-        loaded_matches.append({
-            "opta_match_id": mid,
-            "kickoff_utc": kickoff.isoformat(),
-            "home": fixture.get("home_name", fixture.get("home_id")),
-            "away": fixture.get("away_name", fixture.get("away_id")),
-            "source": source,
+            print(f"  {len(events)} events; target players hit: {len(hit_ids)}")
+
+        except Exception as exc:
+            fetch_failures.append({
+                "opta_match_id": opta_match_id,
+                "error": repr(exc),
+            })
+            print(f"  FAILED: {exc}")
+
+    if not loaded_matches:
+        raise SystemExit(
+            "ERROR: No Opta match feeds loaded. Failures: "
+            + json.dumps(fetch_failures, ensure_ascii=False)
+        )
+
+    output_players = []
+
+    for opta_id, item in target_by_opta_id.items():
+        gt = item["gt"]
+        p = item["player"]
+        events = item["events"]
+
+        prod = current_production_counts(events)
+        revised_att = revised_att_hypothesis(events)
+        alts = alternative_counts(events)
+
+        type_counts = Counter(event_type(e) for e in events if event_type(e) is not None)
+        q_by_type: dict[str, Counter] = defaultdict(Counter)
+        for e in events:
+            typ = event_type(e)
+            if typ is None:
+                continue
+            for qid in qualifier_ids(e):
+                q_by_type[str(typ)][str(qid)] += 1
+
+        output_players.append({
+            "player": gt["name"],
+            "matched_name": p.get("Name"),
+            "club": p.get("Club") or p.get("Club Name"),
+            "position": p.get("Position"),
+            "opta_player_id": opta_id,
+            "match_ids": item["match_ids"],
             "event_count": len(events),
-            "events": events,
-        })
-    except Exception as exc:
-        fetch_failures.append({
-            "opta_match_id": mid,
-            "home": fixture.get("home_name", fixture.get("home_id")),
-            "away": fixture.get("away_name", fixture.get("away_id")),
-            "error": repr(exc),
+            "official_wsl_ui": {
+                "attacking_actions": gt["att"],
+                "defensive_actions": gt["def"],
+                "attacking_points": gt["att"] // 4,
+                "defensive_points": gt["def"] // 10,
+                "involvement_points": (gt["att"] // 4) + (gt["def"] // 10),
+            },
+            "current_production_parser": {
+                **prod,
+                "att_delta_vs_wsl": prod["attacking_actions"] - gt["att"],
+                "def_delta_vs_wsl": prod["defensive_actions"] - gt["def"],
+            },
+            "revised_att_hypothesis": {
+                **revised_att,
+                "delta_vs_wsl": revised_att["attacking_actions"] - gt["att"],
+            },
+            "alternative_counts": alts,
+            "all_event_type_counts": {
+                str(k): v for k, v in sorted(type_counts.items())
+            },
+            "qualifier_counts_by_event_type": {
+                typ: dict(sorted(counter.items(), key=lambda kv: int(kv[0])))
+                for typ, counter in sorted(q_by_type.items(), key=lambda kv: int(kv[0]))
+            },
+            "events": [compact_event(e) for e in events],
         })
 
-if not loaded_matches:
-    raise SystemExit(
-        "ERROR: Zero Opta match event feeds loaded. Failures: "
-        + json.dumps(fetch_failures, ensure_ascii=False)
+    zero_event_players = [r["player"] for r in output_players if r["event_count"] == 0]
+    if zero_event_players:
+        raise SystemExit(
+            "ERROR: These screenshot controls matched transformed_data.json but had ZERO Opta "
+            "events: " + ", ".join(zero_event_players)
+        )
+
+    output_players.sort(key=lambda r: (r["club"] or "", r["player"]))
+
+    exact_prod_att = sum(
+        r["current_production_parser"]["att_delta_vs_wsl"] == 0
+        for r in output_players
+    )
+    exact_revised_att = sum(
+        r["revised_att_hypothesis"]["delta_vs_wsl"] == 0
+        for r in output_players
+    )
+    exact_prod_def = sum(
+        r["current_production_parser"]["def_delta_vs_wsl"] == 0
+        for r in output_players
     )
 
-# ---------- Build per-player audit ----------
-results = []
-
-for target in targets:
-    gt = target["gt"]
-    p = target["record"]
-    ids = set(target["ids"])
-
-    player_events = []
-    match_ids = []
-
-    for m in loaded_matches:
-        found = [e for e in m["events"] if event_player_id(e) in ids]
-        if found:
-            player_events.extend(found)
-            match_ids.append(m["opta_match_id"])
-
-    component = {
-        "shots_on_target": 0,
-        "key_passes": 0,
-        "successful_crosses": 0,
-        "successful_dribbles": 0,
-        "tackles_won": 0,
-        "interceptions": 0,
-        "clearances": 0,
-        "blocked_shots": 0,
-        "recoveries": 0,
+    payload = {
+        "metadata": {
+            "generated_at_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+            "purpose": "Exact production-parser reconciliation against official WSL Fantasy screenshot controls.",
+            "production_changed": False,
+            "source": "Public Opta Player Stats widget match-event feed",
+            "widget_feed_id": WIDGET_FEED_ID,
+            "ground_truth_player_count": len(GROUND_TRUTH),
+            "players_audited": len(output_players),
+            "players_with_zero_events": zero_event_players,
+            "loaded_matches": loaded_matches,
+            "match_fetch_failures": fetch_failures,
+            "exact_current_att": exact_prod_att,
+            "exact_revised_att_hypothesis": exact_revised_att,
+            "exact_current_def": exact_prod_def,
+            "notes": [
+                "Current production parser is reproduced exactly from fetch_involvement_points.py supplied 2026-09-05.",
+                "revised_att_hypothesis is diagnostic only and does not modify production.",
+                "Do not force defensive definitions to match WSL until candidate rules survive all controls.",
+            ],
+        },
+        "ground_truth": GROUND_TRUTH,
+        "players": output_players,
     }
 
-    class_to_component = {
-        "shot_on_target": "shots_on_target",
-        "key_pass": "key_passes",
-        "successful_cross": "successful_crosses",
-        "successful_dribble": "successful_dribbles",
-        "tackle_won": "tackles_won",
-        "interception": "interceptions",
-        "clearance": "clearances",
-        "blocked_shot": "blocked_shots",
-        "recovery": "recoveries",
-    }
-
-    for e in player_events:
-        for c in current_classes(e):
-            component[class_to_component[c]] += 1
-
-    att = (
-        component["shots_on_target"]
-        + component["key_passes"]
-        + component["successful_crosses"]
-        + component["successful_dribbles"]
-    )
-    deff = (
-        component["tackles_won"]
-        + component["interceptions"]
-        + component["clearances"]
-        + component["blocked_shots"]
-        + component["recoveries"]
+    OUTPUT_PATH.write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2),
+        encoding="utf-8",
     )
 
-    type_counts = {}
-    qualifier_counts_by_type = {}
-
-    for e in player_events:
-        t = str(type_id(e))
-        type_counts[t] = type_counts.get(t, 0) + 1
-        qualifier_counts_by_type.setdefault(t, {})
-        for q in qualifiers(e):
-            qk = str(q["id"])
-            qualifier_counts_by_type[t][qk] = qualifier_counts_by_type[t].get(qk, 0) + 1
-
-    results.append({
-        "player": gt["name"],
-        "matched_name": player_name(p),
-        "opta_player_ids_normalized": sorted(ids),
-        "club": p.get("Club Name", p.get("Club")),
-        "position": p.get("Position"),
-        "match_ids": match_ids,
-        "event_count": len(player_events),
-        "official_wsl_ui": {
-            "attacking_actions": gt["att"],
-            "defensive_actions": gt["def"],
-        },
-        "current_parser": {
-            **component,
-            "attacking_actions": att,
-            "defensive_actions": deff,
-            "att_delta_vs_wsl": att - gt["att"],
-            "def_delta_vs_wsl": deff - gt["def"],
-        },
-        "alternative_counts": alt_counts(player_events),
-        "all_event_type_counts": type_counts,
-        "qualifier_counts_by_event_type": qualifier_counts_by_type,
-        "events": [compact_event(e) for e in player_events],
-    })
-
-players_with_zero_events = [r["player"] for r in results if r["event_count"] == 0]
-
-# This is intentionally a hard failure. A "successful" audit with no events is misleading.
-if len(players_with_zero_events) == len(results):
-    raise SystemExit(
-        "ERROR: All 18 validation players matched transformed_data.json but ZERO Opta events "
-        "matched their Opta IDs. This indicates an ID/schema issue, so no audit JSON was written."
-    )
-
-metadata = {
-    "generated_at": datetime.now(timezone.utc).isoformat(),
-    "purpose": "Granular Opta-vs-official-WSL involvement definition reconciliation; diagnostic only.",
-    "production_changed": False,
-    "validation_players": len(results),
-    "players_with_events": sum(r["event_count"] > 0 for r in results),
-    "players_with_zero_events": players_with_zero_events,
-    "loaded_matches": [
-        {k: m[k] for k in ("opta_match_id", "kickoff_utc", "home", "away", "source", "event_count")}
-        for m in loaded_matches
-    ],
-    "match_fetch_failures": fetch_failures,
-    "exact_att": sum(
-        r["event_count"] > 0 and r["current_parser"]["att_delta_vs_wsl"] == 0
-        for r in results
-    ),
-    "exact_def": sum(
-        r["event_count"] > 0 and r["current_parser"]["def_delta_vs_wsl"] == 0
-        for r in results
-    ),
-}
-
-payload = {
-    "metadata": metadata,
-    "ground_truth": GROUND_TRUTH,
-    "players": results,
-}
-
-OUT.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
-
-print(f"Wrote {OUT}")
-print(json.dumps(metadata, indent=2, ensure_ascii=False))
-
-# Helpful sanity checks in Actions log.
-print("\nPer-player sanity:")
-for r in results:
+    print(f"\nWrote {OUTPUT_PATH.name}")
     print(
-        f'{r["player"]}: events={r["event_count"]}, matches={len(r["match_ids"])}, '
-        f'ATT={r["current_parser"]["attacking_actions"]}/{r["official_wsl_ui"]["attacking_actions"]}, '
-        f'DEF={r["current_parser"]["defensive_actions"]}/{r["official_wsl_ui"]["defensive_actions"]}'
+        f"Players: {len(output_players)} | "
+        f"Current ATT exact: {exact_prod_att}/{len(output_players)} | "
+        f"Revised ATT exact: {exact_revised_att}/{len(output_players)} | "
+        f"Current DEF exact: {exact_prod_def}/{len(output_players)}"
     )
+    print("\nPer-player reconciliation:")
+    for r in output_players:
+        print(
+            f'{r["player"]}: '
+            f'ATT current {r["current_production_parser"]["attacking_actions"]}/'
+            f'{r["official_wsl_ui"]["attacking_actions"]}, '
+            f'ATT revised {r["revised_att_hypothesis"]["attacking_actions"]}/'
+            f'{r["official_wsl_ui"]["attacking_actions"]}, '
+            f'DEF {r["current_production_parser"]["defensive_actions"]}/'
+            f'{r["official_wsl_ui"]["defensive_actions"]}'
+        )
+
+
+if __name__ == "__main__":
+    main()
