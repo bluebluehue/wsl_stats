@@ -1921,6 +1921,15 @@
 
                 const gameweekKeys = Array.from(allKeys)
                     .filter(key => /^\d+$/.test(key))
+                    // Only export GWs that actually contain a points object for at least one player.
+                    // Future placeholder weeks remain in transformed_data.json but stay out of the CSV
+                    // until the parser begins populating them.
+                    .filter(key => rows.some(row => {
+                        const value = row?.[key];
+                        return typeof value === 'object'
+                            && value !== null
+                            && Object.prototype.hasOwnProperty.call(value, 'points');
+                    }))
                     .sort((a, b) => Number(b) - Number(a));
 
                 const remaining = Array.from(allKeys)
@@ -3082,7 +3091,17 @@
 
                 const firstPlayer = data[0];
                 const gameweekKeys = Object.keys(firstPlayer).filter(key => {
-                    return !STATIC_KEYS_SET.has(key) && /^\d+$/.test(key);
+                    if (STATIC_KEYS_SET.has(key) || !/^\d+$/.test(key)) return false;
+
+                    // Hide future/empty Fantasy GW columns. A week becomes visible as soon
+                    // as at least one player has a real points object for that GW.
+                    // Zero-point players still display correctly once the GW is active.
+                    return data.some(player => {
+                        const value = player?.[key];
+                        return typeof value === 'object'
+                            && value !== null
+                            && Object.prototype.hasOwnProperty.call(value, 'points');
+                    });
                 }).sort((a, b) => {
                     return parseInt(b) - parseInt(a);
                 });
