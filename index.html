@@ -1656,8 +1656,9 @@
                         </label>
                         <button id="inv-refresh-live" type="button" class="inv-live-button" title="Fetch the latest public Opta event data for matches that have started recently.">
                             <i class="fa-solid fa-rotate"></i>
-                            Refresh Live
+                            Refresh Latest
                         </button>
+                        <span class="text-xs text-gray-500 self-end pb-2">Updates available roughly every 15 minutes during matches.</span>
                     </div>
                 </div>
                 <div id="inv-summary" class="mt-3 text-xs text-gray-600"></div>
@@ -4821,19 +4822,6 @@
                 return text.includes(':') ? text.split(':').pop() : text;
             }
 
-  function parseFixtureKickoff(value) {
-    if (!value) return NaN;
-    const text = String(value).trim();
-
-    // The WSL fixture feed labels match_date_time_utc as UTC but currently
-    // supplies values such as "2026-09-05T11:30:00" with no Z/offset.
-    // Browsers otherwise interpret that as LOCAL time, shifting kickoff by
-    // four/five hours for US users.
-    const hasTimezone = /(?:Z|[+-]\d{2}:?\d{2})$/i.test(text);
-    return Date.parse(hasTimezone ? text : `${text}Z`);
-  }
-
-
             function jsonpRequest(url, timeoutMs = 20000) {
                 return new Promise((resolve, reject) => {
                     const callbackName = `wslInvLive_${Date.now()}_${Math.random().toString(36).slice(2)}`;
@@ -5071,65 +5059,44 @@
                     const optaId = compactOptaId(fixture.provider_id);
                     if (!optaId) return false;
 
-                    const kickoff = parseFixtureKickoff(fixture.match_date_time_utc || fixture.deadline_date || '');
+                    const kickoff = Date.parse(fixture.match_date_time_utc || fixture.deadline_date || '');
                     if (!Number.isFinite(kickoff)) return false;
 
                     return kickoff <= now + kickoffGraceMs && kickoff >= now - lookbackMs;
                 });
             }
 
-            async function refreshLiveInvolvement() {
-                const button = $('#inv-refresh-live');
-                const originalHtml = button.html();
-                button.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> Refreshing…');
-
-                const candidates = liveCandidateFixtures();
-                if (!candidates.length) {
-                    button.prop('disabled', false).html(originalHtml);
-                    $('#inv-summary').html('<span class="font-semibold">No matches appear to be live right now.</span> The saved completed-match data is unchanged.');
-                    return;
-                }
-
-                let refreshed = 0;
-                let withEvents = 0;
-                const errors = [];
-
-                for (const fixture of candidates) {
-                    const optaId = compactOptaId(fixture.provider_id);
-                    try {
-                        const url = `${OPTA_MATCH_EVENT_BASE}/${OPTA_WIDGET_FEED_ID}/${optaId}`;
-                        const payload = await jsonpRequest(url);
-                        const match = aggregateLiveOptaMatch(payload, fixture);
-                        refreshed += 1;
-
-                        if ((match.diagnostics?.event_count || 0) > 0) {
-                            liveInvolvementMatches.set(optaId, match);
-                            withEvents += 1;
-                        }
-                    } catch (error) {
-                        console.warn(`Live involvement refresh failed for ${optaId}`, error);
-                        errors.push(`${fixture.home_id || '?'}–${fixture.away_id || '?'}`);
-                    }
-                }
-
+                        async function refreshLiveInvolvement() {
+              const button = document.querySelector('#inv-refresh-live');
+              const originalHtml = button.innerHTML;
+              button.disabled = true;
+              button.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Checking…';
+              try {
+                const response = await fetch('involvement_live.json' + `?v=${Date.now()}`, {cache:'no-store'});
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const latest = await response.json();
+                liveInvolvementMatches.clear();
+                (latest.matches || []).forEach(match => {
+                  match.live = Boolean(match.in_progress);
+                  match.live_minute = match.minute || null;
+                  liveInvolvementMatches.set(String(match.opta_match_id || ''), match);
+                });
                 renderInvolvement();
-
-                const stamp = new Intl.DateTimeFormat(undefined, {
-                    hour: 'numeric',
-                    minute: '2-digit',
-                    second: '2-digit'
-                }).format(new Date());
-
-                const liveCount = Array.from(liveInvolvementMatches.values()).filter(match => match.live).length;
-                const pieces = [
-                    `<span class="font-semibold">Live refresh: ${stamp}</span>`,
-                    `${withEvents} match${withEvents === 1 ? '' : 'es'} with event data`
-                ];
-                if (liveCount) pieces.push(`<span class="inv-live-note">${liveCount} LIVE</span>`);
-                if (errors.length) pieces.push(`<span class="text-red-600">Could not load: ${errors.join(', ')}</span>`);
-
-                $('#inv-summary').html(pieces.join(' · '));
-                button.prop('disabled', false).html(originalHtml);
+                const generated = latest?.metadata?.generated_at ? new Date(latest.metadata.generated_at) : null;
+                const stamp = generated && !Number.isNaN(generated.getTime())
+                  ? new Intl.DateTimeFormat(undefined, {hour:'numeric',minute:'2-digit'}).format(generated)
+                  : 'unknown';
+                const count = (latest.matches || []).length;
+                const state = document.querySelector('#inv-refresh-state');
+                if (state) state.innerHTML = `Latest snapshot: ${stamp} · ${count} match${count===1?'':'es'} available`;
+              } catch (error) {
+                console.warn('Latest involvement snapshot could not be loaded', error);
+                const state = document.querySelector('#inv-refresh-state');
+                if (state) state.innerHTML = '<span class="text-red-600">Latest snapshot is not available yet.</span>';
+              } finally {
+                button.disabled = false;
+                button.innerHTML = originalHtml;
+              }
             }
 
             function populateInvolvementControls() {
@@ -5227,7 +5194,7 @@
                     <tr class="border-t border-gray-100 hover:bg-gray-50">
                         <td class="px-3 py-2 font-semibold whitespace-nowrap">
                             ${row.name || '—'}
-                            ${row.has_live_data ? '<span class="inv-live-badge"><span class="inv-live-dot"></span>LIVE</span>' : ''}
+                            ${row.has_live_data ? '<span class="inv-live-badge"><span class="inv-live-dot"></span>IN PROGRESS</span>' : ''}
                         </td>
                         <td class="px-3 py-2 text-center"><span class="team-badge badge-${row.club || ''}">${row.club || '—'}</span></td>
                         <td class="px-3 py-2 text-center"><span class="pos-badge badge-${row.position || ''}">${row.position || '—'}</span></td>
@@ -5266,7 +5233,7 @@
                 $('#inv-summary').html(
                     `<span class="font-semibold">${selectedGw === 'overall' ? 'Overall' : 'GW' + selectedGw}:</span> ` +
                     `${rows.length} players · ${matchCount} match${matchCount === 1 ? '' : 'es'}${liveMatchCount ? ` · <span class="inv-live-note">${liveMatchCount} LIVE</span>` : ''} · ${totalIP} involvement points shown. ` +
-                    `<span class="text-gray-500">${isSingleGw ? 'Yellow action totals are one action short of the next threshold. Live values are provisional.' : 'Overall points are the sum of match-by-match awards; thresholds are not re-applied to season totals. Live values are provisional.'}</span>`
+                    `<span class="text-gray-500">${isSingleGw ? 'Yellow action totals are one action short of the next threshold. In-progress values are provisional.' : 'Overall points are the sum of match-by-match awards; thresholds are not re-applied to season totals. In-progress values are provisional.'}</span>`
                 );
             }
 
