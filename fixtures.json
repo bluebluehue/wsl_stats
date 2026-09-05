@@ -70,7 +70,7 @@
     "away_cs_prior": 61.3,
     "home_opponent_attack_prior": 56.5,
     "away_opponent_attack_prior": 46.5,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::5a3443a75f2a44c58f89359d8d2699bc",
@@ -143,7 +143,7 @@
     "away_cs_prior": 50.0,
     "home_opponent_attack_prior": 50.0,
     "away_opponent_attack_prior": 50.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::25ef6af2d5dd4816bdd4c5cf38a12b5e",
@@ -179,13 +179,13 @@
     "fantasy_game_week": "1",
     "fantasy_window_start": "2026-09-04",
     "fantasy_window_end": "2026-09-06",
-    "home_market_cs_probability": 0.485844,
+    "home_market_cs_probability": 0.493768,
     "away_market_cs_probability": null,
     "market_cs_source": "Pinnacle",
     "market_cs_method": "opponent_team_total_under_0.5_devig",
     "market_cs_updated_at": "2026-09-04T23:34:24.942Z",
-    "home_market_cs_over_odds": 1.819,
-    "home_market_cs_under_odds": 1.925,
+    "home_market_cs_over_odds": 1.862,
+    "home_market_cs_under_odds": 1.909,
     "away_market_cs_over_odds": null,
     "away_market_cs_under_odds": null,
     "home_fixture_opportunity": 55.2,
@@ -220,7 +220,7 @@
     "away_cs_prior": 35.4,
     "home_opponent_attack_prior": 45.3,
     "away_opponent_attack_prior": 65.6,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::0312ae31cfc047378ec39fc20e195919",
@@ -297,7 +297,7 @@
     "away_cs_prior": 72.3,
     "home_opponent_attack_prior": 75.8,
     "away_opponent_attack_prior": 46.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::3a2235f5b2284bceb67d1c178a5924af",
@@ -370,7 +370,7 @@
     "away_cs_prior": 57.8,
     "home_opponent_attack_prior": 60.0,
     "away_opponent_attack_prior": 41.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::72090b8862974a82bf321b1887f960d9",
@@ -447,7 +447,7 @@
     "away_cs_prior": 35.7,
     "home_opponent_attack_prior": 32.6,
     "away_opponent_attack_prior": 50.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::3696616e181347aca770cd6e34a2ea7c",
@@ -520,7 +520,7 @@
     "away_cs_prior": 44.3,
     "home_opponent_attack_prior": 37.5,
     "away_opponent_attack_prior": 47.2,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::a3547fcee965482cad2fa9ddbf1e1575",
@@ -593,7 +593,7 @@
     "away_cs_prior": 53.0,
     "home_opponent_attack_prior": 64.8,
     "away_opponent_attack_prior": 44.1,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::438caa36946047d892907bd933b172ff",
@@ -666,7 +666,7 @@
     "away_cs_prior": 57.0,
     "home_opponent_attack_prior": 61.0,
     "away_opponent_attack_prior": 39.6,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::7f4adbf487bc4d09a9416e08b3a112d8",
@@ -739,7 +739,7 @@
     "away_cs_prior": 47.2,
     "home_opponent_attack_prior": 33.4,
     "away_opponent_attack_prior": 44.7,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::7025241c2c504c84b87b459eba9d2358",
@@ -798,21 +798,21 @@
     "away_three_plus_conceded_risk": 0.1484,
     "home_concession_safety": 77.7,
     "away_concession_safety": 85.2,
-    "home_estimated_sot_faced": 4.392,
-    "away_estimated_sot_faced": 3.624,
-    "home_expected_saves_neutral": 3.074,
-    "away_expected_saves_neutral": 2.537,
-    "home_save_point_probability_neutral": 0.5933,
-    "away_save_point_probability_neutral": 0.4656,
-    "home_save_opportunity": 59.3,
-    "away_save_opportunity": 46.6,
-    "home_gk_opportunity_neutral": 44.4,
-    "away_gk_opportunity_neutral": 53.8,
+    "home_estimated_sot_faced": 4.318,
+    "away_estimated_sot_faced": 3.544,
+    "home_expected_saves_neutral": 3.023,
+    "away_expected_saves_neutral": 2.481,
+    "home_save_point_probability_neutral": 0.5819,
+    "away_save_point_probability_neutral": 0.4513,
+    "home_save_opportunity": 58.2,
+    "away_save_opportunity": 45.1,
+    "home_gk_opportunity_neutral": 44.1,
+    "away_gk_opportunity_neutral": 53.4,
     "home_cs_prior": 39.4,
     "away_cs_prior": 48.4,
     "home_opponent_attack_prior": 48.8,
     "away_opponent_attack_prior": 39.9,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::9883a3c6bc5d49349c1b8f3fdc6eccea",
@@ -885,7 +885,7 @@
     "away_cs_prior": 50.0,
     "home_opponent_attack_prior": 50.0,
     "away_opponent_attack_prior": 47.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::e8af306d026d4841ac254787a1f44c1f",
@@ -958,7 +958,7 @@
     "away_cs_prior": 47.3,
     "home_opponent_attack_prior": 48.6,
     "away_opponent_attack_prior": 83.8,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::17b69372c12543dfac1b88f4f6435f56",
@@ -1031,7 +1031,7 @@
     "away_cs_prior": 45.4,
     "home_opponent_attack_prior": 46.5,
     "away_opponent_attack_prior": 32.6,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::84fbef2330bc405c8e118525ab919c57",
@@ -1104,7 +1104,7 @@
     "away_cs_prior": 57.2,
     "home_opponent_attack_prior": 47.0,
     "away_opponent_attack_prior": 64.8,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::c3fd4039b100435bb0bccaa40e870abe",
@@ -1177,7 +1177,7 @@
     "away_cs_prior": 64.9,
     "home_opponent_attack_prior": 65.6,
     "away_opponent_attack_prior": 56.5,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::ca0d4c14b8c648e5a4275f019f8c935c",
@@ -1250,7 +1250,7 @@
     "away_cs_prior": 45.0,
     "home_opponent_attack_prior": 50.0,
     "away_opponent_attack_prior": 33.4,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::749701a2ff474fef8267f412eb96400d",
@@ -1323,7 +1323,7 @@
     "away_cs_prior": 46.0,
     "home_opponent_attack_prior": 44.7,
     "away_opponent_attack_prior": 37.5,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::11cdb9c1f96e4a6d8c3d623ef93501ed",
@@ -1396,7 +1396,7 @@
     "away_cs_prior": 37.7,
     "home_opponent_attack_prior": 39.6,
     "away_opponent_attack_prior": 50.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::c9738f3b831f4f80b0d08f7e9a28eb70",
@@ -1455,21 +1455,21 @@
     "away_three_plus_conceded_risk": 0.4542,
     "home_concession_safety": 94.3,
     "away_concession_safety": 54.6,
-    "home_estimated_sot_faced": 3.307,
-    "away_estimated_sot_faced": 5.857,
-    "home_expected_saves_neutral": 2.315,
-    "away_expected_saves_neutral": 4.1,
-    "home_save_point_probability_neutral": 0.4079,
-    "away_save_point_probability_neutral": 0.7761,
-    "home_save_opportunity": 40.8,
-    "away_save_opportunity": 77.6,
-    "home_gk_opportunity_neutral": 69.2,
-    "away_gk_opportunity_neutral": 32.6,
+    "home_estimated_sot_faced": 3.234,
+    "away_estimated_sot_faced": 5.758,
+    "home_expected_saves_neutral": 2.264,
+    "away_expected_saves_neutral": 4.031,
+    "home_save_point_probability_neutral": 0.3944,
+    "away_save_point_probability_neutral": 0.7664,
+    "home_save_opportunity": 39.4,
+    "away_save_opportunity": 76.6,
+    "home_gk_opportunity_neutral": 68.9,
+    "away_gk_opportunity_neutral": 32.4,
     "home_cs_prior": 57.8,
     "away_cs_prior": 39.4,
     "home_opponent_attack_prior": 39.9,
     "away_opponent_attack_prior": 60.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::958d4abed2294ca5aafaee6ee89a0e8d",
@@ -1542,7 +1542,7 @@
     "away_cs_prior": 50.0,
     "home_opponent_attack_prior": 50.0,
     "away_opponent_attack_prior": 48.8,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::cdfcc57f219640c0abd429a10eb8b7c5",
@@ -1615,7 +1615,7 @@
     "away_cs_prior": 46.9,
     "home_opponent_attack_prior": 44.1,
     "away_opponent_attack_prior": 50.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::b95f88240acb44d39700abb73ff7bd9d",
@@ -1688,7 +1688,7 @@
     "away_cs_prior": 54.6,
     "home_opponent_attack_prior": 46.0,
     "away_opponent_attack_prior": 48.6,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::6cfd6441fd864fdd935bb6cd3a362d25",
@@ -1761,7 +1761,7 @@
     "away_cs_prior": 46.4,
     "home_opponent_attack_prior": 47.2,
     "away_opponent_attack_prior": 75.8,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::7f709b6deab94bd0b14083f09cf821cd",
@@ -1834,7 +1834,7 @@
     "away_cs_prior": 47.6,
     "home_opponent_attack_prior": 41.0,
     "away_opponent_attack_prior": 61.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::fa8b542859484d4d932096d59549aaed",
@@ -1907,7 +1907,7 @@
     "away_cs_prior": 65.0,
     "home_opponent_attack_prior": 83.8,
     "away_opponent_attack_prior": 45.3,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::9c8826e6e4c64eda83f6ce0adc752e7a",
@@ -1980,7 +1980,7 @@
     "away_cs_prior": 47.2,
     "home_opponent_attack_prior": 33.4,
     "away_opponent_attack_prior": 83.8,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::94070447219c4b8bb079d28f8809fe39",
@@ -2053,7 +2053,7 @@
     "away_cs_prior": 50.0,
     "home_opponent_attack_prior": 50.0,
     "away_opponent_attack_prior": 50.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::ef62c1e58fa2499c9b9f8b31d8377401",
@@ -2126,7 +2126,7 @@
     "away_cs_prior": 45.4,
     "home_opponent_attack_prior": 46.5,
     "away_opponent_attack_prior": 44.7,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::4f7de4e451d54c11b0e2ff8644855354",
@@ -2199,7 +2199,7 @@
     "away_cs_prior": 47.3,
     "home_opponent_attack_prior": 48.6,
     "away_opponent_attack_prior": 65.6,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::78822e157876488bbc6e4550ba5116d0",
@@ -2272,7 +2272,7 @@
     "away_cs_prior": 61.3,
     "home_opponent_attack_prior": 56.5,
     "away_opponent_attack_prior": 75.8,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::914a337b009a426682ea7ab26b0f7996",
@@ -2345,7 +2345,7 @@
     "away_cs_prior": 48.4,
     "home_opponent_attack_prior": 48.8,
     "away_opponent_attack_prior": 41.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::43a357e332484edd8a9bce993e8bf3a7",
@@ -2418,7 +2418,7 @@
     "away_cs_prior": 37.7,
     "home_opponent_attack_prior": 39.6,
     "away_opponent_attack_prior": 47.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::612d1f7a7a4944cbbe37c618c3e02819",
@@ -2491,7 +2491,7 @@
     "away_cs_prior": 45.0,
     "home_opponent_attack_prior": 50.0,
     "away_opponent_attack_prior": 47.2,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::c45b5861aff54163b87b0fbcb6ecd941",
@@ -2564,7 +2564,7 @@
     "away_cs_prior": 44.3,
     "home_opponent_attack_prior": 37.5,
     "away_opponent_attack_prior": 32.6,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::6f358d0ebcd3472d934d0cfea8a3a2a2",
@@ -2637,7 +2637,7 @@
     "away_cs_prior": 35.4,
     "home_opponent_attack_prior": 45.3,
     "away_opponent_attack_prior": 46.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::9c90de1c4d00419c8d8073cbb3905bc8",
@@ -2710,7 +2710,7 @@
     "away_cs_prior": 57.8,
     "home_opponent_attack_prior": 60.0,
     "away_opponent_attack_prior": 44.1,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::35e331965a114a4fb707e5b42a4f8934",
@@ -2783,7 +2783,7 @@
     "away_cs_prior": 53.0,
     "home_opponent_attack_prior": 64.8,
     "away_opponent_attack_prior": 50.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::de2dddb4ef4645f594169cba34280767",
@@ -2842,21 +2842,21 @@
     "away_three_plus_conceded_risk": 0.4656,
     "home_concession_safety": 94.0,
     "away_concession_safety": 53.4,
-    "home_estimated_sot_faced": 3.316,
-    "away_estimated_sot_faced": 5.962,
-    "home_expected_saves_neutral": 2.321,
-    "away_expected_saves_neutral": 4.173,
-    "home_save_point_probability_neutral": 0.4096,
-    "away_save_point_probability_neutral": 0.7862,
-    "home_save_opportunity": 41.0,
-    "away_save_opportunity": 78.6,
-    "home_gk_opportunity_neutral": 68.8,
-    "away_gk_opportunity_neutral": 32.7,
+    "home_estimated_sot_faced": 3.243,
+    "away_estimated_sot_faced": 5.862,
+    "home_expected_saves_neutral": 2.27,
+    "away_expected_saves_neutral": 4.103,
+    "home_save_point_probability_neutral": 0.3961,
+    "away_save_point_probability_neutral": 0.7766,
+    "home_save_opportunity": 39.6,
+    "away_save_opportunity": 77.7,
+    "home_gk_opportunity_neutral": 68.4,
+    "away_gk_opportunity_neutral": 32.5,
     "home_cs_prior": 57.0,
     "away_cs_prior": 39.4,
     "home_opponent_attack_prior": 39.9,
     "away_opponent_attack_prior": 61.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::25e8974f79bc4c7db1a523b86fac8418",
@@ -2929,7 +2929,7 @@
     "away_cs_prior": 53.0,
     "home_opponent_attack_prior": 64.8,
     "away_opponent_attack_prior": 50.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::45fa16f02e3f44e0a6973826d4e9ed00",
@@ -3002,7 +3002,7 @@
     "away_cs_prior": 65.0,
     "home_opponent_attack_prior": 83.8,
     "away_opponent_attack_prior": 44.7,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::38fffa5c79e44a84b70a0d188300b414",
@@ -3075,7 +3075,7 @@
     "away_cs_prior": 54.6,
     "home_opponent_attack_prior": 46.0,
     "away_opponent_attack_prior": 46.5,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::e532f5703fed4cf785fdb10ea5aec6ed",
@@ -3148,7 +3148,7 @@
     "away_cs_prior": 35.7,
     "home_opponent_attack_prior": 32.6,
     "away_opponent_attack_prior": 56.5,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::441e06b858aa4367894fb9c93131c22e",
@@ -3221,7 +3221,7 @@
     "away_cs_prior": 46.4,
     "home_opponent_attack_prior": 47.2,
     "away_opponent_attack_prior": 48.6,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::72ff27589845479d8a11f25803307801",
@@ -3280,21 +3280,21 @@
     "away_three_plus_conceded_risk": 0.1284,
     "home_concession_safety": 76.6,
     "away_concession_safety": 87.2,
-    "home_estimated_sot_faced": 4.596,
-    "away_estimated_sot_faced": 3.605,
-    "home_expected_saves_neutral": 3.217,
-    "away_expected_saves_neutral": 2.523,
-    "home_save_point_probability_neutral": 0.6237,
-    "away_save_point_probability_neutral": 0.4622,
-    "home_save_opportunity": 62.4,
-    "away_save_opportunity": 46.2,
-    "home_gk_opportunity_neutral": 43.5,
-    "away_gk_opportunity_neutral": 57.4,
+    "home_estimated_sot_faced": 4.519,
+    "away_estimated_sot_faced": 3.526,
+    "home_expected_saves_neutral": 3.163,
+    "away_expected_saves_neutral": 2.468,
+    "home_save_point_probability_neutral": 0.6124,
+    "away_save_point_probability_neutral": 0.4479,
+    "home_save_opportunity": 61.2,
+    "away_save_opportunity": 44.8,
+    "home_gk_opportunity_neutral": 43.2,
+    "away_gk_opportunity_neutral": 57.1,
     "home_cs_prior": 39.4,
     "away_cs_prior": 50.0,
     "home_opponent_attack_prior": 50.0,
     "away_opponent_attack_prior": 39.9,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::e5fb2ecf2b7c4197a24d9c0597f4da56",
@@ -3367,7 +3367,7 @@
     "away_cs_prior": 47.6,
     "home_opponent_attack_prior": 41.0,
     "away_opponent_attack_prior": 39.6,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::6ff6213afd7c40f4b68f9cb0caab0040",
@@ -3440,7 +3440,7 @@
     "away_cs_prior": 48.4,
     "home_opponent_attack_prior": 48.8,
     "away_opponent_attack_prior": 60.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::0b2774571e6145ad8558781a481d6e5b",
@@ -3513,7 +3513,7 @@
     "away_cs_prior": 46.9,
     "home_opponent_attack_prior": 44.1,
     "away_opponent_attack_prior": 50.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::b508005aced84d6a87ad2dfbdc3c7a31",
@@ -3586,7 +3586,7 @@
     "away_cs_prior": 44.3,
     "home_opponent_attack_prior": 37.5,
     "away_opponent_attack_prior": 33.4,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::14547ff6e9cc4965bb506aa2c04e8b27",
@@ -3659,7 +3659,7 @@
     "away_cs_prior": 35.4,
     "home_opponent_attack_prior": 45.3,
     "away_opponent_attack_prior": 50.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::cbc51d4b89884630b45d129c946d8077",
@@ -3732,7 +3732,7 @@
     "away_cs_prior": 57.0,
     "home_opponent_attack_prior": 61.0,
     "away_opponent_attack_prior": 47.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::e41e9112d45845d8906deb66c4b8cd73",
@@ -3805,7 +3805,7 @@
     "away_cs_prior": 72.3,
     "home_opponent_attack_prior": 75.8,
     "away_opponent_attack_prior": 65.6,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::32af2c0062d64db5bec4f703c9c80014",
@@ -3878,7 +3878,7 @@
     "away_cs_prior": 57.2,
     "home_opponent_attack_prior": 47.0,
     "away_opponent_attack_prior": 41.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::66bd149875594226a072bb3f0865bf36",
@@ -3951,7 +3951,7 @@
     "away_cs_prior": 45.4,
     "home_opponent_attack_prior": 46.5,
     "away_opponent_attack_prior": 50.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::afab794465174afab54552809d76f5fb",
@@ -4024,7 +4024,7 @@
     "away_cs_prior": 47.2,
     "home_opponent_attack_prior": 33.4,
     "away_opponent_attack_prior": 56.5,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::8fe891577df04ec6a9ff0b8d9dd3ebf2",
@@ -4097,7 +4097,7 @@
     "away_cs_prior": 47.3,
     "home_opponent_attack_prior": 48.6,
     "away_opponent_attack_prior": 37.5,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::38eba1106b6548f3935a0dfad86516bf",
@@ -4170,7 +4170,7 @@
     "away_cs_prior": 46.0,
     "home_opponent_attack_prior": 44.7,
     "away_opponent_attack_prior": 46.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::fc019b5da1e44147a6e9303f86a21932",
@@ -4243,7 +4243,7 @@
     "away_cs_prior": 46.4,
     "home_opponent_attack_prior": 47.2,
     "away_opponent_attack_prior": 45.3,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::0d567d06f6114ce987e7d2b1af22a227",
@@ -4316,7 +4316,7 @@
     "away_cs_prior": 57.0,
     "home_opponent_attack_prior": 61.0,
     "away_opponent_attack_prior": 44.1,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::451ffbc32ecd4307af2b02643d5a2b58",
@@ -4389,7 +4389,7 @@
     "away_cs_prior": 50.0,
     "home_opponent_attack_prior": 50.0,
     "away_opponent_attack_prior": 50.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::02cd1c440eca4521a08195d424635a9b",
@@ -4462,7 +4462,7 @@
     "away_cs_prior": 50.0,
     "home_opponent_attack_prior": 50.0,
     "away_opponent_attack_prior": 48.8,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::24afafc14446459989582f21b2381074",
@@ -4535,7 +4535,7 @@
     "away_cs_prior": 64.9,
     "home_opponent_attack_prior": 65.6,
     "away_opponent_attack_prior": 32.6,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::f8f0b0f078a1412aabed0af36db4e2e4",
@@ -4608,7 +4608,7 @@
     "away_cs_prior": 57.8,
     "home_opponent_attack_prior": 60.0,
     "away_opponent_attack_prior": 64.8,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::605c51e18e364796a1a2b0195157dcf1",
@@ -4667,21 +4667,21 @@
     "away_three_plus_conceded_risk": 0.208,
     "home_concession_safety": 85.0,
     "away_concession_safety": 79.2,
-    "home_estimated_sot_faced": 3.534,
-    "away_estimated_sot_faced": 3.681,
-    "home_expected_saves_neutral": 2.474,
-    "away_expected_saves_neutral": 2.577,
-    "home_save_point_probability_neutral": 0.4495,
-    "away_save_point_probability_neutral": 0.4757,
-    "home_save_opportunity": 45.0,
-    "away_save_opportunity": 47.6,
-    "home_gk_opportunity_neutral": 53.0,
-    "away_gk_opportunity_neutral": 43.7,
+    "home_estimated_sot_faced": 3.457,
+    "away_estimated_sot_faced": 3.619,
+    "home_expected_saves_neutral": 2.42,
+    "away_expected_saves_neutral": 2.533,
+    "home_save_point_probability_neutral": 0.4354,
+    "away_save_point_probability_neutral": 0.4647,
+    "home_save_opportunity": 43.5,
+    "away_save_opportunity": 46.5,
+    "home_gk_opportunity_neutral": 52.6,
+    "away_gk_opportunity_neutral": 43.4,
     "home_cs_prior": 37.7,
     "away_cs_prior": 39.4,
     "home_opponent_attack_prior": 39.9,
     "away_opponent_attack_prior": 39.6,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::356ca3ca1e7c4883b06e17bcba0d99fe",
@@ -4754,7 +4754,7 @@
     "away_cs_prior": 72.3,
     "home_opponent_attack_prior": 75.8,
     "away_opponent_attack_prior": 83.8,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::9ed899fbbfc6456381b40ce1d0142a40",
@@ -4827,7 +4827,7 @@
     "away_cs_prior": 47.2,
     "home_opponent_attack_prior": 33.4,
     "away_opponent_attack_prior": 45.3,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::c18b112b3f9b464b894c473030404bd2",
@@ -4900,7 +4900,7 @@
     "away_cs_prior": 47.3,
     "home_opponent_attack_prior": 48.6,
     "away_opponent_attack_prior": 75.8,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::ae8ee0c2c93d4555bce4c40fb0d6c39f",
@@ -4973,7 +4973,7 @@
     "away_cs_prior": 61.3,
     "home_opponent_attack_prior": 56.5,
     "away_opponent_attack_prior": 44.7,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::9cebd47ddf2b44ad98ba5b078ed9ef88",
@@ -5046,7 +5046,7 @@
     "away_cs_prior": 45.0,
     "home_opponent_attack_prior": 50.0,
     "away_opponent_attack_prior": 65.6,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::88f1060db0464a16a85a9112afcaf45b",
@@ -5119,7 +5119,7 @@
     "away_cs_prior": 54.6,
     "home_opponent_attack_prior": 46.0,
     "away_opponent_attack_prior": 83.8,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::da644cc38fb8430081e3c25e5c828bca",
@@ -5192,7 +5192,7 @@
     "away_cs_prior": 44.3,
     "home_opponent_attack_prior": 37.5,
     "away_opponent_attack_prior": 46.5,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::909ff58064b0437b959c489a55d0b936",
@@ -5265,7 +5265,7 @@
     "away_cs_prior": 35.7,
     "home_opponent_attack_prior": 32.6,
     "away_opponent_attack_prior": 47.2,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::78ce7cb1172e4c85b817321e22bedb94",
@@ -5338,7 +5338,7 @@
     "away_cs_prior": 47.6,
     "home_opponent_attack_prior": 41.0,
     "away_opponent_attack_prior": 50.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::3817aa43b204470eb614a0c287f5e12a",
@@ -5411,7 +5411,7 @@
     "away_cs_prior": 65.0,
     "home_opponent_attack_prior": 83.8,
     "away_opponent_attack_prior": 56.5,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::8aeb050421f54657bf5bc2e0846cdf88",
@@ -5470,21 +5470,21 @@
     "away_three_plus_conceded_risk": 0.1588,
     "home_concession_safety": 82.1,
     "away_concession_safety": 84.1,
-    "home_estimated_sot_faced": 3.922,
-    "away_estimated_sot_faced": 3.643,
-    "home_expected_saves_neutral": 2.745,
-    "away_expected_saves_neutral": 2.55,
-    "home_save_point_probability_neutral": 0.5174,
-    "away_save_point_probability_neutral": 0.4689,
-    "home_save_opportunity": 51.7,
-    "away_save_opportunity": 46.9,
-    "home_gk_opportunity_neutral": 49.6,
-    "away_gk_opportunity_neutral": 51.9,
+    "home_estimated_sot_faced": 3.856,
+    "away_estimated_sot_faced": 3.563,
+    "home_expected_saves_neutral": 2.699,
+    "away_expected_saves_neutral": 2.494,
+    "home_save_point_probability_neutral": 0.5062,
+    "away_save_point_probability_neutral": 0.4546,
+    "home_save_opportunity": 50.6,
+    "away_save_opportunity": 45.5,
+    "home_gk_opportunity_neutral": 49.3,
+    "away_gk_opportunity_neutral": 51.6,
     "home_cs_prior": 39.4,
     "away_cs_prior": 46.9,
     "home_opponent_attack_prior": 44.1,
     "away_opponent_attack_prior": 39.9,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::78f410fbebb9450fa26a9f4b5d07eac6",
@@ -5557,7 +5557,7 @@
     "away_cs_prior": 37.7,
     "home_opponent_attack_prior": 39.6,
     "away_opponent_attack_prior": 50.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::a0b436fe4dbf4d488491d0a771667fce",
@@ -5630,7 +5630,7 @@
     "away_cs_prior": 57.2,
     "home_opponent_attack_prior": 47.0,
     "away_opponent_attack_prior": 48.8,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::6e620b34dbc74fbdace4cb1e6be5b01c",
@@ -5703,7 +5703,7 @@
     "away_cs_prior": 50.0,
     "home_opponent_attack_prior": 50.0,
     "away_opponent_attack_prior": 64.8,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::6f940dddfaf64dbf99c146e1589d31e9",
@@ -5776,7 +5776,7 @@
     "away_cs_prior": 64.9,
     "home_opponent_attack_prior": 65.6,
     "away_opponent_attack_prior": 47.2,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::fd960a9a87dc4e44998306b90bfb34bb",
@@ -5849,7 +5849,7 @@
     "away_cs_prior": 45.4,
     "home_opponent_attack_prior": 46.5,
     "away_opponent_attack_prior": 33.4,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::c3d44b152442461887491dc12e2f18d0",
@@ -5922,7 +5922,7 @@
     "away_cs_prior": 35.4,
     "home_opponent_attack_prior": 45.3,
     "away_opponent_attack_prior": 37.5,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::e36c961a24bb409498029478475ec755",
@@ -5995,7 +5995,7 @@
     "away_cs_prior": 35.7,
     "home_opponent_attack_prior": 32.6,
     "away_opponent_attack_prior": 46.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::ce1d80eb3bfb46d9bab300a849cad12b",
@@ -6068,7 +6068,7 @@
     "away_cs_prior": 46.0,
     "home_opponent_attack_prior": 44.7,
     "away_opponent_attack_prior": 48.6,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::1a930a80fc1a45668fbd3087e5289961",
@@ -6141,7 +6141,7 @@
     "away_cs_prior": 72.3,
     "home_opponent_attack_prior": 75.8,
     "away_opponent_attack_prior": 50.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::1cdd8f3df9724308804197ad0f394e74",
@@ -6214,7 +6214,7 @@
     "away_cs_prior": 57.8,
     "home_opponent_attack_prior": 60.0,
     "away_opponent_attack_prior": 61.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::71ef1958bd1f4ecdb687f744972e5f65",
@@ -6287,7 +6287,7 @@
     "away_cs_prior": 61.3,
     "home_opponent_attack_prior": 56.5,
     "away_opponent_attack_prior": 37.5,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::61b0b7ce8475419292d11da218b35a2c",
@@ -6360,7 +6360,7 @@
     "away_cs_prior": 35.4,
     "home_opponent_attack_prior": 45.3,
     "away_opponent_attack_prior": 75.8,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::8bc32672e79d41f9b44e22202c3bbe9f",
@@ -6433,7 +6433,7 @@
     "away_cs_prior": 46.4,
     "home_opponent_attack_prior": 47.2,
     "away_opponent_attack_prior": 46.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::bf724ef604af47b59e50749419cc7c9c",
@@ -6506,7 +6506,7 @@
     "away_cs_prior": 45.0,
     "home_opponent_attack_prior": 50.0,
     "away_opponent_attack_prior": 48.6,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::f8f32826f28a43d1b4e22ef48042d098",
@@ -6579,7 +6579,7 @@
     "away_cs_prior": 64.9,
     "home_opponent_attack_prior": 65.6,
     "away_opponent_attack_prior": 44.7,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::59061be131b74430b9dfc47d7a9dc5ad",
@@ -6652,7 +6652,7 @@
     "away_cs_prior": 65.0,
     "home_opponent_attack_prior": 83.8,
     "away_opponent_attack_prior": 46.5,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::2460c2f26a8f4426adb7b80afa548ed5",
@@ -6725,7 +6725,7 @@
     "away_cs_prior": 47.2,
     "home_opponent_attack_prior": 33.4,
     "away_opponent_attack_prior": 32.6,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::6f26948105984863a1640a9b8f29e05b",
@@ -6798,7 +6798,7 @@
     "away_cs_prior": 47.3,
     "home_opponent_attack_prior": 48.6,
     "away_opponent_attack_prior": 46.5,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::2c57460983694e388dfc1d0db688beac",
@@ -6871,7 +6871,7 @@
     "away_cs_prior": 72.3,
     "home_opponent_attack_prior": 75.8,
     "away_opponent_attack_prior": 33.4,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::08325bf7b99a4c4191666861a1e5e5d1",
@@ -6944,7 +6944,7 @@
     "away_cs_prior": 61.3,
     "home_opponent_attack_prior": 56.5,
     "away_opponent_attack_prior": 45.3,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::4177f701a617479e97d04c2bbc91a5e0",
@@ -7017,7 +7017,7 @@
     "away_cs_prior": 44.3,
     "home_opponent_attack_prior": 37.5,
     "away_opponent_attack_prior": 65.6,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::f7898a23d79643e7817c9a58090c215f",
@@ -7090,7 +7090,7 @@
     "away_cs_prior": 35.7,
     "home_opponent_attack_prior": 32.6,
     "away_opponent_attack_prior": 83.8,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::5912c9087aa244e8bd1d235be985963c",
@@ -7163,7 +7163,7 @@
     "away_cs_prior": 46.9,
     "home_opponent_attack_prior": 44.1,
     "away_opponent_attack_prior": 41.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::d6cccb22af844fd191aef7c7af29af6a",
@@ -7236,7 +7236,7 @@
     "away_cs_prior": 50.0,
     "home_opponent_attack_prior": 50.0,
     "away_opponent_attack_prior": 47.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::db41fe53a85542ec8a2b90fd5af72732",
@@ -7309,7 +7309,7 @@
     "away_cs_prior": 48.4,
     "home_opponent_attack_prior": 48.8,
     "away_opponent_attack_prior": 50.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::7193c3196d884cf7936857956f2bb9b2",
@@ -7382,7 +7382,7 @@
     "away_cs_prior": 37.7,
     "home_opponent_attack_prior": 39.6,
     "away_opponent_attack_prior": 60.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::cbbab14653c949c7af0434867ee5bd7a",
@@ -7441,21 +7441,21 @@
     "away_three_plus_conceded_risk": 0.1191,
     "home_concession_safety": 61.9,
     "away_concession_safety": 88.1,
-    "home_estimated_sot_faced": 5.991,
-    "away_estimated_sot_faced": 3.569,
-    "home_expected_saves_neutral": 4.194,
-    "away_expected_saves_neutral": 2.498,
-    "home_save_point_probability_neutral": 0.789,
-    "away_save_point_probability_neutral": 0.4557,
-    "home_save_opportunity": 78.9,
-    "away_save_opportunity": 45.6,
-    "home_gk_opportunity_neutral": 34.7,
-    "away_gk_opportunity_neutral": 59.0,
+    "home_estimated_sot_faced": 5.891,
+    "away_estimated_sot_faced": 3.49,
+    "home_expected_saves_neutral": 4.124,
+    "away_expected_saves_neutral": 2.443,
+    "home_save_point_probability_neutral": 0.7795,
+    "away_save_point_probability_neutral": 0.4416,
+    "home_save_opportunity": 77.9,
+    "away_save_opportunity": 44.2,
+    "home_gk_opportunity_neutral": 34.5,
+    "away_gk_opportunity_neutral": 58.7,
     "home_cs_prior": 39.4,
     "away_cs_prior": 53.0,
     "home_opponent_attack_prior": 64.8,
     "away_opponent_attack_prior": 39.9,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::6ad347d7c3d14ceaa4877a9c33e32604",
@@ -7528,7 +7528,7 @@
     "away_cs_prior": 54.6,
     "home_opponent_attack_prior": 46.0,
     "away_opponent_attack_prior": 50.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::fad5e1d8beef4f89a0fd9a8dcf9ac05a",
@@ -7601,7 +7601,7 @@
     "away_cs_prior": 46.0,
     "home_opponent_attack_prior": 44.7,
     "away_opponent_attack_prior": 47.2,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::04096940899347a0bef193c15fd306ec",
@@ -7674,7 +7674,7 @@
     "away_cs_prior": 50.0,
     "home_opponent_attack_prior": 50.0,
     "away_opponent_attack_prior": 61.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::59667cd4eb584858941283945914c374",
@@ -7747,7 +7747,7 @@
     "away_cs_prior": 65.0,
     "home_opponent_attack_prior": 83.8,
     "away_opponent_attack_prior": 65.6,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::b984ad480ff64136b236bebf24087ae5",
@@ -7820,7 +7820,7 @@
     "away_cs_prior": 45.4,
     "home_opponent_attack_prior": 46.5,
     "away_opponent_attack_prior": 75.8,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::70df41d0bf5d45d9a6082e1432b114b2",
@@ -7893,7 +7893,7 @@
     "away_cs_prior": 53.0,
     "home_opponent_attack_prior": 64.8,
     "away_opponent_attack_prior": 39.6,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::ced23f61654344d7afa963d24f8651bd",
@@ -7966,7 +7966,7 @@
     "away_cs_prior": 46.4,
     "home_opponent_attack_prior": 47.2,
     "away_opponent_attack_prior": 56.5,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::f925284962f940b79c1f3a7e5dd2c861",
@@ -8039,7 +8039,7 @@
     "away_cs_prior": 57.0,
     "home_opponent_attack_prior": 61.0,
     "away_opponent_attack_prior": 48.8,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::86deeb5e7d1e4584b53554096cf80e35",
@@ -8098,21 +8098,21 @@
     "away_three_plus_conceded_risk": 0.3337,
     "home_concession_safety": 91.8,
     "away_concession_safety": 66.6,
-    "home_estimated_sot_faced": 3.395,
-    "away_estimated_sot_faced": 4.88,
-    "home_expected_saves_neutral": 2.377,
-    "away_expected_saves_neutral": 3.416,
-    "home_save_point_probability_neutral": 0.4241,
-    "away_save_point_probability_neutral": 0.6634,
-    "home_save_opportunity": 42.4,
-    "away_save_opportunity": 66.3,
-    "home_gk_opportunity_neutral": 65.2,
-    "away_gk_opportunity_neutral": 34.5,
+    "home_estimated_sot_faced": 3.32,
+    "away_estimated_sot_faced": 4.799,
+    "home_expected_saves_neutral": 2.324,
+    "away_expected_saves_neutral": 3.359,
+    "home_save_point_probability_neutral": 0.4104,
+    "away_save_point_probability_neutral": 0.6523,
+    "home_save_opportunity": 41.0,
+    "away_save_opportunity": 65.2,
+    "home_gk_opportunity_neutral": 64.8,
+    "away_gk_opportunity_neutral": 34.2,
     "home_cs_prior": 50.0,
     "away_cs_prior": 39.4,
     "home_opponent_attack_prior": 39.9,
     "away_opponent_attack_prior": 50.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::341d9d1b0a1447afbca4cedfe5e2a132",
@@ -8185,7 +8185,7 @@
     "away_cs_prior": 57.2,
     "home_opponent_attack_prior": 47.0,
     "away_opponent_attack_prior": 44.1,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::b5514fcc0b44486487e899451c73e5ac",
@@ -8258,7 +8258,7 @@
     "away_cs_prior": 47.6,
     "home_opponent_attack_prior": 41.0,
     "away_opponent_attack_prior": 50.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::aa8320a286ab4af7b30ca34e64066bad",
@@ -8331,7 +8331,7 @@
     "away_cs_prior": 57.8,
     "home_opponent_attack_prior": 60.0,
     "away_opponent_attack_prior": 50.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::b9503963101a4f10b72de49ed3310122",
@@ -8404,7 +8404,7 @@
     "away_cs_prior": 47.2,
     "home_opponent_attack_prior": 33.4,
     "away_opponent_attack_prior": 46.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::e9c1433c391b4fa98806d94e289f7944",
@@ -8477,7 +8477,7 @@
     "away_cs_prior": 44.3,
     "home_opponent_attack_prior": 37.5,
     "away_opponent_attack_prior": 50.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::7b032db3f5554e84a0ab4ab8b93192fc",
@@ -8550,7 +8550,7 @@
     "away_cs_prior": 46.0,
     "home_opponent_attack_prior": 44.7,
     "away_opponent_attack_prior": 32.6,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::4189809f663540da96ce8ce58d2d5b91",
@@ -8623,7 +8623,7 @@
     "away_cs_prior": 47.3,
     "home_opponent_attack_prior": 48.6,
     "away_opponent_attack_prior": 45.3,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::e00d7067a71543ef922a8cf9313cfd35",
@@ -8696,7 +8696,7 @@
     "away_cs_prior": 35.7,
     "home_opponent_attack_prior": 32.6,
     "away_opponent_attack_prior": 75.8,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::5a9d8431663b41aba71f339ff4acd5ae",
@@ -8769,7 +8769,7 @@
     "away_cs_prior": 46.4,
     "home_opponent_attack_prior": 47.2,
     "away_opponent_attack_prior": 46.5,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::93fc89e9cf1047458448acd55d5f4581",
@@ -8842,7 +8842,7 @@
     "away_cs_prior": 45.0,
     "home_opponent_attack_prior": 50.0,
     "away_opponent_attack_prior": 83.8,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::e371ca0b78f44550b1deee274a86b365",
@@ -8915,7 +8915,7 @@
     "away_cs_prior": 54.6,
     "home_opponent_attack_prior": 46.0,
     "away_opponent_attack_prior": 37.5,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::eb0fccd05ba54d64aae329f80fbe00a0",
@@ -8988,7 +8988,7 @@
     "away_cs_prior": 35.4,
     "home_opponent_attack_prior": 45.3,
     "away_opponent_attack_prior": 44.7,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::b1eb2661ddf9444b9313db0ebf22392f",
@@ -9061,7 +9061,7 @@
     "away_cs_prior": 61.3,
     "home_opponent_attack_prior": 56.5,
     "away_opponent_attack_prior": 48.6,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::b5dad0723a7d4a2bbf0f873783ac4f99",
@@ -9134,7 +9134,7 @@
     "away_cs_prior": 64.9,
     "home_opponent_attack_prior": 65.6,
     "away_opponent_attack_prior": 33.4,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::c7c83bedba8347e6bce17d7723373d71",
@@ -9207,7 +9207,7 @@
     "away_cs_prior": 72.3,
     "home_opponent_attack_prior": 75.8,
     "away_opponent_attack_prior": 37.5,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::c9ffa471afe5434bb85bc6f888c2094e",
@@ -9280,7 +9280,7 @@
     "away_cs_prior": 54.6,
     "home_opponent_attack_prior": 46.0,
     "away_opponent_attack_prior": 56.5,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::943bc41885d04d819c8f211cd2e62da0",
@@ -9353,7 +9353,7 @@
     "away_cs_prior": 46.0,
     "home_opponent_attack_prior": 44.7,
     "away_opponent_attack_prior": 50.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::120c2d21240d428883fdb2cdd59d9a20",
@@ -9426,7 +9426,7 @@
     "away_cs_prior": 65.0,
     "home_opponent_attack_prior": 83.8,
     "away_opponent_attack_prior": 47.2,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::f2f583cf64374287aa3546cce15a2ca5",
@@ -9499,7 +9499,7 @@
     "away_cs_prior": 35.4,
     "home_opponent_attack_prior": 45.3,
     "away_opponent_attack_prior": 32.6,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::8f0ab8b17dcc4ad5b06eb5158bab7c23",
@@ -9572,7 +9572,7 @@
     "away_cs_prior": 45.4,
     "home_opponent_attack_prior": 46.5,
     "away_opponent_attack_prior": 65.6,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::57dfc8e9188b4e90ad3e280f97a1e448",
@@ -9645,7 +9645,7 @@
     "away_cs_prior": 47.2,
     "home_opponent_attack_prior": 33.4,
     "away_opponent_attack_prior": 48.6,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::c9cb2e2965d346d1af1e64b87cc146b5",
@@ -9718,7 +9718,7 @@
     "away_cs_prior": 64.9,
     "home_opponent_attack_prior": 65.6,
     "away_opponent_attack_prior": 46.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::ef9456f6c3c145108eb4edce71272269",
@@ -9777,21 +9777,21 @@
     "away_three_plus_conceded_risk": 0.2248,
     "home_concession_safety": 90.0,
     "away_concession_safety": 77.5,
-    "home_estimated_sot_faced": 3.422,
-    "away_estimated_sot_faced": 3.834,
-    "home_expected_saves_neutral": 2.395,
-    "away_expected_saves_neutral": 2.684,
-    "home_save_point_probability_neutral": 0.429,
-    "away_save_point_probability_neutral": 0.5024,
-    "home_save_opportunity": 42.9,
-    "away_save_opportunity": 50.2,
-    "home_gk_opportunity_neutral": 62.0,
-    "away_gk_opportunity_neutral": 41.9,
+    "home_estimated_sot_faced": 3.346,
+    "away_estimated_sot_faced": 3.77,
+    "home_expected_saves_neutral": 2.343,
+    "away_expected_saves_neutral": 2.639,
+    "home_save_point_probability_neutral": 0.4152,
+    "away_save_point_probability_neutral": 0.4912,
+    "home_save_opportunity": 41.5,
+    "away_save_opportunity": 49.1,
+    "home_gk_opportunity_neutral": 61.7,
+    "away_gk_opportunity_neutral": 41.6,
     "home_cs_prior": 47.6,
     "away_cs_prior": 39.4,
     "home_opponent_attack_prior": 39.9,
     "away_opponent_attack_prior": 41.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::c019612341b54ac9a3dde8b3d0639954",
@@ -9864,7 +9864,7 @@
     "away_cs_prior": 72.3,
     "home_opponent_attack_prior": 75.8,
     "away_opponent_attack_prior": 44.7,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::c9185207365948958f5fc8abdfeaa336",
@@ -9937,7 +9937,7 @@
     "away_cs_prior": 45.0,
     "home_opponent_attack_prior": 50.0,
     "away_opponent_attack_prior": 56.5,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::6503b7b70782405eb4a1ad1e6d7b54b8",
@@ -10010,7 +10010,7 @@
     "away_cs_prior": 50.0,
     "home_opponent_attack_prior": 50.0,
     "away_opponent_attack_prior": 47.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::85bc66341f5a4f0295493184eaf206de",
@@ -10083,7 +10083,7 @@
     "away_cs_prior": 46.9,
     "home_opponent_attack_prior": 44.1,
     "away_opponent_attack_prior": 39.6,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::a3468efa8ca541299747f29ece17c9a3",
@@ -10156,7 +10156,7 @@
     "away_cs_prior": 50.0,
     "home_opponent_attack_prior": 50.0,
     "away_opponent_attack_prior": 60.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::65829246cb1f460fb15f114587ba91ed",
@@ -10229,7 +10229,7 @@
     "away_cs_prior": 44.3,
     "home_opponent_attack_prior": 37.5,
     "away_opponent_attack_prior": 83.8,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::d34da01058ba48c2b55415cbe79f989f",
@@ -10302,7 +10302,7 @@
     "away_cs_prior": 46.4,
     "home_opponent_attack_prior": 47.2,
     "away_opponent_attack_prior": 33.4,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::c7476155edb74f6985bb47a73057cfa6",
@@ -10375,7 +10375,7 @@
     "away_cs_prior": 45.4,
     "home_opponent_attack_prior": 46.5,
     "away_opponent_attack_prior": 45.3,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::b5b4e829f2d14ce88064051422724f7d",
@@ -10448,7 +10448,7 @@
     "away_cs_prior": 47.3,
     "home_opponent_attack_prior": 48.6,
     "away_opponent_attack_prior": 32.6,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::7df8223f9c5341d8a6d6a0d19c611e91",
@@ -10521,7 +10521,7 @@
     "away_cs_prior": 50.0,
     "home_opponent_attack_prior": 50.0,
     "away_opponent_attack_prior": 61.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::8578bf80c8684d158a19112b03c2bfdd",
@@ -10594,7 +10594,7 @@
     "away_cs_prior": 48.4,
     "home_opponent_attack_prior": 48.8,
     "away_opponent_attack_prior": 64.8,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::dd326c8df3174c1cb5482c304bb09fe7",
@@ -10667,7 +10667,7 @@
     "away_cs_prior": 54.6,
     "home_opponent_attack_prior": 46.0,
     "away_opponent_attack_prior": 75.8,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::f97ed48310374adfad1bf3f5336d9658",
@@ -10740,7 +10740,7 @@
     "away_cs_prior": 50.0,
     "home_opponent_attack_prior": 50.0,
     "away_opponent_attack_prior": 44.1,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::4a7f332810a14d73b75644f648507da7",
@@ -10813,7 +10813,7 @@
     "away_cs_prior": 57.8,
     "home_opponent_attack_prior": 60.0,
     "away_opponent_attack_prior": 50.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::c681b497b95149cd89232fbf4d73a51b",
@@ -10886,7 +10886,7 @@
     "away_cs_prior": 37.7,
     "home_opponent_attack_prior": 39.6,
     "away_opponent_attack_prior": 48.8,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::89b90bd393ff4e398c212386f458b5e6",
@@ -10945,21 +10945,21 @@
     "away_three_plus_conceded_risk": 0.0945,
     "home_concession_safety": 79.4,
     "away_concession_safety": 90.5,
-    "home_estimated_sot_faced": 4.215,
-    "away_estimated_sot_faced": 3.519,
-    "home_expected_saves_neutral": 2.951,
-    "away_expected_saves_neutral": 2.463,
-    "home_save_point_probability_neutral": 0.5657,
-    "away_save_point_probability_neutral": 0.4467,
-    "home_save_opportunity": 56.6,
-    "away_save_opportunity": 44.7,
-    "home_gk_opportunity_neutral": 46.3,
-    "away_gk_opportunity_neutral": 63.5,
+    "home_estimated_sot_faced": 4.145,
+    "away_estimated_sot_faced": 3.441,
+    "home_expected_saves_neutral": 2.901,
+    "away_expected_saves_neutral": 2.409,
+    "home_save_point_probability_neutral": 0.5543,
+    "away_save_point_probability_neutral": 0.4326,
+    "home_save_opportunity": 55.4,
+    "away_save_opportunity": 43.3,
+    "home_gk_opportunity_neutral": 46.0,
+    "away_gk_opportunity_neutral": 63.2,
     "home_cs_prior": 39.4,
     "away_cs_prior": 57.2,
     "home_opponent_attack_prior": 47.0,
     "away_opponent_attack_prior": 39.9,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::2949c698821a44aba995761a682ca16f",
@@ -11032,7 +11032,7 @@
     "away_cs_prior": 47.6,
     "home_opponent_attack_prior": 41.0,
     "away_opponent_attack_prior": 50.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::fce1a12faf1c4b08bd7e7dac7c571fb3",
@@ -11105,7 +11105,7 @@
     "away_cs_prior": 57.0,
     "home_opponent_attack_prior": 61.0,
     "away_opponent_attack_prior": 64.8,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::44dad15e4f8e42068f8e38df84537924",
@@ -11178,7 +11178,7 @@
     "away_cs_prior": 44.3,
     "home_opponent_attack_prior": 37.5,
     "away_opponent_attack_prior": 45.3,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::fc633cf5bdb74522866fab32e6c520f4",
@@ -11251,7 +11251,7 @@
     "away_cs_prior": 47.2,
     "home_opponent_attack_prior": 33.4,
     "away_opponent_attack_prior": 50.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::42a3da998fbf41b2b6dea1c4d35a2e91",
@@ -11324,7 +11324,7 @@
     "away_cs_prior": 64.9,
     "home_opponent_attack_prior": 65.6,
     "away_opponent_attack_prior": 83.8,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::4dd34a92093848109fe9755c008743a0",
@@ -11397,7 +11397,7 @@
     "away_cs_prior": 35.7,
     "home_opponent_attack_prior": 32.6,
     "away_opponent_attack_prior": 46.5,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::348809f87ec343259ac4d134074eabad",
@@ -11470,7 +11470,7 @@
     "away_cs_prior": 61.3,
     "home_opponent_attack_prior": 56.5,
     "away_opponent_attack_prior": 47.2,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::14944381bda5406281a3c74c71312ad8",
@@ -11543,7 +11543,7 @@
     "away_cs_prior": 47.3,
     "home_opponent_attack_prior": 48.6,
     "away_opponent_attack_prior": 44.7,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::03a5339ae43d45d1b4c19e3da2db43d3",
@@ -11616,7 +11616,7 @@
     "away_cs_prior": 35.4,
     "home_opponent_attack_prior": 45.3,
     "away_opponent_attack_prior": 47.2,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::f3693ae40aa5490da85d68442a28c7bf",
@@ -11689,7 +11689,7 @@
     "away_cs_prior": 46.0,
     "home_opponent_attack_prior": 44.7,
     "away_opponent_attack_prior": 65.6,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::f604fab9856347aeb942e25f56453c9a",
@@ -11762,7 +11762,7 @@
     "away_cs_prior": 61.3,
     "home_opponent_attack_prior": 56.5,
     "away_opponent_attack_prior": 32.6,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::e98e3b164f8246b6a7de75b09d21ed22",
@@ -11835,7 +11835,7 @@
     "away_cs_prior": 45.4,
     "home_opponent_attack_prior": 46.5,
     "away_opponent_attack_prior": 37.5,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::74b5b6ce5e2b42f886ead11ffdc27249",
@@ -11908,7 +11908,7 @@
     "away_cs_prior": 65.0,
     "home_opponent_attack_prior": 83.8,
     "away_opponent_attack_prior": 48.6,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::9b9578da1a0a4a02b507dde87369eac3",
@@ -11981,7 +11981,7 @@
     "away_cs_prior": 45.0,
     "home_opponent_attack_prior": 50.0,
     "away_opponent_attack_prior": 46.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::5a09f217a26e4127b0d9b48bd1a74fd0",
@@ -12054,7 +12054,7 @@
     "away_cs_prior": 47.2,
     "home_opponent_attack_prior": 33.4,
     "away_opponent_attack_prior": 75.8,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::03a70c57ceba4431a8445bcace093ed9",
@@ -12113,21 +12113,21 @@
     "away_three_plus_conceded_risk": 0.3337,
     "home_concession_safety": 91.8,
     "away_concession_safety": 66.6,
-    "home_estimated_sot_faced": 3.395,
-    "away_estimated_sot_faced": 4.88,
-    "home_expected_saves_neutral": 2.377,
-    "away_expected_saves_neutral": 3.416,
-    "home_save_point_probability_neutral": 0.4241,
-    "away_save_point_probability_neutral": 0.6634,
-    "home_save_opportunity": 42.4,
-    "away_save_opportunity": 66.3,
-    "home_gk_opportunity_neutral": 65.2,
-    "away_gk_opportunity_neutral": 34.5,
+    "home_estimated_sot_faced": 3.32,
+    "away_estimated_sot_faced": 4.799,
+    "home_expected_saves_neutral": 2.324,
+    "away_expected_saves_neutral": 3.359,
+    "home_save_point_probability_neutral": 0.4104,
+    "away_save_point_probability_neutral": 0.6523,
+    "home_save_opportunity": 41.0,
+    "away_save_opportunity": 65.2,
+    "home_gk_opportunity_neutral": 64.8,
+    "away_gk_opportunity_neutral": 34.2,
     "home_cs_prior": 50.0,
     "away_cs_prior": 39.4,
     "home_opponent_attack_prior": 39.9,
     "away_opponent_attack_prior": 50.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::1b73aed4c3304334a61b4072e4b7da67",
@@ -12200,7 +12200,7 @@
     "away_cs_prior": 50.0,
     "home_opponent_attack_prior": 50.0,
     "away_opponent_attack_prior": 39.6,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::68a3a51efd854d629a13ba8851855b91",
@@ -12273,7 +12273,7 @@
     "away_cs_prior": 53.0,
     "home_opponent_attack_prior": 64.8,
     "away_opponent_attack_prior": 41.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::cef0540632204c30acf6f4ab3dccd242",
@@ -12346,7 +12346,7 @@
     "away_cs_prior": 44.3,
     "home_opponent_attack_prior": 37.5,
     "away_opponent_attack_prior": 56.5,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::4d06f6e2f9db438a9e27f324e967dde8",
@@ -12419,7 +12419,7 @@
     "away_cs_prior": 57.8,
     "home_opponent_attack_prior": 60.0,
     "away_opponent_attack_prior": 47.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::1de8ae97a0374a90ad2dcd3acc0a643e",
@@ -12492,7 +12492,7 @@
     "away_cs_prior": 46.9,
     "home_opponent_attack_prior": 44.1,
     "away_opponent_attack_prior": 48.8,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::a56ae4002c2e4b54bcfd4eb870b1e40d",
@@ -12565,7 +12565,7 @@
     "away_cs_prior": 57.0,
     "home_opponent_attack_prior": 61.0,
     "away_opponent_attack_prior": 50.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::d5cd305b60e5493fa2d61f38027644e9",
@@ -12638,7 +12638,7 @@
     "away_cs_prior": 46.0,
     "home_opponent_attack_prior": 44.7,
     "away_opponent_attack_prior": 83.8,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::baa627f751ae47dcbb2e5f10baf9e549",
@@ -12711,7 +12711,7 @@
     "away_cs_prior": 35.7,
     "home_opponent_attack_prior": 32.6,
     "away_opponent_attack_prior": 33.4,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::9f35ae1c441b44739b50b0096733ed40",
@@ -12784,7 +12784,7 @@
     "away_cs_prior": 72.3,
     "home_opponent_attack_prior": 75.8,
     "away_opponent_attack_prior": 46.5,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::dd83162b7c5f487b939b4ebd2ac2c13d",
@@ -12857,7 +12857,7 @@
     "away_cs_prior": 46.4,
     "home_opponent_attack_prior": 47.2,
     "away_opponent_attack_prior": 65.6,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::c50b09aa25b04617aac57c6309fed795",
@@ -12930,7 +12930,7 @@
     "away_cs_prior": 47.3,
     "home_opponent_attack_prior": 48.6,
     "away_opponent_attack_prior": 46.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::aa00a5af9daf4937a0e807357b6a4a6e",
@@ -13003,7 +13003,7 @@
     "away_cs_prior": 45.0,
     "home_opponent_attack_prior": 50.0,
     "away_opponent_attack_prior": 45.3,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::fb23d04f6d264419a345fd0d1b71c8e0",
@@ -13076,7 +13076,7 @@
     "away_cs_prior": 50.0,
     "home_opponent_attack_prior": 50.0,
     "away_opponent_attack_prior": 44.1,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::17967eea107d4164b2faa4bd6419a4c2",
@@ -13149,7 +13149,7 @@
     "away_cs_prior": 37.7,
     "home_opponent_attack_prior": 39.6,
     "away_opponent_attack_prior": 41.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::3f93f84141cd4eeaa4257cc8c5a6f803",
@@ -13222,7 +13222,7 @@
     "away_cs_prior": 53.0,
     "home_opponent_attack_prior": 64.8,
     "away_opponent_attack_prior": 60.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::335a0136251e4fc3a225197587daa3f4",
@@ -13295,7 +13295,7 @@
     "away_cs_prior": 48.4,
     "home_opponent_attack_prior": 48.8,
     "away_opponent_attack_prior": 61.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::2c38b0df410f4dbe88f3ecafcd59b6f0",
@@ -13354,21 +13354,21 @@
     "away_three_plus_conceded_risk": 0.1284,
     "home_concession_safety": 76.6,
     "away_concession_safety": 87.2,
-    "home_estimated_sot_faced": 4.596,
-    "away_estimated_sot_faced": 3.605,
-    "home_expected_saves_neutral": 3.217,
-    "away_expected_saves_neutral": 2.523,
-    "home_save_point_probability_neutral": 0.6237,
-    "away_save_point_probability_neutral": 0.4622,
-    "home_save_opportunity": 62.4,
-    "away_save_opportunity": 46.2,
-    "home_gk_opportunity_neutral": 43.5,
-    "away_gk_opportunity_neutral": 57.4,
+    "home_estimated_sot_faced": 4.519,
+    "away_estimated_sot_faced": 3.526,
+    "home_expected_saves_neutral": 3.163,
+    "away_expected_saves_neutral": 2.468,
+    "home_save_point_probability_neutral": 0.6124,
+    "away_save_point_probability_neutral": 0.4479,
+    "home_save_opportunity": 61.2,
+    "away_save_opportunity": 44.8,
+    "home_gk_opportunity_neutral": 43.2,
+    "away_gk_opportunity_neutral": 57.1,
     "home_cs_prior": 39.4,
     "away_cs_prior": 50.0,
     "home_opponent_attack_prior": 50.0,
     "away_opponent_attack_prior": 39.9,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::70f8627090854a97a500fb8c542d1ba2",
@@ -13441,7 +13441,7 @@
     "away_cs_prior": 57.2,
     "home_opponent_attack_prior": 47.0,
     "away_opponent_attack_prior": 50.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::84c9fcbc0c74463db7b01e840a009eb1",
@@ -13514,7 +13514,7 @@
     "away_cs_prior": 65.0,
     "home_opponent_attack_prior": 83.8,
     "away_opponent_attack_prior": 75.8,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::4381e42ab47e40778abf07ce11fd7b62",
@@ -13587,7 +13587,7 @@
     "away_cs_prior": 45.4,
     "home_opponent_attack_prior": 46.5,
     "away_opponent_attack_prior": 56.5,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::36bcdd5b400e463a91b2d1648774fd3c",
@@ -13660,7 +13660,7 @@
     "away_cs_prior": 47.6,
     "home_opponent_attack_prior": 41.0,
     "away_opponent_attack_prior": 44.1,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::fa422cad5ee4459bb86ff685de7cc92b",
@@ -13733,7 +13733,7 @@
     "away_cs_prior": 37.7,
     "home_opponent_attack_prior": 39.6,
     "away_opponent_attack_prior": 64.8,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::5ea0f65a0c064a5eab3278859d873240",
@@ -13806,7 +13806,7 @@
     "away_cs_prior": 50.0,
     "home_opponent_attack_prior": 50.0,
     "away_opponent_attack_prior": 50.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::83641022737b4cedad6185f7c75fab3e",
@@ -13879,7 +13879,7 @@
     "away_cs_prior": 50.0,
     "home_opponent_attack_prior": 50.0,
     "away_opponent_attack_prior": 60.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::03113d10d1624e418991875519623e75",
@@ -13938,21 +13938,21 @@
     "away_three_plus_conceded_risk": 0.3192,
     "home_concession_safety": 90.4,
     "away_concession_safety": 68.1,
-    "home_estimated_sot_faced": 3.413,
-    "away_estimated_sot_faced": 4.664,
-    "home_expected_saves_neutral": 2.389,
-    "away_expected_saves_neutral": 3.265,
-    "home_save_point_probability_neutral": 0.4274,
-    "away_save_point_probability_neutral": 0.6334,
-    "home_save_opportunity": 42.7,
-    "away_save_opportunity": 63.3,
-    "home_gk_opportunity_neutral": 62.7,
-    "away_gk_opportunity_neutral": 34.8,
+    "home_estimated_sot_faced": 3.338,
+    "away_estimated_sot_faced": 4.585,
+    "home_expected_saves_neutral": 2.336,
+    "away_expected_saves_neutral": 3.21,
+    "home_save_point_probability_neutral": 0.4136,
+    "away_save_point_probability_neutral": 0.6221,
+    "home_save_opportunity": 41.4,
+    "away_save_opportunity": 62.2,
+    "home_gk_opportunity_neutral": 62.3,
+    "away_gk_opportunity_neutral": 34.5,
     "home_cs_prior": 48.4,
     "away_cs_prior": 39.4,
     "home_opponent_attack_prior": 39.9,
     "away_opponent_attack_prior": 48.8,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::3cf8bdd04df44b2e825eafe27bc8371c",
@@ -14025,7 +14025,7 @@
     "away_cs_prior": 35.4,
     "home_opponent_attack_prior": 45.3,
     "away_opponent_attack_prior": 48.6,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::ed79c0a395754bfd937c4cb93babaf62",
@@ -14098,7 +14098,7 @@
     "away_cs_prior": 46.4,
     "home_opponent_attack_prior": 47.2,
     "away_opponent_attack_prior": 44.7,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::c080055c5bb0460a9d26b9d21ae1a050",
@@ -14171,7 +14171,7 @@
     "away_cs_prior": 35.7,
     "home_opponent_attack_prior": 32.6,
     "away_opponent_attack_prior": 37.5,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::46461cc7f7ff4200b49a054aacac4b70",
@@ -14244,7 +14244,7 @@
     "away_cs_prior": 64.9,
     "home_opponent_attack_prior": 65.6,
     "away_opponent_attack_prior": 50.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::d13c61c932a84635a141121b6ce9eb76",
@@ -14317,7 +14317,7 @@
     "away_cs_prior": 54.6,
     "home_opponent_attack_prior": 46.0,
     "away_opponent_attack_prior": 33.4,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::f9b7adfc21f641d3822bda8ca7850c14",
@@ -14390,7 +14390,7 @@
     "away_cs_prior": 57.2,
     "home_opponent_attack_prior": 47.0,
     "away_opponent_attack_prior": 61.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::083ff7b65530402799a5f3d692cdfc09",
@@ -14449,21 +14449,21 @@
     "away_three_plus_conceded_risk": 0.1536,
     "home_concession_safety": 84.9,
     "away_concession_safety": 84.6,
-    "home_estimated_sot_faced": 3.611,
-    "away_estimated_sot_faced": 3.633,
-    "home_expected_saves_neutral": 2.527,
-    "away_expected_saves_neutral": 2.543,
-    "home_save_point_probability_neutral": 0.4632,
-    "away_save_point_probability_neutral": 0.4673,
-    "home_save_opportunity": 46.3,
-    "away_save_opportunity": 46.7,
-    "home_gk_opportunity_neutral": 53.2,
-    "away_gk_opportunity_neutral": 52.8,
+    "home_estimated_sot_faced": 3.55,
+    "away_estimated_sot_faced": 3.553,
+    "home_expected_saves_neutral": 2.485,
+    "away_expected_saves_neutral": 2.487,
+    "home_save_point_probability_neutral": 0.4523,
+    "away_save_point_probability_neutral": 0.453,
+    "home_save_opportunity": 45.2,
+    "away_save_opportunity": 45.3,
+    "home_gk_opportunity_neutral": 52.9,
+    "away_gk_opportunity_neutral": 52.4,
     "home_cs_prior": 39.4,
     "away_cs_prior": 47.6,
     "home_opponent_attack_prior": 41.0,
     "away_opponent_attack_prior": 39.9,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::ed28a47e4d3145c0b41c6d5e7285a7fc",
@@ -14536,7 +14536,7 @@
     "away_cs_prior": 48.4,
     "home_opponent_attack_prior": 48.8,
     "away_opponent_attack_prior": 47.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::6d19404281864fbdbe2947cacea24f4b",
@@ -14609,7 +14609,7 @@
     "away_cs_prior": 50.0,
     "home_opponent_attack_prior": 50.0,
     "away_opponent_attack_prior": 64.8,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::a6cd418c4d2748f8b6fdefdae7c9919d",
@@ -14682,7 +14682,7 @@
     "away_cs_prior": 57.8,
     "home_opponent_attack_prior": 60.0,
     "away_opponent_attack_prior": 39.6,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::aff473f19fab4f50ac2667b8dfd683fd",
@@ -14755,7 +14755,7 @@
     "away_cs_prior": 46.9,
     "home_opponent_attack_prior": 44.1,
     "away_opponent_attack_prior": 50.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::651bec8431be40099f0de7dd7d776dbc",
@@ -14828,7 +14828,7 @@
     "away_cs_prior": 57.0,
     "home_opponent_attack_prior": 61.0,
     "away_opponent_attack_prior": 50.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::1d76e59882b74c26a6aeabf2dc96a206",
@@ -14901,7 +14901,7 @@
     "away_cs_prior": 61.3,
     "home_opponent_attack_prior": 56.5,
     "away_opponent_attack_prior": 50.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::0a935a222ac744808add62033b4bf266",
@@ -14974,7 +14974,7 @@
     "away_cs_prior": 65.0,
     "home_opponent_attack_prior": 83.8,
     "away_opponent_attack_prior": 32.6,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::1848cf9fdbaa4901a830d998c2f88e4d",
@@ -15047,7 +15047,7 @@
     "away_cs_prior": 46.0,
     "home_opponent_attack_prior": 44.7,
     "away_opponent_attack_prior": 45.3,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::ee7f33be3f7046418aa8b3104d026f1a",
@@ -15120,7 +15120,7 @@
     "away_cs_prior": 72.3,
     "home_opponent_attack_prior": 75.8,
     "away_opponent_attack_prior": 48.6,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::fa150044d9814f50ae916d07dd015f75",
@@ -15193,7 +15193,7 @@
     "away_cs_prior": 44.3,
     "home_opponent_attack_prior": 37.5,
     "away_opponent_attack_prior": 46.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::808160a65afb4119bb95ae144205cea1",
@@ -15266,7 +15266,7 @@
     "away_cs_prior": 47.2,
     "home_opponent_attack_prior": 33.4,
     "away_opponent_attack_prior": 65.6,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::3809fc6719ad4fa791363f57fd6fe726",
@@ -15339,7 +15339,7 @@
     "away_cs_prior": 45.4,
     "home_opponent_attack_prior": 46.5,
     "away_opponent_attack_prior": 47.2,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::e9ab767f37b04abc80c01e9871f6aba5",
@@ -15412,7 +15412,7 @@
     "away_cs_prior": 57.0,
     "home_opponent_attack_prior": 61.0,
     "away_opponent_attack_prior": 50.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::ce3c0ec8279b441ca918a3e1158dd3cf",
@@ -15485,7 +15485,7 @@
     "away_cs_prior": 50.0,
     "home_opponent_attack_prior": 50.0,
     "away_opponent_attack_prior": 39.6,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::46092dc2ecd449beba6da5d336fe6c7c",
@@ -15558,7 +15558,7 @@
     "away_cs_prior": 50.0,
     "home_opponent_attack_prior": 50.0,
     "away_opponent_attack_prior": 41.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::0500de26baef4f75bcec197138974888",
@@ -15631,7 +15631,7 @@
     "away_cs_prior": 53.0,
     "home_opponent_attack_prior": 64.8,
     "away_opponent_attack_prior": 48.8,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::d78e2d90afcb4b77a8d20eccbd2d645e",
@@ -15690,21 +15690,21 @@
     "away_three_plus_conceded_risk": 0.2619,
     "home_concession_safety": 89.7,
     "away_concession_safety": 73.8,
-    "home_estimated_sot_faced": 3.43,
-    "away_estimated_sot_faced": 4.165,
-    "home_expected_saves_neutral": 2.401,
-    "away_expected_saves_neutral": 2.915,
-    "home_save_point_probability_neutral": 0.4306,
-    "away_save_point_probability_neutral": 0.5576,
-    "home_save_opportunity": 43.1,
-    "away_save_opportunity": 55.8,
-    "home_gk_opportunity_neutral": 61.4,
-    "away_gk_opportunity_neutral": 38.4,
+    "home_estimated_sot_faced": 3.355,
+    "away_estimated_sot_faced": 4.095,
+    "home_expected_saves_neutral": 2.349,
+    "away_expected_saves_neutral": 2.866,
+    "home_save_point_probability_neutral": 0.4168,
+    "away_save_point_probability_neutral": 0.5462,
+    "home_save_opportunity": 41.7,
+    "away_save_opportunity": 54.6,
+    "home_gk_opportunity_neutral": 61.1,
+    "away_gk_opportunity_neutral": 38.1,
     "home_cs_prior": 46.9,
     "away_cs_prior": 39.4,
     "home_opponent_attack_prior": 39.9,
     "away_opponent_attack_prior": 44.1,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::4b35a7d6ad4f44efb5214d03c5866d78",
@@ -15777,7 +15777,7 @@
     "away_cs_prior": 57.2,
     "home_opponent_attack_prior": 47.0,
     "away_opponent_attack_prior": 60.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::fdd7d3e512b443e9a170330be37f994d",
@@ -15850,7 +15850,7 @@
     "away_cs_prior": 47.3,
     "home_opponent_attack_prior": 48.6,
     "away_opponent_attack_prior": 33.4,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::70c7b22d58904fa1b39bf4bc7b6711f7",
@@ -15923,7 +15923,7 @@
     "away_cs_prior": 35.7,
     "home_opponent_attack_prior": 32.6,
     "away_opponent_attack_prior": 44.7,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::ff1757f601de4d60a86c580c0492781a",
@@ -15996,7 +15996,7 @@
     "away_cs_prior": 54.6,
     "home_opponent_attack_prior": 46.0,
     "away_opponent_attack_prior": 45.3,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::e3b082fd375c451f804c21cfe5f9836e",
@@ -16069,7 +16069,7 @@
     "away_cs_prior": 72.3,
     "home_opponent_attack_prior": 75.8,
     "away_opponent_attack_prior": 47.2,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::153230aec0bd4f759c3d62b10d7219a9",
@@ -16142,7 +16142,7 @@
     "away_cs_prior": 45.0,
     "home_opponent_attack_prior": 50.0,
     "away_opponent_attack_prior": 37.5,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::2c8a4ad38bf746db9a48ba54544eec85",
@@ -16215,7 +16215,7 @@
     "away_cs_prior": 64.9,
     "home_opponent_attack_prior": 65.6,
     "away_opponent_attack_prior": 46.5,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::8d75a542881c4242b4010218251d5f63",
@@ -16288,7 +16288,7 @@
     "away_cs_prior": 61.3,
     "home_opponent_attack_prior": 56.5,
     "away_opponent_attack_prior": 83.8,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::082a7fe6b05a4b6bb6dbcc3c062745b0",
@@ -16361,7 +16361,7 @@
     "away_cs_prior": 64.9,
     "home_opponent_attack_prior": 65.6,
     "away_opponent_attack_prior": 48.6,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::aa01d475d622498987db4541ace64be9",
@@ -16434,7 +16434,7 @@
     "away_cs_prior": 45.0,
     "home_opponent_attack_prior": 50.0,
     "away_opponent_attack_prior": 75.8,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::f4bd8d6bf4d24539b92a26d9d04d4ecf",
@@ -16507,7 +16507,7 @@
     "away_cs_prior": 46.0,
     "home_opponent_attack_prior": 44.7,
     "away_opponent_attack_prior": 56.5,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::f69cd7a29eee4212b6892c71744459d1",
@@ -16566,21 +16566,21 @@
     "away_three_plus_conceded_risk": 0.2241,
     "home_concession_safety": 86.1,
     "away_concession_safety": 77.6,
-    "home_estimated_sot_faced": 3.467,
-    "away_estimated_sot_faced": 3.753,
-    "home_expected_saves_neutral": 2.427,
-    "away_expected_saves_neutral": 2.627,
-    "home_save_point_probability_neutral": 0.4372,
-    "away_save_point_probability_neutral": 0.4884,
-    "home_save_opportunity": 43.7,
-    "away_save_opportunity": 48.8,
-    "home_gk_opportunity_neutral": 54.8,
-    "away_gk_opportunity_neutral": 41.6,
+    "home_estimated_sot_faced": 3.408,
+    "away_estimated_sot_faced": 3.67,
+    "home_expected_saves_neutral": 2.386,
+    "away_expected_saves_neutral": 2.569,
+    "home_save_point_probability_neutral": 0.4266,
+    "away_save_point_probability_neutral": 0.4738,
+    "home_save_opportunity": 42.7,
+    "away_save_opportunity": 47.4,
+    "home_gk_opportunity_neutral": 54.6,
+    "away_gk_opportunity_neutral": 41.2,
     "home_cs_prior": 39.4,
     "away_cs_prior": 37.7,
     "home_opponent_attack_prior": 39.6,
     "away_opponent_attack_prior": 39.9,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::c2c3e55ba4074f8dbbf5b24950e342ab",
@@ -16653,7 +16653,7 @@
     "away_cs_prior": 47.6,
     "home_opponent_attack_prior": 41.0,
     "away_opponent_attack_prior": 47.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::a7091cc45b864b489fdbd67d42072711",
@@ -16726,7 +16726,7 @@
     "away_cs_prior": 57.8,
     "home_opponent_attack_prior": 60.0,
     "away_opponent_attack_prior": 48.8,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::acc1dfd2690a41dabfa17cf350a3bff3",
@@ -16799,7 +16799,7 @@
     "away_cs_prior": 50.0,
     "home_opponent_attack_prior": 50.0,
     "away_opponent_attack_prior": 50.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::59b4c18313b846d5914ed48e21ff3ce6",
@@ -16872,7 +16872,7 @@
     "away_cs_prior": 46.9,
     "home_opponent_attack_prior": 44.1,
     "away_opponent_attack_prior": 64.8,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::1f2f4ea5ef5d47ab8626933337b8a265",
@@ -16945,7 +16945,7 @@
     "away_cs_prior": 35.4,
     "home_opponent_attack_prior": 45.3,
     "away_opponent_attack_prior": 83.8,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::b8887b7da085487abdd395a7adfb90e1",
@@ -17018,7 +17018,7 @@
     "away_cs_prior": 46.4,
     "home_opponent_attack_prior": 47.2,
     "away_opponent_attack_prior": 37.5,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::3638fc83620f4c6491c48d7b018a6577",
@@ -17091,7 +17091,7 @@
     "away_cs_prior": 54.6,
     "home_opponent_attack_prior": 46.0,
     "away_opponent_attack_prior": 32.6,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::5cfc52a28a304b38b28d275e161cb033",
@@ -17164,7 +17164,7 @@
     "away_cs_prior": 47.2,
     "home_opponent_attack_prior": 33.4,
     "away_opponent_attack_prior": 46.5,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::6dda9552314140afa3a5dbce5488de9d",
@@ -17237,7 +17237,7 @@
     "away_cs_prior": 50.0,
     "home_opponent_attack_prior": 50.0,
     "away_opponent_attack_prior": 61.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::52c1ca501b834b36ae44eeefb0f34957",
@@ -17310,7 +17310,7 @@
     "away_cs_prior": 44.3,
     "home_opponent_attack_prior": 37.5,
     "away_opponent_attack_prior": 44.7,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::388c8d971cdd4a37878e4544ecb61da6",
@@ -17383,7 +17383,7 @@
     "away_cs_prior": 61.3,
     "home_opponent_attack_prior": 56.5,
     "away_opponent_attack_prior": 33.4,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::d64917b503e8451ea8387b3fa9d63793",
@@ -17456,7 +17456,7 @@
     "away_cs_prior": 35.7,
     "home_opponent_attack_prior": 32.6,
     "away_opponent_attack_prior": 65.6,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::157930e85a924cb2ac9a97bf1e0a8b40",
@@ -17529,7 +17529,7 @@
     "away_cs_prior": 65.0,
     "home_opponent_attack_prior": 83.8,
     "away_opponent_attack_prior": 50.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::2672624268444593a07532cd24fcdc94",
@@ -17602,7 +17602,7 @@
     "away_cs_prior": 72.3,
     "home_opponent_attack_prior": 75.8,
     "away_opponent_attack_prior": 45.3,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::b71b88c7a8ae43d5b21d426eb8648ab3",
@@ -17675,7 +17675,7 @@
     "away_cs_prior": 45.4,
     "home_opponent_attack_prior": 46.5,
     "away_opponent_attack_prior": 46.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::27829a5c565d4235b24cc23794107714",
@@ -17748,7 +17748,7 @@
     "away_cs_prior": 47.3,
     "home_opponent_attack_prior": 48.6,
     "away_opponent_attack_prior": 47.2,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::cf45c3aaa2f94103a7e3bce48349b2af",
@@ -17821,7 +17821,7 @@
     "away_cs_prior": 57.2,
     "home_opponent_attack_prior": 47.0,
     "away_opponent_attack_prior": 39.6,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::ad74f37de9344c8da2811f5f6456ad25",
@@ -17894,7 +17894,7 @@
     "away_cs_prior": 57.0,
     "home_opponent_attack_prior": 61.0,
     "away_opponent_attack_prior": 41.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::84606d807387463eb942ab6ec6c5ed0b",
@@ -17967,7 +17967,7 @@
     "away_cs_prior": 53.0,
     "home_opponent_attack_prior": 64.8,
     "away_opponent_attack_prior": 50.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::28e0afb77cba45a89b6e2a75151d8e76",
@@ -18026,21 +18026,21 @@
     "away_three_plus_conceded_risk": 0.1284,
     "home_concession_safety": 76.6,
     "away_concession_safety": 87.2,
-    "home_estimated_sot_faced": 4.596,
-    "away_estimated_sot_faced": 3.605,
-    "home_expected_saves_neutral": 3.217,
-    "away_expected_saves_neutral": 2.523,
-    "home_save_point_probability_neutral": 0.6237,
-    "away_save_point_probability_neutral": 0.4622,
-    "home_save_opportunity": 62.4,
-    "away_save_opportunity": 46.2,
-    "home_gk_opportunity_neutral": 43.5,
-    "away_gk_opportunity_neutral": 57.4,
+    "home_estimated_sot_faced": 4.519,
+    "away_estimated_sot_faced": 3.526,
+    "home_expected_saves_neutral": 3.163,
+    "away_expected_saves_neutral": 2.468,
+    "home_save_point_probability_neutral": 0.6124,
+    "away_save_point_probability_neutral": 0.4479,
+    "home_save_opportunity": 61.2,
+    "away_save_opportunity": 44.8,
+    "home_gk_opportunity_neutral": 43.2,
+    "away_gk_opportunity_neutral": 57.1,
     "home_cs_prior": 39.4,
     "away_cs_prior": 50.0,
     "home_opponent_attack_prior": 50.0,
     "away_opponent_attack_prior": 39.9,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::06d780609b39473494b606a0efb4c26c",
@@ -18113,7 +18113,7 @@
     "away_cs_prior": 48.4,
     "home_opponent_attack_prior": 48.8,
     "away_opponent_attack_prior": 44.1,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::0e4c6917e1d94abe9aa3a8dc0d617e21",
@@ -18186,7 +18186,7 @@
     "away_cs_prior": 50.0,
     "home_opponent_attack_prior": 50.0,
     "away_opponent_attack_prior": 60.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::00915e7d34e04546818ffe6aab5a249b",
@@ -18259,7 +18259,7 @@
     "away_cs_prior": 48.4,
     "home_opponent_attack_prior": 48.8,
     "away_opponent_attack_prior": 50.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::149b1aa564da4310899d80c8311e3591",
@@ -18332,7 +18332,7 @@
     "away_cs_prior": 50.0,
     "home_opponent_attack_prior": 50.0,
     "away_opponent_attack_prior": 50.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::43fe463d1a3143278221e892bbe6dd41",
@@ -18405,7 +18405,7 @@
     "away_cs_prior": 46.4,
     "home_opponent_attack_prior": 47.2,
     "away_opponent_attack_prior": 83.8,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::e9cb7e86c75242f8b05af181db87d0af",
@@ -18478,7 +18478,7 @@
     "away_cs_prior": 47.6,
     "home_opponent_attack_prior": 41.0,
     "away_opponent_attack_prior": 60.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::693c95a5b9dc44cc81dad7ebc5f89335",
@@ -18551,7 +18551,7 @@
     "away_cs_prior": 35.4,
     "home_opponent_attack_prior": 45.3,
     "away_opponent_attack_prior": 56.5,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::d2230479a4794f8a9d25a9758dfb723e",
@@ -18610,21 +18610,21 @@
     "away_three_plus_conceded_risk": 0.5082,
     "home_concession_safety": 92.4,
     "away_concession_safety": 49.2,
-    "home_estimated_sot_faced": 3.361,
-    "away_estimated_sot_faced": 6.362,
-    "home_expected_saves_neutral": 2.353,
-    "away_expected_saves_neutral": 4.453,
-    "home_save_point_probability_neutral": 0.4179,
-    "away_save_point_probability_neutral": 0.8211,
-    "home_save_opportunity": 41.8,
-    "away_save_opportunity": 82.1,
-    "home_gk_opportunity_neutral": 66.2,
-    "away_gk_opportunity_neutral": 33.2,
+    "home_estimated_sot_faced": 3.287,
+    "away_estimated_sot_faced": 6.255,
+    "home_expected_saves_neutral": 2.301,
+    "away_expected_saves_neutral": 4.379,
+    "home_save_point_probability_neutral": 0.4042,
+    "away_save_point_probability_neutral": 0.8123,
+    "home_save_opportunity": 40.4,
+    "away_save_opportunity": 81.2,
+    "home_gk_opportunity_neutral": 65.8,
+    "away_gk_opportunity_neutral": 33.0,
     "home_cs_prior": 53.0,
     "away_cs_prior": 39.4,
     "home_opponent_attack_prior": 39.9,
     "away_opponent_attack_prior": 64.8,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::cfd12513206e4ef18e22ace4156d4f34",
@@ -18697,7 +18697,7 @@
     "away_cs_prior": 46.9,
     "home_opponent_attack_prior": 44.1,
     "away_opponent_attack_prior": 47.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::1598a7e4e7c547f388075eb3a8567287",
@@ -18770,7 +18770,7 @@
     "away_cs_prior": 45.0,
     "home_opponent_attack_prior": 50.0,
     "away_opponent_attack_prior": 32.6,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::e7f80cf79a204fba8d0ab445a517fd47",
@@ -18843,7 +18843,7 @@
     "away_cs_prior": 64.9,
     "home_opponent_attack_prior": 65.6,
     "away_opponent_attack_prior": 75.8,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::7acbd8503d2a40c7824770b6664ed250",
@@ -18916,7 +18916,7 @@
     "away_cs_prior": 45.4,
     "home_opponent_attack_prior": 46.5,
     "away_opponent_attack_prior": 48.6,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::f91d2a141a174bfdb1a0a50f9fde7226",
@@ -18989,7 +18989,7 @@
     "away_cs_prior": 54.6,
     "home_opponent_attack_prior": 46.0,
     "away_opponent_attack_prior": 44.7,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::dac0fdaa87ea4a6f8f34a276d44aff9a",
@@ -19062,7 +19062,7 @@
     "away_cs_prior": 47.2,
     "home_opponent_attack_prior": 33.4,
     "away_opponent_attack_prior": 37.5,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::e6d733b534fd480aa61d615f8899a297",
@@ -19135,7 +19135,7 @@
     "away_cs_prior": 37.7,
     "home_opponent_attack_prior": 39.6,
     "away_opponent_attack_prior": 61.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::4c3ddec397964e6fa7f1bdccb5bbb799",
@@ -19208,7 +19208,7 @@
     "away_cs_prior": 57.2,
     "home_opponent_attack_prior": 47.0,
     "away_opponent_attack_prior": 50.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::d93372113c764444b721a721342c6580",
@@ -19281,7 +19281,7 @@
     "away_cs_prior": 57.8,
     "home_opponent_attack_prior": 60.0,
     "away_opponent_attack_prior": 50.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::80a3cf69d4fe42179ec30e522b9bbcd0",
@@ -19354,7 +19354,7 @@
     "away_cs_prior": 37.7,
     "home_opponent_attack_prior": 39.6,
     "away_opponent_attack_prior": 44.1,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::fc408347fdd9491290e2ed75fa2018f8",
@@ -19427,7 +19427,7 @@
     "away_cs_prior": 47.6,
     "home_opponent_attack_prior": 41.0,
     "away_opponent_attack_prior": 48.8,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::5f1a92921a694472b06b5eaccf77011e",
@@ -19486,21 +19486,21 @@
     "away_three_plus_conceded_risk": 0.0958,
     "home_concession_safety": 65.6,
     "away_concession_safety": 90.4,
-    "home_estimated_sot_faced": 5.615,
-    "away_estimated_sot_faced": 3.521,
-    "home_expected_saves_neutral": 3.93,
-    "away_expected_saves_neutral": 2.465,
-    "home_save_point_probability_neutral": 0.7515,
-    "away_save_point_probability_neutral": 0.4472,
-    "home_save_opportunity": 75.1,
-    "away_save_opportunity": 44.7,
-    "home_gk_opportunity_neutral": 35.9,
-    "away_gk_opportunity_neutral": 63.2,
+    "home_estimated_sot_faced": 5.52,
+    "away_estimated_sot_faced": 3.444,
+    "home_expected_saves_neutral": 3.864,
+    "away_expected_saves_neutral": 2.411,
+    "home_save_point_probability_neutral": 0.7413,
+    "away_save_point_probability_neutral": 0.4331,
+    "home_save_opportunity": 74.1,
+    "away_save_opportunity": 43.3,
+    "home_gk_opportunity_neutral": 35.7,
+    "away_gk_opportunity_neutral": 62.9,
     "home_cs_prior": 39.4,
     "away_cs_prior": 57.0,
     "home_opponent_attack_prior": 61.0,
     "away_opponent_attack_prior": 39.9,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::1c3ba6f1b38940ee91d277323dbf04a5",
@@ -19573,7 +19573,7 @@
     "away_cs_prior": 50.0,
     "home_opponent_attack_prior": 50.0,
     "away_opponent_attack_prior": 64.8,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::946872aeef2f4217a3ef401cb84f4e49",
@@ -19646,7 +19646,7 @@
     "away_cs_prior": 44.3,
     "home_opponent_attack_prior": 37.5,
     "away_opponent_attack_prior": 75.8,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::2730fd2a005b4c7a95646ea5504931bd",
@@ -19719,7 +19719,7 @@
     "away_cs_prior": 46.4,
     "home_opponent_attack_prior": 47.2,
     "away_opponent_attack_prior": 50.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::bb58965d35cc4f08860840039b203644",
@@ -19792,7 +19792,7 @@
     "away_cs_prior": 65.0,
     "home_opponent_attack_prior": 83.8,
     "away_opponent_attack_prior": 46.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::e55d895d9734462a9b53cf3756441a8e",
@@ -19865,7 +19865,7 @@
     "away_cs_prior": 35.7,
     "home_opponent_attack_prior": 32.6,
     "away_opponent_attack_prior": 48.6,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::519db7d391c84623b28fc1d6b05c5b18",
@@ -19938,7 +19938,7 @@
     "away_cs_prior": 35.4,
     "home_opponent_attack_prior": 45.3,
     "away_opponent_attack_prior": 33.4,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::d20b143edecc4506bca04b803a7a87ff",
@@ -20011,7 +20011,7 @@
     "away_cs_prior": 46.0,
     "home_opponent_attack_prior": 44.7,
     "away_opponent_attack_prior": 46.5,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::431a930a84b245058a1ddf4d58820904",
@@ -20084,7 +20084,7 @@
     "away_cs_prior": 61.3,
     "home_opponent_attack_prior": 56.5,
     "away_opponent_attack_prior": 65.6,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::fbab4580ec6245deb264a9a1c3927ded",
@@ -20157,7 +20157,7 @@
     "away_cs_prior": 50.0,
     "home_opponent_attack_prior": 50.0,
     "away_opponent_attack_prior": 39.6,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::a01a45ff09044ae882b83d0754b01873",
@@ -20230,7 +20230,7 @@
     "away_cs_prior": 50.0,
     "home_opponent_attack_prior": 50.0,
     "away_opponent_attack_prior": 41.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::7f8fa22304c24433ba16742e54e7bb93",
@@ -20303,7 +20303,7 @@
     "away_cs_prior": 46.9,
     "home_opponent_attack_prior": 44.1,
     "away_opponent_attack_prior": 60.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::daa2e1019e994137b858bd0807e9e8ae",
@@ -20376,7 +20376,7 @@
     "away_cs_prior": 48.4,
     "home_opponent_attack_prior": 48.8,
     "away_opponent_attack_prior": 50.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::775644e9e3764e8599ce1c43fce744a6",
@@ -20435,21 +20435,21 @@
     "away_three_plus_conceded_risk": 0.2975,
     "home_concession_safety": 94.1,
     "away_concession_safety": 70.3,
-    "home_estimated_sot_faced": 3.314,
-    "away_estimated_sot_faced": 4.476,
-    "home_expected_saves_neutral": 2.32,
-    "away_expected_saves_neutral": 3.133,
-    "home_save_point_probability_neutral": 0.4092,
-    "away_save_point_probability_neutral": 0.606,
-    "home_save_opportunity": 40.9,
-    "away_save_opportunity": 60.6,
-    "home_gk_opportunity_neutral": 68.9,
-    "away_gk_opportunity_neutral": 35.9,
+    "home_estimated_sot_faced": 3.241,
+    "away_estimated_sot_faced": 4.401,
+    "home_expected_saves_neutral": 2.269,
+    "away_expected_saves_neutral": 3.081,
+    "home_save_point_probability_neutral": 0.3956,
+    "away_save_point_probability_neutral": 0.5946,
+    "home_save_opportunity": 39.6,
+    "away_save_opportunity": 59.5,
+    "home_gk_opportunity_neutral": 68.5,
+    "away_gk_opportunity_neutral": 35.6,
     "home_cs_prior": 57.2,
     "away_cs_prior": 39.4,
     "home_opponent_attack_prior": 39.9,
     "away_opponent_attack_prior": 47.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::3290ae45e0da43858735feefbd75adbd",
@@ -20522,7 +20522,7 @@
     "away_cs_prior": 53.0,
     "home_opponent_attack_prior": 64.8,
     "away_opponent_attack_prior": 61.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::c041bc6ebbf84724a99c7c884be9ea16",
@@ -20595,7 +20595,7 @@
     "away_cs_prior": 65.0,
     "home_opponent_attack_prior": 83.8,
     "away_opponent_attack_prior": 37.5,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::5a827510c8c64af69f49f58741781047",
@@ -20668,7 +20668,7 @@
     "away_cs_prior": 37.7,
     "home_opponent_attack_prior": 39.6,
     "away_opponent_attack_prior": 50.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::c6eb1ced947f43b7afd23f8d98619839",
@@ -20741,7 +20741,7 @@
     "away_cs_prior": 47.6,
     "home_opponent_attack_prior": 41.0,
     "away_opponent_attack_prior": 64.8,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::523978fae1114c61aca9b3d9b278ef11",
@@ -20814,7 +20814,7 @@
     "away_cs_prior": 47.3,
     "home_opponent_attack_prior": 48.6,
     "away_opponent_attack_prior": 56.5,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::63711435debd438982c56745e9b1c67b",
@@ -20873,21 +20873,21 @@
     "away_three_plus_conceded_risk": 0.0912,
     "home_concession_safety": 66.6,
     "away_concession_safety": 90.9,
-    "home_estimated_sot_faced": 5.515,
-    "away_estimated_sot_faced": 3.512,
-    "home_expected_saves_neutral": 3.861,
-    "away_expected_saves_neutral": 2.458,
-    "home_save_point_probability_neutral": 0.7408,
-    "away_save_point_probability_neutral": 0.4454,
-    "home_save_opportunity": 74.1,
-    "away_save_opportunity": 44.5,
-    "home_gk_opportunity_neutral": 36.3,
-    "away_gk_opportunity_neutral": 64.0,
+    "home_estimated_sot_faced": 5.423,
+    "away_estimated_sot_faced": 3.434,
+    "home_expected_saves_neutral": 3.796,
+    "away_expected_saves_neutral": 2.404,
+    "home_save_point_probability_neutral": 0.7305,
+    "away_save_point_probability_neutral": 0.4313,
+    "home_save_opportunity": 73.0,
+    "away_save_opportunity": 43.1,
+    "home_gk_opportunity_neutral": 36.1,
+    "away_gk_opportunity_neutral": 63.7,
     "home_cs_prior": 39.4,
     "away_cs_prior": 57.8,
     "home_opponent_attack_prior": 60.0,
     "away_opponent_attack_prior": 39.9,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::ac73892005a74c3f91a61decedd35adf",
@@ -20960,7 +20960,7 @@
     "away_cs_prior": 57.2,
     "home_opponent_attack_prior": 47.0,
     "away_opponent_attack_prior": 50.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::57e524c14d1b4f2aa9e0089f41f5e5e2",
@@ -21033,7 +21033,7 @@
     "away_cs_prior": 50.0,
     "home_opponent_attack_prior": 50.0,
     "away_opponent_attack_prior": 48.8,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::6d59089480d44b4c8027d315b5d0c0ab",
@@ -21106,7 +21106,7 @@
     "away_cs_prior": 54.6,
     "home_opponent_attack_prior": 46.0,
     "away_opponent_attack_prior": 47.2,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::de70de9263364fb3bc6689dd524b09a4",
@@ -21179,7 +21179,7 @@
     "away_cs_prior": 46.0,
     "home_opponent_attack_prior": 44.7,
     "away_opponent_attack_prior": 33.4,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::1751ecbb8cf042f2a307b9e8b01226bc",
@@ -21252,7 +21252,7 @@
     "away_cs_prior": 72.3,
     "home_opponent_attack_prior": 75.8,
     "away_opponent_attack_prior": 32.6,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::b21cd4cbec364eccb93a7c6f115b5db8",
@@ -21325,7 +21325,7 @@
     "away_cs_prior": 45.0,
     "home_opponent_attack_prior": 50.0,
     "away_opponent_attack_prior": 46.5,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::24956a7d99884ca8b9f32e14d34c6b97",
@@ -21398,7 +21398,7 @@
     "away_cs_prior": 46.9,
     "home_opponent_attack_prior": 44.1,
     "away_opponent_attack_prior": 61.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::90c8ed1691dc46839dc2955cd5bef6a0",
@@ -21471,7 +21471,7 @@
     "away_cs_prior": 64.9,
     "home_opponent_attack_prior": 65.6,
     "away_opponent_attack_prior": 45.3,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::ac303d34438d4cac92187e6acea178bc",
@@ -21530,21 +21530,21 @@
     "away_three_plus_conceded_risk": 0.3337,
     "home_concession_safety": 91.8,
     "away_concession_safety": 66.6,
-    "home_estimated_sot_faced": 3.395,
-    "away_estimated_sot_faced": 4.88,
-    "home_expected_saves_neutral": 2.377,
-    "away_expected_saves_neutral": 3.416,
-    "home_save_point_probability_neutral": 0.4241,
-    "away_save_point_probability_neutral": 0.6634,
-    "home_save_opportunity": 42.4,
-    "away_save_opportunity": 66.3,
-    "home_gk_opportunity_neutral": 65.2,
-    "away_gk_opportunity_neutral": 34.5,
+    "home_estimated_sot_faced": 3.32,
+    "away_estimated_sot_faced": 4.799,
+    "home_expected_saves_neutral": 2.324,
+    "away_expected_saves_neutral": 3.359,
+    "home_save_point_probability_neutral": 0.4104,
+    "away_save_point_probability_neutral": 0.6523,
+    "home_save_opportunity": 41.0,
+    "away_save_opportunity": 65.2,
+    "home_gk_opportunity_neutral": 64.8,
+    "away_gk_opportunity_neutral": 34.2,
     "home_cs_prior": 50.0,
     "away_cs_prior": 39.4,
     "home_opponent_attack_prior": 39.9,
     "away_opponent_attack_prior": 50.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::fe3e7b866e924613b73b268b6cf0d6db",
@@ -21617,7 +21617,7 @@
     "away_cs_prior": 53.0,
     "home_opponent_attack_prior": 64.8,
     "away_opponent_attack_prior": 47.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::b9c91bbe320d4eddb968064d3487a05d",
@@ -21690,7 +21690,7 @@
     "away_cs_prior": 48.4,
     "home_opponent_attack_prior": 48.8,
     "away_opponent_attack_prior": 39.6,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::98b055a3513f47bea72a78bf4a5b08e4",
@@ -21763,7 +21763,7 @@
     "away_cs_prior": 57.0,
     "home_opponent_attack_prior": 61.0,
     "away_opponent_attack_prior": 60.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::66c3335e0e38440c9ac0d7cf1bcb9e18",
@@ -21836,7 +21836,7 @@
     "away_cs_prior": 50.0,
     "home_opponent_attack_prior": 50.0,
     "away_opponent_attack_prior": 44.1,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::8339b7fe52ea471f85294a7a51d89104",
@@ -21909,7 +21909,7 @@
     "away_cs_prior": 50.0,
     "home_opponent_attack_prior": 50.0,
     "away_opponent_attack_prior": 41.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::59d84233c1284fb0a692d5f80057f7e3",
@@ -21982,7 +21982,7 @@
     "away_cs_prior": 72.3,
     "home_opponent_attack_prior": 75.8,
     "away_opponent_attack_prior": 56.5,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::88940845e4a6411fbda0c3be9b1a5da3",
@@ -22055,7 +22055,7 @@
     "away_cs_prior": 47.2,
     "home_opponent_attack_prior": 33.4,
     "away_opponent_attack_prior": 47.2,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::44610749851b4139b8b817a6130a7249",
@@ -22128,7 +22128,7 @@
     "away_cs_prior": 45.4,
     "home_opponent_attack_prior": 46.5,
     "away_opponent_attack_prior": 83.8,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::331e7b670d6a427f86c59bffe0161d77",
@@ -22201,7 +22201,7 @@
     "away_cs_prior": 54.6,
     "home_opponent_attack_prior": 46.0,
     "away_opponent_attack_prior": 65.6,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::7e31314e58c945a59b61f1611b048b09",
@@ -22274,7 +22274,7 @@
     "away_cs_prior": 45.0,
     "home_opponent_attack_prior": 50.0,
     "away_opponent_attack_prior": 44.7,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::3a911484f575418b82dbc40b41601352",
@@ -22347,7 +22347,7 @@
     "away_cs_prior": 44.3,
     "home_opponent_attack_prior": 37.5,
     "away_opponent_attack_prior": 48.6,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::aef6a50f627b4b8f8b658a4f2c0e66ef",
@@ -22420,7 +22420,7 @@
     "away_cs_prior": 35.7,
     "home_opponent_attack_prior": 32.6,
     "away_opponent_attack_prior": 45.3,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::a142ac12f15d4ec3bf53a787dfee5ab8",
@@ -22493,7 +22493,7 @@
     "away_cs_prior": 46.0,
     "home_opponent_attack_prior": 44.7,
     "away_opponent_attack_prior": 75.8,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::24428eb4cda647c6b47cdfb8268dcc9b",
@@ -22566,7 +22566,7 @@
     "away_cs_prior": 46.4,
     "home_opponent_attack_prior": 47.2,
     "away_opponent_attack_prior": 32.6,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::bc93da50126e44d283860357f66caf65",
@@ -22639,7 +22639,7 @@
     "away_cs_prior": 47.3,
     "home_opponent_attack_prior": 48.6,
     "away_opponent_attack_prior": 50.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::6aae027a2a974b799b7d377625d23939",
@@ -22712,7 +22712,7 @@
     "away_cs_prior": 65.0,
     "home_opponent_attack_prior": 83.8,
     "away_opponent_attack_prior": 33.4,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::c311bd38be5143cf86b61a82f82c27b4",
@@ -22785,7 +22785,7 @@
     "away_cs_prior": 35.4,
     "home_opponent_attack_prior": 45.3,
     "away_opponent_attack_prior": 46.5,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::6bb646cbf9624599886b64075bc8ab06",
@@ -22858,7 +22858,7 @@
     "away_cs_prior": 61.3,
     "home_opponent_attack_prior": 56.5,
     "away_opponent_attack_prior": 46.0,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   },
   {
     "match_id": "wpll::Football_Match::8605d78ebf6c4a0a8cd71c8ecbff6d0f",
@@ -22931,6 +22931,6 @@
     "away_cs_prior": 64.9,
     "home_opponent_attack_prior": 65.6,
     "away_opponent_attack_prior": 37.5,
-    "gk_rating_model": "team-cs-save-v8-wsl2-preseason-fade"
+    "gk_rating_model": "team-cs-save-v8.1-wsl2-preseason-fade"
   }
 ]
