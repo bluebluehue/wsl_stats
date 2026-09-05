@@ -1,14 +1,14 @@
 {
   "metadata": {
     "source": "WSL Fantasy public JSON feeds used by create-team UI",
-    "generated_at_utc": "2026-09-05T12:39:00+00:00",
+    "generated_at_utc": "2026-09-05T13:49:25+00:00",
     "market_clean_sheet_data": {
       "available": true,
       "input_file": "market_odds.json",
       "fixture_count": 2,
       "source": "Pinnacle via OddsPapi",
       "method": "Opponent team total Under 0.5, de-vigged against Over 0.5",
-      "generated_at_utc": "2026-09-05T12:38:55+00:00",
+      "generated_at_utc": "2026-09-05T13:49:22+00:00",
       "note": "Market CS% is kept separate from the independent GK model for calibration; it is not yet blended into GK Fix."
     },
     "matchday_id": 1,
