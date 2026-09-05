@@ -31,11 +31,15 @@ jobs:
       - name: Build data files
         run: python get_data.py
 
+      - name: Build involvement stats test
+        run: python fetch_involvement_points_test.py
+
       - name: Commit updated data
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add transformed_data.json player_history.json fixtures.json teams.json gk_sanity_audit.json
           if [ -f market_odds.json ]; then git add market_odds.json; fi
+          if [ -f involvement_history.json ]; then git add involvement_history.json; fi
           git diff --cached --quiet || git commit -m "Refresh WSL fantasy data"
           git push
