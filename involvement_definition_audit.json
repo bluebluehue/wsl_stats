@@ -1,0 +1,122 @@
+{
+  "metadata": {
+    "generated_at": "2026-09-05T21:09:54.158472+00:00",
+    "purpose": "Diagnostic reconciliation against official WSL Fantasy UI; production unchanged.",
+    "players_audited": 0,
+    "unmatched": [
+      "Lucy Bronze",
+      "Jade Richards",
+      "Maria Pilar León Cebrián",
+      "Katie McCabe",
+      "Alyssa Thompson",
+      "Hannah Hampton",
+      "Alexia Putellas",
+      "Daniëlle van de Donk",
+      "Claudia Mummery-Walker",
+      "Safia Middleton-Patel",
+      "Lauren James",
+      "Keira Walsh",
+      "Grace Geyoro",
+      "Emma Siddall",
+      "Maddi Wilde",
+      "Andrea Medina",
+      "Poppy Wilson",
+      "Coral-Jade Haines"
+    ],
+    "exact_att": 0,
+    "exact_def": 0
+  },
+  "ground_truth": [
+    {
+      "player": "Lucy Bronze",
+      "attacking_actions": 6,
+      "defensive_actions": 9
+    },
+    {
+      "player": "Jade Richards",
+      "attacking_actions": 0,
+      "defensive_actions": 17
+    },
+    {
+      "player": "Maria Pilar León Cebrián",
+      "attacking_actions": 3,
+      "defensive_actions": 13
+    },
+    {
+      "player": "Katie McCabe",
+      "attacking_actions": 8,
+      "defensive_actions": 9
+    },
+    {
+      "player": "Alyssa Thompson",
+      "attacking_actions": 8,
+      "defensive_actions": 7
+    },
+    {
+      "player": "Hannah Hampton",
+      "attacking_actions": 0,
+      "defensive_actions": 6
+    },
+    {
+      "player": "Alexia Putellas",
+      "attacking_actions": 3,
+      "defensive_actions": 2
+    },
+    {
+      "player": "Daniëlle van de Donk",
+      "attacking_actions": 1,
+      "defensive_actions": 6
+    },
+    {
+      "player": "Claudia Mummery-Walker",
+      "attacking_actions": 2,
+      "defensive_actions": 2
+    },
+    {
+      "player": "Safia Middleton-Patel",
+      "attacking_actions": 0,
+      "defensive_actions": 18
+    },
+    {
+      "player": "Lauren James",
+      "attacking_actions": 12,
+      "defensive_actions": 6
+    },
+    {
+      "player": "Keira Walsh",
+      "attacking_actions": 4,
+      "defensive_actions": 9
+    },
+    {
+      "player": "Grace Geyoro",
+      "attacking_actions": 2,
+      "defensive_actions": 10
+    },
+    {
+      "player": "Emma Siddall",
+      "attacking_actions": 6,
+      "defensive_actions": 8
+    },
+    {
+      "player": "Maddi Wilde",
+      "attacking_actions": 3,
+      "defensive_actions": 15
+    },
+    {
+      "player": "Andrea Medina",
+      "attacking_actions": 0,
+      "defensive_actions": 21
+    },
+    {
+      "player": "Poppy Wilson",
+      "attacking_actions": 3,
+      "defensive_actions": 6
+    },
+    {
+      "player": "Coral-Jade Haines",
+      "attacking_actions": 5,
+      "defensive_actions": 5
+    }
+  ],
+  "players": []
+}
