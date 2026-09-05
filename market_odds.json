@@ -1,10 +1,10 @@
 {
   "metadata": {
-    "generated_at_utc": "2026-09-05T11:28:17+00:00",
+    "generated_at_utc": "2026-09-05T12:38:55+00:00",
     "source": "Pinnacle via OddsPapi",
     "method": "Opponent team total Under 0.5, de-vigged against Over 0.5",
     "tournament_id": 1044,
-    "fixture_count": 3,
+    "fixture_count": 2,
     "unmatched_fixture_count": 1,
     "learned_participant_count": 10,
     "participant_mapping": {
@@ -23,35 +23,6 @@
     "note": "A team's CS probability equals the opponent's fair probability of scoring 0 goals. Only Pinnacle bookmakerMarketId values explicitly ending in teamTotal with home/away 0.5 over+under outcomes are accepted; prices are normalized within that same market. Participant IDs are learned from kickoff-unique fixtures and reused to resolve simultaneous kickoffs."
   },
   "fixtures": [
-    {
-      "match_id": "wpll::Football_Match::25ef6af2d5dd4816bdd4c5cf38a12b5e",
-      "fixture_id": "id1000104473345986",
-      "pinnacle_fixture_id": "1635101495",
-      "start_time_utc": "2026-09-05T11:30:00.000Z",
-      "home_team": "CHE",
-      "away_team": "AVL",
-      "home_name": "Chelsea",
-      "away_name": "Aston Villa",
-      "home_market_cs_probability": 0.495774,
-      "away_market_cs_probability": null,
-      "home_opponent_team_total_0_5": {
-        "over_odds": 1.877,
-        "under_odds": 1.909,
-        "raw_under_probability": 0.523834,
-        "overround": 0.0566,
-        "fair_under_probability": 0.495774,
-        "main_line": true,
-        "bookmaker_market_id": "line/29/8713/1635101495/3716673547/0/teamTotal",
-        "market_type": "teamTotal",
-        "period": "full_match",
-        "team_total_side": "away",
-        "line": 0.5
-      },
-      "away_opponent_team_total_0_5": null,
-      "source": "Pinnacle",
-      "method": "opponent_team_total_under_0.5_devig",
-      "market_updated_at": "2026-09-04T23:34:24.942Z"
-    },
     {
       "match_id": "wpll::Football_Match::72090b8862974a82bf321b1887f960d9",
       "fixture_id": "id1000104473345988",
