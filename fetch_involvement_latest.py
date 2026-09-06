@@ -122,6 +122,7 @@ def aggregate(payload, fixture, lookup):
             "shots_on_target": 0, "key_passes": 0, "successful_crosses": 0,
             "successful_dribbles": 0, "tackles_won": 0, "interceptions": 0,
             "clearances": 0, "blocks": 0, "recoveries": 0,
+            "keeper_claims": 0, "keeper_punches": 0, "keeper_pickups": 0,
         }
 
     for e in events:
@@ -139,12 +140,12 @@ def aggregate(payload, fixture, lookup):
         except (TypeError, ValueError):
             outcome = 0
 
-        if typ == 15:
+        if typ == 15 and 82 not in qids:
             row["shots_on_target"] += 1
         elif typ == 16 and 28 not in qids:
             row["shots_on_target"] += 1
 
-        if typ == 1 and is_key_pass(e):
+        if is_key_pass(e):
             row["key_passes"] += 1
         if typ == 1 and outcome == 1 and 2 in qids:
             row["successful_crosses"] += 1
@@ -161,11 +162,24 @@ def aggregate(payload, fixture, lookup):
         if typ == 49:
             row["recoveries"] += 1
 
+        pmeta = lookup.get(pid, {})
+        if str(pmeta.get("Position") or pmeta.get("position") or "").upper() == "GK":
+            if typ == 11:
+                row["keeper_claims"] += 1
+            if typ == 41:
+                row["keeper_punches"] += 1
+            if typ == 52:
+                row["keeper_pickups"] += 1
+
     rows = []
     for oid, c in by_player.items():
         p = lookup.get(oid, {})
         att = c["shots_on_target"] + c["key_passes"] + c["successful_crosses"] + c["successful_dribbles"]
-        deff = c["tackles_won"] + c["interceptions"] + c["clearances"] + c["blocks"] + c["recoveries"]
+        deff = (
+            c["tackles_won"] + c["interceptions"] + c["clearances"]
+            + c["blocks"] + c["recoveries"]
+            + c["keeper_claims"] + c["keeper_punches"] + c["keeper_pickups"]
+        )
         rows.append({
             "opta_player_id": oid,
             "player_id": p.get("Player ID") or p.get("player_id"),
@@ -278,6 +292,7 @@ def main():
             "candidate_match_count": len(candidates),
             "match_count": len(final_matches),
             "failures": failures,
+            "scoring_note": "Rules/Opta-derived involvement values; known WSL UI discrepancies are not force-fitted.",
         },
         "matches": final_matches,
     }
