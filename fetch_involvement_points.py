@@ -58,10 +58,14 @@ ATTEMPT_SAVED = 15
 GOAL = 16
 BALL_RECOVERY_COMMON = 49
 BALL_RECOVERY_ALT = 32
+KEEPER_CLAIM = 11
+KEEPER_PUNCH = 41
+KEEPER_PICKUP = 52
 
 # Qualifiers.
 CROSS_QUALIFIER = 2
 OWN_GOAL_QUALIFIER = 28
+SHOT_BLOCKED_QUALIFIER = 82
 DEF_BLOCK_QUALIFIER = 94
 
 REQUEST_HEADERS = {
@@ -226,12 +230,12 @@ def aggregate_match(
         row = per_player[pid]
 
         # Attacking involvement
-        if typ == ATTEMPT_SAVED:
+        if typ == ATTEMPT_SAVED and SHOT_BLOCKED_QUALIFIER not in qids:
             row["shots_on_target"] += 1
         elif typ == GOAL and OWN_GOAL_QUALIFIER not in qids:
             row["shots_on_target"] += 1
 
-        if typ == PASS and is_key_pass(event):
+        if is_key_pass(event):
             row["key_passes"] += 1
 
         if typ == PASS and outcome == 1 and CROSS_QUALIFIER in qids:
@@ -257,6 +261,18 @@ def aggregate_match(
         if typ == BALL_RECOVERY_COMMON:
             row["recoveries"] += 1
 
+        # Goalkeeper defensive actions confirmed by MW1 reconciliation:
+        # Type 11 claim, Type 41 punch, Type 52 pickup.
+        # Type 54 smother and Type 59 are deliberately NOT counted.
+        player_meta = opta_to_player.get(pid, {})
+        if str(player_meta.get("Position") or "").upper() == "GK":
+            if typ == KEEPER_CLAIM:
+                row["keeper_claims"] += 1
+            if typ == KEEPER_PUNCH:
+                row["keeper_punches"] += 1
+            if typ == KEEPER_PICKUP:
+                row["keeper_pickups"] += 1
+
         # Keep alternative id 32 visible as a diagnostic rather than silently
         # counting it until we validate this competition's feed semantics.
         if typ == BALL_RECOVERY_ALT:
@@ -281,6 +297,9 @@ def aggregate_match(
             + counts["clearances"]
             + counts["blocks"]
             + counts["recoveries"]
+            + counts["keeper_claims"]
+            + counts["keeper_punches"]
+            + counts["keeper_pickups"]
         )
 
         results.append({
@@ -301,6 +320,9 @@ def aggregate_match(
             "clearances": counts["clearances"],
             "blocks": counts["blocks"],
             "recoveries": counts["recoveries"],
+            "keeper_claims": counts["keeper_claims"],
+            "keeper_punches": counts["keeper_punches"],
+            "keeper_pickups": counts["keeper_pickups"],
             "defensive_actions": defensive_actions,
             "defensive_points": defensive_actions // 10,
             "involvement_points": (attacking_actions // 4) + (defensive_actions // 10),
@@ -313,8 +335,8 @@ def aggregate_match(
         "unmatched_opta_player_ids": dict(unmatched_player_events.most_common()),
         "type32_recovery_like_events": recovery_32_count,
         "mapping_notes": {
-            "shots_on_target": "Provisional: event 15 (Attempt Saved) + non-own-goal event 16 (Goal). Validate last-line blocks.",
-            "key_passes": "Pass event with keypass/keyPass flag.",
+            "shots_on_target": "Type 15 excluding qualifier 82 + non-own-goal type 16.",
+            "key_passes": "Any event carrying keypass/keyPass/key_pass flag.",
             "successful_crosses": "Successful pass (outcome=1) with qualifier 2 (Cross).",
             "successful_dribbles": "Successful Take On (type 3, outcome=1).",
             "tackles_won": "Tackle (type 7, outcome=1).",
@@ -322,6 +344,7 @@ def aggregate_match(
             "clearances": "Clearance (type 12).",
             "blocks": "Event 10 with qualifier 94 (Def block).",
             "recoveries": "Type 49 counted; type 32 retained separately for validation.",
+            "goalkeeper_actions": "For GK only: type 11 claims + type 41 punches + type 52 pickups. Types 54/59 excluded.",
         },
     }
     return results, diagnostics
@@ -386,8 +409,8 @@ def build_overall_rows(matches: list[dict[str, Any]]) -> list[dict[str, Any]]:
     count_fields = (
         "shots_on_target", "key_passes", "successful_crosses", "successful_dribbles",
         "attacking_actions", "attacking_points", "tackles_won", "interceptions",
-        "clearances", "blocks", "recoveries", "defensive_actions", "defensive_points",
-        "involvement_points",
+        "clearances", "blocks", "recoveries", "keeper_claims", "keeper_punches",
+        "keeper_pickups", "defensive_actions", "defensive_points", "involvement_points",
     )
 
     for match in matches:
@@ -453,7 +476,8 @@ def main() -> None:
             "status": "production",
             "note": (
                 "Involvement thresholds are applied per match, then summed. "
-                "Raw event payloads are cached by Opta match id."
+                "Raw event payloads are cached by Opta match id. "
+                "Values are rules/Opta-derived; known WSL UI discrepancies are not force-fitted."
             ),
         },
         "matches": [],
