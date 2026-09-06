@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-WSL Fantasy involvement-definition reconciliation audit v5.
+WSL Fantasy involvement-definition reconciliation audit v7 (targeted follow-up).
 
 DIAGNOSTIC ONLY. This script does NOT modify production involvement logic.
 
@@ -10,15 +10,16 @@ working production fetch_involvement_points.py supplied on 2026-09-05.
 
 It then layers on:
 - Official WSL Fantasy screenshot ground truth for the current MW1 control set.
-- Full target-player event dumps.
-- Current production-parser totals.
-- Candidate alternative counts (q82 blocked shots, non-PASS keyPass flags,
-  Type 10/52/54/59/74 GK/defensive events, outcome variants, etc.).
-- A "revised_att_hypothesis" that is reported ONLY as a diagnostic:
-    SOT = Type 15 excluding qualifier 82 + non-own-goal Type 16
-    KP  = any event carrying keyPass/keypass/key_pass
-  The production parser is NOT changed.
+- Current production-parser totals and the already-promising revised ATT hypothesis.
+- Focused goalkeeper diagnostics for Types 11/41/49/52/54/59.
+- Focused Keira Walsh attacking-event neighborhoods.
+- Focused Type10+q94 block neighborhoods and linked/nearby shot evidence.
+- Candidate DEF rule scorecards across all 37 controls.
+- Compact mismatch summaries for unresolved outfield defensive-action discrepancies.
 - Hard failures if player matching, match loading, or event matching silently fail.
+
+The output filename remains involvement_definition_audit.json so the existing v6
+GitHub Actions workflow does not need to change.
 
 Inputs:
   transformed_data.json
@@ -68,6 +69,8 @@ BALL_RECOVERY_COMMON = 49
 BALL_RECOVERY_ALT = 32
 
 # Additional diagnostic event IDs seen in public Opta feeds
+KEEPER_CLAIM = 11
+KEEPER_PUNCH = 41
 KEEPER_PICKUP = 52
 KEEPER_SMOTHER = 54
 TYPE_59 = 59
@@ -503,6 +506,12 @@ def alternative_counts(events: list[dict[str, Any]]) -> dict[str, int]:
         "type49_all": count(lambda e: event_type(e) == 49),
         "type49_outcome1": count(lambda e: event_type(e) == 49 and event_outcome(e) == 1),
         "type49_outcome0": count(lambda e: event_type(e) == 49 and event_outcome(e) == 0),
+        "type11_keeper_claim": count(lambda e: event_type(e) == 11),
+        "type11_keeper_claim_outcome1": count(lambda e: event_type(e) == 11 and event_outcome(e) == 1),
+        "type11_keeper_claim_outcome0": count(lambda e: event_type(e) == 11 and event_outcome(e) == 0),
+        "type41_keeper_punch": count(lambda e: event_type(e) == 41),
+        "type41_keeper_punch_outcome1": count(lambda e: event_type(e) == 41 and event_outcome(e) == 1),
+        "type41_keeper_punch_outcome0": count(lambda e: event_type(e) == 41 and event_outcome(e) == 0),
         "type52_keeper_pickup": count(lambda e: event_type(e) == 52),
         "type54_keeper_smother": count(lambda e: event_type(e) == 54),
         "type59_all": count(lambda e: event_type(e) == 59),
@@ -540,6 +549,145 @@ def compact_event(event: dict[str, Any]) -> dict[str, Any]:
         "raw_scalar_fields": scalars,
     }
 
+
+def event_id_value(event: dict[str, Any]) -> str:
+    raw = event.get("eventId", event.get("id"))
+    return str(raw) if raw is not None else ""
+
+
+def event_sort_key(event: dict[str, Any]) -> tuple[int, int, int, int]:
+    def iv(v: Any) -> int:
+        try:
+            return int(v)
+        except (TypeError, ValueError):
+            return 0
+    return (
+        iv(event.get("periodId")),
+        iv(event.get("timeMin")),
+        iv(event.get("timeSec")),
+        iv(event.get("eventId", event.get("id"))),
+    )
+
+
+def compact_neighborhood(
+    all_events: list[dict[str, Any]],
+    target_event: dict[str, Any],
+    radius: int = 3,
+) -> list[dict[str, Any]]:
+    """
+    Return nearby MATCH events, not merely events belonging to the same player.
+    This is essential for checking shot/block and keeper-possession sequences.
+    """
+    ordered = sorted(all_events, key=event_sort_key)
+    target_id = event_id_value(target_event)
+
+    idx = None
+    for i, e in enumerate(ordered):
+        if event_id_value(e) == target_id:
+            idx = i
+            break
+
+    if idx is None:
+        return [compact_event(target_event)]
+
+    lo = max(0, idx - radius)
+    hi = min(len(ordered), idx + radius + 1)
+    return [compact_event(e) for e in ordered[lo:hi]]
+
+
+def q233_values(event: dict[str, Any]) -> list[str]:
+    out = []
+    for q in qualifiers(event):
+        raw_id = q.get("qualifierId", q.get("id", q.get("typeId")))
+        try:
+            qid = int(raw_id)
+        except (TypeError, ValueError):
+            continue
+        if qid == 233:
+            value = q.get("value", q.get("qualifierValue"))
+            if value is not None:
+                out.append(str(value))
+    return out
+
+
+def find_event_by_event_id(
+    all_events: list[dict[str, Any]],
+    event_id: str,
+) -> dict[str, Any] | None:
+    for e in all_events:
+        if event_id_value(e) == str(event_id):
+            return e
+    return None
+
+
+def candidate_def_totals(
+    prod: dict[str, int],
+    alts: dict[str, int],
+    position: str | None,
+) -> dict[str, int]:
+    """
+    Score only explicit candidate rules. This does NOT declare any of them correct.
+    """
+    current = prod["defensive_actions"]
+    q94 = alts["type10_q94"]
+    t74 = alts["type74_blocked_pass"]
+    claim = alts["type11_keeper_claim"]
+    punch = alts["type41_keeper_punch"]
+    pickup = alts["type52_keeper_pickup"]
+    smother = alts["type54_keeper_smother"]
+    t59 = alts["type59_all"]
+
+    out = {
+        "current": current,
+        "without_q94_blocks": current - q94,
+        "plus_type74_blocked_pass": current + t74,
+        "without_q94_plus_type74": current - q94 + t74,
+    }
+
+    if str(position or "").upper() == "GK":
+        gk_base = current + claim + punch + pickup
+        out.update({
+            "gk_current_plus_11_41_52": gk_base,
+            "gk_current_plus_11_41_52_54": gk_base + smother,
+            "gk_current_plus_11_41_52_59": gk_base + t59,
+            "gk_current_plus_11_41_52_54_59": gk_base + smother + t59,
+            "gk_11_41_49_52_only": (
+                prod["recoveries"] + claim + punch + pickup
+            ),
+        })
+    return out
+
+
+def focused_event_packet(
+    player_name: str,
+    player_events: list[dict[str, Any]],
+    match_events_by_id: dict[str, list[dict[str, Any]]],
+    match_ids: list[str],
+    predicate,
+    radius: int = 3,
+) -> list[dict[str, Any]]:
+    packets = []
+    for e in sorted((x for x in player_events if predicate(x)), key=event_sort_key):
+        # A control currently plays one audited MW1 match, but retain safe multi-match behavior.
+        match_id = match_ids[0] if len(match_ids) == 1 else None
+        all_events = match_events_by_id.get(match_id or "", [])
+        linked = []
+        for linked_id in q233_values(e):
+            linked_event = find_event_by_event_id(all_events, linked_id)
+            linked.append({
+                "q233_value": linked_id,
+                "resolved_event": compact_event(linked_event) if linked_event else None,
+            })
+
+        packets.append({
+            "player": player_name,
+            "match_id": match_id,
+            "target_event": compact_event(e),
+            "q233_links": linked,
+            "match_event_neighborhood": compact_neighborhood(all_events, e, radius=radius)
+                if all_events else [compact_event(e)],
+        })
+    return packets
 
 def main() -> None:
     transformed = load_json(TRANSFORMED_PATH, {})
@@ -594,6 +742,7 @@ def main() -> None:
 
     loaded_matches = []
     fetch_failures = []
+    match_events_by_id: dict[str, list[dict[str, Any]]] = {}
 
     for match in completed_matches:
         opta_match_id = match["opta_match_id"]
@@ -603,6 +752,7 @@ def main() -> None:
             events = live_events(payload)
             if not events:
                 raise ValueError("No liveData.event rows found")
+            match_events_by_id[opta_match_id] = events
 
             loaded_matches.append({
                 **match,
@@ -681,6 +831,9 @@ def main() -> None:
                 "delta_vs_wsl": revised_att["attacking_actions"] - gt["att"],
             },
             "alternative_counts": alts,
+            "candidate_def_totals": candidate_def_totals(
+                prod, alts, p.get("Position")
+            ),
             "all_event_type_counts": {
                 str(k): v for k, v in sorted(type_counts.items())
             },
@@ -700,6 +853,205 @@ def main() -> None:
 
     output_players.sort(key=lambda r: (r["club"] or "", r["player"]))
 
+    # ------------------------------------------------------------------
+    # v7 TARGETED FOLLOW-UP DIAGNOSTICS
+    # ------------------------------------------------------------------
+    row_by_name = {r["player"]: r for r in output_players}
+    raw_item_by_name = {
+        item["gt"]["name"]: item for item in target_by_opta_id.values()
+    }
+
+    # 1) Candidate DEF rule scorecard across all 37 controls.
+    candidate_names = sorted({
+        key
+        for r in output_players
+        for key in r["candidate_def_totals"].keys()
+    })
+    candidate_def_scorecard = {}
+    for candidate in candidate_names:
+        eligible = [
+            r for r in output_players
+            if candidate in r["candidate_def_totals"]
+        ]
+        candidate_def_scorecard[candidate] = {
+            "eligible_players": len(eligible),
+            "exact": sum(
+                r["candidate_def_totals"][candidate]
+                == r["official_wsl_ui"]["defensive_actions"]
+                for r in eligible
+            ),
+            "total_absolute_error": sum(
+                abs(
+                    r["candidate_def_totals"][candidate]
+                    - r["official_wsl_ui"]["defensive_actions"]
+                )
+                for r in eligible
+            ),
+            "mismatches": [
+                {
+                    "player": r["player"],
+                    "official": r["official_wsl_ui"]["defensive_actions"],
+                    "candidate": r["candidate_def_totals"][candidate],
+                    "delta": (
+                        r["candidate_def_totals"][candidate]
+                        - r["official_wsl_ui"]["defensive_actions"]
+                    ),
+                }
+                for r in eligible
+                if r["candidate_def_totals"][candidate]
+                != r["official_wsl_ui"]["defensive_actions"]
+            ],
+        }
+
+    # 2) Goalkeeper diagnostics.
+    goalkeeper_diagnostics = []
+    for r in output_players:
+        if str(r.get("position") or "").upper() != "GK":
+            continue
+        item = raw_item_by_name[r["player"]]
+        evs = item["events"]
+        goalkeeper_diagnostics.append({
+            "player": r["player"],
+            "official_def": r["official_wsl_ui"]["defensive_actions"],
+            "current_def": r["current_production_parser"]["defensive_actions"],
+            "current_components": {
+                k: r["current_production_parser"][k]
+                for k in (
+                    "tackles_won", "interceptions", "clearances",
+                    "blocks", "recoveries"
+                )
+            },
+            "gk_event_counts": {
+                k: r["alternative_counts"][k]
+                for k in (
+                    "type11_keeper_claim",
+                    "type11_keeper_claim_outcome1",
+                    "type11_keeper_claim_outcome0",
+                    "type41_keeper_punch",
+                    "type41_keeper_punch_outcome1",
+                    "type41_keeper_punch_outcome0",
+                    "type49_all",
+                    "type52_keeper_pickup",
+                    "type54_keeper_smother",
+                    "type59_all",
+                    "type10_all",
+                )
+            },
+            "candidate_totals": r["candidate_def_totals"],
+            "candidate_event_packets": focused_event_packet(
+                r["player"],
+                evs,
+                match_events_by_id,
+                item["match_ids"],
+                lambda e: event_type(e) in {11, 41, 49, 52, 54, 59},
+                radius=2,
+            ),
+        })
+
+    # 3) Keira Walsh: every plausible attacking-action event plus Type61.
+    keira_diagnostic = None
+    if "Keira Walsh" in raw_item_by_name:
+        item = raw_item_by_name["Keira Walsh"]
+        evs = item["events"]
+        keira_diagnostic = {
+            "official_att": row_by_name["Keira Walsh"]["official_wsl_ui"]["attacking_actions"],
+            "current_att": row_by_name["Keira Walsh"]["current_production_parser"]["attacking_actions"],
+            "revised_att": row_by_name["Keira Walsh"]["revised_att_hypothesis"]["attacking_actions"],
+            "all_type61_events": focused_event_packet(
+                "Keira Walsh", evs, match_events_by_id, item["match_ids"],
+                lambda e: event_type(e) == 61, radius=4
+            ),
+            "all_keypass_events": focused_event_packet(
+                "Keira Walsh", evs, match_events_by_id, item["match_ids"],
+                is_key_pass, radius=4
+            ),
+            "shot_events": focused_event_packet(
+                "Keira Walsh", evs, match_events_by_id, item["match_ids"],
+                lambda e: event_type(e) in {13, 14, 15, 16}, radius=4
+            ),
+            "cross_events": focused_event_packet(
+                "Keira Walsh", evs, match_events_by_id, item["match_ids"],
+                lambda e: event_type(e) == 1 and 2 in qualifier_ids(e), radius=4
+            ),
+            "takeon_events": focused_event_packet(
+                "Keira Walsh", evs, match_events_by_id, item["match_ids"],
+                lambda e: event_type(e) == 3, radius=4
+            ),
+        }
+
+    # 4) Every q94 outfield block, with nearby MATCH events and q233 link resolution.
+    q94_block_diagnostics = []
+    for r in output_players:
+        item = raw_item_by_name[r["player"]]
+        packets = focused_event_packet(
+            r["player"],
+            item["events"],
+            match_events_by_id,
+            item["match_ids"],
+            lambda e: event_type(e) == 10 and 94 in qualifier_ids(e),
+            radius=4,
+        )
+        if packets:
+            q94_block_diagnostics.append({
+                "player": r["player"],
+                "position": r["position"],
+                "official_def": r["official_wsl_ui"]["defensive_actions"],
+                "current_def": r["current_production_parser"]["defensive_actions"],
+                "without_q94": r["candidate_def_totals"]["without_q94_blocks"],
+                "block_count": len(packets),
+                "events": packets,
+            })
+
+    # 5) Compact unresolved DEF mismatch table for cross-player pattern hunting.
+    unresolved_def_mismatches = []
+    for r in output_players:
+        current = r["current_production_parser"]["defensive_actions"]
+        official = r["official_wsl_ui"]["defensive_actions"]
+        if current == official:
+            continue
+        unresolved_def_mismatches.append({
+            "player": r["player"],
+            "club": r["club"],
+            "position": r["position"],
+            "official_def": official,
+            "current_def": current,
+            "delta": current - official,
+            "current_components": {
+                k: r["current_production_parser"][k]
+                for k in (
+                    "tackles_won", "interceptions", "clearances",
+                    "blocks", "recoveries"
+                )
+            },
+            "candidate_counts": {
+                k: r["alternative_counts"][k]
+                for k in (
+                    "tackle_type7_lost",
+                    "interception_type8_outcome0",
+                    "clearance_type12_outcome0",
+                    "type10_q94",
+                    "type32_all",
+                    "type74_blocked_pass",
+                    "type11_keeper_claim",
+                    "type41_keeper_punch",
+                    "type52_keeper_pickup",
+                    "type54_keeper_smother",
+                    "type59_all",
+                    "type61_all",
+                )
+            },
+            "candidate_totals": r["candidate_def_totals"],
+            "all_event_type_counts": r["all_event_type_counts"],
+        })
+
+    targeted_followup = {
+        "candidate_def_scorecard": candidate_def_scorecard,
+        "goalkeeper_diagnostics": goalkeeper_diagnostics,
+        "keira_walsh_attacking_diagnostic": keira_diagnostic,
+        "q94_block_diagnostics": q94_block_diagnostics,
+        "unresolved_def_mismatches": unresolved_def_mismatches,
+    }
+
     exact_prod_att = sum(
         r["current_production_parser"]["att_delta_vs_wsl"] == 0
         for r in output_players
@@ -716,7 +1068,7 @@ def main() -> None:
     payload = {
         "metadata": {
             "generated_at_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-            "purpose": "Exact production-parser reconciliation against official WSL Fantasy screenshot controls.",
+            "purpose": "v7 targeted follow-up: GK defensive actions, q94 blocks, Keira ATT, and unresolved DEF mismatches.",
             "production_changed": False,
             "source": "Public Opta Player Stats widget match-event feed",
             "widget_feed_id": WIDGET_FEED_ID,
@@ -732,9 +1084,12 @@ def main() -> None:
                 "Current production parser is reproduced exactly from fetch_involvement_points.py supplied 2026-09-05.",
                 "revised_att_hypothesis is diagnostic only and does not modify production.",
                 "Do not force defensive definitions to match WSL until candidate rules survive all controls.",
+                "v7 adds match-event neighborhoods around GK candidates, Keira ATT events, and q94 blocks.",
+                "Output filename intentionally remains involvement_definition_audit.json so the v6 workflow can be reused unchanged.",
             ],
         },
         "ground_truth": GROUND_TRUTH,
+        "targeted_followup": targeted_followup,
         "players": output_players,
     }
 
