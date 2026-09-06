@@ -1,8 +1,8 @@
 {
   "metadata": {
-    "generated_at": "2026-09-06T16:11:27.651468Z",
+    "generated_at": "2026-09-06T17:44:41.809405Z",
     "refresh_interval_minutes": 15,
-    "candidate_match_count": 7,
+    "candidate_match_count": 0,
     "match_count": 10,
     "failures": [],
     "scoring_note": "Rules/Opta-derived involvement values; known WSL UI discrepancies are not force-fitted."
@@ -723,7 +723,8 @@
           "involvement_points": 0
         }
       ],
-      "event_count": 1663
+      "event_count": 1663,
+      "carried_forward": true
     },
     {
       "match_id": "wpll::Football_Match::9883a3c6bc5d49349c1b8f3fdc6eccea",
@@ -1515,7 +1516,8 @@
           "involvement_points": 0
         }
       ],
-      "event_count": 1731
+      "event_count": 1731,
+      "carried_forward": true
     },
     {
       "match_id": "wpll::Football_Match::7f4adbf487bc4d09a9416e08b3a112d8",
@@ -2332,7 +2334,8 @@
           "involvement_points": 0
         }
       ],
-      "event_count": 1698
+      "event_count": 1698,
+      "carried_forward": true
     },
     {
       "match_id": "wpll::Football_Match::438caa36946047d892907bd933b172ff",
@@ -3149,7 +3152,8 @@
           "involvement_points": 0
         }
       ],
-      "event_count": 1560
+      "event_count": 1560,
+      "carried_forward": true
     },
     {
       "match_id": "wpll::Football_Match::3696616e181347aca770cd6e34a2ea7c",
@@ -3916,7 +3920,8 @@
           "involvement_points": 0
         }
       ],
-      "event_count": 1738
+      "event_count": 1738,
+      "carried_forward": true
     },
     {
       "match_id": "wpll::Football_Match::a3547fcee965482cad2fa9ddbf1e1575",
@@ -4608,7 +4613,8 @@
           "involvement_points": 0
         }
       ],
-      "event_count": 1451
+      "event_count": 1451,
+      "carried_forward": true
     },
     {
       "match_id": "wpll::Football_Match::e8af306d026d4841ac254787a1f44c1f",
@@ -5375,7 +5381,8 @@
           "involvement_points": 0
         }
       ],
-      "event_count": 1756
+      "event_count": 1756,
+      "carried_forward": true
     },
     {
       "match_id": "wpll::Football_Match::72090b8862974a82bf321b1887f960d9",
