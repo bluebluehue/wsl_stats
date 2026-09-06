@@ -504,79 +504,145 @@
             width: 45px;
         }
 
-        /* Team Color Definitions (WSL 2024/2025 typical colors) */
+        /* ------------------------------------------------------------------ */
+        /* --- TEAM COLORS: WSL + WSL2 --- */
+        /* Every club has a unique background/text combination. */
+        /* ------------------------------------------------------------------ */
+        
+        /* WSL */
         .badge-ARS {
-            background-color: #db0007;
-            color: #ffffff;
-        }
-
-        /* Arsenal Red */
-        .badge-AVL {
-            background-color: #a3c5e9;
-            color: #7b003a;
-        }
-
-        /* Aston Villa Blue/Claret Text */
-        .badge-BHA {
-            background-color: #2986cc;
-            color: #ffffff;
-        }
-
-        /* Brighton Blue */
-        .badge-CHE {
-            background-color: #034694;
-            color: #ffffff;
-        }
-
-        /* Chelsea Blue */
-        .badge-EVE {
-            background-color: #003399;
-            color: #ffffff;
-        }
-
-        /* Everton Blue */
-        .badge-LEI {
-            background-color: #003090;
-            color: #ffffff;
-        }
-
-        /* Leicester Blue */
-        .badge-LIV {
-            background-color: #d00027;
-            color: #ffffff;
-        }
-
-        /* Liverpool Red */
-        .badge-LCL {
-            background-color: #88D1AA;
+            background-color: #DB0007;
             color: #FFFFFF;
         }
-
-        /* London City Lionesses (Light Aqua/Green Tinge) */
+        
+        .badge-AVL {
+            background-color: #A3C5E9;
+            color: #7B003A;
+        }
+        
+        .badge-BHA {
+            background-color: #0057B8;
+            color: #FFFFFF;
+        }
+        
+        .badge-BIR {
+            background-color: #0033A0;
+            color: #FDBE11;
+        }
+        
+        .badge-CHA {
+            background-color: #D71920;
+            color: #111827;
+        }
+        
+        .badge-CHE {
+            background-color: #034694;
+            color: #FFFFFF;
+        }
+        
+        .badge-CRY {
+            background-color: #1B458F;
+            color: #F5C242;
+        }
+        
+        .badge-EVE {
+            background-color: #003399;
+            color: #FFFFFF;
+        }
+        
+        .badge-LCL {
+            background-color: #88D1AA;
+            color: #173F35;
+        }
+        
+        .badge-LIV {
+            background-color: #C8102E;
+            color: #FFFFFF;
+        }
+        
         .badge-MCI {
-            background-color: #6cabdd;
-            color: #ffffff;
+            background-color: #6CABDD;
+            color: #1C2C5B;
         }
-
-        /* Man City Blue */
-        .badge-MUN {
-            background-color: #DA020E;
-            color: #ffffff;
+        
+        .badge-MUN,
+        .badge-MNU {
+            background-color: #DA291C;
+            color: #FBE122;
         }
-
-        /* Man United Red */
+        
         .badge-TOT {
-            background-color: #0A1C56;
-            color: #ffffff;
+            background-color: #132257;
+            color: #FFFFFF;
         }
-
-        /* Tottenham Navy */
+        
         .badge-WHU {
-            background-color: #7c2c3b;
-            color: #1bb1e7;
+            background-color: #7A263A;
+            color: #1BB1E7;
         }
-
-        /* West Ham Claret/Light Blue Text */
+        
+        
+        /* WSL2 */
+        .badge-BRC {
+            background-color: #E21A2C;
+            color: #F9D616;
+        }
+        
+        .badge-BUR {
+            background-color: #6C1D45;
+            color: #8FD2E8;
+        }
+        
+        .badge-DUR {
+            background-color: #0B2A4A;
+            color: #F3D34A;
+        }
+        
+        .badge-IPS {
+            background-color: #1D428A;
+            color: #FFFFFF;
+        }
+        
+        .badge-LEI {
+            background-color: #003090;
+            color: #FDBE11;
+        }
+        
+        .badge-NEW {
+            background-color: #111111;
+            color: #FFFFFF;
+        }
+        
+        .badge-NFO {
+            background-color: #E53233;
+            color: #0F172A;
+        }
+        
+        .badge-POR {
+            background-color: #071D49;
+            color: #F7C948;
+        }
+        
+        .badge-SHU {
+            background-color: #EE2737;
+            color: #101820;
+        }
+        
+        .badge-SOU {
+            background-color: #FFFFFF;
+            color: #D71920;
+            border: 1px solid #D71920;
+        }
+        
+        .badge-SUN {
+            background-color: #EB172B;
+            color: #111111;
+        }
+        
+        .badge-WAT {
+            background-color: #FBEE23;
+            color: #111111;
+        }
 
         /* Custom styles for position badge - RECTANGULAR STYLE */
         .pos-badge {
@@ -1872,6 +1938,18 @@
             if (raw === 'MNU') return 'MUN';
             return raw;
         }
+    
+        function teamBadgeHtml(code) {
+            const raw = String(code || '').toUpperCase();
+        
+            if (!raw) {
+                return '<span class="text-gray-400">—</span>';
+            }
+        
+            const displayCode = canonicalTeamCodeUI(raw);
+        
+            return `<span class="team-badge badge-${displayCode}">${displayCode}</span>`;
+        }
 
         function normalizeKey(name) {
             if (name === null || name === undefined) return "";
@@ -2584,12 +2662,12 @@
                     className: 'whitespace-nowrap dt-center',
                     render: function (data, type, row) {
                         if (type === 'display') {
-                            const teamCode = data; 
-                            return `<span class="team-badge badge-${teamCode}">${teamCode}</span>`;
+                            return teamBadgeHtml(data);
                         }
                         return data;
                     }
                 },
+                
                 "Next Fixture Day Short": {
                     abbr: 'Day',
                     full: 'Day of the player\'s next fixture. Later fixtures can preserve manual-sub flexibility.',
@@ -5081,6 +5159,8 @@
                   match.live_minute = match.minute || null;
                   liveInvolvementMatches.set(String(match.opta_match_id || ''), match);
                 });
+                
+                populateInvolvementControls();
                 renderInvolvement();
                 const generated = latest?.metadata?.generated_at ? new Date(latest.metadata.generated_at) : null;
                 const stamp = generated && !Number.isNaN(generated.getTime())
@@ -5099,27 +5179,71 @@
               }
             }
 
-            function populateInvolvementControls() {
-                const metadata = involvementHistoryData?.metadata || {};
-                const weeks = (metadata.available_gameweeks || [])
-                    .map(String)
-                    .sort((a, b) => Number(a) - Number(b));
-
-                $('#inv-gameweek').html(
-                    '<option value="overall">Overall</option>' +
-                    weeks.map(gw => `<option value="${gw}">GW${gw}</option>`).join('')
-                );
-
+            function populateInvolvementClubControl() {
+                const selectedLeague = $('#inv-league').val() || '';
+                const previousClub = $('#inv-club').val() || '';
+            
                 const clubs = Array.from(new Set(
-                    (involvementHistoryData.players_overall || [])
-                        .map(p => p.club)
+                    (fullPlayerData || [])
+                        .filter(player => {
+                            const league = player.League || player.league || '';
+                            return !selectedLeague || league === selectedLeague;
+                        })
+                        .map(player => player.Club || player.club)
                         .filter(Boolean)
                 )).sort();
-
+            
                 $('#inv-club').html(
                     '<option value="">All clubs</option>' +
-                    clubs.map(club => `<option value="${club}">${club}</option>`).join('')
+                    clubs.map(club => {
+                        const display = canonicalTeamCodeUI(club);
+                        return `<option value="${club}">${display}</option>`;
+                    }).join('')
                 );
+            
+                if (previousClub && clubs.includes(previousClub)) {
+                    $('#inv-club').val(previousClub);
+                } else {
+                    $('#inv-club').val('');
+                }
+            }
+            
+            
+            function populateInvolvementControls() {
+                const metadata = involvementHistoryData?.metadata || {};
+            
+                const weeks = new Set(
+                    (metadata.available_gameweeks || []).map(String)
+                );
+            
+                combinedInvolvementMatches().forEach(match => {
+                    const gw = String(match.fantasy_game_week || '');
+                    if (gw) {
+                        weeks.add(gw);
+                    }
+                });
+            
+                const sortedWeeks = Array.from(weeks)
+                    .filter(Boolean)
+                    .sort((a, b) => Number(a) - Number(b));
+            
+                const previousGw = $('#inv-gameweek').val() || 'overall';
+            
+                $('#inv-gameweek').html(
+                    '<option value="overall">Overall</option>' +
+                    sortedWeeks
+                        .map(gw => `<option value="${gw}">GW${gw}</option>`)
+                        .join('')
+                );
+            
+                if (
+                    Array.from($('#inv-gameweek')[0].options)
+                        .some(option => option.value === previousGw)
+                ) {
+                    $('#inv-gameweek').val(previousGw);
+                }
+            
+                populateInvolvementClubControl();
             }
 
             function involvementRowsForSelection() {
@@ -5196,7 +5320,7 @@
                             ${row.name || '—'}
                             ${row.has_live_data ? '<span class="inv-live-badge"><span class="inv-live-dot"></span>IN PROGRESS</span>' : ''}
                         </td>
-                        <td class="px-3 py-2 text-center"><span class="team-badge badge-${row.club || ''}">${row.club || '—'}</span></td>
+                        <td class="px-3 py-2 text-center">${teamBadgeHtml(row.club)}</td>
                         <td class="px-3 py-2 text-center"><span class="pos-badge badge-${row.position || ''}">${row.position || '—'}</span></td>
                         <td class="px-3 py-2 text-center">${row.matches_with_data ?? '—'}</td>
                         <td class="px-3 py-2 text-center">${row.shots_on_target ?? 0}</td>
@@ -5293,14 +5417,22 @@
             $('#inv-gameweek, #inv-position, #inv-club').on('change', renderInvolvement);
             $('#inv-league').on('change', function() {
                 const value = $(this).val();
+            
                 saveLeaguePreference(value);
+            
                 $('#league-filter').val(value);
                 $('#planner-league').val(value);
                 $('#pairings-league').val(value);
                 $('#cs-league').val(value);
                 $('#legs-league').val(value);
                 $('#inv-league').val(value);
-                if (dataTableInstance) dataTableInstance.draw(false);
+            
+                populateInvolvementClubControl();
+            
+                if (dataTableInstance) {
+                    dataTableInstance.draw(false);
+                }
+            
                 renderPlanner();
                 renderPairings();
                 renderCleanSheets();
