@@ -1,10 +1,10 @@
 {
   "metadata": {
-    "generated_at_utc": "2026-09-06T11:40:15+00:00",
+    "generated_at_utc": "2026-09-06T12:29:30+00:00",
     "source": "Pinnacle via OddsPapi",
     "method": "Opponent team total Under 0.5, de-vigged against Over 0.5",
     "tournament_id": 1044,
-    "fixture_count": 1,
+    "fixture_count": 3,
     "unmatched_fixture_count": 1,
     "learned_participant_count": 10,
     "participant_mapping": {
@@ -24,6 +24,35 @@
   },
   "fixtures": [
     {
+      "match_id": "wpll::Football_Match::e8af306d026d4841ac254787a1f44c1f",
+      "fixture_id": "id1000104473345996",
+      "pinnacle_fixture_id": "1635197879",
+      "start_time_utc": "2026-09-06T13:30:00.000Z",
+      "home_team": "MCI",
+      "away_team": "BIR",
+      "home_name": "Manchester City",
+      "away_name": "Birmingham City",
+      "home_market_cs_probability": 0.599261,
+      "away_market_cs_probability": null,
+      "home_opponent_team_total_0_5": {
+        "over_odds": 2.27,
+        "under_odds": 1.518,
+        "raw_under_probability": 0.658762,
+        "overround": 0.09929,
+        "fair_under_probability": 0.599261,
+        "main_line": true,
+        "bookmaker_market_id": "line/29/8713/1635197879/3718873981/0/teamTotal",
+        "market_type": "teamTotal",
+        "period": "full_match",
+        "team_total_side": "away",
+        "line": 0.5
+      },
+      "away_opponent_team_total_0_5": null,
+      "source": "Pinnacle",
+      "method": "opponent_team_total_under_0.5_devig",
+      "market_updated_at": "2026-09-04T23:34:25.138Z"
+    },
+    {
       "match_id": "wpll::Football_Match::17b69372c12543dfac1b88f4f6435f56",
       "fixture_id": "id1000104473345998",
       "pinnacle_fixture_id": "1635870498",
@@ -33,16 +62,16 @@
       "home_name": "West Ham United",
       "away_name": "London City Lionesses",
       "home_market_cs_probability": null,
-      "away_market_cs_probability": 0.346154,
+      "away_market_cs_probability": 0.379709,
       "home_opponent_team_total_0_5": null,
       "away_opponent_team_total_0_5": {
-        "over_odds": 1.44,
-        "under_odds": 2.72,
-        "raw_under_probability": 0.367647,
-        "overround": 0.062092,
-        "fair_under_probability": 0.346154,
+        "over_odds": 1.512,
+        "under_odds": 2.47,
+        "raw_under_probability": 0.404858,
+        "overround": 0.066234,
+        "fair_under_probability": 0.379709,
         "main_line": true,
-        "bookmaker_market_id": "line/29/8713/1635870498/3718780694/0/teamTotal",
+        "bookmaker_market_id": "line/29/8713/1635870498/3718871309/0/teamTotal",
         "market_type": "teamTotal",
         "period": "full_match",
         "team_total_side": "home",
@@ -50,7 +79,36 @@
       },
       "source": "Pinnacle",
       "method": "opponent_team_total_under_0.5_devig",
-      "market_updated_at": "2026-09-05T12:27:22.871Z"
+      "market_updated_at": "2026-09-06T12:18:38.121Z"
+    },
+    {
+      "match_id": "wpll::Football_Match::c3fd4039b100435bb0bccaa40e870abe",
+      "fixture_id": "id1000104473346000",
+      "pinnacle_fixture_id": "1635980476",
+      "start_time_utc": "2026-09-13T11:00:00.000Z",
+      "home_team": "MUN",
+      "away_team": "CHE",
+      "home_name": "Manchester United",
+      "away_name": "Chelsea",
+      "home_market_cs_probability": null,
+      "away_market_cs_probability": 0.396092,
+      "home_opponent_team_total_0_5": null,
+      "away_opponent_team_total_0_5": {
+        "over_odds": 1.561,
+        "under_odds": 2.38,
+        "raw_under_probability": 0.420168,
+        "overround": 0.060783,
+        "fair_under_probability": 0.396092,
+        "main_line": true,
+        "bookmaker_market_id": "line/29/8713/1635980476/3718812439/0/teamTotal",
+        "market_type": "teamTotal",
+        "period": "full_match",
+        "team_total_side": "home",
+        "line": 0.5
+      },
+      "source": "Pinnacle",
+      "method": "opponent_team_total_under_0.5_devig",
+      "market_updated_at": "2026-09-06T12:18:38.175Z"
     }
   ]
 }
