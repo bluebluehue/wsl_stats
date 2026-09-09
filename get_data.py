@@ -29,6 +29,7 @@ TRANSFORMED_PATH = ROOT / "transformed_data.json"
 FIXTURES_PATH = ROOT / "fixtures.json"
 GK_MODEL_INPUTS_PATH = ROOT / "gk_model_inputs.json"
 MARKET_ODDS_PATH = ROOT / "market_odds.json"
+INVOLVEMENT_HISTORY_PATH = ROOT / "involvement_history.json"
 TEAMS_PATH = ROOT / "teams.json"
 RAW_DIR = ROOT / "raw_feeds"
 
@@ -171,6 +172,35 @@ FANTASY_OPPORTUNITY_AWAY_DISADVANTAGE = -4.0
 
 DEFENSIVE_PLAYER_DEF_WEIGHT = 0.85
 DEFENSIVE_PLAYER_ATTACK_WEIGHT = 0.15
+
+# v11: growing 2026/27 actual team-performance evidence.
+# The prior remains important early, while current-season evidence grows to
+# 85% after 12+ completed matches.
+CURRENT_SEASON_ACTUALS_WEIGHT_BY_MATCHES = {
+    0: 0.00,
+    1: 0.10,
+    2: 0.20,
+    3: 0.30,
+    4: 0.40,
+    5: 0.50,
+    6: 0.57,
+    7: 0.64,
+    8: 0.70,
+    9: 0.74,
+    10: 0.78,
+    11: 0.82,
+}
+CURRENT_SEASON_ACTUALS_MAX_WEIGHT = 0.85
+
+# Primitive Opta involvement-event weights used to create a team attacking
+# signal. The model intentionally uses underlying chance/pressure creation
+# rather than fantasy points.
+CURRENT_SEASON_ATTACK_SIGNAL_WEIGHTS = {
+    "shots_on_target": 5.0,
+    "key_passes": 2.0,
+    "successful_crosses": 0.75,
+    "successful_dribbles": 0.75,
+}
 
 
 def fetch_json(path: str, cache_name: str | None = None, from_local: bool = False) -> dict[str, Any]:
@@ -552,15 +582,217 @@ def apply_wsl2_preseason_unit_calibration(team: str, attack: float, defense: flo
     )
 
 
+def current_season_actuals_weight(matches_with_data: int) -> float:
+    mp = max(0, safe_int(matches_with_data))
+    if mp >= 12:
+        return CURRENT_SEASON_ACTUALS_MAX_WEIGHT
+    return CURRENT_SEASON_ACTUALS_WEIGHT_BY_MATCHES.get(mp, 0.0)
+
+
+def load_current_season_team_evidence() -> tuple[dict[str, Any], dict[str, dict[str, Any]]]:
+    """Build current-season team ATT/DEF evidence from involvement_history.json.
+
+    Attack evidence uses primitive Opta event output per completed match:
+      shots on target, key passes, successful crosses and successful dribbles.
+
+    Defense evidence is the inverse of the attacking signal allowed to the
+    opponent. This avoids treating high clearance/tackle volume as inherently
+    strong defense, since those actions can simply indicate sustained pressure.
+
+    Team signals are ranked within the CURRENT competition and mapped onto the
+    same broad strength scale used by the preseason unit model.
+    """
+    if not INVOLVEMENT_HISTORY_PATH.exists():
+        return {
+            "available": False,
+            "input_file": INVOLVEMENT_HISTORY_PATH.name,
+            "match_count": 0,
+            "note": "No involvement_history.json available; current-season team evidence not applied.",
+        }, {}
+
+    try:
+        payload = json.loads(INVOLVEMENT_HISTORY_PATH.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return {
+            "available": False,
+            "input_file": INVOLVEMENT_HISTORY_PATH.name,
+            "match_count": 0,
+            "note": "involvement_history.json could not be read; current-season team evidence not applied.",
+        }, {}
+
+    matches = payload.get("matches", []) or []
+    team_rows: dict[str, dict[str, Any]] = {}
+    usable_matches = 0
+
+    completed_labels = {
+        "played", "complete", "completed", "finished", "ft",
+        "fulltime", "full_time",
+    }
+
+    for match in matches:
+        status = str(match.get("match_status") or "").strip().lower()
+        if status and status not in completed_labels:
+            continue
+
+        home = canonical_transition_team_code(match.get("home_id"))
+        away = canonical_transition_team_code(match.get("away_id"))
+        comp = match.get("competition_id")
+        if not home or not away or not comp:
+            continue
+
+        per_team = {home: {k: 0.0 for k in CURRENT_SEASON_ATTACK_SIGNAL_WEIGHTS},
+                    away: {k: 0.0 for k in CURRENT_SEASON_ATTACK_SIGNAL_WEIGHTS}}
+
+        for player in match.get("players", []) or []:
+            club = canonical_transition_team_code(player.get("club"))
+            if club not in per_team:
+                continue
+            for field in CURRENT_SEASON_ATTACK_SIGNAL_WEIGHTS:
+                per_team[club][field] += safe_float(player.get(field), 0.0)
+
+        attack_signal: dict[str, float] = {}
+        for club in (home, away):
+            attack_signal[club] = sum(
+                per_team[club][field] * weight
+                for field, weight in CURRENT_SEASON_ATTACK_SIGNAL_WEIGHTS.items()
+            )
+
+        for club, opponent in ((home, away), (away, home)):
+            row = team_rows.setdefault(club, {
+                "competition_id": comp,
+                "matches_with_data": 0,
+                "attack_signal_total": 0.0,
+                "opponent_attack_signal_total": 0.0,
+                **{f"{field}_total": 0.0 for field in CURRENT_SEASON_ATTACK_SIGNAL_WEIGHTS},
+            })
+            row["matches_with_data"] += 1
+            row["attack_signal_total"] += attack_signal[club]
+            row["opponent_attack_signal_total"] += attack_signal[opponent]
+            for field in CURRENT_SEASON_ATTACK_SIGNAL_WEIGHTS:
+                row[f"{field}_total"] += per_team[club][field]
+
+        usable_matches += 1
+
+    if not team_rows:
+        return {
+            "available": False,
+            "input_file": INVOLVEMENT_HISTORY_PATH.name,
+            "match_count": 0,
+            "note": "No completed matches with usable Opta involvement evidence found.",
+        }, {}
+
+    attack_by_comp: dict[str, dict[str, float]] = {}
+    opp_attack_by_comp: dict[str, dict[str, float]] = {}
+
+    for team, row in team_rows.items():
+        mp = max(1, safe_int(row.get("matches_with_data"), 1))
+        comp = row.get("competition_id")
+        attack_avg = safe_float(row.get("attack_signal_total")) / mp
+        opp_avg = safe_float(row.get("opponent_attack_signal_total")) / mp
+        row["attack_signal_per_match"] = attack_avg
+        row["opponent_attack_signal_per_match"] = opp_avg
+        attack_by_comp.setdefault(comp, {})[team] = attack_avg
+        opp_attack_by_comp.setdefault(comp, {})[team] = opp_avg
+
+    attack_ranks = {comp: rank_percentile(vals) for comp, vals in attack_by_comp.items()}
+    opp_attack_ranks = {comp: rank_percentile(vals) for comp, vals in opp_attack_by_comp.items()}
+
+    evidence: dict[str, dict[str, Any]] = {}
+
+    for team, row in team_rows.items():
+        comp = row.get("competition_id")
+        attack_rank = attack_ranks.get(comp, {}).get(team, 0.5)
+        # Lower opponent attacking signal = stronger defensive performance.
+        defense_rank = 1.0 - opp_attack_ranks.get(comp, {}).get(team, 0.5)
+
+        if comp == WSL_COMPETITION_ID:
+            low, high = 0.18, 0.92
+        elif comp == WSL2_COMPETITION_ID:
+            low, high = 0.15, 0.85
+        else:
+            low, high = 0.20, 0.80
+
+        attack_strength = low + ((high - low) * attack_rank)
+        defense_strength = low + ((high - low) * defense_rank)
+        mp = max(1, safe_int(row.get("matches_with_data"), 1))
+
+        evidence[team] = {
+            "competition_id": comp,
+            "matches_with_data": mp,
+            "actuals_weight": round(current_season_actuals_weight(mp), 4),
+            "attack_actual_strength_index": round(max(0.05, min(0.95, attack_strength)), 4),
+            "defense_actual_strength_index": round(max(0.05, min(0.95, defense_strength)), 4),
+            "attack_rank_current_season": round(attack_rank, 4),
+            "defense_rank_current_season": round(defense_rank, 4),
+            "attack_signal_per_match": round(safe_float(row.get("attack_signal_per_match")), 3),
+            "opponent_attack_signal_per_match": round(safe_float(row.get("opponent_attack_signal_per_match")), 3),
+            **{
+                f"{field}_per_match": round(safe_float(row.get(f"{field}_total")) / mp, 3)
+                for field in CURRENT_SEASON_ATTACK_SIGNAL_WEIGHTS
+            },
+        }
+
+    source_meta = payload.get("metadata", {}) or {}
+    metadata = {
+        "available": True,
+        "input_file": INVOLVEMENT_HISTORY_PATH.name,
+        "match_count": usable_matches,
+        "generated_at_utc": source_meta.get("generated_at_utc"),
+        "source": source_meta.get("source", "Public Opta Player Stats widget match-event feed"),
+        "attack_signal_weights": CURRENT_SEASON_ATTACK_SIGNAL_WEIGHTS,
+        "actuals_weight_by_matches": {
+            **{str(k): v for k, v in CURRENT_SEASON_ACTUALS_WEIGHT_BY_MATCHES.items()},
+            "12+": CURRENT_SEASON_ACTUALS_MAX_WEIGHT,
+        },
+        "note": (
+            "Current-season team evidence uses shots on target, key passes, successful crosses "
+            "and successful dribbles from completed Opta matches. Defensive evidence is the "
+            "inverse of opponent attacking output. Evidence is ranked within the current league "
+            "and blended conservatively with preseason priors as sample size grows."
+        ),
+    }
+    return metadata, evidence
+
+
+def blend_current_season_unit_strength(
+    team: str | None,
+    attack_strength: float,
+    defense_strength: float,
+    current_team_evidence: dict[str, dict[str, Any]] | None,
+) -> tuple[float, float, float, dict[str, Any]]:
+    code = canonical_transition_team_code(team)
+    evidence = (current_team_evidence or {}).get(code) or {}
+    matches_with_data = safe_int(evidence.get("matches_with_data"), 0)
+    weight = current_season_actuals_weight(matches_with_data) if evidence else 0.0
+
+    if weight <= 0:
+        return attack_strength, defense_strength, 0.0, evidence
+
+    actual_attack = safe_float(evidence.get("attack_actual_strength_index"), attack_strength)
+    actual_defense = safe_float(evidence.get("defense_actual_strength_index"), defense_strength)
+
+    blended_attack = ((1.0 - weight) * attack_strength) + (weight * actual_attack)
+    blended_defense = ((1.0 - weight) * defense_strength) + (weight * actual_defense)
+
+    return (
+        max(0.05, min(0.95, blended_attack)),
+        max(0.05, min(0.95, blended_defense)),
+        weight,
+        evidence,
+    )
+
+
 def build_gk_team_priors(
     model_inputs: dict[str, Any],
     team_strength: dict[str, dict[str, Any]] | None = None,
     current_season_matches: dict[str, int] | None = None,
+    current_team_evidence: dict[str, dict[str, Any]] | None = None,
 ) -> dict[str, dict[str, Any]]:
     teams = model_inputs.get("teams", {}) or {}
     manual = model_inputs.get("manual_team_adjustments", {}) or {}
     team_strength = team_strength or {}
     current_season_matches = current_season_matches or {}
+    current_team_evidence = current_team_evidence or {}
 
     by_league: dict[str, list[dict[str, Any]]] = {}
     for code, row in teams.items():
@@ -822,6 +1054,49 @@ def build_gk_team_priors(
                 else ""
             ) + transition_note
         
+        # --------------------------------------------------------------
+        # Growing 2026/27 current-season evidence (v11).
+        # Blend the same live ATT/DEF evidence used by the outfield model into
+        # the GK team environment so clean-sheet/save projections stay aligned.
+        # --------------------------------------------------------------
+        evidence_code = canonical_transition_team_code(code)
+        live_evidence = current_team_evidence.get(evidence_code, {}) or {}
+        live_matches = safe_int(live_evidence.get("matches_with_data"), 0)
+        live_weight = current_season_actuals_weight(live_matches) if live_evidence else 0.0
+        live_attack_strength = safe_float(live_evidence.get("attack_actual_strength_index"), 0.50)
+        live_defense_strength = safe_float(live_evidence.get("defense_actual_strength_index"), 0.50)
+
+        pre_live_attack_factor = attack_factor
+        pre_live_defense_factor = defense_factor
+
+        if live_weight > 0:
+            target_attack_factor = 0.75 + (0.55 * live_attack_strength)
+            target_defense_factor = 1.25 - (0.45 * live_defense_strength)
+
+            old_attack_factor = attack_factor
+            old_defense_factor = defense_factor
+
+            attack_factor = ((1.0 - live_weight) * attack_factor) + (live_weight * target_attack_factor)
+            defense_factor = ((1.0 - live_weight) * defense_factor) + (live_weight * target_defense_factor)
+
+            attack_ratio = attack_factor / old_attack_factor if old_attack_factor > 0 else 1.0
+            defense_ratio = defense_factor / old_defense_factor if old_defense_factor > 0 else 1.0
+
+            gf90 *= attack_ratio
+            if sot is not None:
+                sot *= attack_ratio
+            if big90 is not None:
+                big90 *= attack_ratio
+
+            ga90 *= defense_ratio
+            shot_pressure_factor *= defense_ratio
+            if saves_pg is not None:
+                saves_pg *= defense_ratio
+
+            live_note = f"2026/27 actuals {live_weight:.0%} weight from {live_matches} match{'es' if live_matches != 1 else ''}"
+            bridge_note = ((bridge_note + " | ") if bridge_note else "") + live_note
+            data_quality = data_quality + " + current-season Opta evidence"
+
         m = manual.get(code) or {}
         defense_factor *= max(0.60, 1.0 - safe_float(m.get("defense_adjustment"), 0) / 100.0)
         attack_factor *= max(0.60, 1.0 + safe_float(m.get("attack_adjustment"), 0) / 100.0)
@@ -880,6 +1155,13 @@ def build_gk_team_priors(
                 transition_defense_adjustment,
                 4,
             ),
+
+            "current_season_actuals_matches": live_matches,
+            "current_season_actuals_weight": round(live_weight, 4),
+            "current_season_attack_strength_index": round(live_attack_strength, 4) if live_evidence else None,
+            "current_season_defense_strength_index": round(live_defense_strength, 4) if live_evidence else None,
+            "pre_current_season_attack_factor": round(pre_live_attack_factor, 4),
+            "pre_current_season_defense_factor": round(pre_live_defense_factor, 4),
         }
 
     return out
@@ -1509,6 +1791,7 @@ def build_team_unit_priors(
     players_raw: list[dict[str, Any]],
     team_strength: dict[str, dict[str, Any]],
     current_season_matches: dict[str, int] | None = None,
+    current_team_evidence: dict[str, dict[str, Any]] | None = None,
 ) -> dict[str, dict[str, Any]]:
     """Build separate attacking and defensive team-strength priors.
 
@@ -1527,6 +1810,7 @@ def build_team_unit_priors(
       - It fades 100% -> 67% -> 33% -> 0% after 0/1/2/3 completed matches.
     """
     current_season_matches = current_season_matches or {}
+    current_team_evidence = current_team_evidence or {}
     units: dict[str, dict[str, Any]] = {}
 
     for raw in players_raw:
@@ -1709,6 +1993,34 @@ def build_team_unit_priors(
                 (defense_note + " | ") if defense_note else ""
             ) + transition_text
 
+        # Blend growing 2026/27 actual evidence AFTER the temporary offseason
+        # adjustment. This creates a smooth handoff rather than snapping back to
+        # the historical prior when the offseason overlay reaches zero.
+        pre_actuals_attack_strength = attack_strength
+        pre_actuals_defense_strength = defense_strength
+
+        (
+            attack_strength,
+            defense_strength,
+            actuals_weight,
+            actuals_detail,
+        ) = blend_current_season_unit_strength(
+            team,
+            attack_strength,
+            defense_strength,
+            current_team_evidence,
+        )
+
+        actuals_matches = safe_int(actuals_detail.get("matches_with_data"), 0) if actuals_detail else 0
+
+        if actuals_weight > 0:
+            live_text = (
+                f"2026/27 actuals {actuals_weight:.0%} weight from "
+                f"{actuals_matches} match{'' if actuals_matches == 1 else 'es'}"
+            )
+            attack_note = ((attack_note + " | ") if attack_note else "") + live_text
+            defense_note = ((defense_note + " | ") if defense_note else "") + live_text
+
         priors[team] = {
             "competition_id": comp,
 
@@ -1767,6 +2079,23 @@ def build_team_unit_priors(
             "wsl2_preseason_calibration_weight": round(
                 wsl2_preseason_weight,
                 4,
+            ),
+
+            "pre_current_season_attack_strength_index": round(pre_actuals_attack_strength, 4),
+            "pre_current_season_defense_strength_index": round(pre_actuals_defense_strength, 4),
+            "current_season_actuals_matches": actuals_matches,
+            "current_season_actuals_weight": round(actuals_weight, 4),
+            "current_season_attack_strength_index": (
+                actuals_detail.get("attack_actual_strength_index") if actuals_detail else None
+            ),
+            "current_season_defense_strength_index": (
+                actuals_detail.get("defense_actual_strength_index") if actuals_detail else None
+            ),
+            "current_season_attack_signal_per_match": (
+                actuals_detail.get("attack_signal_per_match") if actuals_detail else None
+            ),
+            "current_season_opponent_attack_signal_per_match": (
+                actuals_detail.get("opponent_attack_signal_per_match") if actuals_detail else None
             ),
 
             "attack_transition_note": attack_note,
@@ -2216,7 +2545,7 @@ def build_upcoming_fixture(
             if outfield_detail else None
         ),
 
-        "gk_model": "team-cs-save-v9-wsl-transition" if gk_detail else None,
+        "gk_model": "team-cs-save-v10-current-season-evidence" if gk_detail else None,
         "gk_cs_fix": gk_detail.get("cs_fix") if gk_detail else None,
         "gk_cs_probability": gk_detail.get("cs_probability") if gk_detail else None,
         "gk_expected_goals_against": gk_detail.get("expected_goals_against") if gk_detail else None,
@@ -2632,10 +2961,21 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
     fixture_calibration = build_competition_fixture_calibration(players_raw)
     team_strength = build_team_strength_priors(players_raw)
     current_season_matches = count_completed_team_matches(players_raw)
+    current_team_evidence_metadata, current_team_evidence = load_current_season_team_evidence()
     gk_model_inputs = load_gk_model_inputs()
     market_metadata, market_lookup = load_market_odds()
-    gk_team_priors = build_gk_team_priors(gk_model_inputs, team_strength, current_season_matches)
-    team_unit_strength = build_team_unit_priors(players_raw, team_strength, current_season_matches)
+    gk_team_priors = build_gk_team_priors(
+        gk_model_inputs,
+        team_strength,
+        current_season_matches,
+        current_team_evidence,
+    )
+    team_unit_strength = build_team_unit_priors(
+        players_raw,
+        team_strength,
+        current_season_matches,
+        current_team_evidence,
+    )
     players = [
         transform_player(
             p,
@@ -2823,7 +3163,7 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
         fixture["away_cs_prior"] = aws["own_cs_prior"]
         fixture["home_opponent_attack_prior"] = hs["opponent_attack_prior"]
         fixture["away_opponent_attack_prior"] = aws["opponent_attack_prior"]
-        fixture["gk_rating_model"] = "team-cs-save-v9-wsl-transition"
+        fixture["gk_rating_model"] = "team-cs-save-v10-current-season-evidence"
 
     teams = [normalize_team(t) for t in teams_raw]
 
@@ -2838,6 +3178,10 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
             "method": market_metadata.get("method"),
             "generated_at_utc": market_metadata.get("generated_at_utc"),
             "note": "Market CS% is kept separate from the independent GK model for calibration; it is not yet blended into GK Fix.",
+        },
+        "current_season_team_evidence": {
+            **current_team_evidence_metadata,
+            "teams": current_team_evidence,
         },
         "matchday_id": MATCHDAY_ID,
         "tour_id": TOUR_ID,
@@ -2860,14 +3204,14 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
             {"leg": 6, "start_gw": 24, "end_gw": 26},
         ],
         "gk_fixture_model": {
-            "version": "team-cs-save-v9-wsl-transition",
+            "version": "team-cs-save-v10-current-season-evidence",
             "note": (
                 "GK model separates clean-sheet probability, save opportunity, individual "
                 "keeper quality, and 3+ concession risk. Expected goals against multiplies "
                 "independent own-defense and opponent-attack relative-risk factors plus venue. "
                 "Cross-division clubs are rebased to the destination league, and WSL team "
                 "attack/defense priors receive the temporary 2026/27 offseason transition "
-                "adjustment, fading completely after three completed league matches."
+                "adjustment plus growing current-season Opta evidence, which reaches up to 85% weight."
             ),
             "weights": {"cs_fix": 0.55, "save_opportunity": 0.25, "keeper_quality": 0.10, "concession_safety": 0.10},
             "cs_probability_formula": "P(CS)=exp(-xGA), xGA=league_baseline_GA * own_defense_factor * opponent_attack_factor * venue_factor",
@@ -2891,7 +3235,7 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
         "last_global_price_change_date": last_price_change,
         "feed_urls": {key: urljoin(BASE_URL, path) for key, path in URLS.items()},
         "fixture_model": {
-            "version": "fantasy-opportunity-v10-position-specific",
+            "version": "fantasy-opportunity-v11-current-season-evidence",
             "note": (
                 "Player-facing outfield Fixture Rating is now position-specific fantasy "
                 "opportunity. MID/FOR use own attacking strength versus opponent defensive "
@@ -2927,7 +3271,7 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
                         "attack_weight": DEFENSIVE_PLAYER_ATTACK_WEIGHT,
                         "defense_weight": DEFENSIVE_PLAYER_DEF_WEIGHT,
                     },
-                    "GK": {"model": "team-cs-save-v9-wsl-transition"},
+                    "GK": {"model": "team-cs-save-v10-current-season-evidence"},
                 },
                 "attacking_formula": (
                     "50 + (own_attack_strength - opponent_defense_strength)*60 + venue"
@@ -2938,12 +3282,12 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
                 "legacy_v5_retained_for_audit": True,
             },
             "defensive_fixture_model": {
-                "version": "unit-strength-defense-v9-wsl-transition",
+                "version": "unit-strength-defense-v10-current-season-evidence",
                 "note": (
                     "Schedule-only attacking and defensive fixture opportunities remain distinct "
                     "from projected team strength. Unit priors now use a unified promoted-team "
-                    "destination-WSL split and a temporary 2026/27 offseason transition layer "
-                    "that fades completely after three completed league matches. Defensive run "
+                    "destination-WSL split, a temporary 2026/27 offseason transition layer, and growing "
+                    "current-season Opta evidence. Defensive run "
                     "uses opponent attack + venue; attacking run uses opponent defense + venue."
                 ),
                 "defensive_formula": "50 + (0.50 - opponent_attack_index)*70 + venue",
