@@ -96,6 +96,39 @@ PROMOTED_WSL_UNIT_STRENGTH = {
     "CHA": {"attack": 0.24, "defense": 0.36},
 }
 
+# v9: temporary 2026/27 WSL offseason transition layer.
+#
+# These adjustments correct information that the current-roster prior cannot
+# fully capture: overseas arrivals, manager/system changes, injuries, squad
+# cohesion, and other major offseason changes.
+#
+# Values are additive strength-index adjustments:
+#   +0.10 means add 0.10 to the underlying attack/defense strength index.
+#
+# The adjustment fades completely after three completed league matches:
+#   0 matches -> 100%
+#   1 match   -> 67%
+#   2 matches -> 33%
+#   3+        -> 0%
+WSL_PRESEASON_TRANSITION = {
+    "ARS": {"attack": +0.05, "defense": +0.05},
+    "AVL": {"attack": +0.02, "defense": +0.04},
+    "BHA": {"attack": -0.03, "defense": +0.01},
+    "BIR": {"attack":  0.00, "defense":  0.00},
+    "CHE": {"attack": +0.03, "defense": -0.02},
+    "CRY": {"attack": +0.01, "defense": +0.05},
+    "EVE": {"attack": +0.05, "defense": +0.01},
+    "LIV": {"attack": +0.10, "defense": +0.05},
+    "LCL": {"attack": +0.15, "defense": +0.18},
+    "MCI": {"attack": -0.04, "defense":  0.00},
+    "MNU": {"attack": -0.10, "defense": -0.20},
+    "TOT": {"attack": +0.05, "defense": +0.05},
+    "WHU": {"attack": +0.04, "defense": +0.04},
+    "CHA": {"attack":  0.00, "defense":  0.00},
+}
+
+WSL_PRESEASON_TRANSITION_FADE_MATCHES = 3
+
 # v8 temporary WSL2 preseason calibration. 0.50 ~= WSL2 average.
 # This layer fades linearly to zero after five completed 2026/27 league matches.
 WSL2_PRESEASON_UNIT_CALIBRATION = {
@@ -403,6 +436,86 @@ def canonical_gk_team_code(code: str | None) -> str:
     raw = str(code or "").upper()
     return TEAM_CODE_ALIASES.get(raw, raw)
 
+def canonical_transition_team_code(code: str | None) -> str:
+    """Use the player/fixture-facing team code for transition configuration."""
+    raw = str(code or "").upper()
+
+    # GK inputs historically use MUN while the fantasy feed uses MNU.
+    if raw == "MUN":
+        return "MNU"
+
+    return raw
+
+
+def completed_matches_for_team(
+    current_season_matches: dict[str, int] | None,
+    team: str | None,
+) -> int:
+    counts = current_season_matches or {}
+    code = canonical_transition_team_code(team)
+
+    if code in counts:
+        return safe_int(counts.get(code), 0)
+
+    # Defensive fallback in case a future caller supplies the GK alias.
+    gk_code = canonical_gk_team_code(code)
+    return safe_int(counts.get(gk_code), 0)
+
+
+def wsl_transition_weight(matches_played: int) -> float:
+    """Temporary WSL offseason-transition weight, fading to zero after 3 matches."""
+    mp = max(0, safe_int(matches_played))
+
+    return max(
+        0.0,
+        min(
+            1.0,
+            (WSL_PRESEASON_TRANSITION_FADE_MATCHES - mp)
+            / WSL_PRESEASON_TRANSITION_FADE_MATCHES,
+        ),
+    )
+
+
+def apply_wsl_preseason_transition(
+    team: str | None,
+    attack_strength: float,
+    defense_strength: float,
+    matches_played: int = 0,
+) -> tuple[float, float, float, float, float]:
+    """Apply the temporary 2026/27 WSL attack/defense transition adjustment.
+
+    Returns:
+        adjusted_attack,
+        adjusted_defense,
+        transition_weight,
+        full_attack_adjustment,
+        full_defense_adjustment
+    """
+    code = canonical_transition_team_code(team)
+    profile = WSL_PRESEASON_TRANSITION.get(code)
+
+    if not profile:
+        return attack_strength, defense_strength, 0.0, 0.0, 0.0
+
+    weight = wsl_transition_weight(matches_played)
+
+    attack_adjustment = safe_float(profile.get("attack"), 0.0)
+    defense_adjustment = safe_float(profile.get("defense"), 0.0)
+
+    adjusted_attack = attack_strength + (attack_adjustment * weight)
+    adjusted_defense = defense_strength + (defense_adjustment * weight)
+
+    adjusted_attack = max(0.05, min(0.95, adjusted_attack))
+    adjusted_defense = max(0.05, min(0.95, adjusted_defense))
+
+    return (
+        adjusted_attack,
+        adjusted_defense,
+        weight,
+        attack_adjustment,
+        defense_adjustment,
+    )
+
 
 def preseason_calibration_weight(matches_played: int) -> float:
     mp = max(0, safe_int(matches_played))
@@ -582,6 +695,115 @@ def build_gk_team_priors(
                 data_quality = "preseason expert-calibrated prior"
                 bridge_note = ((bridge_note + " | ") if bridge_note else "") + f"WSL2 preseason calibration {preseason_weight:.0%}"
 
+        # --------------------------------------------------------------
+        # Temporary 2026/27 WSL offseason transition.
+        #
+        # Apply the same team-level transition information used by the
+        # outfield unit model so GK clean-sheet/save projections and the
+        # schedule model do not disagree about current team quality.
+        #
+        # Attack strength-index delta:
+        #   factor = 0.75 + 0.55*strength
+        #
+        # Defense strength-index delta:
+        #   factor = 1.25 - 0.45*strength
+        #
+        # Therefore:
+        #   +0.10 attack strength -> +0.055 attack_factor
+        #   +0.10 defense strength -> -0.045 defense_factor
+        # --------------------------------------------------------------
+        transition_code = canonical_transition_team_code(code)
+        transition_profile = WSL_PRESEASON_TRANSITION.get(
+            transition_code
+        )
+
+        transition_matches = completed_matches_for_team(
+            current_season_matches,
+            transition_code,
+        )
+
+        transition_weight = (
+            wsl_transition_weight(transition_matches)
+            if transition_profile
+            else 0.0
+        )
+
+        transition_attack_adjustment = (
+            safe_float(
+                transition_profile.get("attack"),
+                0.0,
+            )
+            if transition_profile
+            else 0.0
+        )
+
+        transition_defense_adjustment = (
+            safe_float(
+                transition_profile.get("defense"),
+                0.0,
+            )
+            if transition_profile
+            else 0.0
+        )
+
+        base_attack_factor = attack_factor
+        base_defense_factor = defense_factor
+
+        if transition_weight > 0:
+            old_attack_factor = attack_factor
+            old_defense_factor = defense_factor
+
+            attack_factor += (
+                transition_attack_adjustment
+                * transition_weight
+                * 0.55
+            )
+
+            defense_factor -= (
+                transition_defense_adjustment
+                * transition_weight
+                * 0.45
+            )
+
+            attack_ratio = (
+                attack_factor / old_attack_factor
+                if old_attack_factor > 0
+                else 1.0
+            )
+
+            defense_ratio = (
+                defense_factor / old_defense_factor
+                if old_defense_factor > 0
+                else 1.0
+            )
+
+            # Preserve the shape of the historical prior while moving the
+            # whole attacking/defensive environment consistently.
+            gf90 *= attack_ratio
+
+            if sot is not None:
+                sot *= attack_ratio
+
+            if big90 is not None:
+                big90 *= attack_ratio
+
+            ga90 *= defense_ratio
+            shot_pressure_factor *= defense_ratio
+
+            if saves_pg is not None:
+                saves_pg *= defense_ratio
+
+            transition_note = (
+                f"2026/27 offseason transition "
+                f"{transition_weight:.0%} remaining"
+            )
+
+            bridge_note = (
+                (bridge_note + " | ")
+                if bridge_note
+                else ""
+            ) + transition_note
+        
         m = manual.get(code) or {}
         defense_factor *= max(0.60, 1.0 - safe_float(m.get("defense_adjustment"), 0) / 100.0)
         attack_factor *= max(0.60, 1.0 + safe_float(m.get("attack_adjustment"), 0) / 100.0)
@@ -614,6 +836,32 @@ def build_gk_team_priors(
             "relegated": bool(row.get("relegated")),
             "bridge_note": bridge_note,
             "data_quality": data_quality,
+            "completed_current_season_matches": transition_matches,
+
+            "base_defense_factor_before_transition": round(
+                base_defense_factor,
+                4,
+            ),
+
+            "base_attack_factor_before_transition": round(
+                base_attack_factor,
+                4,
+            ),
+
+            "offseason_transition_weight": round(
+                transition_weight,
+                4,
+            ),
+
+            "offseason_transition_attack_adjustment": round(
+                transition_attack_adjustment,
+                4,
+            ),
+
+            "offseason_transition_defense_adjustment": round(
+                transition_defense_adjustment,
+                4,
+            ),
         }
 
     return out
@@ -1244,36 +1492,52 @@ def build_team_unit_priors(
     team_strength: dict[str, dict[str, Any]],
     current_season_matches: dict[str, int] | None = None,
 ) -> dict[str, dict[str, Any]]:
-    """Build separate preseason attacking and defensive team-strength priors.
+    """Build separate attacking and defensive team-strength priors.
 
-    Attack prior: top six prior-season fantasy point totals among MID/FOR.
-    Defense prior: top five prior-season fantasy point totals among GK/DEF.
+    Base model:
+      - Attack: top six prior-season fantasy point totals among current MID/FOR.
+      - Defense: top five prior-season fantasy point totals among current GK/DEF.
+      - 70% unit-specific evidence + 30% whole-team roster prior.
 
-    Each unit is ranked within its current competition first, then mapped onto
-    the destination-league scale. We blend 70% unit-specific evidence with
-    30% whole-team strength to reduce noise when a club has many new signings
-    or sparse prior-season data.
+    Cross-division handling:
+      - Promoted WSL clubs use explicit destination-WSL split-unit priors.
+      - WSL2 preseason calibration remains separate.
+
+    Early-season transition:
+      - A temporary WSL offseason adjustment corrects for information not
+        captured by prior-season WSL fantasy production.
+      - It fades 100% -> 67% -> 33% -> 0% after 0/1/2/3 completed matches.
     """
     current_season_matches = current_season_matches or {}
     units: dict[str, dict[str, Any]] = {}
 
     for raw in players_raw:
-        team = str(raw.get("teamAcronymName") or raw.get("teamShortName") or "").upper()
+        team = str(
+            raw.get("teamAcronymName")
+            or raw.get("teamShortName")
+            or ""
+        ).upper()
+
         comp = raw.get("competitionId")
+
         if not team or not comp:
             continue
 
         position = POSITION_MAP.get(
             str(raw.get("skillName") or "").lower(),
-            str(raw.get("skillName") or "").upper()
+            str(raw.get("skillName") or "").upper(),
         )
+
         pts = safe_float(raw.get("pointsLastSeason"), 0.0)
 
-        bucket = units.setdefault(team, {
-            "competition_id": comp,
-            "attack_points": [],
-            "defense_points": [],
-        })
+        bucket = units.setdefault(
+            team,
+            {
+                "competition_id": comp,
+                "attack_points": [],
+                "defense_points": [],
+            },
+        )
 
         if pts > 0:
             if position in {"MID", "FOR"}:
@@ -1285,9 +1549,15 @@ def build_team_unit_priors(
     defense_scores_by_comp: dict[str, dict[str, float]] = {}
 
     for team, info in units.items():
-        attack_score = sum(sorted(info["attack_points"], reverse=True)[:6])
-        defense_score = sum(sorted(info["defense_points"], reverse=True)[:5])
+        attack_score = sum(
+            sorted(info["attack_points"], reverse=True)[:6]
+        )
+        defense_score = sum(
+            sorted(info["defense_points"], reverse=True)[:5]
+        )
+
         comp = info["competition_id"]
+
         attack_scores_by_comp.setdefault(comp, {})[team] = attack_score
         defense_scores_by_comp.setdefault(comp, {})[team] = defense_score
 
@@ -1295,6 +1565,7 @@ def build_team_unit_priors(
         comp: rank_percentile(scores)
         for comp, scores in attack_scores_by_comp.items()
     }
+
     defense_ranks = {
         comp: rank_percentile(scores)
         for comp, scores in defense_scores_by_comp.items()
@@ -1304,31 +1575,182 @@ def build_team_unit_priors(
 
     for team, info in units.items():
         comp = info["competition_id"]
+
         attack_rank = attack_ranks.get(comp, {}).get(team, 0.5)
         defense_rank = defense_ranks.get(comp, {}).get(team, 0.5)
 
-        attack_mapped, attack_note = map_rank_to_destination_strength(team, comp, attack_rank)
-        defense_mapped, defense_note = map_rank_to_destination_strength(team, comp, defense_rank)
+        attack_mapped, attack_note = map_rank_to_destination_strength(
+            team, comp, attack_rank
+        )
+        defense_mapped, defense_note = map_rank_to_destination_strength(
+            team, comp, defense_rank
+        )
 
-        generic_strength = safe_float(team_strength.get(team, {}).get("strength_index"), 0.50)
+        generic_strength = safe_float(
+            team_strength.get(team, {}).get("strength_index"),
+            0.50,
+        )
 
-        attack_strength = (0.70 * attack_mapped) + (0.30 * generic_strength)
-        defense_strength = (0.70 * defense_mapped) + (0.30 * generic_strength)
+        attack_strength = (
+            (0.70 * attack_mapped)
+            + (0.30 * generic_strength)
+        )
 
-        preseason_weight = 0.0
-        if comp == WSL2_COMPETITION_ID and team in WSL2_PRESEASON_UNIT_CALIBRATION:
-            attack_strength, defense_strength, preseason_weight = apply_wsl2_preseason_unit_calibration(
-                team, attack_strength, defense_strength, current_season_matches.get(team, 0)
+        defense_strength = (
+            (0.70 * defense_mapped)
+            + (0.30 * generic_strength)
+        )
+
+        # --------------------------------------------------------------
+        # Promoted WSL consistency fix.
+        #
+        # The GK model already uses PROMOTED_WSL_UNIT_STRENGTH directly.
+        # Use exactly the same split-unit destination priors here so the
+        # outfield and GK subsystems agree about promoted-team strength.
+        # --------------------------------------------------------------
+        if (
+            comp == WSL_COMPETITION_ID
+            and team in PROMOTED_WSL_UNIT_STRENGTH
+        ):
+            promoted_profile = PROMOTED_WSL_UNIT_STRENGTH[team]
+
+            attack_strength = safe_float(
+                promoted_profile.get("attack"),
+                attack_strength,
             )
+
+            defense_strength = safe_float(
+                promoted_profile.get("defense"),
+                defense_strength,
+            )
+
+            attack_note = (
+                f"Promoted WSL2→WSL explicit destination attack prior "
+                f"{attack_strength:.2f}"
+            )
+
+            defense_note = (
+                f"Promoted WSL2→WSL explicit destination defense prior "
+                f"{defense_strength:.2f}"
+            )
+
+        # Existing WSL2 preseason calibration.
+        wsl2_preseason_weight = 0.0
+
+        if (
+            comp == WSL2_COMPETITION_ID
+            and team in WSL2_PRESEASON_UNIT_CALIBRATION
+        ):
+            attack_strength, defense_strength, wsl2_preseason_weight = (
+                apply_wsl2_preseason_unit_calibration(
+                    team,
+                    attack_strength,
+                    defense_strength,
+                    completed_matches_for_team(
+                        current_season_matches,
+                        team,
+                    ),
+                )
+            )
+
+        # Save the model value BEFORE the WSL offseason correction.
+        base_attack_strength = attack_strength
+        base_defense_strength = defense_strength
+
+        matches_played = completed_matches_for_team(
+            current_season_matches,
+            team,
+        )
+
+        (
+            attack_strength,
+            defense_strength,
+            transition_weight,
+            full_attack_adjustment,
+            full_defense_adjustment,
+        ) = apply_wsl_preseason_transition(
+            team,
+            attack_strength,
+            defense_strength,
+            matches_played,
+        )
+
+        if transition_weight > 0:
+            transition_text = (
+                f"2026/27 offseason transition "
+                f"{transition_weight:.0%} remaining after "
+                f"{matches_played} completed match"
+                f"{'' if matches_played == 1 else 'es'}"
+            )
+
+            attack_note = (
+                (attack_note + " | ") if attack_note else ""
+            ) + transition_text
+
+            defense_note = (
+                (defense_note + " | ") if defense_note else ""
+            ) + transition_text
 
         priors[team] = {
             "competition_id": comp,
-            "attack_raw_points_top6": round(sum(sorted(info["attack_points"], reverse=True)[:6]), 1),
-            "defense_raw_points_top5": round(sum(sorted(info["defense_points"], reverse=True)[:5]), 1),
+
+            "attack_raw_points_top6": round(
+                sum(sorted(info["attack_points"], reverse=True)[:6]),
+                1,
+            ),
+
+            "defense_raw_points_top5": round(
+                sum(sorted(info["defense_points"], reverse=True)[:5]),
+                1,
+            ),
+
             "attack_rank": round(attack_rank, 4),
             "defense_rank": round(defense_rank, 4),
-            "attack_strength_index": round(max(0.05, min(0.95, attack_strength)), 4),
-            "defense_strength_index": round(max(0.05, min(0.95, defense_strength)), 4),
+
+            # Auditable base values before the temporary WSL correction.
+            "base_attack_strength_index": round(
+                max(0.05, min(0.95, base_attack_strength)),
+                4,
+            ),
+
+            "base_defense_strength_index": round(
+                max(0.05, min(0.95, base_defense_strength)),
+                4,
+            ),
+
+            # Published values used by the fixture models.
+            "attack_strength_index": round(
+                max(0.05, min(0.95, attack_strength)),
+                4,
+            ),
+
+            "defense_strength_index": round(
+                max(0.05, min(0.95, defense_strength)),
+                4,
+            ),
+
+            "completed_current_season_matches": matches_played,
+
+            "offseason_transition_attack_adjustment": round(
+                full_attack_adjustment,
+                4,
+            ),
+
+            "offseason_transition_defense_adjustment": round(
+                full_defense_adjustment,
+                4,
+            ),
+
+            "offseason_transition_weight": round(
+                transition_weight,
+                4,
+            ),
+
+            "wsl2_preseason_calibration_weight": round(
+                wsl2_preseason_weight,
+                4,
+            ),
+
             "attack_transition_note": attack_note,
             "defense_transition_note": defense_note,
         }
@@ -1906,20 +2328,46 @@ def availability_text(status: Any) -> str | None:
     return mapping.get(status, f"Availability status: {status}")
 
 
-def count_completed_team_matches(fixtures_raw: list[dict[str, Any]]) -> dict[str, int]:
-    counts: dict[str, int] = {}
-    for fixture in fixtures_raw:
-        status = str(fixture.get("status") or fixture.get("providerStatus") or "").lower()
-        hs, aws = fixture.get("homeScore"), fixture.get("awayScore")
-        completed = status in {"played","complete","completed","finished","ft","fulltime","full_time"} or (
-            hs not in (None, "") and aws not in (None, "")
+def count_completed_team_matches(players_raw: list[dict[str, Any]]) -> dict[str, int]:
+    """Count completed 2026/27 league matches from player match arrays.
+
+    The fixture feed can expose 0-0 score placeholders before a match is
+    actually played, so score-field presence is not a reliable completion test.
+
+    The fantasy player feed marks completed matches with matchdayStatus == 5.
+    Because every player on a club can contain the same match, collect unique
+    match IDs per club before counting.
+    """
+    completed_by_team: dict[str, set[str]] = {}
+
+    for player in players_raw:
+        team = canonical_transition_team_code(
+            player.get("teamAcronymName")
+            or player.get("teamShortName")
         )
-        if completed:
-            for key in ("homeAcronymName", "awayAcronymName"):
-                code = canonical_gk_team_code(fixture.get(key))
-                if code:
-                    counts[code] = counts.get(code, 0) + 1
-    return counts
+
+        if not team:
+            continue
+
+        for match in player.get("matches", []) or []:
+            try:
+                completed = int(match.get("matchdayStatus")) == 5
+            except (TypeError, ValueError):
+                completed = False
+
+            if not completed:
+                continue
+
+            match_id = str(match.get("matchId") or "")
+            if not match_id:
+                continue
+
+            completed_by_team.setdefault(team, set()).add(match_id)
+
+    return {
+        team: len(match_ids)
+        for team, match_ids in completed_by_team.items()
+    }
 
 
 def build_outputs(from_local: bool = False) -> dict[str, Any]:
@@ -1935,7 +2383,7 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
 
     fixture_calibration = build_competition_fixture_calibration(players_raw)
     team_strength = build_team_strength_priors(players_raw)
-    current_season_matches = count_completed_team_matches(fixtures_raw)
+    current_season_matches = count_completed_team_matches(players_raw)
     gk_model_inputs = load_gk_model_inputs()
     market_metadata, market_lookup = load_market_odds()
     gk_team_priors = build_gk_team_priors(gk_model_inputs, team_strength, current_season_matches)
@@ -2044,7 +2492,7 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
         fixture["away_cs_prior"] = aws["own_cs_prior"]
         fixture["home_opponent_attack_prior"] = hs["opponent_attack_prior"]
         fixture["away_opponent_attack_prior"] = aws["opponent_attack_prior"]
-        fixture["gk_rating_model"] = "team-cs-save-v8.1-wsl2-preseason-fade"
+        fixture["gk_rating_model"] = "team-cs-save-v9-wsl-transition"
 
     teams = [normalize_team(t) for t in teams_raw]
 
@@ -2081,8 +2529,15 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
             {"leg": 6, "start_gw": 24, "end_gw": 26},
         ],
         "gk_fixture_model": {
-            "version": "team-cs-save-v8.1-wsl2-preseason-fade",
-            "note": "GK model separates clean-sheet probability, save opportunity, individual keeper quality, and 3+ concession risk. Expected goals against multiplies independent own-defense and opponent-attack relative-risk factors plus venue. Cross-division clubs are now rebased to the destination league using their destination-calibrated current-roster strength prior, rather than carrying source-division GF/GA ratios across with a small multiplier.",
+            "version": "team-cs-save-v9-wsl-transition",
+            "note": (
+                "GK model separates clean-sheet probability, save opportunity, individual "
+                "keeper quality, and 3+ concession risk. Expected goals against multiplies "
+                "independent own-defense and opponent-attack relative-risk factors plus venue. "
+                "Cross-division clubs are rebased to the destination league, and WSL team "
+                "attack/defense priors receive the temporary 2026/27 offseason transition "
+                "adjustment, fading completely after three completed league matches."
+            ),
             "weights": {"cs_fix": 0.55, "save_opportunity": 0.25, "keeper_quality": 0.10, "concession_safety": 0.10},
             "cs_probability_formula": "P(CS)=exp(-xGA), xGA=league_baseline_GA * own_defense_factor * opponent_attack_factor * venue_factor",
             "venue_goal_factor": {"home": 0.90, "away": 1.10},
@@ -2121,8 +2576,14 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
             },
             "team_strength_priors": team_strength,
             "defensive_fixture_model": {
-                "version": "unit-strength-defense-v8.1-wsl2-preseason-fade",
-                "note": "Schedule-only attacking and defensive fixture opportunities are distinct from projected team strength. Defensive run uses only opponent attack + venue; attacking run uses only opponent defense + venue. Own team quality is intentionally excluded so the Leg Planner ranks schedule difficulty rather than projected performance.",
+                "version": "unit-strength-defense-v9-wsl-transition",
+                "note": (
+                    "Schedule-only attacking and defensive fixture opportunities remain distinct "
+                    "from projected team strength. Unit priors now use a unified promoted-team "
+                    "destination-WSL split and a temporary 2026/27 offseason transition layer "
+                    "that fades completely after three completed league matches. Defensive run "
+                    "uses opponent attack + venue; attacking run uses opponent defense + venue."
+                ),
                 "defensive_formula": "50 + (0.50 - opponent_attack_index)*70 + venue",
                 "attacking_formula": "50 + (0.50 - opponent_defense_index)*70 + venue",
                 "venue": {"home": 5.0, "away": -5.0},
