@@ -207,7 +207,7 @@ CURRENT_SEASON_ATTACK_SIGNAL_WEIGHTS = {
 # Player-level current-season role/involvement model. This is deliberately
 # separate from Fixture Rating: fixtures answer how favorable the matchup is,
 # while this layer answers how involved the individual player has actually been.
-PLAYER_INVOLVEMENT_CONFIDENCE = {0: 0.0, 1: 0.25, 2: 0.40, 3: 0.55, 4: 0.70}
+PLAYER_INVOLVEMENT_CONFIDENCE = {0: 0.0, 1: 0.40, 2: 0.55, 3: 0.68, 4: 0.78}
 PLAYER_INVOLVEMENT_MAX_CONFIDENCE = 0.85
 
 # Current-season production/form model. The official feed's raw `form` and
@@ -218,15 +218,19 @@ PLAYER_INVOLVEMENT_MAX_CONFIDENCE = 0.85
 # heavily toward neutral and acts only as an early-season prior.
 FORM_CURRENT_SEASON_CONFIDENCE = {
     0: 0.00,
-    1: 0.30,
-    2: 0.45,
-    3: 0.60,
-    4: 0.70,
-    5: 0.78,
-    6: 0.84,
-    7: 0.88,
+    1: 0.45,
+    2: 0.60,
+    3: 0.70,
+    4: 0.78,
+    5: 0.84,
+    6: 0.88,
+    7: 0.91,
 }
-FORM_CURRENT_SEASON_MAX_CONFIDENCE = 0.92
+FORM_CURRENT_SEASON_MAX_CONFIDENCE = 0.94
+# Underlying involvement does not get blended directly into Form (that would
+# double-count it in Decision Rating). Instead it only adjusts how quickly we
+# trust the current fantasy-production signal when the two agree/disagree.
+FORM_INVOLVEMENT_CORROBORATION_MAX_ADJUSTMENT = 0.10
 FORM_PRIOR_COMPRESSION = 0.30
 FORM_NO_APPEARANCE_PRIOR_TRUST = 0.40
 
@@ -258,7 +262,7 @@ def load_player_involvement_profiles() -> tuple[dict[str, Any], dict[str, dict[s
     (SOT, key passes, successful crosses, successful dribbles). Defensive involvement
     follows tackles won, interceptions, clearances, blocks and recoveries. Rankings are
     within league + position so defenders are not compared directly with forwards.
-    One match only moves a player 25% away from neutral; confidence rises with samples.
+    One match now moves a player 40% away from neutral; confidence rises with samples.
     """
     if not INVOLVEMENT_HISTORY_PATH.exists():
         return {"available": False, "note": "No involvement_history.json available."}, {}
@@ -337,10 +341,10 @@ def load_player_involvement_profiles() -> tuple[dict[str, Any], dict[str, dict[s
             **{k: round(d[k]/max(1,d["matches_with_data"]),2) for k in ("shots_on_target","key_passes","successful_crosses","successful_dribbles","tackles_won","interceptions","clearances","blocks","recoveries")},
         }
     meta={
-        "available": bool(out), "version": "player-role-involvement-v1", "player_count": len(out),
-        "confidence_by_completed_matches": {"0":0.0,"1":0.25,"2":0.40,"3":0.55,"4":0.70,"5+":0.85},
+        "available": bool(out), "version": "player-role-involvement-v2", "player_count": len(out),
+        "confidence_by_completed_matches": {"0":0.0,"1":0.40,"2":0.55,"3":0.68,"4":0.78,"5+":0.85},
         "position_weights": PLAYER_INVOLVEMENT_POSITION_WEIGHTS,
-        "note": "Player role rating ranks attacking and defensive Opta involvement actions within league and position, then shrinks strongly toward neutral while samples are small. GK rows retain Opta-confirmed appearance count only. It informs Decision Rating but never changes Fixture Rating.",
+        "note": "Player role rating ranks attacking and defensive Opta involvement actions within league and position, then shrinks toward neutral while samples are small; one completed match now carries 40% confidence. GK rows retain Opta-confirmed appearance count only. It informs Decision Rating but never changes Fixture Rating.",
     }
     return meta,out
 
@@ -2861,38 +2865,48 @@ def form_current_season_confidence(appearances: int) -> float:
 def form_rating_details(player: dict[str, Any]) -> dict[str, Any]:
     """Build a season-transition-aware fantasy production rating.
 
-    This intentionally ignores the feed's Raw Form/Average Points as scoring
-    inputs for now. Those fields remain in transformed_data.json for audit.
+    Current fantasy production and underlying involvement remain conceptually
+    separate. Form is still a production signal, but the involvement profile
+    can *corroborate* or *challenge* how quickly we trust that production. This
+    avoids double-counting involvement in Decision Rating while letting a haul
+    backed by strong underlying actions earn more early-season credibility.
 
-    Last-season production is converted to the old points-per-million signal,
-    then compressed sharply toward 50 so an obsolete role cannot dominate.
-    Current-season cumulative fantasy points are divided by Opta-confirmed
-    appearances and converted to a production rating. The current-season
-    signal takes over progressively as appearances accumulate.
-
-    A player with zero current-season appearances gets only 40% of the already
-    compressed historical deviation from neutral. This prevents injured,
-    transferred, rotated, or otherwise non-participating players from carrying
-    an elite-looking Form Rating solely because of 2025/26.
+    The feed's Raw Form/Average Points remain audit-only. Last-season production
+    is compressed sharply toward neutral and acts only as an early-season prior.
     """
     value = max(safe_float(player.get("Value")), 0.1)
     prior_points = safe_float(player.get("Previous Season Points"))
     current_points = safe_float(player.get("Total Points"))
     appearances = max(0, safe_int(player.get("Current Season Appearance Count"), 0))
 
-    # Preserve the legacy prior idea (prior points per million), but compress it
-    # to a narrow 35..65 band around neutral rather than letting it become a
-    # pseudo-current-form score.
     legacy_prior_raw = max(0.0, min(100.0, (prior_points / value) * 4.0))
     prior_rating = 50.0 + FORM_PRIOR_COMPRESSION * (legacy_prior_raw - 50.0)
 
+    base_confidence = form_current_season_confidence(appearances)
+    corroboration_adjustment = 0.0
+    corroboration_rating = None
+    agreement = None
+
     if appearances > 0:
         points_per_appearance = current_points / appearances
-        # 0 pts ~= 20; 5 pts/app ~= 60; 10+ pts/app approaches the cap.
-        # This is intentionally simple and transparent while the season sample
-        # is tiny; confidence weighting below prevents one haul from dominating.
         current_rating = max(20.0, min(95.0, 20.0 + 8.0 * points_per_appearance))
-        confidence = form_current_season_confidence(appearances)
+
+        # Use the *raw* involvement rating here because the confidence ramp is
+        # handled separately. This is not another scoring component: it only
+        # nudges trust in current production up/down by at most 10 percentage
+        # points depending on whether production and underlying actions agree.
+        raw_inv = player.get("Player Involvement Raw Rating")
+        if raw_inv is not None and player.get("Position") != "GK":
+            corroboration_rating = max(15.0, min(85.0, safe_float(raw_inv, 50.0)))
+            production_delta = current_rating - prior_rating
+            involvement_delta = corroboration_rating - 50.0
+            if abs(production_delta) >= 1.0 and abs(involvement_delta) >= 1.0:
+                agreement = "supports" if production_delta * involvement_delta > 0 else "challenges"
+                strength = min(1.0, abs(involvement_delta) / 35.0)
+                direction = 1.0 if agreement == "supports" else -1.0
+                corroboration_adjustment = direction * FORM_INVOLVEMENT_CORROBORATION_MAX_ADJUSTMENT * strength
+
+        confidence = max(0.0, min(FORM_CURRENT_SEASON_MAX_CONFIDENCE, base_confidence + corroboration_adjustment))
         rating = (1.0 - confidence) * prior_rating + confidence * current_rating
     else:
         points_per_appearance = None
@@ -2906,9 +2920,13 @@ def form_rating_details(player: dict[str, Any]) -> dict[str, Any]:
         "previous_season_prior_raw_rating": round(legacy_prior_raw, 1),
         "current_season_production_rating": round(current_rating, 1) if current_rating is not None else None,
         "current_season_points_per_appearance": round(points_per_appearance, 2) if points_per_appearance is not None else None,
-        "current_season_confidence": round(confidence, 2),
+        "base_current_season_confidence": round(base_confidence, 3),
+        "corroboration_rating": round(corroboration_rating, 1) if corroboration_rating is not None else None,
+        "corroboration_adjustment": round(corroboration_adjustment, 3),
+        "corroboration_agreement": agreement,
+        "current_season_confidence": round(confidence, 3),
         "appearance_count": appearances,
-        "method": "current-points-per-opta-appearance + compressed-2025/26-prior",
+        "method": "current-production + compressed-2025/26-prior; involvement corroborates confidence only",
     }
 
 
@@ -3019,6 +3037,10 @@ def transform_player(
         "Current Season Production Rating": None,
         "Previous Season Form Prior Rating": None,
         "Previous Season Form Prior Raw Rating": None,
+        "Form Base Current Season Confidence": 0.0,
+        "Form Involvement Corroboration Rating": None,
+        "Form Involvement Corroboration Adjustment": 0.0,
+        "Form Involvement Corroboration Agreement": None,
         "Form Current Season Confidence": 0.0,
         "Form Rating Method": "",
         "Games Played Over 4 Gameweeks": 0,
@@ -3074,6 +3096,15 @@ def transform_player(
         "Player Defense Involvement Percentile": involvement_profile.get("defense_percentile") if position != "GK" else None,
         "Attacking Actions Per Match": involvement_profile.get("attacking_actions_per_match") if position != "GK" else None,
         "Defensive Actions Per Match": involvement_profile.get("defensive_actions_per_match") if position != "GK" else None,
+        "Shots on Target Per Match": involvement_profile.get("shots_on_target") if position != "GK" else None,
+        "Key Passes Per Match": involvement_profile.get("key_passes") if position != "GK" else None,
+        "Successful Crosses Per Match": involvement_profile.get("successful_crosses") if position != "GK" else None,
+        "Successful Dribbles Per Match": involvement_profile.get("successful_dribbles") if position != "GK" else None,
+        "Tackles Won Per Match": involvement_profile.get("tackles_won") if position != "GK" else None,
+        "Interceptions Per Match": involvement_profile.get("interceptions") if position != "GK" else None,
+        "Clearances Per Match": involvement_profile.get("clearances") if position != "GK" else None,
+        "Blocks Per Match": involvement_profile.get("blocks") if position != "GK" else None,
+        "Recoveries Per Match": involvement_profile.get("recoveries") if position != "GK" else None,
         "Decision Rating": 0.0,
     }
 
@@ -3097,6 +3128,10 @@ def transform_player(
     row["Current Season Production Rating"] = form_detail["current_season_production_rating"]
     row["Previous Season Form Prior Rating"] = form_detail["previous_season_prior_rating"]
     row["Previous Season Form Prior Raw Rating"] = form_detail["previous_season_prior_raw_rating"]
+    row["Form Base Current Season Confidence"] = form_detail["base_current_season_confidence"]
+    row["Form Involvement Corroboration Rating"] = form_detail["corroboration_rating"]
+    row["Form Involvement Corroboration Adjustment"] = form_detail["corroboration_adjustment"]
+    row["Form Involvement Corroboration Agreement"] = form_detail["corroboration_agreement"]
     row["Form Current Season Confidence"] = form_detail["current_season_confidence"]
     row["Form Rating Method"] = form_detail["method"]
     row["Recommendation"] = recommendation(row)
@@ -3451,7 +3486,7 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
         "last_global_price_change_date": last_price_change,
         "feed_urls": {key: urljoin(BASE_URL, path) for key, path in URLS.items()},
         "fixture_model": {
-            "version": "fantasy-opportunity-v12-player-involvement",
+            "version": "fantasy-opportunity-v14-form-corroboration",
             "note": (
                 "Player-facing outfield Fixture Rating is now position-specific fantasy "
                 "opportunity. MID/FOR use own attacking strength versus opponent defensive "
@@ -3522,15 +3557,19 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
             },
         },
         "form_model": {
-            "version": "season-transition-production-v1",
-            "current_season_confidence_by_appearances": {"0": 0.0, "1": 0.30, "2": 0.45, "3": 0.60, "4": 0.70, "5": 0.78, "6": 0.84, "7": 0.88, "8+": 0.92},
+            "version": "season-transition-production-v2-involvement-corroboration",
+            "current_season_confidence_by_appearances": {"0": 0.0, "1": 0.45, "2": 0.60, "3": 0.70, "4": 0.78, "5": 0.84, "6": 0.88, "7": 0.91, "8+": 0.94},
             "previous_season_prior_compression": FORM_PRIOR_COMPRESSION,
             "no_current_appearance_prior_trust": FORM_NO_APPEARANCE_PRIOR_TRUST,
             "current_production_formula": "clamp(20 + 8 * current fantasy points per Opta-confirmed appearance, 20, 95)",
-            "note": "Official feed Raw Form and Average Points are retained for audit but not used in Form Rating. 2025/26 points-per-million is compressed toward neutral; current-season fantasy production takes over as actual appearances accumulate. Zero current appearances cannot produce an elite Form Rating from historical production alone.",
+            "involvement_corroboration": {
+                "max_confidence_adjustment": FORM_INVOLVEMENT_CORROBORATION_MAX_ADJUSTMENT,
+                "method": "Raw position-relative involvement does not add points to Form; it adjusts current-production confidence up/down by at most 10 percentage points when underlying actions support/challenge the production direction."
+            },
+            "note": "Official feed Raw Form and Average Points remain audit-only. Current-season production receives more weight after each appearance, while underlying Opta involvement only corroborates how quickly that production is trusted. This avoids double-counting involvement because Player Involvement Rating remains a separate Decision Rating component.",
         },
         "decision_rating": {
-            "version": "wsl-v3-season-transition-form",
+            "version": "wsl-v4-form-involvement-corroboration",
             "weights": {
                 "GK": {"fixture": 0.85, "form": 0.15, "involvement": 0.0},
                 "DEF": {"fixture": 0.55, "form": 0.25, "involvement": 0.20},
@@ -3538,7 +3577,7 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
                 "FOR": {"fixture": 0.25, "form": 0.45, "involvement": 0.30},
             },
             "uses": ["Form Rating", "Next Fixture Rating", "Player Involvement Rating"],
-            "note": "Fixture Rating remains matchup-only. Player Involvement Rating adds underlying individual role/activity from Opta. Form Rating now uses current fantasy points per Opta-confirmed appearance plus a strongly compressed 2025/26 prior; feed Raw Form/Average Points are retained for audit only. GK remains on the specialized fixture/form model.",
+            "note": "Fixture Rating remains matchup-only. Player Involvement Rating adds underlying individual role/activity from Opta. Form Rating uses current fantasy production plus a compressed 2025/26 prior, with underlying Opta involvement used only to corroborate confidence; feed Raw Form/Average Points remain audit-only. GK remains on the specialized fixture/form model.",
         },
     }
 
