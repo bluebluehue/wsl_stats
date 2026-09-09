@@ -234,6 +234,16 @@ FORM_INVOLVEMENT_CORROBORATION_MAX_ADJUSTMENT = 0.10
 FORM_PRIOR_COMPRESSION = 0.30
 FORM_NO_APPEARANCE_PRIOR_TRUST = 0.40
 
+# Current-role confidence layer. This stays separate from Fixture, Form and
+# Involvement. It answers a different fantasy question: how confident are we
+# that this player currently has a meaningful role after the club has actually
+# played league matches?
+#
+# Missing one match is much stronger evidence for a goalkeeper than an
+# outfielder because only one goalkeeper can start. Role confidence is applied
+# only to Decision Rating and never changes the underlying component ratings.
+ROLE_CONFIDENCE_BASELINE = 35.0
+
 PLAYER_INVOLVEMENT_POSITION_WEIGHTS = {
     "FOR": {"attack": 0.90, "defense": 0.10},
     "MID": {"attack": 0.65, "defense": 0.35},
@@ -2930,7 +2940,71 @@ def form_rating_details(player: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def decision_rating(player: dict[str, Any]) -> float:
+def current_role_confidence(position: str, team_matches: int, appearances: int) -> tuple[float, str]:
+    """Estimate current playing-role confidence from actual 2026/27 appearances.
+
+    This is intentionally conservative and position-aware. Before a club has
+    played, there is no role evidence and confidence stays at 1.00. Once league
+    matches exist, a non-appearance is treated as evidence of reduced current
+    role. For goalkeepers the penalty is stronger because only one keeper can
+    start; outfield rotation is more common.
+
+    The function is designed to evolve naturally through the opening weeks,
+    rather than permanently encoding GW1.
+    """
+    tm = max(0, safe_int(team_matches))
+    ap = max(0, min(tm, safe_int(appearances)))
+    pos = str(position or "").upper()
+
+    if tm <= 0:
+        return 1.00, "No current-season team match evidence yet"
+
+    if ap >= tm:
+        return 1.00, f"Appeared in all {tm}/{tm} completed team matches"
+
+    # Explicit opening-week/two-week calibration.
+    if tm == 1:
+        conf = 0.45 if pos == "GK" else 0.70
+        return conf, f"Did not appear in the club's opening match ({ap}/{tm})"
+
+    if tm == 2:
+        if pos == "GK":
+            conf = 0.25 if ap == 0 else 0.70
+        else:
+            conf = 0.50 if ap == 0 else 0.80
+        return conf, f"Appeared in {ap}/{tm} completed team matches"
+
+    # From match three onward, use appearance share with a floor. Missing
+    # occasional matches is tolerated; sustained absence progressively hurts.
+    share = ap / tm if tm else 1.0
+    if pos == "GK":
+        if share >= 0.80:
+            conf = 1.00
+        elif share >= 0.60:
+            conf = 0.82
+        elif share >= 0.40:
+            conf = 0.65
+        elif share > 0:
+            conf = 0.45
+        else:
+            conf = 0.18
+    else:
+        if share >= 0.80:
+            conf = 1.00
+        elif share >= 0.60:
+            conf = 0.90
+        elif share >= 0.40:
+            conf = 0.78
+        elif share > 0:
+            conf = 0.62
+        else:
+            conf = 0.35
+
+    return conf, f"Appeared in {ap}/{tm} completed team matches ({share:.0%} appearance share)"
+
+
+def base_decision_rating(player: dict[str, Any]) -> float:
+    """Decision score before applying current-role confidence."""
     pos = player.get("Position")
     fixture = safe_float(player.get("Next Fixture Rating"), 50.0)
     form = safe_float(player.get("Form Rating"), 50.0)
@@ -2944,6 +3018,19 @@ def decision_rating(player: dict[str, Any]) -> float:
     else:
         weights = (0.25, 0.30, 0.45)
     return round(fixture * weights[0] + involvement * weights[1] + form * weights[2], 1)
+
+
+def decision_rating(player: dict[str, Any]) -> float:
+    """Role-adjusted fantasy decision score.
+
+    Role confidence does not redefine form or fixture quality. It simply pulls
+    a player's otherwise-good recommendation toward a low neutral/bench
+    baseline when current-season evidence says she is not actually playing.
+    """
+    base = base_decision_rating(player)
+    confidence = max(0.0, min(1.0, safe_float(player.get("Current Role Confidence"), 1.0)))
+    adjusted = ROLE_CONFIDENCE_BASELINE + confidence * (base - ROLE_CONFIDENCE_BASELINE)
+    return round(max(0.0, min(100.0, adjusted)), 1)
 
 
 def transform_player(
@@ -3105,6 +3192,12 @@ def transform_player(
         "Clearances Per Match": involvement_profile.get("clearances") if position != "GK" else None,
         "Blocks Per Match": involvement_profile.get("blocks") if position != "GK" else None,
         "Recoveries Per Match": involvement_profile.get("recoveries") if position != "GK" else None,
+        "Team Completed Current Season Matches": safe_int(
+            team_unit_strength.get(str(own_team_id).upper(), {}).get("completed_current_season_matches"), 0
+        ),
+        "Current Role Confidence": 1.0,
+        "Current Role Confidence Note": "",
+        "Base Decision Rating Before Role": 0.0,
         "Decision Rating": 0.0,
     }
 
@@ -3134,6 +3227,14 @@ def transform_player(
     row["Form Involvement Corroboration Agreement"] = form_detail["corroboration_agreement"]
     row["Form Current Season Confidence"] = form_detail["current_season_confidence"]
     row["Form Rating Method"] = form_detail["method"]
+    role_confidence, role_note = current_role_confidence(
+        position,
+        row["Team Completed Current Season Matches"],
+        row["Current Season Appearance Count"],
+    )
+    row["Current Role Confidence"] = round(role_confidence, 2)
+    row["Current Role Confidence Note"] = role_note
+    row["Base Decision Rating Before Role"] = base_decision_rating(row)
     row["Recommendation"] = recommendation(row)
     row["Decision Rating"] = decision_rating(row)
     row["Hot Pick"] = bool(row["Decision Rating"] >= 75 and selected < 25)
@@ -3486,7 +3587,7 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
         "last_global_price_change_date": last_price_change,
         "feed_urls": {key: urljoin(BASE_URL, path) for key, path in URLS.items()},
         "fixture_model": {
-            "version": "fantasy-opportunity-v14-form-corroboration",
+            "version": "fantasy-opportunity-v15-current-role-confidence",
             "note": (
                 "Player-facing outfield Fixture Rating is now position-specific fantasy "
                 "opportunity. MID/FOR use own attacking strength versus opponent defensive "
@@ -3569,15 +3670,25 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
             "note": "Official feed Raw Form and Average Points remain audit-only. Current-season production receives more weight after each appearance, while underlying Opta involvement only corroborates how quickly that production is trusted. This avoids double-counting involvement because Player Involvement Rating remains a separate Decision Rating component.",
         },
         "decision_rating": {
-            "version": "wsl-v4-form-involvement-corroboration",
+            "version": "wsl-v5-current-role-confidence",
             "weights": {
                 "GK": {"fixture": 0.85, "form": 0.15, "involvement": 0.0},
                 "DEF": {"fixture": 0.55, "form": 0.25, "involvement": 0.20},
                 "MID": {"fixture": 0.30, "form": 0.40, "involvement": 0.30},
                 "FOR": {"fixture": 0.25, "form": 0.45, "involvement": 0.30},
             },
-            "uses": ["Form Rating", "Next Fixture Rating", "Player Involvement Rating"],
-            "note": "Fixture Rating remains matchup-only. Player Involvement Rating adds underlying individual role/activity from Opta. Form Rating uses current fantasy production plus a compressed 2025/26 prior, with underlying Opta involvement used only to corroborate confidence; feed Raw Form/Average Points remain audit-only. GK remains on the specialized fixture/form model.",
+            "uses": ["Form Rating", "Next Fixture Rating", "Player Involvement Rating", "Current Role Confidence"],
+            "role_confidence": {
+                "baseline": ROLE_CONFIDENCE_BASELINE,
+                "opening_match_if_no_appearance": {"GK": 0.45, "outfield": 0.70},
+                "after_two_team_matches": {
+                    "GK": {"0_appearances": 0.25, "1_appearance": 0.70, "2_appearances": 1.00},
+                    "outfield": {"0_appearances": 0.50, "1_appearance": 0.80, "2_appearances": 1.00}
+                },
+                "formula": "Decision = 35 + role_confidence * (base_decision - 35)",
+                "note": "Role confidence changes Decision Rating only. It never changes Fixture, Form or Player Involvement ratings."
+            },
+            "note": "Fixture Rating remains matchup-only. Player Involvement Rating captures underlying individual activity. Form Rating captures fantasy production with a compressed historical prior. Current Role Confidence then reduces Decision Rating when the club has played but the player has not appeared, with a stronger penalty for goalkeepers.",
         },
     }
 
