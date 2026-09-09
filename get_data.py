@@ -203,6 +203,112 @@ CURRENT_SEASON_ATTACK_SIGNAL_WEIGHTS = {
 }
 
 
+
+# Player-level current-season role/involvement model. This is deliberately
+# separate from Fixture Rating: fixtures answer how favorable the matchup is,
+# while this layer answers how involved the individual player has actually been.
+PLAYER_INVOLVEMENT_CONFIDENCE = {0: 0.0, 1: 0.25, 2: 0.40, 3: 0.55, 4: 0.70}
+PLAYER_INVOLVEMENT_MAX_CONFIDENCE = 0.85
+PLAYER_INVOLVEMENT_POSITION_WEIGHTS = {
+    "FOR": {"attack": 0.90, "defense": 0.10},
+    "MID": {"attack": 0.65, "defense": 0.35},
+    "DEF": {"attack": 0.35, "defense": 0.65},
+}
+
+def player_involvement_confidence(matches: int) -> float:
+    if matches >= 5:
+        return PLAYER_INVOLVEMENT_MAX_CONFIDENCE
+    return PLAYER_INVOLVEMENT_CONFIDENCE.get(max(0, int(matches)), 0.0)
+
+def _percentile_rank(values: list[float], value: float) -> float:
+    if not values:
+        return 0.5
+    if len(values) == 1:
+        return 0.5
+    ordered = sorted(values)
+    below = sum(1 for x in ordered if x < value)
+    equal = sum(1 for x in ordered if x == value)
+    return max(0.0, min(1.0, (below + 0.5 * equal) / len(ordered)))
+
+def load_player_involvement_profiles() -> tuple[dict[str, Any], dict[str, dict[str, Any]]]:
+    """Aggregate completed Opta involvement history into cautious player role ratings.
+
+    Attacking involvement follows the fantasy game's audited attacking-action family
+    (SOT, key passes, successful crosses, successful dribbles). Defensive involvement
+    follows tackles won, interceptions, clearances, blocks and recoveries. Rankings are
+    within league + position so defenders are not compared directly with forwards.
+    One match only moves a player 25% away from neutral; confidence rises with samples.
+    """
+    if not INVOLVEMENT_HISTORY_PATH.exists():
+        return {"available": False, "note": "No involvement_history.json available."}, {}
+    try:
+        payload = json.loads(INVOLVEMENT_HISTORY_PATH.read_text(encoding="utf-8"))
+    except Exception:
+        return {"available": False, "note": "involvement_history.json could not be read."}, {}
+    matches = payload.get("matches", []) if isinstance(payload, dict) else []
+    agg: dict[str, dict[str, Any]] = {}
+    for match in matches:
+        status = str(match.get("match_status") or "").lower()
+        if status not in {"played", "complete", "completed", "finished", "ft", "fulltime", "full_time"}:
+            continue
+        match_id = str(match.get("match_id") or "")
+        for r in match.get("players", []) or []:
+            pid = str(r.get("player_id") or "")
+            if not pid:
+                continue
+            d = agg.setdefault(pid, {
+                "player_id": pid, "opta_player_id": r.get("opta_player_id"), "name": r.get("name"),
+                "club": r.get("club"), "league": r.get("league"), "position": str(r.get("position") or "").upper(),
+                "match_ids": set(), "attacking_actions": 0.0, "defensive_actions": 0.0,
+                "shots_on_target": 0.0, "key_passes": 0.0, "successful_crosses": 0.0, "successful_dribbles": 0.0,
+                "tackles_won": 0.0, "interceptions": 0.0, "clearances": 0.0, "blocks": 0.0, "recoveries": 0.0,
+            })
+            if match_id:
+                d["match_ids"].add(match_id)
+            for key in ("shots_on_target","key_passes","successful_crosses","successful_dribbles","tackles_won","interceptions","clearances","blocks","recoveries"):
+                d[key] += safe_float(r.get(key))
+            d["attacking_actions"] += safe_float(r.get("attacking_actions"))
+            d["defensive_actions"] += safe_float(r.get("defensive_actions"))
+    rows=[]
+    for d in agg.values():
+        mp=max(1,len(d["match_ids"]))
+        d["matches_with_data"]=len(d["match_ids"])
+        d["attacking_actions_per_match"]=d["attacking_actions"]/mp
+        d["defensive_actions_per_match"]=d["defensive_actions"]/mp
+        rows.append(d)
+    groups: dict[tuple[str,str], list[dict[str,Any]]] = {}
+    for d in rows:
+        if d["position"] in PLAYER_INVOLVEMENT_POSITION_WEIGHTS:
+            groups.setdefault((str(d["league"]),d["position"]),[]).append(d)
+    out={}
+    for d in rows:
+        pos=d["position"]
+        if pos not in PLAYER_INVOLVEMENT_POSITION_WEIGHTS:
+            continue
+        peers=groups.get((str(d["league"]),pos),[])
+        ar=_percentile_rank([x["attacking_actions_per_match"] for x in peers],d["attacking_actions_per_match"])
+        dr=_percentile_rank([x["defensive_actions_per_match"] for x in peers],d["defensive_actions_per_match"])
+        w=PLAYER_INVOLVEMENT_POSITION_WEIGHTS[pos]
+        role_percentile=ar*w["attack"]+dr*w["defense"]
+        raw_rating=15.0+70.0*role_percentile
+        conf=player_involvement_confidence(d["matches_with_data"])
+        rating=50.0*(1-conf)+raw_rating*conf
+        out[d["player_id"]]={
+            "rating": round(rating,1), "raw_rating": round(raw_rating,1), "confidence": round(conf,2),
+            "matches_with_data": d["matches_with_data"], "attack_percentile": round(ar,4), "defense_percentile": round(dr,4),
+            "attacking_actions_per_match": round(d["attacking_actions_per_match"],2),
+            "defensive_actions_per_match": round(d["defensive_actions_per_match"],2),
+            "position_attack_weight": w["attack"], "position_defense_weight": w["defense"],
+            **{k: round(d[k]/max(1,d["matches_with_data"]),2) for k in ("shots_on_target","key_passes","successful_crosses","successful_dribbles","tackles_won","interceptions","clearances","blocks","recoveries")},
+        }
+    meta={
+        "available": bool(out), "version": "player-role-involvement-v1", "player_count": len(out),
+        "confidence_by_completed_matches": {"0":0.0,"1":0.25,"2":0.40,"3":0.55,"4":0.70,"5+":0.85},
+        "position_weights": PLAYER_INVOLVEMENT_POSITION_WEIGHTS,
+        "note": "Player role rating ranks attacking and defensive Opta involvement actions within league and position, then shrinks strongly toward neutral while samples are small. It informs Decision Rating but never changes Fixture Rating.",
+    }
+    return meta,out
+
 def fetch_json(path: str, cache_name: str | None = None, from_local: bool = False) -> dict[str, Any]:
     """Fetch one WSL JSON feed, optionally from raw_feeds for offline testing."""
     RAW_DIR.mkdir(exist_ok=True)
@@ -2421,6 +2527,7 @@ def build_upcoming_fixture(
     gk_team_priors: dict[str, dict[str, Any]] | None = None,
     gk_model_inputs: dict[str, Any] | None = None,
     market_lookup: dict[str, dict[str, Any]] | None = None,
+    player_involvement_profiles: dict[str, dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     difficulty = raw.get("currentRating")
     location = raw.get("location")
@@ -2728,15 +2835,16 @@ def decision_rating(player: dict[str, Any]) -> float:
     pos = player.get("Position")
     fixture = safe_float(player.get("Next Fixture Rating"), 50.0)
     form = safe_float(player.get("Form Rating"), 50.0)
+    involvement = safe_float(player.get("Player Involvement Rating"), 50.0)
     if pos == "GK":
-        weights = (0.85, 0.15)
-    elif pos == "DEF":
-        weights = (0.65, 0.35)
+        return round(fixture * 0.85 + form * 0.15, 1)
+    if pos == "DEF":
+        weights = (0.55, 0.20, 0.25)
     elif pos == "MID":
-        weights = (0.35, 0.65)
+        weights = (0.30, 0.30, 0.40)
     else:
-        weights = (0.25, 0.75)
-    return round(fixture * weights[0] + form * weights[1], 1)
+        weights = (0.25, 0.30, 0.45)
+    return round(fixture * weights[0] + involvement * weights[1] + form * weights[2], 1)
 
 
 def transform_player(
@@ -2783,6 +2891,7 @@ def transform_player(
     following_fixture = upcoming[1] if len(upcoming) > 1 else None
     next_rating = safe_float(next_fixture.get("opportunity_rating"), 0.0) if next_fixture else 0.0
     following_rating = safe_float(following_fixture.get("opportunity_rating"), 0.0) if following_fixture else 0.0
+    involvement_profile = (player_involvement_profiles or {}).get(str(raw.get("playerId") or ""), {})
 
     row: dict[str, Any] = {
         "Name": name,
@@ -2868,6 +2977,14 @@ def transform_player(
             sum(safe_float(f.get("opportunity_rating")) for f in upcoming[:3]) / len(upcoming[:3]), 1
         ) if upcoming[:3] else 0.0,
         "Next Three Fixture Details": fixture_details_text(upcoming[:3], position),
+        "Player Involvement Rating": involvement_profile.get("rating") if position != "GK" else None,
+        "Player Involvement Raw Rating": involvement_profile.get("raw_rating") if position != "GK" else None,
+        "Player Involvement Confidence": involvement_profile.get("confidence") if position != "GK" else None,
+        "Player Involvement Matches": involvement_profile.get("matches_with_data", 0) if position != "GK" else None,
+        "Player Attack Involvement Percentile": involvement_profile.get("attack_percentile") if position != "GK" else None,
+        "Player Defense Involvement Percentile": involvement_profile.get("defense_percentile") if position != "GK" else None,
+        "Attacking Actions Per Match": involvement_profile.get("attacking_actions_per_match") if position != "GK" else None,
+        "Defensive Actions Per Match": involvement_profile.get("defensive_actions_per_match") if position != "GK" else None,
         "Decision Rating": 0.0,
     }
 
@@ -2962,6 +3079,7 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
     team_strength = build_team_strength_priors(players_raw)
     current_season_matches = count_completed_team_matches(players_raw)
     current_team_evidence_metadata, current_team_evidence = load_current_season_team_evidence()
+    player_involvement_metadata, player_involvement_profiles = load_player_involvement_profiles()
     gk_model_inputs = load_gk_model_inputs()
     market_metadata, market_lookup = load_market_odds()
     gk_team_priors = build_gk_team_priors(
@@ -2985,6 +3103,7 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
             gk_team_priors,
             gk_model_inputs,
             market_lookup,
+            player_involvement_profiles,
         )
         for p in players_raw
     ]
@@ -3183,6 +3302,7 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
             **current_team_evidence_metadata,
             "teams": current_team_evidence,
         },
+        "player_involvement_model": player_involvement_metadata,
         "matchday_id": MATCHDAY_ID,
         "tour_id": TOUR_ID,
         "player_count": len(players),
@@ -3235,7 +3355,7 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
         "last_global_price_change_date": last_price_change,
         "feed_urls": {key: urljoin(BASE_URL, path) for key, path in URLS.items()},
         "fixture_model": {
-            "version": "fantasy-opportunity-v11-current-season-evidence",
+            "version": "fantasy-opportunity-v12-player-involvement",
             "note": (
                 "Player-facing outfield Fixture Rating is now position-specific fantasy "
                 "opportunity. MID/FOR use own attacking strength versus opponent defensive "
@@ -3306,14 +3426,15 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
             },
         },
         "decision_rating": {
-            "version": "wsl-v1-position-specific",
+            "version": "wsl-v2-player-involvement",
             "weights": {
-                "GK": {"fixture": 0.85, "form": 0.15},
-                "DEF": {"fixture": 0.65, "form": 0.35},
-                "MID": {"fixture": 0.35, "form": 0.65},
-                "FOR": {"fixture": 0.25, "form": 0.75},
+                "GK": {"fixture": 0.85, "form": 0.15, "involvement": 0.0},
+                "DEF": {"fixture": 0.55, "form": 0.25, "involvement": 0.20},
+                "MID": {"fixture": 0.30, "form": 0.40, "involvement": 0.30},
+                "FOR": {"fixture": 0.25, "form": 0.45, "involvement": 0.30},
             },
-            "uses": ["Form Rating", "Next Fixture Rating"],
+            "uses": ["Form Rating", "Next Fixture Rating", "Player Involvement Rating"],
+            "note": "Fixture Rating remains matchup-only. Player Involvement Rating adds underlying individual role/activity from Opta, strongly shrunk toward 50 early in the season. GK remains on the specialized fixture/form model.",
         },
     }
 
