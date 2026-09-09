@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "generated_at_utc": "2026-09-08T12:10:18+00:00",
+    "generated_at_utc": "2026-09-09T12:21:53+00:00",
     "source": "Public Opta Player Stats widget match-event feed",
     "widget_feed_id": "ft1tiv1inq7v1sk3y9tv12yh5",
     "status": "production",
@@ -2554,7 +2554,7 @@
       "description": "Durham vs Southampton",
       "match_status": "Played",
       "coverage_level": "13",
-      "last_updated": "2026-09-08T10:08:49Z",
+      "last_updated": "2026-09-08T15:05:27Z",
       "players": [
         {
           "opta_player_id": "1372yxp1nu1g07ntl1op09udw",
@@ -3364,7 +3364,7 @@
         }
       ],
       "diagnostics": {
-        "event_count": 1616,
+        "event_count": 1617,
         "event_type_counts": {
           "1": 792,
           "2": 7,
@@ -3383,6 +3383,7 @@
           "17": 2,
           "18": 9,
           "19": 9,
+          "24": 1,
           "27": 2,
           "28": 2,
           "30": 6,
@@ -8716,7 +8717,7 @@
       "description": "Sunderland vs Bristol City",
       "match_status": "Played",
       "coverage_level": "13",
-      "last_updated": "2026-09-06T14:55:15Z",
+      "last_updated": "2026-09-08T15:07:45Z",
       "players": [
         {
           "opta_player_id": "125b5nd1s2in5bsvpqv7nlm38",
@@ -9422,7 +9423,7 @@
         }
       ],
       "diagnostics": {
-        "event_count": 1451,
+        "event_count": 1452,
         "event_type_counts": {
           "1": 737,
           "2": 8,
@@ -9440,6 +9441,7 @@
           "17": 4,
           "18": 5,
           "19": 5,
+          "24": 1,
           "27": 2,
           "28": 2,
           "30": 6,
