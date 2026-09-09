@@ -244,6 +244,15 @@ FORM_NO_APPEARANCE_PRIOR_TRUST = 0.40
 # only to Decision Rating and never changes the underlying component ratings.
 ROLE_CONFIDENCE_BASELINE = 35.0
 
+# v16: common normalized Decision Rating scale for all outfield positions.
+# Fixture and involvement are already position-aware upstream, so Decision
+# should not apply a second set of position-specific weights.
+OUTFIELD_DECISION_WEIGHTS = {
+    "fixture": 0.35,
+    "form": 0.35,
+    "involvement": 0.30,
+}
+
 PLAYER_INVOLVEMENT_POSITION_WEIGHTS = {
     "FOR": {"attack": 0.90, "defense": 0.10},
     "MID": {"attack": 0.65, "defense": 0.35},
@@ -3003,21 +3012,101 @@ def current_role_confidence(position: str, team_matches: int, appearances: int) 
     return conf, f"Appeared in {ap}/{tm} completed team matches ({share:.0%} appearance share)"
 
 
+def percentile_rank(value: float, population: list[float]) -> float:
+    """Return a stable 0..100 percentile rank using mid-ranks for ties."""
+    vals = sorted(safe_float(v) for v in population if v is not None)
+    if not vals:
+        return 50.0
+    x = safe_float(value)
+    below = sum(1 for v in vals if v < x)
+    equal = sum(1 for v in vals if v == x)
+    if len(vals) == 1:
+        return 50.0
+    pct = (below + 0.5 * equal) / len(vals) * 100.0
+    return round(max(0.0, min(100.0, pct)), 1)
+
+
+def apply_decision_normalization(rows: list[dict[str, Any]]) -> None:
+    """Normalize outfield Decision components league-wide before combining.
+
+    Fixture and Player Involvement are already position-aware upstream.
+    Therefore normalization is league-wide, not position-specific, and all
+    outfield positions use the same final Decision weights.
+    """
+    by_league: dict[str, list[dict[str, Any]]] = {}
+    for row in rows:
+        by_league.setdefault(str(row.get("League") or ""), []).append(row)
+
+    for league_rows in by_league.values():
+        outfield = [r for r in league_rows if str(r.get("Position") or "").upper() != "GK"]
+
+        fixture_pop = [safe_float(r.get("Next Fixture Rating"), 50.0) for r in outfield]
+        form_pop = [safe_float(r.get("Form Rating"), 50.0) for r in outfield]
+        involvement_pop = [
+            safe_float(r.get("Player Involvement Rating"), 50.0)
+            for r in outfield
+            if r.get("Player Involvement Rating") is not None
+        ]
+
+        for row in league_rows:
+            pos = str(row.get("Position") or "").upper()
+
+            if pos == "GK":
+                row["Normalized Fixture Rating"] = None
+                row["Normalized Form Rating"] = None
+                row["Normalized Involvement Rating"] = None
+                row["Base Decision Rating Before Role"] = round(
+                    safe_float(row.get("Next Fixture Rating"), 50.0) * 0.85
+                    + safe_float(row.get("Form Rating"), 50.0) * 0.15,
+                    1,
+                )
+                row["Decision Rating"] = decision_rating(row)
+                continue
+
+            nf = percentile_rank(safe_float(row.get("Next Fixture Rating"), 50.0), fixture_pop)
+            nform = percentile_rank(safe_float(row.get("Form Rating"), 50.0), form_pop)
+
+            if row.get("Player Involvement Rating") is None:
+                ninv = 50.0
+            else:
+                ninv = percentile_rank(
+                    safe_float(row.get("Player Involvement Rating"), 50.0),
+                    involvement_pop,
+                )
+
+            row["Normalized Fixture Rating"] = nf
+            row["Normalized Form Rating"] = nform
+            row["Normalized Involvement Rating"] = ninv
+
+            base = (
+                nf * OUTFIELD_DECISION_WEIGHTS["fixture"]
+                + nform * OUTFIELD_DECISION_WEIGHTS["form"]
+                + ninv * OUTFIELD_DECISION_WEIGHTS["involvement"]
+            )
+            row["Base Decision Rating Before Role"] = round(base, 1)
+            row["Decision Rating"] = decision_rating(row)
+
+
 def base_decision_rating(player: dict[str, Any]) -> float:
-    """Decision score before applying current-role confidence."""
-    pos = player.get("Position")
+    """Return the pre-role Decision score."""
+    precomputed = player.get("Base Decision Rating Before Role")
+    if precomputed not in (None, ""):
+        return round(safe_float(precomputed), 1)
+
+    pos = str(player.get("Position") or "").upper()
     fixture = safe_float(player.get("Next Fixture Rating"), 50.0)
     form = safe_float(player.get("Form Rating"), 50.0)
-    involvement = safe_float(player.get("Player Involvement Rating"), 50.0)
+
     if pos == "GK":
         return round(fixture * 0.85 + form * 0.15, 1)
-    if pos == "DEF":
-        weights = (0.55, 0.20, 0.25)
-    elif pos == "MID":
-        weights = (0.30, 0.30, 0.40)
-    else:
-        weights = (0.25, 0.30, 0.45)
-    return round(fixture * weights[0] + involvement * weights[1] + form * weights[2], 1)
+
+    involvement = safe_float(player.get("Player Involvement Rating"), 50.0)
+    return round(
+        fixture * OUTFIELD_DECISION_WEIGHTS["fixture"]
+        + form * OUTFIELD_DECISION_WEIGHTS["form"]
+        + involvement * OUTFIELD_DECISION_WEIGHTS["involvement"],
+        1,
+    )
 
 
 def decision_rating(player: dict[str, Any]) -> float:
@@ -3197,6 +3286,9 @@ def transform_player(
         ),
         "Current Role Confidence": 1.0,
         "Current Role Confidence Note": "",
+        "Normalized Fixture Rating": None,
+        "Normalized Form Rating": None,
+        "Normalized Involvement Rating": None,
         "Base Decision Rating Before Role": 0.0,
         "Decision Rating": 0.0,
     }
@@ -3234,10 +3326,15 @@ def transform_player(
     )
     row["Current Role Confidence"] = round(role_confidence, 2)
     row["Current Role Confidence Note"] = role_note
-    row["Base Decision Rating Before Role"] = base_decision_rating(row)
+
+    # v16 finalizes outfield Decision Rating only after every player has been
+    # transformed, so components can be normalized against the full league.
+    if position == "GK":
+        row["Base Decision Rating Before Role"] = base_decision_rating(row)
+        row["Decision Rating"] = decision_rating(row)
+
     row["Recommendation"] = recommendation(row)
-    row["Decision Rating"] = decision_rating(row)
-    row["Hot Pick"] = bool(row["Decision Rating"] >= 75 and selected < 25)
+    row["Hot Pick"] = False
     return row
 
 
@@ -3339,6 +3436,14 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
         )
         for p in players_raw
     ]
+
+    # v16: normalize the three outfield Decision components across each league
+    # before combining them. Then recompute Hot Pick from the finalized score.
+    apply_decision_normalization(players)
+    for player in players:
+        selected = safe_float(player.get("Selected Percentage"))
+        player["Hot Pick"] = bool(player["Decision Rating"] >= 75 and selected < 25)
+
     history = update_history(players)
     last_price_change = detect_last_global_price_change_date(history)
 
@@ -3587,7 +3692,7 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
         "last_global_price_change_date": last_price_change,
         "feed_urls": {key: urljoin(BASE_URL, path) for key, path in URLS.items()},
         "fixture_model": {
-            "version": "fantasy-opportunity-v15-current-role-confidence",
+            "version": "fantasy-opportunity-v16-normalized-decision",
             "note": (
                 "Player-facing outfield Fixture Rating is now position-specific fantasy "
                 "opportunity. MID/FOR use own attacking strength versus opponent defensive "
@@ -3670,14 +3775,16 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
             "note": "Official feed Raw Form and Average Points remain audit-only. Current-season production receives more weight after each appearance, while underlying Opta involvement only corroborates how quickly that production is trusted. This avoids double-counting involvement because Player Involvement Rating remains a separate Decision Rating component.",
         },
         "decision_rating": {
-            "version": "wsl-v5-current-role-confidence",
+            "version": "wsl-v6-normalized-common-outfield-decision",
             "weights": {
                 "GK": {"fixture": 0.85, "form": 0.15, "involvement": 0.0},
-                "DEF": {"fixture": 0.55, "form": 0.25, "involvement": 0.20},
-                "MID": {"fixture": 0.30, "form": 0.40, "involvement": 0.30},
-                "FOR": {"fixture": 0.25, "form": 0.45, "involvement": 0.30},
+                "OUTFIELD": {
+                    "normalized_fixture": OUTFIELD_DECISION_WEIGHTS["fixture"],
+                    "normalized_form": OUTFIELD_DECISION_WEIGHTS["form"],
+                    "normalized_involvement": OUTFIELD_DECISION_WEIGHTS["involvement"],
+                },
             },
-            "uses": ["Form Rating", "Next Fixture Rating", "Player Involvement Rating", "Current Role Confidence"],
+            "uses": ["Normalized Fixture Rating", "Normalized Form Rating", "Normalized Involvement Rating", "Current Role Confidence"],
             "role_confidence": {
                 "baseline": ROLE_CONFIDENCE_BASELINE,
                 "opening_match_if_no_appearance": {"GK": 0.45, "outfield": 0.70},
@@ -3688,7 +3795,7 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
                 "formula": "Decision = 35 + role_confidence * (base_decision - 35)",
                 "note": "Role confidence changes Decision Rating only. It never changes Fixture, Form or Player Involvement ratings."
             },
-            "note": "Fixture Rating remains matchup-only. Player Involvement Rating captures underlying individual activity. Form Rating captures fantasy production with a compressed historical prior. Current Role Confidence then reduces Decision Rating when the club has played but the player has not appeared, with a stronger penalty for goalkeepers.",
+            "note": "Outfield Decision Rating now normalizes Fixture, Form and Player Involvement league-wide to percentile scales, then uses one common 35/35/30 weighting for every outfield position. Fixture and involvement are already position-aware upstream, so this avoids double-counting position. Current Role Confidence is applied afterward. GK retains the specialized fixture/form model.",
         },
     }
 
