@@ -2855,6 +2855,7 @@ def transform_player(
     gk_team_priors: dict[str, dict[str, Any]] | None = None,
     gk_model_inputs: dict[str, Any] | None = None,
     market_lookup: dict[str, dict[str, Any]] | None = None,
+    player_involvement_profiles: dict[str, dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     name = f"{raw.get('mediaFirstName', '').strip()} {raw.get('mediaLastName', '').strip()}".strip()
     short_name = raw.get("mediaShortName") or name
