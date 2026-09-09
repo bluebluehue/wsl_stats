@@ -154,6 +154,24 @@ TEAM_MATCHUP_WEIGHT = 0.65
 HOME_ADVANTAGE_POINTS = 4.0
 AWAY_DISADVANTAGE_POINTS = -4.0
 
+# Fixture Model v10: position-specific fantasy opportunity.
+#
+# Outfield fixture ratings now answer:
+# "How favorable is this fixture for fantasy production by a player
+#  from this team and position?"
+#
+# FOR / MID -> attacking fantasy opportunity
+# DEF       -> 85% defensive + 15% attacking opportunity
+# GK        -> existing specialized GK model
+#
+# The old v5 generic team-strength score is retained for audit only.
+FANTASY_OPPORTUNITY_STRENGTH_SCALE = 60.0
+FANTASY_OPPORTUNITY_HOME_ADVANTAGE = 4.0
+FANTASY_OPPORTUNITY_AWAY_DISADVANTAGE = -4.0
+
+DEFENSIVE_PLAYER_DEF_WEIGHT = 0.85
+DEFENSIVE_PLAYER_ATTACK_WEIGHT = 0.15
+
 
 def fetch_json(path: str, cache_name: str | None = None, from_local: bool = False) -> dict[str, Any]:
     """Fetch one WSL JSON feed, optionally from raw_feeds for offline testing."""
@@ -1812,6 +1830,156 @@ def attacking_fixture_opportunity(
 
 
 
+
+def attacking_fantasy_opportunity(
+    own_team_code: str | None,
+    opponent_code: str | None,
+    location: str | None,
+    unit_strength: dict[str, dict[str, Any]],
+) -> tuple[float, dict[str, Any]]:
+    """Projected attacking fantasy environment, 0..100.
+
+    Unlike the schedule-only attacking rating, this includes BOTH:
+      - the attacking strength of the player's own club
+      - the defensive strength of the opponent
+      - venue
+
+    Higher = better environment for attacking fantasy production.
+    """
+    own = str(own_team_code or "").upper()
+    opp = str(opponent_code or "").upper()
+
+    own_info = unit_strength.get(own, {}) or {}
+    opp_info = unit_strength.get(opp, {}) or {}
+
+    own_attack = safe_float(own_info.get("attack_strength_index"), 0.50)
+    opp_defense = safe_float(opp_info.get("defense_strength_index"), 0.50)
+
+    venue = (
+        FANTASY_OPPORTUNITY_HOME_ADVANTAGE
+        if location == "H"
+        else FANTASY_OPPORTUNITY_AWAY_DISADVANTAGE
+        if location == "A"
+        else 0.0
+    )
+
+    score = (
+        50.0
+        + ((own_attack - opp_defense) * FANTASY_OPPORTUNITY_STRENGTH_SCALE)
+        + venue
+    )
+    score = round(max(8.0, min(92.0, score)), 1)
+
+    return score, {
+        "own_attack_strength_index": round(own_attack, 4),
+        "opponent_defense_strength_index": round(opp_defense, 4),
+        "venue_adjustment": venue,
+        "own_attack_transition_note": own_info.get("attack_transition_note", ""),
+        "opponent_defense_transition_note": opp_info.get("defense_transition_note", ""),
+        "model": "attacking-fantasy-opportunity-v10",
+    }
+
+
+def defensive_fantasy_opportunity(
+    own_team_code: str | None,
+    opponent_code: str | None,
+    location: str | None,
+    unit_strength: dict[str, dict[str, Any]],
+) -> tuple[float, dict[str, Any]]:
+    """Projected defensive fantasy environment, 0..100.
+
+    Includes:
+      - the defensive strength of the player's own club
+      - the attacking strength of the opponent
+      - venue
+
+    Higher = better environment for defensive fantasy production.
+    """
+    own = str(own_team_code or "").upper()
+    opp = str(opponent_code or "").upper()
+
+    own_info = unit_strength.get(own, {}) or {}
+    opp_info = unit_strength.get(opp, {}) or {}
+
+    own_defense = safe_float(own_info.get("defense_strength_index"), 0.50)
+    opp_attack = safe_float(opp_info.get("attack_strength_index"), 0.50)
+
+    venue = (
+        FANTASY_OPPORTUNITY_HOME_ADVANTAGE
+        if location == "H"
+        else FANTASY_OPPORTUNITY_AWAY_DISADVANTAGE
+        if location == "A"
+        else 0.0
+    )
+
+    score = (
+        50.0
+        + ((own_defense - opp_attack) * FANTASY_OPPORTUNITY_STRENGTH_SCALE)
+        + venue
+    )
+    score = round(max(8.0, min(92.0, score)), 1)
+
+    return score, {
+        "own_defense_strength_index": round(own_defense, 4),
+        "opponent_attack_strength_index": round(opp_attack, 4),
+        "venue_adjustment": venue,
+        "own_defense_transition_note": own_info.get("defense_transition_note", ""),
+        "opponent_attack_transition_note": opp_info.get("attack_transition_note", ""),
+        "model": "defensive-fantasy-opportunity-v10",
+    }
+
+
+def outfield_player_fixture_opportunity(
+    position: str | None,
+    own_team_code: str | None,
+    opponent_code: str | None,
+    location: str | None,
+    unit_strength: dict[str, dict[str, Any]],
+) -> tuple[float, dict[str, Any]]:
+    """Return the player-facing outfield fantasy fixture rating.
+
+    FOR / MID:
+        attacking fantasy opportunity
+
+    DEF:
+        85% defensive fantasy opportunity
+        15% attacking fantasy opportunity
+
+    GK is intentionally handled elsewhere by the specialized GK model.
+    """
+    attack_score, attack_detail = attacking_fantasy_opportunity(
+        own_team_code, opponent_code, location, unit_strength
+    )
+    defense_score, defense_detail = defensive_fantasy_opportunity(
+        own_team_code, opponent_code, location, unit_strength
+    )
+
+    pos = str(position or "").upper()
+
+    if pos == "DEF":
+        final = (
+            DEFENSIVE_PLAYER_DEF_WEIGHT * defense_score
+            + DEFENSIVE_PLAYER_ATTACK_WEIGHT * attack_score
+        )
+        model = "def-85def-15att-v10"
+    else:
+        final = attack_score
+        model = "attacking-opportunity-v10"
+
+    final = round(max(5.0, min(95.0, final)), 1)
+
+    return final, {
+        "model": model,
+        "position": pos,
+        "attacking_fantasy_opportunity": attack_score,
+        "defensive_fantasy_opportunity": defense_score,
+        "defensive_weight": DEFENSIVE_PLAYER_DEF_WEIGHT if pos == "DEF" else 0.0,
+        "attacking_weight": DEFENSIVE_PLAYER_ATTACK_WEIGHT if pos == "DEF" else 1.0,
+        "attack_detail": attack_detail,
+        "defense_detail": defense_detail,
+    }
+
+
 def source_opportunity_softened(
     difficulty: float | None,
     competition_id: str | None,
@@ -1918,6 +2086,7 @@ def build_upcoming_fixture(
     competition_id: str | None = None,
     fixture_calibration: dict[str, dict[str, float]] | None = None,
     team_strength: dict[str, dict[str, Any]] | None = None,
+    team_unit_strength: dict[str, dict[str, Any]] | None = None,
     position: str | None = None,
     player_name: str | None = None,
     gk_team_priors: dict[str, dict[str, Any]] | None = None,
@@ -1933,7 +2102,8 @@ def build_upcoming_fixture(
     source_base = wsl_difficulty_to_opportunity(
         difficulty, competition_id, fixture_calibration
     )
-    opportunity, model_detail = blended_fixture_opportunity(
+
+    legacy_general_opportunity, legacy_model_detail = blended_fixture_opportunity(
         difficulty,
         own_team_id,
         opponent_id,
@@ -1943,13 +2113,28 @@ def build_upcoming_fixture(
         team_strength or {},
     )
 
+    outfield_detail: dict[str, Any] | None = None
+    if str(position or "").upper() in {"DEF", "MID", "FOR"}:
+        opportunity, outfield_detail = outfield_player_fixture_opportunity(
+            position,
+            own_team_id,
+            opponent_id,
+            location,
+            team_unit_strength or {},
+        )
+    else:
+        opportunity = legacy_general_opportunity
+
     gk_detail: dict[str, Any] | None = None
     if position == "GK":
         gk_detail = gk_fixture_scores(
-            own_team_id, opponent_id, location,
-            gk_team_priors or {}, player_name, gk_model_inputs or {},
+            own_team_id,
+            opponent_id,
+            location,
+            gk_team_priors or {},
+            player_name,
+            gk_model_inputs or {},
         )
-        # For goalkeeper assets, Fixture Rating is the player-specific GK model.
         opportunity = gk_detail["gk_fix"]
 
     if location == "H":
@@ -1980,26 +2165,58 @@ def build_upcoming_fixture(
         "opponent_short_name": opponent_short,
         "location": location,
 
-        # Raw/source values retained for auditability.
         "current_rating": difficulty,
         "fixture_difficulty": difficulty,
         "competition_id": competition_id,
         "league": competition_label(competition_id),
         "source_base_opportunity_rating": source_base,
 
-        # v5 model components.
-        "source_opportunity_softened": model_detail.get("source_opportunity_softened"),
-        "source_weight": model_detail.get("source_weight"),
-        "team_matchup_opportunity": model_detail.get("team_matchup_opportunity"),
-        "team_matchup_weight": model_detail.get("team_matchup_weight"),
-        "own_strength_index": model_detail.get("own_strength_index"),
-        "opponent_strength_index": model_detail.get("opponent_strength_index"),
-        "venue_adjustment": model_detail.get("venue_adjustment"),
-        "own_transition_note": model_detail.get("own_transition_note"),
-        "opponent_transition_note": model_detail.get("opponent_transition_note"),
+        "legacy_general_fixture_opportunity": legacy_general_opportunity,
+        "legacy_source_opportunity_softened": legacy_model_detail.get("source_opportunity_softened"),
+        "legacy_source_weight": legacy_model_detail.get("source_weight"),
+        "legacy_team_matchup_opportunity": legacy_model_detail.get("team_matchup_opportunity"),
+        "legacy_team_matchup_weight": legacy_model_detail.get("team_matchup_weight"),
+        "legacy_own_strength_index": legacy_model_detail.get("own_strength_index"),
+        "legacy_opponent_strength_index": legacy_model_detail.get("opponent_strength_index"),
 
-        # Goalkeeper-specific audit fields (null for non-GKs).
-        "gk_model": "team-cs-save-v2" if gk_detail else None,
+        # Keep old field names temporarily for frontend compatibility.
+        "source_opportunity_softened": legacy_model_detail.get("source_opportunity_softened"),
+        "source_weight": legacy_model_detail.get("source_weight"),
+        "team_matchup_opportunity": legacy_model_detail.get("team_matchup_opportunity"),
+        "team_matchup_weight": legacy_model_detail.get("team_matchup_weight"),
+        "own_strength_index": legacy_model_detail.get("own_strength_index"),
+        "opponent_strength_index": legacy_model_detail.get("opponent_strength_index"),
+        "venue_adjustment": legacy_model_detail.get("venue_adjustment"),
+        "own_transition_note": legacy_model_detail.get("own_transition_note"),
+        "opponent_transition_note": legacy_model_detail.get("opponent_transition_note"),
+
+        "outfield_fixture_model": outfield_detail.get("model") if outfield_detail else None,
+        "attacking_fantasy_opportunity": (
+            outfield_detail.get("attacking_fantasy_opportunity") if outfield_detail else None
+        ),
+        "defensive_fantasy_opportunity": (
+            outfield_detail.get("defensive_fantasy_opportunity") if outfield_detail else None
+        ),
+        "outfield_attacking_weight": outfield_detail.get("attacking_weight") if outfield_detail else None,
+        "outfield_defensive_weight": outfield_detail.get("defensive_weight") if outfield_detail else None,
+        "own_attack_strength_index": (
+            (outfield_detail.get("attack_detail") or {}).get("own_attack_strength_index")
+            if outfield_detail else None
+        ),
+        "opponent_defense_strength_index": (
+            (outfield_detail.get("attack_detail") or {}).get("opponent_defense_strength_index")
+            if outfield_detail else None
+        ),
+        "own_defense_strength_index": (
+            (outfield_detail.get("defense_detail") or {}).get("own_defense_strength_index")
+            if outfield_detail else None
+        ),
+        "opponent_attack_strength_index": (
+            (outfield_detail.get("defense_detail") or {}).get("opponent_attack_strength_index")
+            if outfield_detail else None
+        ),
+
+        "gk_model": "team-cs-save-v9-wsl-transition" if gk_detail else None,
         "gk_cs_fix": gk_detail.get("cs_fix") if gk_detail else None,
         "gk_cs_probability": gk_detail.get("cs_probability") if gk_detail else None,
         "gk_expected_goals_against": gk_detail.get("expected_goals_against") if gk_detail else None,
@@ -2010,16 +2227,23 @@ def build_upcoming_fixture(
         "gk_save_point_probability": gk_detail.get("save_point_probability") if gk_detail else None,
         "gk_save_opportunity": gk_detail.get("save_opportunity") if gk_detail else None,
         "gk_keeper_quality": gk_detail.get("keeper_quality") if gk_detail else None,
-        "gk_keeper_save_pct": (gk_detail.get("keeper_quality_detail") or {}).get("save_pct") if gk_detail else None,
-        "gk_keeper_saves_per90": (gk_detail.get("keeper_quality_detail") or {}).get("saves_per90") if gk_detail else None,
-        "gk_keeper_goals_prevented": (gk_detail.get("keeper_quality_detail") or {}).get("goals_prevented") if gk_detail else None,
-        "gk_keeper_quality_evidence": (gk_detail.get("keeper_quality_detail") or {}).get("evidence") if gk_detail else None,
+        "gk_keeper_save_pct": (
+            (gk_detail.get("keeper_quality_detail") or {}).get("save_pct") if gk_detail else None
+        ),
+        "gk_keeper_saves_per90": (
+            (gk_detail.get("keeper_quality_detail") or {}).get("saves_per90") if gk_detail else None
+        ),
+        "gk_keeper_goals_prevented": (
+            (gk_detail.get("keeper_quality_detail") or {}).get("goals_prevented") if gk_detail else None
+        ),
+        "gk_keeper_quality_evidence": (
+            (gk_detail.get("keeper_quality_detail") or {}).get("evidence") if gk_detail else None
+        ),
         "gk_own_cs_prior": gk_detail.get("own_cs_prior") if gk_detail else None,
         "gk_opponent_attack_prior": gk_detail.get("opponent_attack_prior") if gk_detail else None,
         "gk_opponent_sot_per90": gk_detail.get("opponent_sot_per90") if gk_detail else None,
         "gk_venue_adjustment": gk_detail.get("venue_adjustment") if gk_detail else None,
 
-        # Market clean-sheet probability from Pinnacle team-total U0.5, if available.
         **market_detail,
 
         "opportunity_rating": opportunity,
@@ -2032,19 +2256,27 @@ def build_upcoming_fixture(
     }
 
 
-
 def fixture_details_text(fixtures: list[dict[str, Any]], position: str) -> str:
     if not fixtures:
         return "No upcoming fixture in feed."
 
-    lines = [
-        "Upcoming fixtures — GK Model v2:" if position == "GK"
-        else "Upcoming fixtures — Fixture Model v5:"
-    ]
+    if position == "GK":
+        title = "Upcoming fixtures — GK Model v9:"
+    elif position == "DEF":
+        title = "Upcoming fixtures — DEF Fantasy Opportunity v10:"
+    else:
+        title = "Upcoming fixtures — Attacking Fantasy Opportunity v10:"
+
+    lines = [title]
     opportunities: list[float] = []
 
     for f in fixtures:
-        opponent = f.get("opponent_id") or f.get("opponent_short_name") or f.get("opponent_name") or "TBD"
+        opponent = (
+            f.get("opponent_id")
+            or f.get("opponent_short_name")
+            or f.get("opponent_name")
+            or "TBD"
+        )
         loc = f.get("location") or ""
         opportunity = f.get("opportunity_rating")
         score = fixture_rating_to_score(opportunity)
@@ -2056,68 +2288,67 @@ def fixture_details_text(fixtures: list[dict[str, Any]], position: str) -> str:
 
         difficulty = f.get("fixture_difficulty", f.get("current_rating"))
         if difficulty is not None:
-            lines.append(f"  WSL source difficulty: {difficulty}/100 (higher = harder)")
-
-        if f.get("source_base_opportunity_rating") is not None:
             lines.append(
-                f"  Source-derived opportunity: {f.get('source_base_opportunity_rating')}/100; "
-                f"softened component: {f.get('source_opportunity_softened')}/100"
+                f"  WSL source difficulty: {difficulty}/100 "
+                f"(retained for comparison only)"
             )
 
-        lines.append(
-            f"  Team matchup: {f.get('team_matchup_opportunity')}/100 "
-            f"(own strength {f.get('own_strength_index')}, "
-            f"opponent {f.get('opponent_strength_index')}, "
-            f"venue {safe_float(f.get('venue_adjustment')):+.1f})"
-        )
+        legacy = f.get("legacy_general_fixture_opportunity")
+        if legacy is not None:
+            lines.append(f"  Legacy v5 generic Fix: {legacy}/100")
 
-        notes = [
-            x for x in (f.get("own_transition_note"), f.get("opponent_transition_note"))
-            if x
-        ]
-        if notes:
-            lines.append("  Division bridge: " + " | ".join(notes))
+        if position == "GK" and f.get("gk_model"):
+            if opportunity is not None:
+                opportunities.append(float(opportunity))
 
-        if f.get("market_cs_probability") is not None:
             lines.append(
-                f"  Pinnacle market CS: {safe_float(f.get('market_cs_probability'))*100:.1f}% "
-                f"(de-vigged opponent team total U0.5)"
+                f"  Final GK Fix: {opportunity}/100; "
+                f"opportunity bucket: {score}/5"
+            )
+            lines.append(
+                f"  CS Fix: {f.get('gk_cs_fix')}/100 "
+                f"(CS probability {safe_float(f.get('gk_cs_probability'))*100:.0f}%) | "
+                f"Save Opp: {f.get('gk_save_opportunity')}/100 "
+                f"(3+ save probability {safe_float(f.get('gk_save_point_probability'))*100:.0f}%)"
+            )
+            lines.append(
+                f"  Expected GA: {f.get('gk_expected_goals_against')} | "
+                f"3+ conceded risk: {safe_float(f.get('gk_three_plus_conceded_risk'))*100:.0f}% | "
+                f"Expected saves: {f.get('gk_expected_saves')}"
+            )
+            lines.append(f"  Keeper Quality: {f.get('gk_keeper_quality')}/100")
+            continue
+
+        attack_opp = f.get("attacking_fantasy_opportunity")
+        defense_opp = f.get("defensive_fantasy_opportunity")
+
+        if attack_opp is not None:
+            lines.append(
+                f"  Attacking fantasy opportunity: {attack_opp}/100 "
+                f"(own ATK {f.get('own_attack_strength_index')}, "
+                f"opponent DEF {f.get('opponent_defense_strength_index')})"
+            )
+
+        if defense_opp is not None:
+            lines.append(
+                f"  Defensive fantasy opportunity: {defense_opp}/100 "
+                f"(own DEF {f.get('own_defense_strength_index')}, "
+                f"opponent ATK {f.get('opponent_attack_strength_index')})"
             )
 
         if opportunity is not None:
             opportunities.append(float(opportunity))
-            if position == "GK" and f.get("gk_model"):
+
+            if position == "DEF":
                 lines.append(
-                    f"  Final GK Fix: {opportunity}/100 "
-                    f"(55% CS + 25% 3-save chance + 10% keeper quality + 10% 3+ concession safety); "
+                    f"  Final DEF Fixture Rating: {opportunity}/100 "
+                    f"(85% defense + 15% attack); "
                     f"opportunity bucket: {score}/5"
-                )
-                lines.append(
-                    f"  CS Fix: {f.get('gk_cs_fix')}/100 "
-                    f"(CS probability {safe_float(f.get('gk_cs_probability'))*100:.0f}%) | "
-                    f"Save Opp: {f.get('gk_save_opportunity')}/100 "
-                    f"(3+ save probability {safe_float(f.get('gk_save_point_probability'))*100:.0f}%)"
-                )
-                lines.append(
-                    f"  Expected GA: {f.get('gk_expected_goals_against')} | "
-                    f"3+ conceded risk: {safe_float(f.get('gk_three_plus_conceded_risk'))*100:.0f}% | "
-                    f"Expected saves: {f.get('gk_expected_saves')}"
-                )
-                lines.append(
-                    f"  Keeper Quality: {f.get('gk_keeper_quality')}/100"
-                )
-                if f.get("gk_keeper_save_pct") is not None:
-                    lines.append(f"  Keeper prior save%: {f.get('gk_keeper_save_pct')}%")
-                lines.append(
-                    f"  Team CS prior: {f.get('gk_own_cs_prior')}/100 | "
-                    f"Opponent attack: {f.get('gk_opponent_attack_prior')}/100 | "
-                    f"Venue: {safe_float(f.get('gk_venue_adjustment')):+.0f}"
                 )
             else:
                 lines.append(
-                    f"  Final fixture opportunity: {opportunity}/100 "
-                    f"({int(round(safe_float(f.get('source_weight')) * 100))}% source + "
-                    f"{int(round(safe_float(f.get('team_matchup_weight')) * 100))}% team matchup); "
+                    f"  Final {position} Fixture Rating: {opportunity}/100 "
+                    f"(attacking fantasy opportunity); "
                     f"opportunity bucket: {score}/5"
                 )
 
@@ -2127,8 +2358,7 @@ def fixture_details_text(fixtures: list[dict[str, Any]], position: str) -> str:
             f"{round(sum(opportunities) / len(opportunities), 1)}/100"
         )
 
-    return "\\n".join(lines)
-
+    return "\n".join(lines)
 
 
 def recommendation(player: dict[str, Any]) -> str:
@@ -2180,7 +2410,15 @@ def decision_rating(player: dict[str, Any]) -> float:
     return round(fixture * weights[0] + form * weights[1], 1)
 
 
-def transform_player(raw: dict[str, Any], fixture_calibration: dict[str, dict[str, float]], team_strength: dict[str, dict[str, Any]], gk_team_priors: dict[str, dict[str, Any]] | None = None, gk_model_inputs: dict[str, Any] | None = None, market_lookup: dict[str, dict[str, Any]] | None = None) -> dict[str, Any]:
+def transform_player(
+    raw: dict[str, Any],
+    fixture_calibration: dict[str, dict[str, float]],
+    team_strength: dict[str, dict[str, Any]],
+    team_unit_strength: dict[str, dict[str, Any]],
+    gk_team_priors: dict[str, dict[str, Any]] | None = None,
+    gk_model_inputs: dict[str, Any] | None = None,
+    market_lookup: dict[str, dict[str, Any]] | None = None,
+) -> dict[str, Any]:
     name = f"{raw.get('mediaFirstName', '').strip()} {raw.get('mediaLastName', '').strip()}".strip()
     short_name = raw.get("mediaShortName") or name
     position = POSITION_MAP.get(str(raw.get("skillName") or "").lower(), str(raw.get("skillName") or "").upper())
@@ -2196,9 +2434,19 @@ def transform_player(raw: dict[str, Any], fixture_calibration: dict[str, dict[st
     competition_id = raw.get("competitionId")
     upcoming = [
         build_upcoming_fixture(
-            f, own_team_id, own_team_name, own_team_short_name,
-            competition_id, fixture_calibration, team_strength,
-            position, name, gk_team_priors or {}, gk_model_inputs or {}, market_lookup or {}
+            f,
+            own_team_id,
+            own_team_name,
+            own_team_short_name,
+            competition_id,
+            fixture_calibration,
+            team_strength,
+            team_unit_strength,
+            position,
+            name,
+            gk_team_priors or {},
+            gk_model_inputs or {},
+            market_lookup or {},
         )
         for f in raw.get("upcomingFixtures", [])
     ]
@@ -2389,7 +2637,15 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
     gk_team_priors = build_gk_team_priors(gk_model_inputs, team_strength, current_season_matches)
     team_unit_strength = build_team_unit_priors(players_raw, team_strength, current_season_matches)
     players = [
-        transform_player(p, fixture_calibration, team_strength, gk_team_priors, gk_model_inputs, market_lookup)
+        transform_player(
+            p,
+            fixture_calibration,
+            team_strength,
+            team_unit_strength,
+            gk_team_priors,
+            gk_model_inputs,
+            market_lookup,
+        )
         for p in players_raw
     ]
     history = update_history(players)
@@ -2430,39 +2686,114 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
             fixture["market_cs_method"] = None
             fixture["market_cs_updated_at"] = None
 
-    # Full-schedule general + defensive fixture opportunities for leg planning.
-    # These mirror the player-level fixture model so every published GW can be
-    # compared even when the player feed only exposes the next few fixtures.
+    # --------------------------------------------------------------
+    # Full-schedule fixture opportunities.
+    #
+    # Keep three distinct concepts:
+    # 1. legacy general v5 opportunity
+    # 2. schedule-only attacking/defensive favorability for Leg Planner
+    # 3. new team fantasy attacking/defensive opportunity
+    # --------------------------------------------------------------
     for fixture in fixtures:
         comp = fixture.get("competition_id")
+
         home_general, _ = blended_fixture_opportunity(
-            fixture.get("home_rating"), fixture.get("home_id"), fixture.get("away_id"),
-            "H", comp, fixture_calibration, team_strength
+            fixture.get("home_rating"),
+            fixture.get("home_id"),
+            fixture.get("away_id"),
+            "H",
+            comp,
+            fixture_calibration,
+            team_strength,
         )
         away_general, _ = blended_fixture_opportunity(
-            fixture.get("away_rating"), fixture.get("away_id"), fixture.get("home_id"),
-            "A", comp, fixture_calibration, team_strength
+            fixture.get("away_rating"),
+            fixture.get("away_id"),
+            fixture.get("home_id"),
+            "A",
+            comp,
+            fixture_calibration,
+            team_strength,
         )
-        home_def, _ = defensive_fixture_opportunity(
-            fixture.get("home_id"), fixture.get("away_id"), "H", team_unit_strength
+
+        home_schedule_def, _ = defensive_fixture_opportunity(
+            fixture.get("home_id"),
+            fixture.get("away_id"),
+            "H",
+            team_unit_strength,
         )
-        away_def, _ = defensive_fixture_opportunity(
-            fixture.get("away_id"), fixture.get("home_id"), "A", team_unit_strength
+        away_schedule_def, _ = defensive_fixture_opportunity(
+            fixture.get("away_id"),
+            fixture.get("home_id"),
+            "A",
+            team_unit_strength,
         )
-        home_att, _ = attacking_fixture_opportunity(
-            fixture.get("home_id"), fixture.get("away_id"), "H", team_unit_strength
+        home_schedule_att, _ = attacking_fixture_opportunity(
+            fixture.get("home_id"),
+            fixture.get("away_id"),
+            "H",
+            team_unit_strength,
         )
-        away_att, _ = attacking_fixture_opportunity(
-            fixture.get("away_id"), fixture.get("home_id"), "A", team_unit_strength
+        away_schedule_att, _ = attacking_fixture_opportunity(
+            fixture.get("away_id"),
+            fixture.get("home_id"),
+            "A",
+            team_unit_strength,
         )
+
+        home_fantasy_att, _ = attacking_fantasy_opportunity(
+            fixture.get("home_id"),
+            fixture.get("away_id"),
+            "H",
+            team_unit_strength,
+        )
+        away_fantasy_att, _ = attacking_fantasy_opportunity(
+            fixture.get("away_id"),
+            fixture.get("home_id"),
+            "A",
+            team_unit_strength,
+        )
+        home_fantasy_def, _ = defensive_fantasy_opportunity(
+            fixture.get("home_id"),
+            fixture.get("away_id"),
+            "H",
+            team_unit_strength,
+        )
+        away_fantasy_def, _ = defensive_fantasy_opportunity(
+            fixture.get("away_id"),
+            fixture.get("home_id"),
+            "A",
+            team_unit_strength,
+        )
+
         fixture["home_fixture_opportunity"] = home_general
         fixture["away_fixture_opportunity"] = away_general
         fixture["home_fixture_score"] = fixture_rating_to_score(home_general)
         fixture["away_fixture_score"] = fixture_rating_to_score(away_general)
-        fixture["home_defensive_opportunity"] = home_def
-        fixture["away_defensive_opportunity"] = away_def
-        fixture["home_attacking_opportunity"] = home_att
-        fixture["away_attacking_opportunity"] = away_att
+
+        fixture["home_legacy_general_fixture_opportunity"] = home_general
+        fixture["away_legacy_general_fixture_opportunity"] = away_general
+
+        fixture["home_defensive_opportunity"] = home_schedule_def
+        fixture["away_defensive_opportunity"] = away_schedule_def
+        fixture["home_attacking_opportunity"] = home_schedule_att
+        fixture["away_attacking_opportunity"] = away_schedule_att
+
+        fixture["home_attacking_fantasy_opportunity"] = home_fantasy_att
+        fixture["away_attacking_fantasy_opportunity"] = away_fantasy_att
+        fixture["home_defensive_fantasy_opportunity"] = home_fantasy_def
+        fixture["away_defensive_fantasy_opportunity"] = away_fantasy_def
+
+        fixture["home_def_player_fantasy_opportunity"] = round(
+            DEFENSIVE_PLAYER_DEF_WEIGHT * home_fantasy_def
+            + DEFENSIVE_PLAYER_ATTACK_WEIGHT * home_fantasy_att,
+            1,
+        )
+        fixture["away_def_player_fantasy_opportunity"] = round(
+            DEFENSIVE_PLAYER_DEF_WEIGHT * away_fantasy_def
+            + DEFENSIVE_PLAYER_ATTACK_WEIGHT * away_fantasy_att,
+            1,
+        )
 
     # Full-schedule goalkeeper model: clean-sheet environment and save opportunity.
     for fixture in fixtures:
@@ -2560,8 +2891,15 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
         "last_global_price_change_date": last_price_change,
         "feed_urls": {key: urljoin(BASE_URL, path) for key, path in URLS.items()},
         "fixture_model": {
-            "version": "wsl-team-strength-blend-v5",
-            "note": "Preseason fixture opportunity blends softened WSL source currentRating (35%) with an independent team-matchup prior (65%) built from current-roster previous-season fantasy production, destination-league promotion/relegation bridging, and explicit home/away. Higher Fixture Rating = better. Routine 0/100 saturation is intentionally avoided.",
+            "version": "fantasy-opportunity-v10-position-specific",
+            "note": (
+                "Player-facing outfield Fixture Rating is now position-specific fantasy "
+                "opportunity. MID/FOR use own attacking strength versus opponent defensive "
+                "strength plus venue. DEF uses 85% own-defense-versus-opponent-attack "
+                "opportunity and 15% attacking opportunity. GK retains the specialized "
+                "clean-sheet/save model. The previous v5 generic source/team-strength blend "
+                "is retained in output only as a legacy comparison signal."
+            ),
             "weights": {
                 "source_rating": SOURCE_RATING_WEIGHT,
                 "team_matchup": TEAM_MATCHUP_WEIGHT,
@@ -2575,6 +2913,30 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
                 for comp, vals in fixture_calibration.items()
             },
             "team_strength_priors": team_strength,
+            "position_specific_fantasy_opportunity": {
+                "version": "v10",
+                "strength_scale": FANTASY_OPPORTUNITY_STRENGTH_SCALE,
+                "venue": {
+                    "home": FANTASY_OPPORTUNITY_HOME_ADVANTAGE,
+                    "away": FANTASY_OPPORTUNITY_AWAY_DISADVANTAGE,
+                },
+                "positions": {
+                    "FOR": {"attack_weight": 1.0, "defense_weight": 0.0},
+                    "MID": {"attack_weight": 1.0, "defense_weight": 0.0},
+                    "DEF": {
+                        "attack_weight": DEFENSIVE_PLAYER_ATTACK_WEIGHT,
+                        "defense_weight": DEFENSIVE_PLAYER_DEF_WEIGHT,
+                    },
+                    "GK": {"model": "team-cs-save-v9-wsl-transition"},
+                },
+                "attacking_formula": (
+                    "50 + (own_attack_strength - opponent_defense_strength)*60 + venue"
+                ),
+                "defensive_formula": (
+                    "50 + (own_defense_strength - opponent_attack_strength)*60 + venue"
+                ),
+                "legacy_v5_retained_for_audit": True,
+            },
             "defensive_fixture_model": {
                 "version": "unit-strength-defense-v9-wsl-transition",
                 "note": (
