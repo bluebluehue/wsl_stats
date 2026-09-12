@@ -1,10 +1,10 @@
 {
   "metadata": {
-    "generated_at_utc": "2026-09-12T11:38:00+00:00",
+    "generated_at_utc": "2026-09-12T19:43:50+00:00",
     "source": "Pinnacle via OddsPapi",
     "method": "Opponent team total Under 0.5, de-vigged against Over 0.5",
     "tournament_id": 1044,
-    "fixture_count": 4,
+    "fixture_count": 3,
     "unmatched_fixture_count": 2,
     "learned_participant_count": 10,
     "participant_mapping": {
@@ -24,35 +24,6 @@
   },
   "fixtures": [
     {
-      "match_id": "wpll::Football_Match::17b69372c12543dfac1b88f4f6435f56",
-      "fixture_id": "id1000104473345998",
-      "pinnacle_fixture_id": "1635870498",
-      "start_time_utc": "2026-09-12T11:45:00.000Z",
-      "home_team": "WHU",
-      "away_team": "LCL",
-      "home_name": "West Ham United",
-      "away_name": "London City Lionesses",
-      "home_market_cs_probability": null,
-      "away_market_cs_probability": 0.454308,
-      "home_opponent_team_total_0_5": null,
-      "away_opponent_team_total_0_5": {
-        "over_odds": 1.74,
-        "under_odds": 2.09,
-        "raw_under_probability": 0.478469,
-        "overround": 0.053182,
-        "fair_under_probability": 0.454308,
-        "main_line": true,
-        "bookmaker_market_id": "line/29/8713/1635870498/3725354998/0/teamTotal",
-        "market_type": "teamTotal",
-        "period": "full_match",
-        "team_total_side": "home",
-        "line": 0.5
-      },
-      "source": "Pinnacle",
-      "method": "opponent_team_total_under_0.5_devig",
-      "market_updated_at": "2026-09-09T22:51:05.245Z"
-    },
-    {
       "match_id": "wpll::Football_Match::c3fd4039b100435bb0bccaa40e870abe",
       "fixture_id": "id1000104473346000",
       "pinnacle_fixture_id": "1635980476",
@@ -71,7 +42,7 @@
         "overround": 0.060516,
         "fair_under_probability": 0.39126,
         "main_line": true,
-        "bookmaker_market_id": "line/29/8713/1635980476/3725199386/0/teamTotal",
+        "bookmaker_market_id": "line/29/8713/1635980476/3725321668/0/teamTotal",
         "market_type": "teamTotal",
         "period": "full_match",
         "team_total_side": "home",
@@ -99,7 +70,7 @@
         "overround": 0.070768,
         "fair_under_probability": 0.636611,
         "main_line": true,
-        "bookmaker_market_id": "line/29/8713/1635995384/3724209986/0/teamTotal",
+        "bookmaker_market_id": "line/29/8713/1635995384/3725953479/0/teamTotal",
         "market_type": "teamTotal",
         "period": "full_match",
         "team_total_side": "away",
