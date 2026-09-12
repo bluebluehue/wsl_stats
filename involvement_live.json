@@ -1,13 +1,29 @@
 {
   "metadata": {
-    "generated_at": "2026-09-12T15:51:23.506035Z",
+    "generated_at": "2026-09-12T16:17:20.877880Z",
     "refresh_interval_minutes": 15,
-    "candidate_match_count": 0,
-    "match_count": 1,
+    "candidate_match_count": 1,
+    "match_count": 2,
     "failures": [],
     "scoring_note": "Rules/Opta-derived involvement values; known WSL UI discrepancies are not force-fitted."
   },
   "matches": [
+    {
+      "match_id": "wpll::Football_Match::84fbef2330bc405c8e118525ab919c57",
+      "date": "2026-09-12T16:15:00",
+      "opta_match_id": "1525bay5ugglgxfbc62ajt7h0",
+      "home_id": "BRC",
+      "away_id": "NEW",
+      "competition_id": "wpll::Football_Competition::422757a2c70d450eba118ad97bed5222",
+      "league_game_week": "2",
+      "fantasy_game_week": "2",
+      "description": "Bristol City vs Newcastle United",
+      "match_status": "Playing",
+      "in_progress": true,
+      "minute": 0,
+      "players": [],
+      "event_count": 4
+    },
     {
       "match_id": "wpll::Football_Match::17b69372c12543dfac1b88f4f6435f56",
       "date": "2026-09-12T11:45:00",
