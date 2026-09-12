@@ -11,6 +11,7 @@ permissions:
 jobs:
   refresh:
     runs-on: ubuntu-latest
+
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -34,12 +35,66 @@ jobs:
       - name: Build involvement stats
         run: python fetch_involvement_points.py
 
+      - name: Show involvement outputs
+        run: |
+          echo "=== involvement_history.json metadata ==="
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          path = Path("involvement_history.json")
+
+          if path.exists():
+              data = json.loads(path.read_text(encoding="utf-8"))
+              metadata = data.get("metadata", {})
+
+              print("generated_at_utc:", metadata.get("generated_at_utc"))
+              print("available_gameweeks:", metadata.get("available_gameweeks"))
+              print("match_count:", metadata.get("match_count"))
+              print("failures:", metadata.get("failures"))
+
+              print("\nMatches:")
+              for match in data.get("matches", []):
+                  print(
+                      f"- GW{match.get('fantasy_game_week')} | "
+                      f"{match.get('description')} | "
+                      f"{match.get('opta_match_id')} | "
+                      f"{match.get('match_status')}"
+                  )
+          else:
+              print("involvement_history.json not found")
+          PY
+
+          echo ""
+          echo "=== raw_opta_events files ==="
+          find raw_opta_events -maxdepth 1 -type f -name "*.json" -print | sort || true
+
+          echo ""
+          echo "Raw Opta file count:"
+          find raw_opta_events -maxdepth 1 -type f -name "*.json" | wc -l || true
+
       - name: Commit updated data
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add transformed_data.json player_history.json fixtures.json teams.json gk_sanity_audit.json
-          if [ -f market_odds.json ]; then git add market_odds.json; fi
-          if [ -f involvement_history.json ]; then git add involvement_history.json; fi
+
+          git add transformed_data.json
+          git add player_history.json
+          git add fixtures.json
+          git add teams.json
+          git add gk_sanity_audit.json
+
+          if [ -f market_odds.json ]; then
+            git add market_odds.json
+          fi
+
+          if [ -f involvement_history.json ]; then
+            git add involvement_history.json
+          fi
+
+          if [ -d raw_opta_events ]; then
+            git add raw_opta_events/
+          fi
+
           git diff --cached --quiet || git commit -m "Refresh WSL fantasy data"
           git push
