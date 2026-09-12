@@ -1,8 +1,8 @@
 {
   "metadata": {
-    "generated_at": "2026-09-12T13:41:44.197745Z",
+    "generated_at": "2026-09-12T15:51:23.506035Z",
     "refresh_interval_minutes": 15,
-    "candidate_match_count": 1,
+    "candidate_match_count": 0,
     "match_count": 1,
     "failures": [],
     "scoring_note": "Rules/Opta-derived involvement values; known WSL UI discrepancies are not force-fitted."
@@ -748,7 +748,8 @@
           "involvement_points": 0
         }
       ],
-      "event_count": 1819
+      "event_count": 1819,
+      "carried_forward": true
     }
   ]
 }
