@@ -1,0 +1,99 @@
+name: Test involvement reconciliation hypotheses
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Syntax-check diagnostic
+        run: python -m py_compile audit_involvement_reconciliation.py
+
+      - name: Test reconciliation hypotheses
+        run: python audit_involvement_reconciliation.py
+
+      - name: Validate exact reconciliation
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          path = Path("involvement_reconciliation_hypotheses.json")
+          if not path.exists():
+              raise SystemExit(
+                  "involvement_reconciliation_hypotheses.json was not created"
+              )
+
+          data = json.loads(path.read_text(encoding="utf-8"))
+          meta = data.get("metadata", {})
+          hypotheses = data.get("hypotheses", {})
+          att = hypotheses.get("attacking", {})
+          deff = hypotheses.get("defensive", {})
+
+          total = meta.get("player_match_rows")
+
+          print("=== VALIDATION SUMMARY ===")
+          print("player_match_rows:", total)
+          print(
+              "ATT current exact:",
+              att.get("current_definition_exact")
+          )
+          print(
+              "ATT assist-only exact:",
+              att.get("assist_not_keypass_only_exact")
+          )
+          print(
+              "ATT full revised exact:",
+              att.get("full_revised_exact")
+          )
+          print(
+              "DEF current exact:",
+              deff.get("current_definition_exact")
+          )
+          print(
+              "DEF q185-only exact:",
+              deff.get("exclude_q185_clearance_only_exact")
+          )
+          print(
+              "DEF full revised exact:",
+              deff.get("full_revised_exact")
+          )
+
+          if att.get("full_revised_exact") != total:
+              raise SystemExit(
+                  "ATT hypotheses did not reconcile every row"
+              )
+
+          if deff.get("full_revised_exact") != total:
+              raise SystemExit(
+                  "DEF hypotheses did not reconcile every row"
+              )
+
+          print("")
+          print("SUCCESS: revised ATT and DEF definitions reconcile every row.")
+          PY
+
+      - name: Commit diagnostic output
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add involvement_reconciliation_hypotheses.json
+
+          git diff --cached --quiet || \
+            git commit -m "Test involvement reconciliation hypotheses"
+
+          git push
