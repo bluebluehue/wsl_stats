@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "generated_at": "2026-09-12T12:22:42.529704Z",
+    "generated_at": "2026-09-12T12:24:54.036379Z",
     "refresh_interval_minutes": 15,
     "candidate_match_count": 1,
     "match_count": 1,
@@ -20,7 +20,7 @@
       "description": "West Ham United vs London City Lionesses",
       "match_status": "Playing",
       "in_progress": true,
-      "minute": 36,
+      "minute": 37,
       "players": [
         {
           "opta_player_id": "28yvc8jmyyfavb0hetafjdadx",
@@ -187,13 +187,13 @@
           "interceptions": 0,
           "clearances": 0,
           "blocks": 0,
-          "recoveries": 1,
+          "recoveries": 2,
           "keeper_claims": 0,
           "keeper_punches": 0,
           "keeper_pickups": 1,
           "attacking_actions": 0,
           "attacking_points": 0,
-          "defensive_actions": 2,
+          "defensive_actions": 3,
           "defensive_points": 0,
           "involvement_points": 0
         },
@@ -573,7 +573,7 @@
           "involvement_points": 0
         }
       ],
-      "event_count": 675
+      "event_count": 700
     }
   ]
 }
