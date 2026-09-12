@@ -5,9 +5,10 @@ widget and aggregate the actions used by WSL Fantasy "Involvement Points".
 
 PRODUCTION VERSION
 -----------------------
-Fetches and caches completed-match Opta event data, calculates the WSL Fantasy
-attacking/defensive involvement actions match-by-match, and writes a compact
-history file for the Involvement Points frontend tab.
+Discovers past fixtures, confirms completion from Opta, caches only completed-match
+Opta event data, calculates the WSL Fantasy attacking/defensive involvement
+actions match-by-match, and writes a compact history file for the Involvement
+Points frontend tab.
 
 Inputs expected in the repo:
   - transformed_data.json
@@ -104,12 +105,32 @@ def strip_jsonp(text: str) -> Any:
     return json.loads(match.group(1))
 
 
+def payload_match_status(payload: dict[str, Any]) -> str:
+    live = payload.get("liveData") or {}
+    details = live.get("matchDetails") or {}
+    return str(details.get("matchStatus") or "").strip()
+
+
+def payload_is_played(payload: dict[str, Any]) -> bool:
+    return payload_match_status(payload).lower() == "played"
+
+
 def fetch_match_events(opta_match_id: str, force: bool = False) -> dict[str, Any]:
+    """Fetch one Opta event payload.
+
+    Completed payloads are cached permanently. A cached non-completed payload is
+    never trusted as final: it is re-fetched so an in-progress snapshot cannot
+    freeze a match in history forever. Newly fetched non-completed payloads are
+    returned to the caller but are not written to raw_opta_events/.
+    """
     RAW_EVENT_DIR.mkdir(exist_ok=True)
     cache_path = RAW_EVENT_DIR / f"{opta_match_id}.json"
 
     if cache_path.exists() and not force:
-        return json.loads(cache_path.read_text(encoding="utf-8"))
+        cached = json.loads(cache_path.read_text(encoding="utf-8"))
+        if payload_is_played(cached):
+            return cached
+        print(f"  Cached payload for {opta_match_id} is not final; refreshing it.")
 
     # The public widget uses JSONP. Callback value is arbitrary but required by
     # the endpoint shape observed in Firefox.
@@ -125,12 +146,15 @@ def fetch_match_events(opta_match_id: str, force: bool = False) -> dict[str, Any
     response.raise_for_status()
     payload = strip_jsonp(response.text)
 
-    cache_path.write_text(
-        json.dumps(payload, ensure_ascii=False, indent=2),
-        encoding="utf-8",
-    )
-    return payload
+    # History should only persist final match payloads. Live/provisional snapshots
+    # belong in involvement_live.json and must not become permanent raw history.
+    if payload_is_played(payload):
+        cache_path.write_text(
+            json.dumps(payload, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
 
+    return payload
 
 def qualifiers(event: dict[str, Any]) -> list[dict[str, Any]]:
     q = event.get("qualifier") or event.get("qualifiers") or []
@@ -350,12 +374,28 @@ def aggregate_match(
     return results, diagnostics
 
 
-def build_completed_match_map(
+def parse_utc_datetime(value: Any) -> datetime | None:
+    text = str(value or "").strip()
+    if not text:
+        return None
+    try:
+        parsed = datetime.fromisoformat(text.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=timezone.utc)
+    return parsed.astimezone(timezone.utc)
+
+
+def completed_match_ids_from_player_feed(
     raw_players: list[dict[str, Any]],
-    fixtures: list[dict[str, Any]],
-) -> list[dict[str, Any]]:
-    """Use player 'matches' arrays because the fixture feed can lag on result status."""
-    seen: dict[str, dict[str, Any]] = {}
+) -> set[str]:
+    """Return WSL match ids explicitly marked completed by the player feed.
+
+    The WSL feed can lag, so this is a useful confirmation signal but no longer
+    the sole gate for discovering finished matches.
+    """
+    completed: set[str] = set()
 
     for player in raw_players:
         for match in player.get("matches", []) or []:
@@ -363,44 +403,61 @@ def build_completed_match_map(
             if not match_id:
                 continue
 
-            # matchdayStatus=5 is what the completed Friday matches showed.
-            status = match.get("matchdayStatus")
             try:
-                completed = int(status) == 5
+                if int(match.get("matchdayStatus")) == 5:
+                    completed.add(match_id)
             except (TypeError, ValueError):
-                completed = False
-
-            if not completed:
                 continue
 
-            seen.setdefault(match_id, {
-                "match_id": match_id,
-                "date": match.get("matchDateTimeUtc"),
-                "matchday_id": match.get("matchdayId"),
-            })
+    return completed
 
-    fixture_by_id = {str(f.get("match_id") or ""): f for f in fixtures}
 
-    out = []
-    for match_id, row in seen.items():
-        fixture = fixture_by_id.get(match_id, {})
+def build_past_match_candidates(
+    raw_players: list[dict[str, Any]],
+    fixtures: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """Build candidate historical matches from fixtures.json.
+
+    fixtures.json is the canonical source for match ids, Opta provider ids,
+    kickoff times and fantasy gameweeks. Its own status fields are deliberately
+    ignored because they have remained UPCOMING/Fixture even after matches were
+    completed.
+
+    Any fixture whose kickoff has passed is a candidate. The caller then asks
+    Opta whether the match is actually Played before adding it to permanent
+    involvement history.
+    """
+    now = datetime.now(timezone.utc)
+    wsl_completed_ids = completed_match_ids_from_player_feed(raw_players)
+    out: list[dict[str, Any]] = []
+
+    for fixture in fixtures:
+        match_id = str(fixture.get("match_id") or "")
         provider_id = fixture.get("provider_id")
         opta_match_id = compact_opta_id(provider_id)
-        if not opta_match_id:
+        kickoff = parse_utc_datetime(
+            fixture.get("match_date_time_utc") or fixture.get("deadline_date")
+        )
+
+        if not match_id or not opta_match_id or kickoff is None:
+            continue
+        if kickoff > now:
             continue
 
         out.append({
-            **row,
+            "match_id": match_id,
+            "date": fixture.get("match_date_time_utc") or fixture.get("deadline_date"),
+            "matchday_id": fixture.get("gameday_id"),
             "opta_match_id": opta_match_id,
             "home_id": fixture.get("home_id"),
             "away_id": fixture.get("away_id"),
             "competition_id": fixture.get("competition_id"),
             "league_game_week": fixture.get("league_game_week") or fixture.get("game_week"),
             "fantasy_game_week": fixture.get("fantasy_game_week"),
+            "wsl_player_feed_completed": match_id in wsl_completed_ids,
         })
 
     return sorted(out, key=lambda r: (str(r.get("date") or ""), r["opta_match_id"]))
-
 
 def build_overall_rows(matches: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """Aggregate exact match-level involvement totals without re-applying thresholds."""
@@ -464,9 +521,9 @@ def main() -> None:
         if opta_id:
             opta_to_player[opta_id] = player
 
-    completed_matches = build_completed_match_map(raw_players, fixtures)
-    if not completed_matches:
-        raise SystemExit("No completed matches discovered from the player 'matches' arrays.")
+    match_candidates = build_past_match_candidates(raw_players, fixtures)
+    if not match_candidates:
+        raise SystemExit("No past fixture candidates with Opta provider ids were found.")
 
     output = {
         "metadata": {
@@ -485,11 +542,22 @@ def main() -> None:
 
     failures = []
 
-    for match in completed_matches:
+    for match in match_candidates:
         opta_match_id = match["opta_match_id"]
-        print(f"Fetching {opta_match_id} ...")
+        source_note = (
+            "WSL-completed + Opta check"
+            if match.get("wsl_player_feed_completed")
+            else "past fixture + Opta fallback"
+        )
+        print(f"Checking {opta_match_id} ({source_note}) ...")
         try:
             payload = fetch_match_events(opta_match_id)
+            status = payload_match_status(payload)
+
+            if not payload_is_played(payload):
+                print(f"  Skipping: Opta matchStatus={status or 'unknown'}")
+                continue
+
             player_rows, diagnostics = aggregate_match(payload, opta_to_player)
             output["matches"].append({
                 **match,
@@ -497,7 +565,10 @@ def main() -> None:
                 "players": player_rows,
                 "diagnostics": diagnostics,
             })
-            print(f"  {diagnostics['event_count']} events, {len(player_rows)} player rows")
+            print(
+                f"  Played: {diagnostics['event_count']} events, "
+                f"{len(player_rows)} player rows"
+            )
         except Exception as exc:
             failures.append({"opta_match_id": opta_match_id, "error": str(exc)})
             print(f"  FAILED: {exc}")
