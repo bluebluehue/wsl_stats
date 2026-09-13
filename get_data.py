@@ -10,10 +10,11 @@ import argparse
 import json
 import math
 import os
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
-from urllib.parse import urljoin
+from urllib.parse import quote, urljoin
 from zoneinfo import ZoneInfo
 
 import requests
@@ -32,6 +33,15 @@ MARKET_ODDS_PATH = ROOT / "market_odds.json"
 INVOLVEMENT_HISTORY_PATH = ROOT / "involvement_history.json"
 TEAMS_PATH = ROOT / "teams.json"
 RAW_DIR = ROOT / "raw_feeds"
+
+OFFICIAL_PLAYER_DETAIL_BASE = (
+    f"{BASE_URL}/feeds/popup/stats/player_{LANGUAGE}_{TOUR_ID}_"
+)
+OFFICIAL_PLAYER_DETAIL_WORKERS = max(
+    1,
+    int(os.getenv("WSL_PLAYER_DETAIL_WORKERS", "8")),
+)
+LEGACY_OFFICIAL_PLAYER_CACHE_DIR = ROOT / "raw_wsl_official_player_stats"
 
 URLS = {
     "config": f"/feeds/config/web/configurations.json",
@@ -394,6 +404,247 @@ def fetch_json(path: str, cache_name: str | None = None, from_local: bool = Fals
     data = response.json()
     local_path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
     return data
+
+
+def _legacy_official_player_cache_path(player_id: str) -> Path:
+    safe_name = str(player_id).replace("::", "__").replace(":", "_")
+    return LEGACY_OFFICIAL_PLAYER_CACHE_DIR / f"{safe_name}.json"
+
+
+def fetch_official_player_detail(
+    player_id: str,
+    from_local: bool = False,
+) -> dict[str, Any]:
+    """Fetch one official WSL Fantasy player-detail payload.
+
+    Production always requests a fresh response because WSL/Opta can revise
+    post-match statistics.  --from-local may read the old audit cache when it
+    exists, purely to make offline testing possible.
+    """
+    if from_local:
+        cache_path = _legacy_official_player_cache_path(player_id)
+        if cache_path.exists():
+            return json.loads(cache_path.read_text(encoding="utf-8"))
+        return {}
+
+    encoded_id = quote(str(player_id), safe=":")
+    url = f"{OFFICIAL_PLAYER_DETAIL_BASE}{encoded_id}.json"
+    response = requests.get(
+        url,
+        params={
+            "v": "3",
+            "buster": str(int(datetime.now(timezone.utc).timestamp() * 1000)),
+        },
+        timeout=45,
+        headers={
+            "User-Agent": "Mozilla/5.0 WSL fantasy stats parser",
+            "Accept": "application/json,text/plain,*/*",
+            "Referer": "https://www.wslfootball.com/fantasy/create-team",
+        },
+    )
+    response.raise_for_status()
+    return response.json()
+
+
+def extract_official_matchday_stats(payload: dict[str, Any]) -> list[dict[str, Any]]:
+    """Return the richest matchdayStats list found in a player-detail payload."""
+    candidate_lists: list[list[dict[str, Any]]] = []
+
+    def walk(value: Any, depth: int = 0) -> None:
+        if depth > 6:
+            return
+        if isinstance(value, dict):
+            for key, child in value.items():
+                if key == "matchdayStats" and isinstance(child, list):
+                    candidate_lists.append(
+                        [row for row in child if isinstance(row, dict)]
+                    )
+                else:
+                    walk(child, depth + 1)
+        elif isinstance(value, list):
+            for child in value[:10]:
+                walk(child, depth + 1)
+
+    walk(payload)
+    if not candidate_lists:
+        return []
+    return max(candidate_lists, key=len)
+
+
+def normalize_official_match_stat(row: dict[str, Any]) -> dict[str, Any]:
+    """Normalize one official per-match fantasy stat row without discarding detail."""
+    return {
+        "match_id": row.get("matchId") or row.get("match_id"),
+        "matchday_id": safe_int(
+            row.get("matchdayId")
+            if "matchdayId" in row
+            else row.get("matchday_id")
+        ),
+        "home_score": safe_int(row.get("homeScore")),
+        "away_score": safe_int(row.get("awayScore")),
+        "home_team_id": row.get("homeTeamId"),
+        "away_team_id": row.get("awayTeamId"),
+        "total_points": safe_int(row.get("totalPoints")),
+        "minutes": safe_int(row.get("onField")),
+        "appearance_points": safe_int(row.get("onFieldPoints")),
+        "goals": safe_int(row.get("goals")),
+        "goal_points": safe_int(row.get("goalsPoints")),
+        "assists": safe_int(row.get("assists")),
+        "assist_points": safe_int(row.get("assistsPoints")),
+        "clean_sheets": safe_int(row.get("cleanSheet")),
+        "clean_sheet_points": safe_int(row.get("cleanSheetPoints")),
+        "saves": safe_int(row.get("saves")),
+        "save_points": safe_int(row.get("savesPoints")),
+        "tackles": safe_int(row.get("tackles")),
+        "interceptions": safe_int(row.get("interception")),
+        "key_passes": safe_int(row.get("keyPasses")),
+        "successful_crosses": safe_int(row.get("successfulCrosses")),
+        "yellow_cards": safe_int(row.get("yellowCard")),
+        "yellow_card_points": safe_int(row.get("yellowCardPoints")),
+        "red_cards": safe_int(row.get("redCard")),
+        "red_card_points": safe_int(row.get("redCardPoints")),
+        "own_goals": safe_int(row.get("ownGoals")),
+        "own_goal_points": safe_int(row.get("ownGoalsPoints")),
+        "penalty_misses": safe_int(row.get("penaltyMiss")),
+        "penalty_miss_points": safe_int(row.get("penaltyMissPoints")),
+        "goals_conceded": safe_int(row.get("goalsConceded")),
+        "goals_conceded_points": safe_int(row.get("goalsConcededPoints")),
+        "bonus_rank": safe_int(row.get("matchBonus")),
+        "bonus_points": safe_int(row.get("matchBonusPoints")),
+        "clearances": safe_int(row.get("clearances")),
+        "blocks": safe_int(row.get("blocks")),
+        "recoveries": safe_int(row.get("recoveries")),
+        "shots_on_target": safe_int(row.get("shotsOnTarget")),
+        "successful_dribbles": safe_int(row.get("dribbles")),
+        "defensive_actions": safe_int(row.get("defensiveActions")),
+        "defensive_points": safe_int(row.get("defensivePoints")),
+        "attacking_actions": safe_int(row.get("attackingActions")),
+        "attacking_points": safe_int(row.get("attackingPoints")),
+    }
+
+
+def fetch_all_official_player_match_stats(
+    players_raw: list[dict[str, Any]],
+    from_local: bool = False,
+) -> tuple[dict[str, list[dict[str, Any]]], dict[str, Any]]:
+    """Fetch official per-match fantasy stats for every player with a player ID."""
+    player_ids = [
+        str(player.get("playerId"))
+        for player in players_raw
+        if player.get("playerId")
+    ]
+
+    stats_by_player: dict[str, list[dict[str, Any]]] = {}
+    failures: list[dict[str, str]] = []
+
+    def one(player_id: str) -> tuple[str, list[dict[str, Any]]]:
+        payload = fetch_official_player_detail(player_id, from_local=from_local)
+        rows = [
+            normalize_official_match_stat(row)
+            for row in extract_official_matchday_stats(payload)
+        ]
+        return player_id, rows
+
+    if from_local:
+        for player_id in player_ids:
+            try:
+                pid, rows = one(player_id)
+                stats_by_player[pid] = rows
+            except Exception as exc:
+                failures.append({"player_id": player_id, "error": str(exc)})
+    else:
+        with ThreadPoolExecutor(max_workers=OFFICIAL_PLAYER_DETAIL_WORKERS) as pool:
+            futures = {
+                pool.submit(one, player_id): player_id
+                for player_id in player_ids
+            }
+            for future in as_completed(futures):
+                player_id = futures[future]
+                try:
+                    pid, rows = future.result()
+                    stats_by_player[pid] = rows
+                except Exception as exc:
+                    failures.append({"player_id": player_id, "error": str(exc)})
+
+    players_with_stats = sum(1 for rows in stats_by_player.values() if rows)
+    match_rows = sum(len(rows) for rows in stats_by_player.values())
+    metadata = {
+        "source": "official WSL Fantasy player-detail matchdayStats",
+        "fetch_mode": (
+            "legacy_local_cache_for_offline_test"
+            if from_local
+            else "fresh_each_run"
+        ),
+        "players_requested": len(player_ids),
+        "players_returned": len(stats_by_player),
+        "players_with_matchday_stats": players_with_stats,
+        "player_match_rows": match_rows,
+        "failure_count": len(failures),
+        "failures": failures[:25],
+        "workers": 1 if from_local else OFFICIAL_PLAYER_DETAIL_WORKERS,
+    }
+    return stats_by_player, metadata
+
+
+def aggregate_official_match_stats(
+    rows: list[dict[str, Any]],
+) -> dict[str, Any]:
+    appearances = [row for row in rows if safe_int(row.get("minutes")) > 0]
+    bonus_ranks = [
+        safe_int(row.get("bonus_rank"))
+        for row in appearances
+        if safe_int(row.get("bonus_rank")) > 0
+    ]
+
+    def total(key: str) -> int:
+        return sum(safe_int(row.get(key)) for row in rows)
+
+    return {
+        "games_played": len(appearances),
+        "minutes": total("minutes"),
+        "goals": total("goals"),
+        "assists": total("assists"),
+        "clean_sheets": total("clean_sheets"),
+        "saves": total("saves"),
+        "save_points": total("save_points"),
+        "yellow_cards": total("yellow_cards"),
+        "red_cards": total("red_cards"),
+        "own_goals": total("own_goals"),
+        "penalty_misses": total("penalty_misses"),
+        "goals_conceded": total("goals_conceded"),
+        "goals_conceded_points": total("goals_conceded_points"),
+        "bonus_points": total("bonus_points"),
+        "bonus_games": sum(1 for row in appearances if safe_int(row.get("bonus_points")) > 0),
+        "average_bonus_rank": (
+            round(sum(bonus_ranks) / len(bonus_ranks), 1)
+            if bonus_ranks else None
+        ),
+        "best_bonus_rank": min(bonus_ranks) if bonus_ranks else None,
+        "latest_bonus_rank": (
+            safe_int(appearances[-1].get("bonus_rank"))
+            if appearances and safe_int(appearances[-1].get("bonus_rank")) > 0
+            else None
+        ),
+        "clearances": total("clearances"),
+        "blocks": total("blocks"),
+        "recoveries": total("recoveries"),
+        "shots_on_target": total("shots_on_target"),
+        "key_passes": total("key_passes"),
+        "successful_crosses": total("successful_crosses"),
+        "successful_dribbles": total("successful_dribbles"),
+        "tackles": total("tackles"),
+        "interceptions": total("interceptions"),
+        "attacking_actions": total("attacking_actions"),
+        "attacking_points": total("attacking_points"),
+        "defensive_actions": total("defensive_actions"),
+        "defensive_points": total("defensive_points"),
+        "one_to_59_appearances": sum(
+            1 for row in appearances if 1 <= safe_int(row.get("minutes")) < 60
+        ),
+        "sixty_plus_appearances": sum(
+            1 for row in appearances if safe_int(row.get("minutes")) >= 60
+        ),
+    }
 
 
 def value_of(feed: dict[str, Any]) -> Any:
@@ -1642,6 +1893,134 @@ def populate_weekly_points_from_history(
                     + (f" through {endpoint_date}" if endpoint_date else "")
                 ),
             }
+
+
+def populate_weekly_points_from_official_stats(
+    players: list[dict[str, Any]],
+    official_stats_by_player: dict[str, list[dict[str, Any]]],
+    fixtures: list[dict[str, Any]],
+    fantasy_gameweeks: list[dict[str, Any]],
+) -> dict[str, Any]:
+    """Overwrite reconstructed GW points with official per-match fantasy totals.
+
+    Exact matchId -> canonical Fantasy GW mapping naturally supports DGWs.
+    History-derived values remain only as a fallback where official matchdayStats
+    are not yet available.
+    """
+    fixture_to_gw = {
+        str(fixture.get("match_id") or ""): str(fixture.get("fantasy_game_week") or "")
+        for fixture in fixtures
+        if fixture.get("match_id") and fixture.get("fantasy_game_week")
+    }
+
+    player_by_id = {
+        str(player.get("Player ID") or ""): player
+        for player in players
+        if player.get("Player ID")
+    }
+
+    official_rows_applied = 0
+    official_player_gw_values = 0
+
+    for player_id, stats in official_stats_by_player.items():
+        player = player_by_id.get(str(player_id))
+        if not player:
+            continue
+
+        by_gw: dict[str, list[dict[str, Any]]] = {}
+        enriched_stats: list[dict[str, Any]] = []
+
+        for stat in stats:
+            match_id = str(stat.get("match_id") or "")
+            gw = fixture_to_gw.get(match_id, "")
+            enriched = dict(stat)
+            enriched["fantasy_game_week"] = gw or None
+            enriched_stats.append(enriched)
+
+            if not gw:
+                continue
+            by_gw.setdefault(gw, []).append(enriched)
+            official_rows_applied += 1
+
+        player["Official Match Stats"] = enriched_stats
+
+        for gw, rows in by_gw.items():
+            if gw not in player:
+                continue
+            points = sum(safe_int(row.get("total_points")) for row in rows)
+            appearances = sum(1 for row in rows if safe_int(row.get("minutes")) > 0)
+            bonus_points = sum(safe_int(row.get("bonus_points")) for row in rows)
+            att_points = sum(safe_int(row.get("attacking_points")) for row in rows)
+            def_points = sum(safe_int(row.get("defensive_points")) for row in rows)
+
+            details = []
+            for row in rows:
+                details.append(
+                    f"{safe_int(row.get('total_points'))} pts"
+                    f" · {safe_int(row.get('minutes'))} min"
+                    f" · bonus #{safe_int(row.get('bonus_rank')) if safe_int(row.get('bonus_rank')) > 0 else '—'}"
+                    f" (+{safe_int(row.get('bonus_points'))})"
+                )
+
+            player[gw] = {
+                "points": points,
+                "base_points": points,
+                "visionary_bonus": 0,
+                "appearances": appearances,
+                "bonus_points": bonus_points,
+                "attacking_points": att_points,
+                "defensive_points": def_points,
+                "source": "official_matchdayStats",
+                "tooltip": (
+                    f"Fantasy GW{gw}: {points} pts (official matchdayStats)\\n"
+                    + "\\n".join(details)
+                ),
+            }
+            official_player_gw_values += 1
+
+    # Recalculate the recent-window columns from the actual GW objects.
+    existing_gws = [
+        str(window.get("fantasy_game_week") or "")
+        for window in sorted(
+            fantasy_gameweeks,
+            key=lambda w: int(w.get("fantasy_game_week") or 999),
+        )
+        if window.get("fantasy_game_week")
+    ]
+
+    for player in players:
+        populated = []
+        for gw in existing_gws:
+            value = player.get(gw)
+            if isinstance(value, dict) and "points" in value:
+                populated.append((gw, value))
+
+        recent = populated[-4:]
+        p4 = sum(safe_int(value.get("points")) for _, value in recent)
+        g4 = sum(
+            safe_int(value.get("appearances"), 1 if safe_int(value.get("points")) != 0 else 0)
+            for _, value in recent
+        )
+
+        player["Total Over 4 Gameweeks"] = p4
+        player["Games Played Over 4 Gameweeks"] = g4
+        player["Points Per Game Over 4 Gameweeks"] = (
+            round(p4 / g4, 2) if g4 else 0.0
+        )
+        value = safe_float(player.get("Value"))
+        player["Points Per Million Over 4 Gameweeks"] = (
+            round(p4 / value, 2) if value else 0.0
+        )
+
+    return {
+        "official_player_match_rows_applied": official_rows_applied,
+        "official_player_gameweek_values": official_player_gw_values,
+        "match_id_to_fantasy_gw_count": len(fixture_to_gw),
+        "recent_window_definition": (
+            "P4 = points in most recent up-to-4 populated Fantasy GWs; "
+            "G4 = official appearances in that window; PG4 = P4/G4."
+        ),
+    }
 
 
 def _flatten_scalar_paths(value: Any, prefix: str = "", depth: int = 0) -> dict[str, Any]:
@@ -3183,6 +3562,7 @@ def transform_player(
     gk_model_inputs: dict[str, Any] | None = None,
     market_lookup: dict[str, dict[str, Any]] | None = None,
     player_involvement_profiles: dict[str, dict[str, Any]] | None = None,
+    official_match_stats_by_player: dict[str, list[dict[str, Any]]] | None = None,
 ) -> dict[str, Any]:
     name = f"{raw.get('mediaFirstName', '').strip()} {raw.get('mediaLastName', '').strip()}".strip()
     short_name = raw.get("mediaShortName") or name
@@ -3197,6 +3577,18 @@ def transform_player(
     own_team_name = raw.get("teamOfficialName") or raw.get("teamShortName")
     own_team_short_name = raw.get("teamShortName") or own_team_name
     competition_id = raw.get("competitionId")
+
+    # The official player feed can lag fantasy settlement and briefly leave a
+    # completed fixture in upcomingFixtures.  A past kickoff is never a future
+    # fixture, so roll Fix/Fix+1 forward immediately based on time.
+    now_utc = datetime.now(timezone.utc)
+    raw_upcoming = []
+    for fixture in raw.get("upcomingFixtures", []) or []:
+        kickoff = parse_dt(fixture.get("matchDateTimeUtc"))
+        if kickoff is not None and kickoff <= now_utc:
+            continue
+        raw_upcoming.append(fixture)
+
     upcoming = [
         build_upcoming_fixture(
             f,
@@ -3213,8 +3605,13 @@ def transform_player(
             gk_model_inputs or {},
             market_lookup or {},
         )
-        for f in raw.get("upcomingFixtures", [])
+        for f in raw_upcoming
     ]
+
+    official_match_stats = (
+        (official_match_stats_by_player or {}).get(str(raw.get("playerId") or ""), [])
+    )
+    official_aggregate = aggregate_official_match_stats(official_match_stats)
     next_fixture = upcoming[0] if upcoming else None
     following_fixture = upcoming[1] if len(upcoming) > 1 else None
     next_rating = safe_float(next_fixture.get("opportunity_rating"), 0.0) if next_fixture else 0.0
@@ -3255,12 +3652,12 @@ def transform_player(
         "Selected Percentage Change Since Last Global Price Change": 0.0,
         "Recommendation": "Monitor",
         "Hot Pick": False,
-        "Total Games Played": 0,
+        "Total Games Played": official_aggregate["games_played"],
         "Total Over 4 Gameweeks": safe_int(raw.get("lastMDPoints")),
         "Form Rating": 0,
         "Raw Form": raw_form,
         "Average Points": avg_points,
-        "Current Season Appearance Count": safe_int(involvement_profile.get("matches_with_data"), 0),
+        "Current Season Appearance Count": max(official_aggregate["games_played"], safe_int(involvement_profile.get("matches_with_data"), 0)),
         "Current Season Points Per Appearance": None,
         "Current Season Production Rating": None,
         "Previous Season Form Prior Rating": None,
@@ -3276,22 +3673,33 @@ def transform_player(
         "Points Per Million": round(total_points / value, 2) if value else 0.0,
         "Points Per Million Over 4 Gameweeks": round(safe_float(raw.get("lastMDPoints")) / value, 2) if value else 0.0,
         "Previous Season Points Per Million": round(prior_points / value, 2) if value else 0.0,
-        "Total Goals": 0,
-        "Total Assists": 0,
-        "Total Goals + Assists": 0,
-        "Total Red Cards": 0,
-        "Total Yellow Cards": 0,
-        "Total Saves": 0,
-        "Total Own Goals": 0,
-        "Total Conceeded": 0,
-        "Total Conceded": 0,
-        "Total Clean Sheet": 0,
-        "Total Bonus Points": safe_int(raw.get("bonusPointsWon")),
-        "Total Bonus Games": 0,
-        "Total Missed Penalties": 0,
-        "Total Clearances": 0,
-        "Total 1 min Appearances": 0,
-        "Total 60 min Appearances": 0,
+        "Total Goals": official_aggregate["goals"],
+        "Total Assists": official_aggregate["assists"],
+        "Total Goals + Assists": official_aggregate["goals"] + official_aggregate["assists"],
+        "Total Red Cards": official_aggregate["red_cards"],
+        "Total Yellow Cards": official_aggregate["yellow_cards"],
+        "Total Saves": official_aggregate["saves"],
+        "Total Own Goals": official_aggregate["own_goals"],
+        "Total Conceeded": official_aggregate["goals_conceded"],
+        "Total Conceded": official_aggregate["goals_conceded"],
+        "Total Clean Sheet": official_aggregate["clean_sheets"],
+        "Total Bonus Points": official_aggregate["bonus_points"] if official_match_stats else safe_int(raw.get("bonusPointsWon")),
+        "Total Bonus Games": official_aggregate["bonus_games"],
+        "Total Missed Penalties": official_aggregate["penalty_misses"],
+        "Total Clearances": official_aggregate["clearances"],
+        "Total 1 min Appearances": official_aggregate["one_to_59_appearances"],
+        "Total 60 min Appearances": official_aggregate["sixty_plus_appearances"],
+        "Total Minutes": official_aggregate["minutes"],
+        "Total Save Points": official_aggregate["save_points"],
+        "Total Goals Conceded Points": official_aggregate["goals_conceded_points"],
+        "Average Bonus Rank": official_aggregate["average_bonus_rank"],
+        "Best Bonus Rank": official_aggregate["best_bonus_rank"],
+        "Latest Bonus Rank": official_aggregate["latest_bonus_rank"],
+        "Total Attacking Actions": official_aggregate["attacking_actions"],
+        "Total Attacking Involvement Points": official_aggregate["attacking_points"],
+        "Total Defensive Actions": official_aggregate["defensive_actions"],
+        "Total Defensive Involvement Points": official_aggregate["defensive_points"],
+        "Official Match Stats": official_match_stats,
         "Transfers In": safe_int(raw.get("transferIn")),
         "Transfers Out": safe_int(raw.get("transferOut")),
         "upcoming_fixtures": upcoming,
@@ -3458,6 +3866,13 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
 
     players_raw = value_of(feeds["players"]) or []
     fixtures_raw = value_of(feeds["fixtures"]) or []
+
+    official_match_stats_by_player, official_match_stats_metadata = (
+        fetch_all_official_player_match_stats(
+            players_raw,
+            from_local=from_local,
+        )
+    )
     teams_value = value_of(feeds["teams"]) or {}
     teams_raw = teams_value.get("teams", []) if isinstance(teams_value, dict) else []
 
@@ -3490,6 +3905,7 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
             gk_model_inputs,
             market_lookup,
             player_involvement_profiles,
+            official_match_stats_by_player,
         )
         for p in players_raw
     ]
@@ -3518,6 +3934,12 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
     # them from the official cumulative totalPoints history now that the shared
     # WSL/WSL2 Fantasy GW windows are known.
     populate_weekly_points_from_history(players, history, fantasy_gameweeks)
+    official_weekly_metadata = populate_weekly_points_from_official_stats(
+        players,
+        official_match_stats_by_player,
+        fixtures,
+        fantasy_gameweeks,
+    )
 
     # Attach current market clean-sheet probabilities to the full fixture schedule.
     for fixture in fixtures:
@@ -3703,10 +4125,25 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
         "fixture_count": len(fixtures),
         "team_count": len(teams),
         "fantasy_gameweeks": fantasy_gameweeks,
+        "official_match_stats": {
+            **official_match_stats_metadata,
+            **official_weekly_metadata,
+            "note": (
+                "Fresh official player-detail matchdayStats populate completed-match "
+                "fantasy scoring, season action totals, bonus rank/points, minutes, "
+                "and numbered Fantasy GW columns. Responses are not persisted as a "
+                "production cache because official values can be revised post-match."
+            ),
+        },
         "weekly_points_model": {
-            "version": "cumulative-snapshot-delta-v1",
-            "source": "official player totalPoints feed",
-            "note": "Per-Fantasy-GW points are reconstructed from daily cumulative totalPoints snapshots because the current public player feed does not expose matchPoints/matchwisePoints. Active-GW values are live/partial; past-GW values freeze at the last snapshot before the next Fantasy GW starts."
+            "version": "official-matchdayStats-v2-with-history-fallback",
+            "source": "official player-detail matchdayStats; cumulative totalPoints history fallback",
+            "note": (
+                "Exact player-detail matchdayStats are mapped by matchId to the canonical "
+                "Fantasy GW and override reconstructed snapshot deltas whenever available. "
+                "DGWs sum all official match rows in the same Fantasy GW. Snapshot deltas "
+                "remain only as a temporary fallback for rows not yet exposed by the detail feed."
+            ),
         },
         "player_feed_audit": build_player_feed_audit(players_raw),
         "fantasy_legs": [
