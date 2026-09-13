@@ -1,0 +1,38 @@
+name: Explain remaining involvement mismatch
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  explain:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Syntax-check diagnostic
+        run: python -m py_compile explain_remaining_involvement_mismatch.py
+
+      - name: Explain remaining mismatch
+        run: python explain_remaining_involvement_mismatch.py
+
+      - name: Commit diagnostic output
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add remaining_involvement_mismatch_events.json
+
+          git diff --cached --quiet || \
+            git commit -m "Explain remaining involvement mismatch"
+
+          git push
