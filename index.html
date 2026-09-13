@@ -1095,19 +1095,14 @@
             color: #64748b;
         }
 
-        #involvement-view #inv-table-scroll {
-            --inv-player-width: 10.5rem;
-            --inv-club-width: 4.25rem;
-            --inv-pos-width: 3.65rem;
-        }
-
         #involvement-view #inv-table .inv-player-sticky {
             position: sticky;
             left: 0;
             z-index: 12;
-            width: var(--inv-player-width);
-            min-width: var(--inv-player-width);
-            max-width: var(--inv-player-width);
+            min-width: 10.5rem;
+            max-width: 13rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
             background: #fff;
             box-shadow: 1px 0 0 #e5e7eb;
         }
@@ -1119,10 +1114,6 @@
 
         #involvement-view .inv-last-name { display:none; }
 
-        #involvement-view #inv-table-scroll.inv-scrolled-side {
-            --inv-player-width: 7rem;
-        }
-
         #involvement-view #inv-table-scroll.inv-scrolled-side .inv-full-name {
             display:none;
         }
@@ -1131,54 +1122,45 @@
             display:inline;
         }
 
-        #involvement-view #inv-table .inv-club-sticky .team-badge {
-            margin: 0 auto;
+        #involvement-view #inv-table-scroll.inv-scrolled-side .inv-player-sticky {
+            min-width: 6.75rem;
+            max-width: 8.5rem;
+        }
+
+        /* Compact identity columns, but only Player is sticky. */
+        #involvement-view #inv-table th:nth-child(2),
+        #involvement-view #inv-table td:nth-child(2) {
+            min-width: 4.5rem;
+            width: 4.5rem;
+        }
+
+        #involvement-view #inv-table th:nth-child(3),
+        #involvement-view #inv-table td:nth-child(3) {
+            min-width: 3.5rem;
+            width: 3.5rem;
+        }
+
+        #involvement-view #inv-table th:nth-child(4),
+        #involvement-view #inv-table td:nth-child(4) {
+            min-width: 2.75rem;
+            width: 2.75rem;
         }
 
         /* Keep involvement position chips neutral, as on the standalone page. */
-        #involvement-view #inv-table .inv-pos-sticky .pos-badge {
+        #involvement-view #inv-table .pos-badge {
             background: #f3f4f6 !important;
             color: #374151 !important;
         }
 
         @media (max-width: 640px) {
-            #involvement-view #inv-table-scroll {
-                --inv-player-width: 9.25rem;
-                --inv-club-width: 4.25rem;
-                --inv-pos-width: 3.65rem;
+            #involvement-view #inv-table .inv-player-sticky {
+                min-width: 9.25rem;
+                max-width: 10.5rem;
             }
 
-            #involvement-view #inv-table-scroll.inv-scrolled-side {
-                --inv-player-width: 6rem;
-            }
-
-            #involvement-view #inv-table .inv-club-sticky,
-            #involvement-view #inv-table .inv-pos-sticky {
-                position: sticky;
-                background: #fff;
-            }
-
-            #involvement-view #inv-table .inv-club-sticky {
-                left: var(--inv-player-width);
-                z-index: 11;
-                width: var(--inv-club-width);
-                min-width: var(--inv-club-width);
-                max-width: var(--inv-club-width);
-            }
-
-            #involvement-view #inv-table .inv-pos-sticky {
-                left: calc(var(--inv-player-width) + var(--inv-club-width));
-                z-index: 10;
-                width: var(--inv-pos-width);
-                min-width: var(--inv-pos-width);
-                max-width: var(--inv-pos-width);
-                box-shadow: 1px 0 0 #e5e7eb;
-            }
-
-            #involvement-view #inv-table thead .inv-club-sticky,
-            #involvement-view #inv-table thead .inv-pos-sticky {
-                background: #f9fafb;
-                z-index: 24;
+            #involvement-view #inv-table-scroll.inv-scrolled-side .inv-player-sticky {
+                min-width: 5.75rem;
+                max-width: 7rem;
             }
 
             #involvement-view #inv-filter-row {
@@ -1834,7 +1816,15 @@
                 </div>
                 <div id="legs-summary" class="mt-3 text-xs text-gray-600"></div>
             </div>
-            <div id="involvement-view" class="hidden">
+            <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-x-auto">
+                <table class="min-w-full text-sm" id="legs-table">
+                    <thead id="legs-table-head" class="bg-gray-50 text-gray-600 text-xs uppercase tracking-wide"></thead>
+                    <tbody id="legs-table-body"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="involvement-view" class="hidden">
             <div class="inv-panel p-3 sm:p-4 mb-3">
                 <div class="flex flex-wrap gap-3 items-end justify-between">
                     <div>
@@ -1895,8 +1885,8 @@
                     <thead class="bg-gray-50 text-gray-600 text-xs uppercase tracking-wide">
                         <tr>
                             <th class="text-left px-3 py-2 inv-th inv-player-sticky" data-inv-sort="name">Player</th>
-                            <th class="text-center px-3 py-2 inv-th inv-club-sticky" data-inv-sort="club">Club</th>
-                            <th class="text-center px-3 py-2 inv-th inv-pos-sticky" data-inv-sort="position">Pos</th>
+                            <th class="text-center px-3 py-2 inv-th" data-inv-sort="club">Club</th>
+                            <th class="text-center px-3 py-2 inv-th" data-inv-sort="position">Pos</th>
                             <th class="text-center px-3 py-2 inv-th" data-inv-sort="matches_with_data" title="Completed Opta-covered matches included in this view.">M</th>
                             <th class="text-center px-3 py-2 inv-th" data-inv-sort="shots_on_target" title="Shots on target">SOT</th>
                             <th class="text-center px-3 py-2 inv-th" data-inv-sort="key_passes" title="Key passes">KP</th>
@@ -5558,6 +5548,10 @@
                 );
             }
 
+            function isUnmatchedInvolvementRow(row) {
+                return String(row?.name || '').startsWith('Unmatched Opta player');
+            }
+
             function renderInvolvement() {
                 if (!involvementHistoryData || !(involvementHistoryData.matches || []).length) {
                     $('#inv-summary').text('No completed-match involvement data available yet.');
@@ -5571,6 +5565,7 @@
                 const selectedGw = $('#inv-gameweek').val() || 'overall';
 
                 let rows = involvementRowsForSelection().filter(row => {
+                    if (isUnmatchedInvolvementRow(row)) return false;
                     if (league && row.league !== league) return false;
                     if (position && row.position !== position) return false;
                     if (club && row.club !== club) return false;
@@ -5630,8 +5625,8 @@
                             <span class="inv-last-name">${compactInvolvementPlayerName(row.name)}</span>
                             ${row.has_live_data ? '<span class="inv-live-badge"><span class="inv-live-dot"></span>IN PROGRESS</span>' : ''}
                         </td>
-                        <td class="px-3 py-2 text-center inv-club-sticky">${teamBadgeHtml(row.club)}</td>
-                        <td class="px-3 py-2 text-center inv-pos-sticky"><span class="pos-badge badge-${row.position || ''}">${row.position || '—'}</span></td>
+                        <td class="px-3 py-2 text-center">${teamBadgeHtml(row.club)}</td>
+                        <td class="px-3 py-2 text-center"><span class="pos-badge badge-${row.position || ''}">${row.position || '—'}</span></td>
                         <td class="px-3 py-2 text-center">${row.matches_with_data ?? '—'}</td>
                         <td class="px-3 py-2 text-center">${row.shots_on_target ?? 0}</td>
                         <td class="px-3 py-2 text-center">${row.key_passes ?? 0}</td>
