@@ -1047,6 +1047,165 @@
             font-weight: 700;
         }
 
+        /* Involvement tab: match the standalone involvement page. */
+        #involvement-view .inv-panel {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+        }
+
+        #involvement-view .inv-status-key {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            margin-top: 0.28rem;
+            font-size: 0.7rem;
+            color: #64748b;
+        }
+
+        #involvement-view .inv-status-dot {
+            width: 0.48rem;
+            height: 0.48rem;
+            border-radius: 999px;
+            display: inline-block;
+            flex: 0 0 auto;
+        }
+
+        #involvement-view .inv-status-dot-awaiting { background:#f59e0b; }
+        #involvement-view .inv-status-dot-progress { background:#3b82f6; }
+
+        #involvement-view .inv-group-row td {
+            padding: 0.48rem 0.75rem;
+            font-size: 0.72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.045em;
+            border-top: 1px solid #e5e7eb;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        #involvement-view .inv-group-latest td {
+            background: #eff6ff;
+            color: #1e40af;
+        }
+
+        #involvement-view .inv-group-settled td {
+            background: #f8fafc;
+            color: #64748b;
+        }
+
+        #involvement-view #inv-table-scroll {
+            --inv-player-width: 10.5rem;
+            --inv-club-width: 4.25rem;
+            --inv-pos-width: 3.65rem;
+        }
+
+        #involvement-view #inv-table .inv-player-sticky {
+            position: sticky;
+            left: 0;
+            z-index: 12;
+            width: var(--inv-player-width);
+            min-width: var(--inv-player-width);
+            max-width: var(--inv-player-width);
+            background: #fff;
+            box-shadow: 1px 0 0 #e5e7eb;
+        }
+
+        #involvement-view #inv-table thead .inv-player-sticky {
+            z-index: 25;
+            background: #f9fafb;
+        }
+
+        #involvement-view .inv-last-name { display:none; }
+
+        #involvement-view #inv-table-scroll.inv-scrolled-side {
+            --inv-player-width: 7rem;
+        }
+
+        #involvement-view #inv-table-scroll.inv-scrolled-side .inv-full-name {
+            display:none;
+        }
+
+        #involvement-view #inv-table-scroll.inv-scrolled-side .inv-last-name {
+            display:inline;
+        }
+
+        #involvement-view #inv-table .inv-club-sticky .team-badge {
+            margin: 0 auto;
+        }
+
+        /* Keep involvement position chips neutral, as on the standalone page. */
+        #involvement-view #inv-table .inv-pos-sticky .pos-badge {
+            background: #f3f4f6 !important;
+            color: #374151 !important;
+        }
+
+        @media (max-width: 640px) {
+            #involvement-view #inv-table-scroll {
+                --inv-player-width: 9.25rem;
+                --inv-club-width: 4.25rem;
+                --inv-pos-width: 3.65rem;
+            }
+
+            #involvement-view #inv-table-scroll.inv-scrolled-side {
+                --inv-player-width: 6rem;
+            }
+
+            #involvement-view #inv-table .inv-club-sticky,
+            #involvement-view #inv-table .inv-pos-sticky {
+                position: sticky;
+                background: #fff;
+            }
+
+            #involvement-view #inv-table .inv-club-sticky {
+                left: var(--inv-player-width);
+                z-index: 11;
+                width: var(--inv-club-width);
+                min-width: var(--inv-club-width);
+                max-width: var(--inv-club-width);
+            }
+
+            #involvement-view #inv-table .inv-pos-sticky {
+                left: calc(var(--inv-player-width) + var(--inv-club-width));
+                z-index: 10;
+                width: var(--inv-pos-width);
+                min-width: var(--inv-pos-width);
+                max-width: var(--inv-pos-width);
+                box-shadow: 1px 0 0 #e5e7eb;
+            }
+
+            #involvement-view #inv-table thead .inv-club-sticky,
+            #involvement-view #inv-table thead .inv-pos-sticky {
+                background: #f9fafb;
+                z-index: 24;
+            }
+
+            #involvement-view #inv-filter-row {
+                flex-wrap: nowrap;
+                gap: 0.35rem;
+                width: 100%;
+                align-items: flex-end;
+            }
+
+            #involvement-view #inv-filter-row label {
+                flex: 0 0 auto;
+                font-size: 0.67rem;
+            }
+
+            #involvement-view #inv-filter-row select {
+                margin-top: 0.18rem;
+                padding: 0.34rem 0.3rem;
+                font-size: 0.72rem;
+                line-height: 1.05rem;
+            }
+
+            #involvement-view #inv-gameweek { width: 4.55rem; }
+            #involvement-view #inv-league { width: 5.2rem; }
+            #involvement-view #inv-position { width: 3.55rem; }
+            #involvement-view #inv-club { width: 5rem; }
+        }
+
         /* ------------------------------------------------------------------ */
         /* --- COMPACT DESKTOP HEADER --- */
         /* ------------------------------------------------------------------ */
@@ -1675,62 +1834,105 @@
                 </div>
                 <div id="legs-summary" class="mt-3 text-xs text-gray-600"></div>
             </div>
-            <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-x-auto">
-                <table class="min-w-full text-sm" id="legs-table">
-                    <thead id="legs-table-head" class="bg-gray-50 text-gray-600 text-xs uppercase tracking-wide"></thead>
-                    <tbody id="legs-table-body"></tbody>
-                </table>
-            </div>
-        </section>
-
-        <section id="involvement-view" class="hidden">
-            <div class="bg-white border border-gray-200 rounded-lg p-3 mb-3 shadow-sm">
+            <div id="involvement-view" class="hidden">
+            <div class="inv-panel p-3 sm:p-4 mb-3">
                 <div class="flex flex-wrap gap-3 items-end justify-between">
                     <div>
                         <h3 class="text-lg font-bold text-gray-800">Involvement Points</h3>
-                        <p class="text-xs text-gray-500 mt-1">
-                            Official Opta event actions behind WSL Fantasy attacking and defensive involvement points.
-                            Thresholds are applied per match: 1 attacking point per 4 actions and 1 defensive point per 10 actions.
+                        <p class="text-sm text-gray-600 mt-1">
+                            Underlying Opta actions behind attacking and defensive involvement points.
                         </p>
                     </div>
-                    <div class="flex flex-wrap gap-2 items-end">
-                        <label class="text-xs font-semibold text-gray-600">Matchweek
-                            <select id="inv-gameweek" class="block mt-1 px-2 py-2 border border-gray-300 rounded-md text-sm bg-white">
-                                <option value="overall">Overall</option>
-                            </select>
-                        </label>
-                        <label class="text-xs font-semibold text-gray-600">League
-                            <select id="inv-league" class="block mt-1 px-2 py-2 border border-gray-300 rounded-md text-sm bg-white">
-                                <option value="">WSL + WSL2</option>
-                                <option value="WSL">WSL only</option>
-                                <option value="WSL2">WSL2 only</option>
-                            </select>
-                        </label>
-                        <label class="text-xs font-semibold text-gray-600">Position
-                            <select id="inv-position" class="block mt-1 px-2 py-2 border border-gray-300 rounded-md text-sm bg-white">
-                                <option value="">All</option>
-                                <option value="GK">GK</option>
-                                <option value="DEF">DEF</option>
-                                <option value="MID">MID</option>
-                                <option value="FOR">FOR</option>
-                            </select>
-                        </label>
-                        <label class="text-xs font-semibold text-gray-600">Club
-                            <select id="inv-club" class="block mt-1 px-2 py-2 border border-gray-300 rounded-md text-sm bg-white">
-                                <option value="">All clubs</option>
-                            </select>
-                        </label>
-                        <button id="inv-refresh-live" type="button" class="inv-live-button" title="Fetch the latest public Opta event data for matches that have started recently.">
+
+                    <div class="flex flex-col items-start sm:items-end gap-1">
+                        <button id="inv-refresh-live" type="button" class="inv-live-button" title="Reload the latest involvement snapshot.">
                             <i class="fa-solid fa-rotate"></i>
                             Refresh Latest
                         </button>
-                        <span class="text-xs text-gray-500 self-end pb-2">Updates available roughly every 15 minutes during matches.</span>
+                        <div id="inv-refresh-state" class="text-xs text-gray-500"></div>
+                        <div class="text-xs text-gray-500">Updates available roughly every 15 minutes during matches.</div>
+                        <div class="inv-status-key">
+                            <span class="inv-status-dot inv-status-dot-progress"></span>
+                            <span>In-progress rows are provisional</span>
+                        </div>
                     </div>
                 </div>
+
+                <div id="inv-filter-row" class="flex flex-wrap gap-2 items-end mt-3">
+                    <label class="text-xs font-semibold text-gray-600">Matchweek
+                        <select id="inv-gameweek" class="block mt-1 px-2 py-2 border border-gray-300 rounded-md text-sm bg-white">
+                            <option value="overall">Overall</option>
+                        </select>
+                    </label>
+                    <label class="text-xs font-semibold text-gray-600">League
+                        <select id="inv-league" class="block mt-1 px-2 py-2 border border-gray-300 rounded-md text-sm bg-white">
+                            <option value="">WSL + WSL2</option>
+                            <option value="WSL">WSL only</option>
+                            <option value="WSL2">WSL2 only</option>
+                        </select>
+                    </label>
+                    <label class="text-xs font-semibold text-gray-600">Position
+                        <select id="inv-position" class="block mt-1 px-2 py-2 border border-gray-300 rounded-md text-sm bg-white">
+                            <option value="">All</option>
+                            <option value="GK">GK</option>
+                            <option value="DEF">DEF</option>
+                            <option value="MID">MID</option>
+                            <option value="FOR">FOR</option>
+                        </select>
+                    </label>
+                    <label class="text-xs font-semibold text-gray-600">Club
+                        <select id="inv-club" class="block mt-1 px-2 py-2 border border-gray-300 rounded-md text-sm bg-white">
+                            <option value="">All clubs</option>
+                        </select>
+                    </label>
+                </div>
+
                 <div id="inv-summary" class="mt-3 text-xs text-gray-600"></div>
             </div>
 
-            <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-x-auto">
+            <div id="inv-table-scroll" class="inv-panel overflow-x-auto">
+                <table class="min-w-full text-sm" id="inv-table">
+                    <thead class="bg-gray-50 text-gray-600 text-xs uppercase tracking-wide">
+                        <tr>
+                            <th class="text-left px-3 py-2 inv-th inv-player-sticky" data-inv-sort="name">Player</th>
+                            <th class="text-center px-3 py-2 inv-th inv-club-sticky" data-inv-sort="club">Club</th>
+                            <th class="text-center px-3 py-2 inv-th inv-pos-sticky" data-inv-sort="position">Pos</th>
+                            <th class="text-center px-3 py-2 inv-th" data-inv-sort="matches_with_data" title="Completed Opta-covered matches included in this view.">M</th>
+                            <th class="text-center px-3 py-2 inv-th" data-inv-sort="shots_on_target" title="Shots on target">SOT</th>
+                            <th class="text-center px-3 py-2 inv-th" data-inv-sort="key_passes" title="Key passes">KP</th>
+                            <th class="text-center px-3 py-2 inv-th" data-inv-sort="successful_crosses" title="Successful crosses">Cross</th>
+                            <th class="text-center px-3 py-2 inv-th" data-inv-sort="successful_dribbles" title="Successful dribbles">Drib</th>
+                            <th class="text-center px-3 py-2 inv-th" data-inv-sort="attacking_actions">Att Actions</th>
+                            <th class="text-center px-3 py-2 inv-th" data-inv-sort="attacking_points">Att Pts</th>
+                            <th class="text-center px-3 py-2 inv-th" data-inv-sort="tackles_won">Tkl</th>
+                            <th class="text-center px-3 py-2 inv-th" data-inv-sort="interceptions">Int</th>
+                            <th class="text-center px-3 py-2 inv-th" data-inv-sort="clearances">Clr</th>
+                            <th class="text-center px-3 py-2 inv-th" data-inv-sort="blocks">Blk</th>
+                            <th class="text-center px-3 py-2 inv-th" data-inv-sort="recoveries">Rec</th>
+                            <th class="text-center px-3 py-2 inv-th" data-inv-sort="defensive_actions">Def Actions</th>
+                            <th class="text-center px-3 py-2 inv-th" data-inv-sort="defensive_points">Def Pts</th>
+                            <th class="text-center px-3 py-2 inv-th" data-inv-sort="involvement_points">Total IP</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inv-table-body"></tbody>
+                </table>
+            </div>
+
+            <div class="inv-panel mt-3 p-3 sm:p-4 text-xs text-gray-600 leading-relaxed">
+                <p>
+                    <strong>Scoring:</strong>
+                    1 attacking involvement point per 4 combined shots on target,
+                    key passes, successful crosses and successful dribbles.
+                    1 defensive involvement point per 10 combined tackles won,
+                    interceptions, clearances, blocked shots and recoveries.
+                </p>
+                <p class="mt-2 text-gray-500">
+                    In-progress values are provisional and may change as Opta updates match events.
+                </p>
+            </div>
+        </div>
+
+        <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-x-auto">
                 <table class="min-w-full text-sm" id="inv-table">
                     <thead class="bg-gray-50 text-gray-600 text-xs uppercase tracking-wide">
                         <tr>
@@ -1949,6 +2151,23 @@
             const displayCode = canonicalTeamCodeUI(raw);
         
             return `<span class="team-badge badge-${displayCode}">${displayCode}</span>`;
+        }
+
+        function compactInvolvementPlayerName(fullName) {
+            const name = String(fullName || '').trim();
+            if (!name) return '—';
+            const parts = name.split(/\s+/);
+            return parts.length > 1 ? parts[parts.length - 1] : name;
+        }
+
+        function involvementLastNameSortKey(fullName) {
+            const name = String(fullName || '').trim();
+            if (!name) return '';
+            const parts = name.split(/\s+/);
+            return parts[parts.length - 1]
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .toLocaleLowerCase();
         }
 
         function normalizeKey(name) {
@@ -5362,6 +5581,16 @@
                 const dir = direction === 'asc' ? 1 : -1;
 
                 rows.sort((a, b) => {
+                    if (key === 'name') {
+                        const surnameCompare = involvementLastNameSortKey(a.name)
+                            .localeCompare(involvementLastNameSortKey(b.name));
+
+                        if (surnameCompare !== 0) return surnameCompare * dir;
+
+                        return String(a.name || '')
+                            .localeCompare(String(b.name || '')) * dir;
+                    }
+
                     const av = a[key];
                     const bv = b[key];
 
@@ -5394,14 +5623,15 @@
                     return value;
                 };
 
-                const body = rows.map(row => `
+                const rowHtml = row => `
                     <tr class="border-t border-gray-100 hover:bg-gray-50">
-                        <td class="px-3 py-2 font-semibold whitespace-nowrap">
-                            ${row.name || '—'}
+                        <td class="px-3 py-2 font-semibold whitespace-nowrap inv-player-sticky" title="${row.name || '—'}">
+                            <span class="inv-full-name">${row.name || '—'}</span>
+                            <span class="inv-last-name">${compactInvolvementPlayerName(row.name)}</span>
                             ${row.has_live_data ? '<span class="inv-live-badge"><span class="inv-live-dot"></span>IN PROGRESS</span>' : ''}
                         </td>
-                        <td class="px-3 py-2 text-center">${teamBadgeHtml(row.club)}</td>
-                        <td class="px-3 py-2 text-center"><span class="pos-badge badge-${row.position || ''}">${row.position || '—'}</span></td>
+                        <td class="px-3 py-2 text-center inv-club-sticky">${teamBadgeHtml(row.club)}</td>
+                        <td class="px-3 py-2 text-center inv-pos-sticky"><span class="pos-badge badge-${row.position || ''}">${row.position || '—'}</span></td>
                         <td class="px-3 py-2 text-center">${row.matches_with_data ?? '—'}</td>
                         <td class="px-3 py-2 text-center">${row.shots_on_target ?? 0}</td>
                         <td class="px-3 py-2 text-center">${row.key_passes ?? 0}</td>
@@ -5418,10 +5648,32 @@
                         <td class="px-3 py-2 text-center inv-point-cell">${row.defensive_points ?? 0}</td>
                         <td class="px-3 py-2 text-center"><span class="inv-total-pill">${row.involvement_points ?? 0}</span></td>
                     </tr>
-                `).join('');
+                `;
+
+                const liveRows = rows.filter(row => row.has_live_data);
+                const settledRows = rows.filter(row => !row.has_live_data);
+                let tableHtml = '';
+
+                if (liveRows.length) {
+                    tableHtml += `
+                        <tr class="inv-group-row inv-group-latest">
+                            <td colspan="18">Latest match data · in progress</td>
+                        </tr>
+                    `;
+                    tableHtml += liveRows.map(rowHtml).join('');
+                }
+
+                if (settledRows.length) {
+                    tableHtml += `
+                        <tr class="inv-group-row inv-group-settled">
+                            <td colspan="18">Settled match data</td>
+                        </tr>
+                    `;
+                    tableHtml += settledRows.map(rowHtml).join('');
+                }
 
                 $('#inv-table-body').html(
-                    body || '<tr><td colspan="18" class="px-3 py-8 text-center text-gray-500">No players match these filters.</td></tr>'
+                    tableHtml || '<tr><td colspan="18" class="px-3 py-8 text-center text-gray-500">No players match these filters.</td></tr>'
                 );
 
                 const activeMatches = combinedInvolvementMatches();
@@ -5481,6 +5733,20 @@
             $('#table-view-tab').on('click', () => setMainView('table'));
             $('#involvement-view-tab').on('click', () => setMainView('involvement'));
             $('#inv-refresh-live').on('click', refreshLiveInvolvement);
+
+            function initializeInvolvementHorizontalScrollNames() {
+                const scroller = document.querySelector('#inv-table-scroll');
+                if (!scroller) return;
+
+                const update = () => {
+                    scroller.classList.toggle('inv-scrolled-side', scroller.scrollLeft > 28);
+                };
+
+                scroller.addEventListener('scroll', update, {passive: true});
+                update();
+            }
+
+            initializeInvolvementHorizontalScrollNames();
             $('#planner-view-tab').on('click', () => setMainView('planner'));
             $('#pairings-view-tab').on('click', () => setMainView('pairings'));
             $('#clean-sheets-view-tab').on('click', () => setMainView('clean-sheets'));
