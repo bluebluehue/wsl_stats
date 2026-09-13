@@ -82,6 +82,10 @@ def is_key_pass(event):
     return any(event.get(k) in (1, "1", True, "true", "True")
                for k in ("keypass", "keyPass", "key_pass"))
 
+
+def is_assist(event):
+    return event.get("assist") in (1, "1", True, "true", "True")
+
 def player_lookup(players):
     if isinstance(players, dict):
         players = players.get("data") or players.get("players") or []
@@ -140,12 +144,16 @@ def aggregate(payload, fixture, lookup):
         except (TypeError, ValueError):
             outcome = 0
 
-        if typ == 15 and 82 not in qids:
+        # Official WSL reconciliation:
+        # count normal type-15 SOT plus the specific 82+101 subtype.
+        if typ == 15 and (82 not in qids or 101 in qids):
             row["shots_on_target"] += 1
         elif typ == 16 and 28 not in qids:
             row["shots_on_target"] += 1
 
-        if is_key_pass(e):
+        # Assist-flagged events contribute the same attacking-action count as
+        # key passes, without double-counting events carrying both flags.
+        if is_key_pass(e) or is_assist(e):
             row["key_passes"] += 1
         if typ == 1 and outcome == 1 and 2 in qids:
             row["successful_crosses"] += 1
@@ -155,7 +163,9 @@ def aggregate(payload, fixture, lookup):
             row["tackles_won"] += 1
         if typ == 8:
             row["interceptions"] += 1
-        if typ == 12:
+        # Qualifier-185 type-12 events are excluded from WSL Fantasy's
+        # defensive-action clearance count.
+        if typ == 12 and 185 not in qids:
             row["clearances"] += 1
         if typ == 10 and 94 in qids:
             row["blocks"] += 1
@@ -164,7 +174,7 @@ def aggregate(payload, fixture, lookup):
 
         pmeta = lookup.get(pid, {})
         if str(pmeta.get("Position") or pmeta.get("position") or "").upper() == "GK":
-            if typ == 11:
+            if typ == 11 and outcome != 0:
                 row["keeper_claims"] += 1
             if typ == 41:
                 row["keeper_punches"] += 1
@@ -292,7 +302,7 @@ def main():
             "candidate_match_count": len(candidates),
             "match_count": len(final_matches),
             "failures": failures,
-            "scoring_note": "Rules/Opta-derived involvement values; known WSL UI discrepancies are not force-fitted.",
+            "scoring_note": "Rules/Opta-derived involvement values reconciled against the official WSL Fantasy player-match feed.",
         },
         "matches": final_matches,
     }
