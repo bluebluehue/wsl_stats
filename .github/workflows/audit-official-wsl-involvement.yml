@@ -25,7 +25,7 @@ jobs:
       - name: Syntax-check audit
         run: python -m py_compile audit_official_wsl_involvement.py
 
-      - name: Run official WSL involvement audit
+      - name: Run official WSL involvement audit with fresh official data
         run: python audit_official_wsl_involvement.py
 
       - name: Show audit summary
@@ -94,10 +94,6 @@ jobs:
 
           git add official_wsl_involvement_audit.json
           git add official_wsl_involvement_audit.csv
-
-          if [ -d raw_wsl_official_player_stats ]; then
-            git add raw_wsl_official_player_stats/
-          fi
 
           git diff --cached --quiet || git commit -m "Audit official WSL involvement"
           git push
