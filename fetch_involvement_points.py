@@ -67,7 +67,9 @@ KEEPER_PICKUP = 52
 CROSS_QUALIFIER = 2
 OWN_GOAL_QUALIFIER = 28
 SHOT_BLOCKED_QUALIFIER = 82
+ATTEMPT_SAVED_QUALIFIER_101 = 101
 DEF_BLOCK_QUALIFIER = 94
+CLEARANCE_EXCLUSION_QUALIFIER = 185
 
 REQUEST_HEADERS = {
     "User-Agent": "Mozilla/5.0 WSL fantasy involvement stats parser",
@@ -204,6 +206,11 @@ def is_key_pass(event: dict[str, Any]) -> bool:
     return False
 
 
+def is_assist(event: dict[str, Any]) -> bool:
+    value = event.get("assist")
+    return value in (1, "1", True, "true", "True")
+
+
 def live_events(payload: dict[str, Any]) -> list[dict[str, Any]]:
     # Observed structure: payload.liveData.event
     live = payload.get("liveData") or {}
@@ -254,12 +261,24 @@ def aggregate_match(
         row = per_player[pid]
 
         # Attacking involvement
-        if typ == ATTEMPT_SAVED and SHOT_BLOCKED_QUALIFIER not in qids:
+        # Official WSL reconciliation:
+        # - ordinary type-15 events count as SOT unless qualifier 82 is present;
+        # - the specific type-15 subtype carrying BOTH 82 and 101 also counts.
+        if (
+            typ == ATTEMPT_SAVED
+            and (
+                SHOT_BLOCKED_QUALIFIER not in qids
+                or ATTEMPT_SAVED_QUALIFIER_101 in qids
+            )
+        ):
             row["shots_on_target"] += 1
         elif typ == GOAL and OWN_GOAL_QUALIFIER not in qids:
             row["shots_on_target"] += 1
 
-        if is_key_pass(event):
+        # Official WSL reconciliation: an assist-flagged event contributes the
+        # same attacking-action count as a key pass, without double-counting
+        # events that already carry the key-pass flag.
+        if is_key_pass(event) or is_assist(event):
             row["key_passes"] += 1
 
         if typ == PASS and outcome == 1 and CROSS_QUALIFIER in qids:
@@ -275,7 +294,9 @@ def aggregate_match(
         if typ == INTERCEPTION:
             row["interceptions"] += 1
 
-        if typ == CLEARANCE:
+        # Official WSL reconciliation: qualifier-185 type-12 events are
+        # excluded from the fantasy defensive-action clearance count.
+        if typ == CLEARANCE and CLEARANCE_EXCLUSION_QUALIFIER not in qids:
             row["clearances"] += 1
 
         # Opta defensive block: event 10 with qualifier 94 ("Def block").
@@ -290,7 +311,8 @@ def aggregate_match(
         # Type 54 smother and Type 59 are deliberately NOT counted.
         player_meta = opta_to_player.get(pid, {})
         if str(player_meta.get("Position") or "").upper() == "GK":
-            if typ == KEEPER_CLAIM:
+            # Failed claims (outcome=0) are not fantasy defensive actions.
+            if typ == KEEPER_CLAIM and outcome != 0:
                 row["keeper_claims"] += 1
             if typ == KEEPER_PUNCH:
                 row["keeper_punches"] += 1
@@ -359,16 +381,16 @@ def aggregate_match(
         "unmatched_opta_player_ids": dict(unmatched_player_events.most_common()),
         "type32_recovery_like_events": recovery_32_count,
         "mapping_notes": {
-            "shots_on_target": "Type 15 excluding qualifier 82 + non-own-goal type 16.",
-            "key_passes": "Any event carrying keypass/keyPass/key_pass flag.",
+            "shots_on_target": "Type 15 excluding qualifier 82, except the 82+101 subtype; plus non-own-goal type 16.",
+            "key_passes": "Any key-pass-flagged event, plus assist-flagged events not already key-pass flagged.",
             "successful_crosses": "Successful pass (outcome=1) with qualifier 2 (Cross).",
             "successful_dribbles": "Successful Take On (type 3, outcome=1).",
             "tackles_won": "Tackle (type 7, outcome=1).",
             "interceptions": "Interception (type 8).",
-            "clearances": "Clearance (type 12).",
+            "clearances": "Clearance (type 12), excluding qualifier 185.",
             "blocks": "Event 10 with qualifier 94 (Def block).",
             "recoveries": "Type 49 counted; type 32 retained separately for validation.",
-            "goalkeeper_actions": "For GK only: type 11 claims + type 41 punches + type 52 pickups. Types 54/59 excluded.",
+            "goalkeeper_actions": "For GK only: successful type 11 claims (outcome!=0) + type 41 punches + type 52 pickups. Types 54/59 excluded.",
         },
     }
     return results, diagnostics
