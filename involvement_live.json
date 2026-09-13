@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "generated_at": "2026-09-13T19:24:32.256066Z",
+    "generated_at": "2026-09-13T19:50:59.496904Z",
     "refresh_interval_minutes": 15,
     "candidate_match_count": 1,
     "match_count": 11,
@@ -285,7 +285,7 @@
           "successful_dribbles": 0,
           "tackles_won": 5,
           "interceptions": 0,
-          "clearances": 1,
+          "clearances": 2,
           "blocks": 3,
           "recoveries": 4,
           "keeper_claims": 0,
@@ -293,7 +293,7 @@
           "keeper_pickups": 0,
           "attacking_actions": 0,
           "attacking_points": 0,
-          "defensive_actions": 13,
+          "defensive_actions": 14,
           "defensive_points": 1,
           "involvement_points": 1
         },
@@ -658,7 +658,7 @@
           "key_passes": 0,
           "successful_crosses": 0,
           "successful_dribbles": 0,
-          "tackles_won": 0,
+          "tackles_won": 1,
           "interceptions": 0,
           "clearances": 3,
           "blocks": 0,
@@ -668,7 +668,7 @@
           "keeper_pickups": 0,
           "attacking_actions": 0,
           "attacking_points": 0,
-          "defensive_actions": 4,
+          "defensive_actions": 5,
           "defensive_points": 0,
           "involvement_points": 0
         },
@@ -683,7 +683,7 @@
           "key_passes": 0,
           "successful_crosses": 0,
           "successful_dribbles": 0,
-          "tackles_won": 0,
+          "tackles_won": 1,
           "interceptions": 0,
           "clearances": 0,
           "blocks": 0,
@@ -693,7 +693,7 @@
           "keeper_pickups": 0,
           "attacking_actions": 1,
           "attacking_points": 0,
-          "defensive_actions": 1,
+          "defensive_actions": 2,
           "defensive_points": 0,
           "involvement_points": 0
         },
@@ -798,7 +798,7 @@
           "involvement_points": 0
         }
       ],
-      "event_count": 1749
+      "event_count": 1756
     },
     {
       "match_id": "wpll::Football_Match::6cfd6441fd864fdd935bb6cd3a362d25",
