@@ -11,8 +11,8 @@ OUTPUT
 ------
 - official_wsl_involvement_audit.json
 - official_wsl_involvement_audit.csv
-- raw_wsl_official_player_stats/<player-id>.json
 
+Official WSL player-detail responses are fetched fresh on every audit run.
 This script DOES NOT change production involvement logic. It is diagnostic only.
 """
 
@@ -34,8 +34,6 @@ ROOT = Path(__file__).resolve().parent
 HISTORY_PATH = ROOT / "involvement_history.json"
 OUTPUT_JSON = ROOT / "official_wsl_involvement_audit.json"
 OUTPUT_CSV = ROOT / "official_wsl_involvement_audit.csv"
-RAW_OFFICIAL_DIR = ROOT / "raw_wsl_official_player_stats"
-
 BASE_URL = "https://gaming.wslfootball.com/feeds/popup/stats"
 
 REQUEST_HEADERS = {
@@ -113,15 +111,13 @@ def recursive_find_candidate_stat_lists(payload: Any) -> list[list[dict[str, Any
     return candidates
 
 
-def fetch_official_player(player_id: str, force: bool = False) -> dict[str, Any]:
-    RAW_OFFICIAL_DIR.mkdir(exist_ok=True)
+def fetch_official_player(player_id: str) -> dict[str, Any]:
+    """Fetch the current official WSL Fantasy player-detail JSON.
 
-    safe_name = player_id.replace("::", "__").replace(":", "_")
-    cache_path = RAW_OFFICIAL_DIR / f"{safe_name}.json"
-
-    if cache_path.exists() and not force:
-        return json.loads(cache_path.read_text(encoding="utf-8"))
-
+    Deliberately does not reuse a persisted response. WSL/Opta can revise
+    post-match statistics, so every audit should compare against the latest
+    official values available when the audit runs.
+    """
     encoded_id = quote(player_id, safe=":")
     url = f"{BASE_URL}/player_en_1_{encoded_id}.json"
     params = {
@@ -136,13 +132,7 @@ def fetch_official_player(player_id: str, force: bool = False) -> dict[str, Any]
         timeout=45,
     )
     response.raise_for_status()
-    payload = response.json()
-
-    cache_path.write_text(
-        json.dumps(payload, ensure_ascii=False, indent=2),
-        encoding="utf-8",
-    )
-    return payload
+    return response.json()
 
 
 def normalize_official_rows(payload: dict[str, Any]) -> list[dict[str, Any]]:
@@ -434,6 +424,7 @@ def main() -> None:
         "metadata": {
             "generated_at_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
             "source": "WSL Fantasy official player detail feed vs involvement_history.json",
+            "official_fetch_mode": "fresh_each_run_no_persisted_player_cache",
             "official_endpoint_pattern":
                 "https://gaming.wslfootball.com/feeds/popup/stats/"
                 "player_en_1_<player_id>.json",
