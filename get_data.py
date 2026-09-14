@@ -446,6 +446,29 @@ def fetch_official_player_detail(
     return response.json()
 
 
+def extract_official_selected_percentage(payload: dict[str, Any]) -> float | None:
+    """Read the current selection percentage from the official player-detail feed.
+
+    The master player list can lag/freeze this field, while the player-detail
+    endpoint continues to update it. Only use the top-level Data.Value value;
+    nested recentForm/upcomingFixtures values are historical/contextual.
+    """
+    value = payload.get("Data", {}).get("Value", {})
+    if not isinstance(value, dict):
+        return None
+
+    raw = value.get("selectedPercentage")
+    if raw is None or raw == "":
+        return None
+
+    try:
+        number = float(raw)
+    except (TypeError, ValueError):
+        return None
+
+    return number
+
+
 def extract_official_matchday_stats(payload: dict[str, Any]) -> list[dict[str, Any]]:
     """Return the richest matchdayStats list found in a player-detail payload."""
     candidate_lists: list[list[dict[str, Any]]] = []
@@ -526,7 +549,11 @@ def normalize_official_match_stat(row: dict[str, Any]) -> dict[str, Any]:
 def fetch_all_official_player_match_stats(
     players_raw: list[dict[str, Any]],
     from_local: bool = False,
-) -> tuple[dict[str, list[dict[str, Any]]], dict[str, Any]]:
+) -> tuple[
+    dict[str, list[dict[str, Any]]],
+    dict[str, float],
+    dict[str, Any],
+]:
     """Fetch official per-match fantasy stats for every player with a player ID."""
     player_ids = [
         str(player.get("playerId"))
@@ -535,21 +562,25 @@ def fetch_all_official_player_match_stats(
     ]
 
     stats_by_player: dict[str, list[dict[str, Any]]] = {}
+    selected_by_player: dict[str, float] = {}
     failures: list[dict[str, str]] = []
 
-    def one(player_id: str) -> tuple[str, list[dict[str, Any]]]:
+    def one(player_id: str) -> tuple[str, list[dict[str, Any]], float | None]:
         payload = fetch_official_player_detail(player_id, from_local=from_local)
         rows = [
             normalize_official_match_stat(row)
             for row in extract_official_matchday_stats(payload)
         ]
-        return player_id, rows
+        selected = extract_official_selected_percentage(payload)
+        return player_id, rows, selected
 
     if from_local:
         for player_id in player_ids:
             try:
-                pid, rows = one(player_id)
+                pid, rows, selected = one(player_id)
                 stats_by_player[pid] = rows
+                if selected is not None:
+                    selected_by_player[pid] = selected
             except Exception as exc:
                 failures.append({"player_id": player_id, "error": str(exc)})
     else:
@@ -561,8 +592,10 @@ def fetch_all_official_player_match_stats(
             for future in as_completed(futures):
                 player_id = futures[future]
                 try:
-                    pid, rows = future.result()
+                    pid, rows, selected = future.result()
                     stats_by_player[pid] = rows
+                    if selected is not None:
+                        selected_by_player[pid] = selected
                 except Exception as exc:
                     failures.append({"player_id": player_id, "error": str(exc)})
 
@@ -579,11 +612,12 @@ def fetch_all_official_player_match_stats(
         "players_returned": len(stats_by_player),
         "players_with_matchday_stats": players_with_stats,
         "player_match_rows": match_rows,
+        "players_with_fresh_selected_percentage": len(selected_by_player),
         "failure_count": len(failures),
         "failures": failures[:25],
         "workers": 1 if from_local else OFFICIAL_PLAYER_DETAIL_WORKERS,
     }
-    return stats_by_player, metadata
+    return stats_by_player, selected_by_player, metadata
 
 
 def aggregate_official_match_stats(
@@ -3633,12 +3667,20 @@ def transform_player(
     market_lookup: dict[str, dict[str, Any]] | None = None,
     player_involvement_profiles: dict[str, dict[str, Any]] | None = None,
     official_match_stats_by_player: dict[str, list[dict[str, Any]]] | None = None,
+    official_selected_by_player: dict[str, float] | None = None,
 ) -> dict[str, Any]:
     name = f"{raw.get('mediaFirstName', '').strip()} {raw.get('mediaLastName', '').strip()}".strip()
     short_name = raw.get("mediaShortName") or name
     position = POSITION_MAP.get(str(raw.get("skillName") or "").lower(), str(raw.get("skillName") or "").upper())
     value = safe_float(raw.get("valuation"))
+    player_id = str(raw.get("playerId") or "")
     selected = safe_float(raw.get("selectedPercentage"))
+
+    # The detail endpoint has proven fresher for ownership than the master
+    # player list. Prefer it whenever available so S% and ΔS% actually move.
+    fresh_selected = (official_selected_by_player or {}).get(player_id)
+    if fresh_selected is not None:
+        selected = safe_float(fresh_selected)
     total_points = safe_float(raw.get("totalPoints"))
     prior_points = safe_float(raw.get("pointsLastSeason"))
     avg_points = raw.get("averagePoints")
@@ -4016,11 +4058,13 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
     players_raw = value_of(feeds["players"]) or []
     fixtures_raw = value_of(feeds["fixtures"]) or []
 
-    official_match_stats_by_player, official_match_stats_metadata = (
-        fetch_all_official_player_match_stats(
-            players_raw,
-            from_local=from_local,
-        )
+    (
+        official_match_stats_by_player,
+        official_selected_by_player,
+        official_match_stats_metadata,
+    ) = fetch_all_official_player_match_stats(
+        players_raw,
+        from_local=from_local,
     )
     teams_value = value_of(feeds["teams"]) or {}
     teams_raw = teams_value.get("teams", []) if isinstance(teams_value, dict) else []
@@ -4055,6 +4099,7 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
             market_lookup,
             player_involvement_profiles,
             official_match_stats_by_player,
+            official_selected_by_player,
         )
         for p in players_raw
     ]
@@ -4296,7 +4341,7 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
         "hot_pick_model": hot_pick_metadata,
         "ownership_delta_model": {
             "default_mode": "last_7_days",
-            "source": "player_history.json daily Selected Percentage snapshots",
+            "source": "player_history.json daily Selected Percentage snapshots; current S% from official player-detail feed when available",
             "early_season_fallback": "oldest prior snapshot when fewer than 7 days exist",
             "note": "Per-player baseline date/value are emitted so a displayed 0.0 can be verified as a real zero versus insufficient history.",
         },
