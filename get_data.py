@@ -2097,25 +2097,64 @@ def build_player_feed_audit(players_raw: list[dict[str, Any]]) -> dict[str, Any]
     }
 
 
-def selected_delta(history: dict[str, Any], name: str, current: float, days_back: int = 7) -> float:
-    snapshots = history.get(name, {})
-    if not snapshots:
-        return 0.0
-    dates = sorted(snapshots)
-    if len(dates) < 2:
-        return 0.0
-    # Prefer a snapshot at least N days old; otherwise use oldest available.
+def selected_delta_details(
+    history: dict[str, Any],
+    name: str,
+    current: float,
+    days_back: int = 7,
+) -> dict[str, Any]:
+    """Return ownership change and the exact historical baseline used."""
+    snapshots = history.get(name, {}) or {}
     current_date = datetime.now(timezone.utc).date()
-    baseline_date = dates[0]
-    for d in dates:
+
+    candidates: list[tuple[str, int]] = []
+    for date_str, row in snapshots.items():
+        if not isinstance(row, dict) or "Selected Percentage" not in row:
+            continue
         try:
-            age = (current_date - datetime.fromisoformat(d).date()).days
+            snap_date = datetime.fromisoformat(date_str).date()
         except ValueError:
             continue
-        if age >= days_back:
-            baseline_date = d
-    baseline = safe_float(snapshots.get(baseline_date, {}).get("Selected Percentage"))
-    return round(current - baseline, 2)
+        if snap_date <= current_date:
+            candidates.append((date_str, (current_date - snap_date).days))
+
+    candidates.sort(key=lambda item: item[0])
+    prior = [item for item in candidates if item[1] > 0]
+
+    if not prior:
+        return {
+            "delta": 0.0,
+            "baseline_date": None,
+            "baseline_selected": None,
+            "history_days": 0,
+            "mode": "insufficient_history",
+        }
+
+    old_enough = [item for item in prior if item[1] >= days_back]
+    if old_enough:
+        baseline_date, age = old_enough[-1]
+        mode = f"{days_back}_day"
+    else:
+        baseline_date, age = prior[0]
+        mode = "oldest_available"
+
+    baseline = safe_float(
+        (snapshots.get(baseline_date) or {}).get("Selected Percentage")
+    )
+
+    return {
+        "delta": round(current - baseline, 2),
+        "baseline_date": baseline_date,
+        "baseline_selected": baseline,
+        "history_days": age,
+        "mode": mode,
+    }
+
+
+def selected_delta(history: dict[str, Any], name: str, current: float, days_back: int = 7) -> float:
+    return safe_float(
+        selected_delta_details(history, name, current, days_back).get("delta")
+    )
 
 
 def detect_last_global_price_change_date(history: dict[str, Any]) -> str | None:
@@ -4010,7 +4049,17 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
 
     for player in players:
         selected = safe_float(player.get("Selected Percentage"))
-        player["Selected Percentage Change 1W"] = selected_delta(history, player["Name"], selected, days_back=7)
+        delta_info = selected_delta_details(
+            history,
+            player["Name"],
+            selected,
+            days_back=7,
+        )
+        player["Selected Percentage Change 1W"] = safe_float(delta_info.get("delta"))
+        player["Selected Percentage Change 1W Baseline Date"] = delta_info.get("baseline_date")
+        player["Selected Percentage Change 1W Baseline"] = delta_info.get("baseline_selected")
+        player["Selected Percentage Change 1W History Days"] = safe_int(delta_info.get("history_days"))
+        player["Selected Percentage Change 1W Mode"] = delta_info.get("mode")
         player["Selected Percentage Change Since Last Global Price Change"] = selected_delta_since(
             history, player["Name"], selected, last_price_change
         )
@@ -4225,6 +4274,12 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
             ),
         },
         "hot_pick_model": hot_pick_metadata,
+        "ownership_delta_model": {
+            "default_mode": "last_7_days",
+            "source": "player_history.json daily Selected Percentage snapshots",
+            "early_season_fallback": "oldest prior snapshot when fewer than 7 days exist",
+            "note": "Per-player baseline date/value are emitted so a displayed 0.0 can be verified as a real zero versus insufficient history.",
+        },
         "weekly_points_model": {
             "version": "official-matchdayStats-v2-with-history-fallback",
             "source": "official player-detail matchdayStats; cumulative totalPoints history fallback",
