@@ -3551,11 +3551,20 @@
                         return false;
                     }
 
-                    // Hide stale bench/injured players: require an appearance in at least
-                    // one of the two most recent gameweeks represented in the dataset.
+                    // Played in Last 2 GWs:
+                    // require an ACTUAL appearance in at least one of the two most
+                    // recent populated fantasy gameweeks.
+                    //
+                    // Official matchdayStats now creates a GW object even for players
+                    // who did not play, so the old test ("does this GW have a points
+                    // object?") incorrectly treated non-appearances as appearances.
                     if ($('#recently-active-filter').is(':checked')) {
                         const recentGwKeys = Object.keys(rowData)
                             .filter(key => /^\d+$/.test(key))
+                            .filter(key => {
+                                const value = rowData[key];
+                                return value && typeof value === 'object';
+                            })
                             .map(Number)
                             .sort((a, b) => b - a)
                             .slice(0, 2)
@@ -3563,11 +3572,23 @@
 
                         const playedRecently = recentGwKeys.some(gwKey => {
                             const gwValue = rowData[gwKey];
-                            return (
-                                gwValue &&
-                                typeof gwValue === 'object' &&
-                                Object.prototype.hasOwnProperty.call(gwValue, 'points')
-                            );
+                            if (!gwValue || typeof gwValue !== 'object') return false;
+
+                            // New official-matchdayStats format: appearances is the
+                            // authoritative signal, including 0-point appearances.
+                            if (Object.prototype.hasOwnProperty.call(gwValue, 'appearances')) {
+                                return Number(gwValue.appearances || 0) > 0;
+                            }
+
+                            // Legacy fallback for older generated data: if no explicit
+                            // appearance count exists, a nonzero points value is the
+                            // safest available proxy. (The next refresh should use the
+                            // official appearances field.)
+                            if (Object.prototype.hasOwnProperty.call(gwValue, 'points')) {
+                                return Number(gwValue.points || 0) !== 0;
+                            }
+
+                            return false;
                         });
 
                         if (!playedRecently) {
