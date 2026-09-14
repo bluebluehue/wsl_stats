@@ -601,6 +601,7 @@ def aggregate_official_match_stats(
 
     return {
         "games_played": len(appearances),
+        "total_points": total("total_points"),
         "minutes": total("minutes"),
         "goals": total("goals"),
         "assists": total("assists"),
@@ -1946,11 +1947,25 @@ def populate_weekly_points_from_official_stats(
                 or fixture.get("fixture_date_iso")
                 or None
             )
-            enriched["fixture_opponent"] = (
-                fixture.get("away_id")
-                if str(fixture.get("home_team_id") or "") == str(enriched.get("home_team_id") or "")
-                else fixture.get("home_id")
-            )
+
+            player_club = str(player.get("Club") or "").upper()
+            home_code = str(fixture.get("home_id") or "").upper()
+            away_code = str(fixture.get("away_id") or "").upper()
+
+            if player_club and player_club == home_code:
+                enriched["fixture_opponent"] = fixture.get("away_id")
+                enriched["fixture_location"] = "H"
+            elif player_club and player_club == away_code:
+                enriched["fixture_opponent"] = fixture.get("home_id")
+                enriched["fixture_location"] = "A"
+            else:
+                enriched["fixture_opponent"] = (
+                    fixture.get("away_id")
+                    if str(enriched.get("home_team_id") or "") == str(fixture.get("home_team_id") or "")
+                    else fixture.get("home_id")
+                )
+                enriched["fixture_location"] = None
+
             enriched_stats.append(enriched)
 
             if not gw:
@@ -3667,6 +3682,11 @@ def transform_player(
         (official_match_stats_by_player or {}).get(str(raw.get("playerId") or ""), [])
     )
     official_aggregate = aggregate_official_match_stats(official_match_stats)
+
+    # The master player feed can lag match settlement.  When official per-match
+    # stats exist, their summed fantasy points are the authoritative season total.
+    if official_match_stats:
+        total_points = float(official_aggregate["total_points"])
     next_fixture = upcoming[0] if upcoming else None
     following_fixture = upcoming[1] if len(upcoming) > 1 else None
     next_rating = safe_float(next_fixture.get("opportunity_rating"), 0.0) if next_fixture else 0.0
@@ -4268,7 +4288,7 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
             **official_weekly_metadata,
             "note": (
                 "Fresh official player-detail matchdayStats populate completed-match "
-                "fantasy scoring, season action totals, bonus rank/points, minutes, "
+                "fantasy scoring, season total points, season action totals, bonus rank/points, minutes, "
                 "and numbered Fantasy GW columns. Responses are not persisted as a "
                 "production cache because official values can be revised post-match."
             ),
