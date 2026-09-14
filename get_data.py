@@ -1912,6 +1912,11 @@ def populate_weekly_points_from_official_stats(
         for fixture in fixtures
         if fixture.get("match_id") and fixture.get("fantasy_game_week")
     }
+    fixture_by_match_id = {
+        str(fixture.get("match_id") or ""): fixture
+        for fixture in fixtures
+        if fixture.get("match_id")
+    }
 
     player_by_id = {
         str(player.get("Player ID") or ""): player
@@ -1935,6 +1940,17 @@ def populate_weekly_points_from_official_stats(
             gw = fixture_to_gw.get(match_id, "")
             enriched = dict(stat)
             enriched["fantasy_game_week"] = gw or None
+            fixture = fixture_by_match_id.get(match_id, {})
+            enriched["fixture_date_utc"] = (
+                fixture.get("match_date_time_utc")
+                or fixture.get("fixture_date_iso")
+                or None
+            )
+            enriched["fixture_opponent"] = (
+                fixture.get("away_id")
+                if str(fixture.get("home_team_id") or "") == str(enriched.get("home_team_id") or "")
+                else fixture.get("home_id")
+            )
             enriched_stats.append(enriched)
 
             if not gw:
@@ -3858,6 +3874,80 @@ def count_completed_team_matches(players_raw: list[dict[str, Any]]) -> dict[str,
     }
 
 
+def apply_hot_pick_consistency(players: list[dict[str, Any]]) -> dict[str, Any]:
+    """Flag players who are reliably returning fantasy points.
+
+    Hot Pick is deliberately independent of ownership and Decision Rating.
+
+    Adaptive early-season rule, using ACTUAL appearances rather than GWs:
+      - fewer than 2 appearances: not enough evidence
+      - exactly 2 appearances: 4+ points in both
+      - exactly 3 appearances: 4+ points in at least 2
+      - 4+ appearances: 4+ points in at least 3 of the last 4 appearances
+
+    Using appearances rather than gameweeks prevents DGWs from distorting the
+    sample and still counts a genuine 0-point appearance as an appearance.
+    """
+    hot_count = 0
+
+    for player in players:
+        stats = [
+            row for row in (player.get("Official Match Stats") or [])
+            if isinstance(row, dict) and safe_int(row.get("minutes")) > 0
+        ]
+
+        def sort_key(row: dict[str, Any]) -> tuple:
+            date_text = str(row.get("fixture_date_utc") or "")
+            gw = safe_int(row.get("fantasy_game_week"))
+            return (date_text, gw, str(row.get("match_id") or ""))
+
+        stats.sort(key=sort_key)
+        sample = stats[-4:]
+        sample_points = [safe_int(row.get("total_points")) for row in sample]
+        sample_size = len(sample_points)
+        returns_4_plus = sum(1 for points in sample_points if points >= 4)
+
+        if sample_size < 2:
+            required = None
+            is_hot = False
+            rule_text = "Need at least 2 actual appearances"
+        elif sample_size == 2:
+            required = 2
+            is_hot = returns_4_plus >= required
+            rule_text = "4+ points in both of last 2 appearances"
+        elif sample_size == 3:
+            required = 2
+            is_hot = returns_4_plus >= required
+            rule_text = "4+ points in at least 2 of last 3 appearances"
+        else:
+            required = 3
+            is_hot = returns_4_plus >= required
+            rule_text = "4+ points in at least 3 of last 4 appearances"
+
+        player["Hot Pick"] = bool(is_hot)
+        player["Hot Pick Sample Size"] = sample_size
+        player["Hot Pick 4+ Returns"] = returns_4_plus
+        player["Hot Pick Required Returns"] = required
+        player["Hot Pick Recent Points"] = sample_points
+        player["Hot Pick Rule"] = rule_text
+
+        if is_hot:
+            hot_count += 1
+
+    return {
+        "definition": "reliable_recent_returns",
+        "points_threshold": 4,
+        "uses_actual_appearances_not_gameweeks": True,
+        "adaptive_rule": {
+            "0_or_1_appearances": "not eligible",
+            "2_appearances": "4+ points in 2/2",
+            "3_appearances": "4+ points in at least 2/3",
+            "4_plus_appearances": "4+ points in at least 3 of last 4",
+        },
+        "hot_pick_count": hot_count,
+    }
+
+
 def build_outputs(from_local: bool = False) -> dict[str, Any]:
     feeds = {
         key: fetch_json(path, cache_name=f"{key}.json", from_local=from_local)
@@ -3910,12 +4000,10 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
         for p in players_raw
     ]
 
-    # v16: normalize the three outfield Decision components across each league
-    # before combining them. Then recompute Hot Pick from the finalized score.
+    # v16: normalize the three outfield Decision components across each league.
+    # Hot Pick is intentionally calculated later from official recent match
+    # returns, independent of Decision Rating and ownership.
     apply_decision_normalization(players)
-    for player in players:
-        selected = safe_float(player.get("Selected Percentage"))
-        player["Hot Pick"] = bool(player["Decision Rating"] >= 75 and selected < 25)
 
     history = update_history(players)
     last_price_change = detect_last_global_price_change_date(history)
@@ -3940,6 +4028,7 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
         fixtures,
         fantasy_gameweeks,
     )
+    hot_pick_metadata = apply_hot_pick_consistency(players)
 
     # Attach current market clean-sheet probabilities to the full fixture schedule.
     for fixture in fixtures:
@@ -4135,6 +4224,7 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
                 "production cache because official values can be revised post-match."
             ),
         },
+        "hot_pick_model": hot_pick_metadata,
         "weekly_points_model": {
             "version": "official-matchdayStats-v2-with-history-fallback",
             "source": "official player-detail matchdayStats; cumulative totalPoints history fallback",
