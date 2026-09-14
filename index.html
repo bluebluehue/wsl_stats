@@ -1615,6 +1615,181 @@
             }
         }
 
+    
+        /* ================================================================ */
+        /* PLAYER TABLE REFINEMENT — closer to the involvement page         */
+        /* ================================================================ */
+
+        body {
+            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+            background: #f7f8fb !important;
+            color: #1f2937 !important;
+        }
+
+        .stats-topbar {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: flex-start !important;
+            flex-wrap: nowrap !important;
+            gap: 0.55rem !important;
+            margin-bottom: 0.45rem !important;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        .stats-topbar::-webkit-scrollbar { display: none; }
+
+        .stats-title {
+            flex: 0 0 auto;
+            margin: 0 !important;
+            font-size: 1.42rem !important;
+            line-height: 1.05 !important;
+            font-weight: 700 !important;
+            letter-spacing: -0.02em !important;
+            color: #111827 !important;
+            white-space: nowrap;
+        }
+
+        #view-tabs {
+            display: flex !important;
+            flex: 0 0 auto;
+            flex-wrap: nowrap !important;
+            gap: 0.3rem !important;
+            margin: 0 !important;
+        }
+
+        #view-tabs .view-tab {
+            padding: 0.39rem 0.58rem !important;
+            border-radius: 0.48rem !important;
+            font-size: 0.74rem !important;
+            line-height: 1.05 !important;
+            font-weight: 600 !important;
+            white-space: nowrap;
+            box-shadow: none !important;
+        }
+
+        #table-view .table-controls-shell {
+            padding: 0.55rem 0.7rem !important;
+            margin-bottom: 0.5rem !important;
+            row-gap: 0.15rem !important;
+            border-radius: 0.72rem !important;
+            box-shadow: 0 1px 2px rgba(15,23,42,.04) !important;
+        }
+
+        #table-view .table-action-buttons button {
+            padding: 0.38rem 0.58rem !important;
+            font-size: 0.74rem !important;
+            font-weight: 600 !important;
+        }
+
+        #table-view .filter-row { gap: 0.38rem !important; }
+        #table-view .filter-toggle-row {
+            gap: 0.5rem !important;
+            min-height: 1.4rem !important;
+        }
+
+        #table-view .filter-row label,
+        #table-view .filter-toggle-row label,
+        #table-view #delta-reference-note {
+            font-size: 0.71rem !important;
+            font-weight: 500 !important;
+            color: #4b5563 !important;
+        }
+
+        #table-view .filter-row select,
+        #table-view .filter-row input[type="number"] {
+            min-height: 1.95rem !important;
+            padding: 0.3rem 0.42rem !important;
+            font-size: 0.74rem !important;
+            background: #fff !important;
+        }
+
+        #table-view .table-scroll-container {
+            border-radius: 0.72rem !important;
+            box-shadow: 0 1px 2px rgba(15,23,42,.04) !important;
+        }
+
+        #table-view .dataTables_wrapper {
+            padding-top: 0.3rem !important;
+        }
+
+        #table-view .dataTables_wrapper .dataTables_length,
+        #table-view .dataTables_wrapper .dataTables_filter {
+            margin-bottom: 0.35rem !important;
+            font-size: 0.73rem !important;
+            font-weight: 400 !important;
+        }
+
+        #table-view .dataTables_wrapper .dataTables_length select,
+        #table-view .dataTables_wrapper .dataTables_filter input {
+            padding: 0.28rem 0.42rem !important;
+            font-size: 0.74rem !important;
+        }
+
+        #table-view table.dataTable {
+            font-size: 0.75rem !important;
+        }
+
+        #table-view table.dataTable thead th {
+            font-size: 0.64rem !important;
+            font-weight: 650 !important;
+            letter-spacing: 0.025em !important;
+            padding-top: 0.45rem !important;
+            padding-bottom: 0.45rem !important;
+            color: #475569 !important;
+        }
+
+        #table-view table.dataTable tbody td {
+            font-weight: 400 !important;
+            padding-top: 0.38rem !important;
+            padding-bottom: 0.38rem !important;
+        }
+
+        #table-view table.dataTable tbody td:first-child {
+            font-weight: 600 !important;
+        }
+
+        #table-view table.dataTable tbody .font-bold { font-weight: 600 !important; }
+        #table-view table.dataTable tbody .font-semibold { font-weight: 550 !important; }
+
+        /* Subtle column buckets */
+        #table-view table.dataTable thead th.bucket-decision { background: #f6f4ff !important; }
+        #table-view table.dataTable thead th.bucket-profile { background: #f8fafc !important; }
+        #table-view table.dataTable thead th.bucket-production { background: #f4f8ff !important; }
+        #table-view table.dataTable thead th.bucket-scoring { background: #faf7ff !important; }
+
+        #table-view table.dataTable th.bucket-start,
+        #table-view table.dataTable td.bucket-start {
+            border-left: 2px solid #d8dde7 !important;
+        }
+
+        #table-view table.dataTable tbody td.bucket-scoring {
+            background-color: rgba(247,245,255,.28);
+        }
+        #table-view table.dataTable tbody tr:hover td.bucket-scoring {
+            background-color: #f7f5ff !important;
+        }
+
+        #table-view .dataTables_info,
+        #table-view .dataTables_paginate {
+            font-size: 0.72rem !important;
+        }
+
+        #player-details-modal h2,
+        #player-details-modal h3,
+        #player-details-modal h4 {
+            font-weight: 650 !important;
+        }
+        #player-details-modal .font-extrabold { font-weight: 650 !important; }
+        #player-details-modal .font-bold { font-weight: 600 !important; }
+
+        @media (max-width: 900px) {
+            .stats-title { font-size: 1.25rem !important; }
+            #view-tabs .view-tab {
+                font-size: 0.7rem !important;
+                padding: 0.36rem 0.5rem !important;
+            }
+        }
+
     </style>
 
 </head>
@@ -2479,14 +2654,23 @@
             };
 
             // Custom sort for Bonus Average (BA).
-            // Lower ranks are better, and blank values should always be treated
-            // as "worse than any real rank".
-            $.fn.dataTable.ext.type.order['bonus-rank-null-last-pre'] = function(a) {
-                if (a === null || a === undefined || a === '' || a === '—') {
-                    return Number.POSITIVE_INFINITY;
-                }
-                const n = Number(a);
-                return Number.isFinite(n) ? n : Number.POSITIVE_INFINITY;
+            // Lower ranks are better. Missing values always sort last.
+            $.fn.dataTable.ext.type.order['bonus-rank-null-last-asc'] = function(a, b) {
+                const aBlank = a === null || a === undefined || a === '' || a === '—';
+                const bBlank = b === null || b === undefined || b === '' || b === '—';
+                if (aBlank && bBlank) return 0;
+                if (aBlank) return 1;
+                if (bBlank) return -1;
+                return Number(a) - Number(b);
+            };
+
+            $.fn.dataTable.ext.type.order['bonus-rank-null-last-desc'] = function(a, b) {
+                const aBlank = a === null || a === undefined || a === '' || a === '—';
+                const bBlank = b === null || b === undefined || b === '' || b === '—';
+                if (aBlank && bBlank) return 0;
+                if (aBlank) return 1;
+                if (bBlank) return -1;
+                return Number(b) - Number(a);
             };
 
             const RECENT_GAMES_COUNT = 4;
@@ -3644,7 +3828,7 @@
 
                 "Average Bonus Rank": {
                     abbr: `BA`,
-                    full: 'Average bonus rank across matches played. Lower is better. Players without a bonus-rank sample sort to the bottom.',
+                    full: 'Average bonus rank across matches played. Lower is better. Players without a bonus-rank sample always sort to the bottom.',
                     type: 'bonus-rank-null-last',
                     orderSequence: ['asc', 'desc'],
                     render: function(data, type) {
@@ -3990,16 +4174,31 @@
                 STATIC_KEYS_ORDERED.forEach(key => {
                     const config = STATIC_COLUMN_MAP[key];
 
+                    const bucketClass =
+                        ["Decision Rating","Next Fixture Score","Following Fixture Score","Form Rating","Player Involvement Rating"].includes(key)
+                            ? 'bucket-decision'
+                            : ["Position","Value","Selected Percentage","Ownership Delta"].includes(key)
+                                ? 'bucket-profile'
+                                : ["Total Points","Total Games Played","Points Per Game","Total Over 4 Gameweeks","Games Played Over 4 Gameweeks","Points Per Game Over 4 Gameweeks"].includes(key)
+                                    ? 'bucket-production'
+                                    : ["Total Goals + Assists","Total Clean Sheet","Total Attacking Involvement Points","Total Defensive Involvement Points","Total Bonus Points","Average Bonus Rank","Total Bonus Games","Total 60 min Appearances"].includes(key)
+                                        ? 'bucket-scoring'
+                                        : 'bucket-identity';
+                    const bucketStart = ["Decision Rating","Position","Total Points","Total Goals + Assists"].includes(key)
+                        ? 'bucket-start'
+                        : '';
+
                     columns.push({
                         data: config.data !== undefined ? config.data : key,
                         title: createHeader(config.abbr, config.full),
-                        className: config.className || 'dt-center',
-                        type: config.type === 'num' ? 'num-fmt' : 'string',
+                        className: `${config.className || 'dt-center'} ${bucketClass} ${bucketStart}`.trim(),
+                        type: config.type === 'num' ? 'num-fmt' : (config.type || 'string'),
+                        orderSequence: config.orderSequence || ['desc', 'asc'],
                         render: config.render
                     });
 
                     const headerClass = key === "Name" ? 'player-name-header' : '';
-                    headerRow += `<th class="dt-head-center ${headerClass}">${createHeader(config.abbr, config.full)}</th>`;
+                    headerRow += `<th class="dt-head-center ${headerClass} ${bucketClass} ${bucketStart}">${createHeader(config.abbr, config.full)}</th>`;
                 });
 
                 const firstPlayer = data[0];
@@ -4025,6 +4224,7 @@
                         title: createHeader(gwKey, `GW${gwKey}`),
                         className: 'gw-col dt-center',
                         type: 'num-fmt',
+                        orderSequence: ['desc', 'asc'],
                         render: function (data, type, row) {
                             if (typeof data === 'object' && data !== null && data.hasOwnProperty('points')) {
                                 const points = data.points === null || data.points === undefined ? '-' : data.points;
@@ -4076,10 +4276,6 @@
                         ['10', '15', '25', '50', '100', 'All']
                     ],
                     pageLength: 15,
-
-                    columnDefs: [
-                        { orderSequence: ['desc', 'asc'], targets: '_all' }
-                    ],
 
                     language: {
                         search: "Search:",
