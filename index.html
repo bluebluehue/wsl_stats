@@ -2268,6 +2268,119 @@
             margin-top: 0.45rem !important;
         }
 
+    
+        /* ================================================================ */
+        /* V11 — 30PX ROWS + CLEANER INVOLVEMENT-STYLE TABLE               */
+        /* ================================================================ */
+
+        #table-view table.dataTable tbody tr {
+            height: 30px !important;
+        }
+
+        #table-view table.dataTable tbody td {
+            height: 30px !important;
+            padding: 3px 6px !important;
+            font-size: 12px !important;
+            line-height: 1.1 !important;
+        }
+
+        #table-view table.dataTable tbody td:first-child {
+            font-size: 12.5px !important;
+        }
+
+        /* Slightly airier header, but still compact. */
+        #table-view table.dataTable thead th {
+            padding: 5px 6px !important;
+            font-size: 10.75px !important;
+            background: #f8fafc !important;
+            border-bottom: 1px solid #e5e7eb !important;
+        }
+
+        /* Calm the bucket treatment to feel more like the involvement page:
+           subtle tint, less visual segmentation. */
+        #table-view table.dataTable thead th.bucket-decision,
+        #table-view table.dataTable thead th.bucket-profile,
+        #table-view table.dataTable thead th.bucket-production,
+        #table-view table.dataTable thead th.bucket-scoring {
+            background: #f8fafc !important;
+        }
+
+        #table-view table.dataTable th.bucket-start,
+        #table-view table.dataTable td.bucket-start {
+            border-left: 1px solid #dfe3ea !important;
+        }
+
+        #table-view table.dataTable tbody td.bucket-scoring {
+            background-color: transparent !important;
+        }
+
+        #table-view table.dataTable tbody tr:hover td,
+        #table-view table.dataTable tbody tr:hover td.bucket-scoring {
+            background-color: #f8fafc !important;
+        }
+
+        /* Cleaner card edge and less legacy-heavy chrome. */
+        #table-view .table-scroll-container {
+            border: 1px solid #e5e7eb !important;
+            border-radius: 0.75rem !important;
+            box-shadow: 0 1px 2px rgba(15,23,42,.035) !important;
+            background: #fff !important;
+        }
+
+        #table-view table.dataTable {
+            border-top: 0 !important;
+            border-bottom: 0 !important;
+        }
+
+        #table-view table.dataTable tbody td {
+            border-bottom: 1px solid #eef1f5 !important;
+        }
+
+        /* Reduce visual weight of controls to match involvement tab. */
+        #table-view .table-controls-shell {
+            border-color: #e5e7eb !important;
+            box-shadow: 0 1px 2px rgba(15,23,42,.035) !important;
+        }
+
+        #table-view .table-action-buttons button:not(#show-key-button) {
+            background: #fff !important;
+            color: #374151 !important;
+            border-color: #d9dee7 !important;
+            box-shadow: none !important;
+        }
+
+        #table-view .filter-row select,
+        #table-view .filter-row input[type="number"],
+        #table-view .dataTables_wrapper .dataTables_length select,
+        #table-view .dataTables_wrapper .dataTables_filter input {
+            border-color: #d9dee7 !important;
+            box-shadow: none !important;
+        }
+
+        /* Give section transitions a little breathing room without growing the page much. */
+        #table-view .dataTables_info,
+        #table-view .dataTables_paginate {
+            padding-top: 0.4rem !important;
+        }
+
+        /* Keep highlighted rows soft and modern. */
+        #table-view table.dataTable tbody tr.my-team-row td {
+            background-color: #edf5ff !important;
+        }
+
+        #table-view table.dataTable tbody tr.watchlist-row td {
+            background-color: #fffbe8 !important;
+        }
+
+        /* Neutralize some inherited boldness. */
+        #table-view table.dataTable tbody .font-bold {
+            font-weight: 600 !important;
+        }
+
+        #table-view table.dataTable tbody .font-semibold {
+            font-weight: 550 !important;
+        }
+
     </style>
 
 </head>
