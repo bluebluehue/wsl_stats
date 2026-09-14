@@ -1372,6 +1372,249 @@
             }
         }
 
+    
+        /* ================================================================ */
+        /* PLAYER TABLE — MODERN VISUAL ALIGNMENT WITH INVOLVEMENT VIEW     */
+        /* ================================================================ */
+
+        body {
+            background: #f6f7fb;
+            color: #111827;
+        }
+
+        body > .max-w-full {
+            padding-left: 1.25rem !important;
+            padding-right: 1.25rem !important;
+            padding-top: 1rem !important;
+        }
+
+        .stats-topbar {
+            justify-content: flex-start !important;
+            gap: 0.85rem !important;
+            margin-bottom: 0.8rem !important;
+        }
+
+        .stats-title {
+            color: #111827 !important;
+            font-size: 1.65rem !important;
+            font-weight: 800 !important;
+            letter-spacing: -0.025em;
+        }
+
+        #view-tabs {
+            gap: 0.45rem !important;
+        }
+
+        #view-tabs .view-tab {
+            border: 1px solid #dfe3ea !important;
+            border-radius: 0.6rem !important;
+            background: #ffffff !important;
+            color: #374151 !important;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04) !important;
+            font-weight: 700 !important;
+            transition: background .15s ease, border-color .15s ease, color .15s ease;
+        }
+
+        #view-tabs .view-tab:hover {
+            background: #f8fafc !important;
+            border-color: #cbd5e1 !important;
+        }
+
+        #view-tabs .view-tab.active {
+            background: #6d3df5 !important;
+            border-color: #6d3df5 !important;
+            color: #ffffff !important;
+            box-shadow: 0 3px 10px rgba(109, 61, 245, 0.18) !important;
+        }
+
+        #table-view .table-controls-shell {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.8rem;
+            padding: 0.8rem 0.9rem;
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+            margin-bottom: 0.75rem !important;
+        }
+
+        #table-view .table-action-buttons button {
+            border-radius: 0.55rem !important;
+            box-shadow: none !important;
+            font-weight: 650 !important;
+        }
+
+        #table-view #show-key-button {
+            background: #6d3df5 !important;
+            border-color: #6d3df5 !important;
+        }
+
+        #table-view .filter-row select,
+        #table-view .filter-row input[type="number"] {
+            border-radius: 0.55rem !important;
+            border-color: #d7dce4 !important;
+            background: #f9fafb !important;
+            box-shadow: none !important;
+        }
+
+        #table-view .filter-row select:focus,
+        #table-view .filter-row input[type="number"]:focus {
+            border-color: #8b5cf6 !important;
+            box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.12) !important;
+        }
+
+        #table-view .filter-toggle-row {
+            color: #4b5563;
+        }
+
+        #table-view .filter-toggle-row input[type="checkbox"] {
+            accent-color: #6d3df5;
+        }
+
+        #table-view .table-scroll-container {
+            background: #ffffff !important;
+            border: 1px solid #e5e7eb !important;
+            border-radius: 0.8rem !important;
+            padding: 0 !important;
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05) !important;
+            overflow-x: auto !important;
+        }
+
+        #table-view .dataTables_wrapper {
+            padding: 0.55rem 0.3rem 0.35rem;
+        }
+
+        #table-view .dataTables_wrapper .dataTables_length,
+        #table-view .dataTables_wrapper .dataTables_filter {
+            margin: 0.15rem 0.35rem 0.55rem !important;
+            color: #4b5563;
+            font-size: 0.8rem;
+        }
+
+        #table-view .dataTables_wrapper .dataTables_length select,
+        #table-view .dataTables_wrapper .dataTables_filter input {
+            border: 1px solid #d7dce4 !important;
+            border-radius: 0.5rem !important;
+            background: #ffffff !important;
+            padding: 0.38rem 0.5rem !important;
+            box-shadow: none !important;
+        }
+
+        #table-view table.dataTable {
+            border-collapse: separate !important;
+            border-spacing: 0 !important;
+            border-top: 1px solid #e5e7eb !important;
+            border-bottom: 1px solid #e5e7eb !important;
+        }
+
+        #table-view table.dataTable thead th {
+            background: #f8fafc !important;
+            color: #475569 !important;
+            font-size: 0.69rem !important;
+            font-weight: 800 !important;
+            text-transform: uppercase;
+            letter-spacing: 0.035em;
+            border-bottom: 1px solid #dfe3ea !important;
+            white-space: nowrap;
+        }
+
+        #table-view table.dataTable tbody td {
+            border-bottom: 1px solid #edf0f4 !important;
+            background-clip: padding-box;
+        }
+
+        #table-view table.dataTable tbody tr:last-child td {
+            border-bottom: 0 !important;
+        }
+
+        #table-view table.dataTable tbody tr:hover td {
+            background-color: #f8fafc;
+        }
+
+        #table-view table.dataTable tbody tr.my-team-row td {
+            background-color: #eef5ff;
+        }
+
+        #table-view table.dataTable tbody tr.watchlist-row td {
+            background-color: #fffbea;
+        }
+
+        #table-view .dataTables_info {
+            color: #64748b !important;
+            font-size: 0.78rem !important;
+            padding: 0.7rem 0.45rem !important;
+        }
+
+        #table-view .dataTables_paginate {
+            padding: 0.45rem 0.35rem !important;
+        }
+
+        #table-view .dataTables_paginate .paginate_button {
+            border: 0 !important;
+            border-radius: 0.5rem !important;
+            background: transparent !important;
+            color: #475569 !important;
+            min-width: 2rem;
+            margin: 0 0.08rem !important;
+        }
+
+        #table-view .dataTables_paginate .paginate_button.current,
+        #table-view .dataTables_paginate .paginate_button.current:hover {
+            background: #f1edff !important;
+            color: #5b21b6 !important;
+            font-weight: 800;
+            border: 1px solid #ddd6fe !important;
+        }
+
+        #table-view .dataTables_paginate .paginate_button:hover {
+            background: #f8fafc !important;
+            color: #111827 !important;
+        }
+
+        /* Compact, modern score pills */
+        #table-view .pos-badge {
+            border-radius: 0.4rem !important;
+            font-size: 0.67rem !important;
+            line-height: 1 !important;
+            padding: 0.25rem 0.4rem !important;
+        }
+
+        /* Player names should feel like the primary row label. */
+        #table-view table.dataTable tbody td:first-child {
+            font-weight: 700;
+            color: #111827;
+        }
+
+        /* Make the numbered GW columns read as a separate trailing block. */
+        #table-view table.dataTable th.gameweek-col,
+        #table-view table.dataTable td.gameweek-col {
+            background: #fafbff !important;
+        }
+
+        /* Modal polish to align with the newer cards. */
+        #player-details-modal .modal-content {
+            border-radius: 1rem !important;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 24px 60px rgba(15, 23, 42, 0.22) !important;
+        }
+
+        @media (max-width: 768px) {
+            body > .max-w-full {
+                padding-left: 0.6rem !important;
+                padding-right: 0.6rem !important;
+            }
+
+            .stats-topbar {
+                align-items: flex-start !important;
+            }
+
+            .stats-title {
+                font-size: 1.35rem !important;
+            }
+
+            #table-view .table-controls-shell {
+                padding: 0.65rem !important;
+            }
+        }
+
     </style>
 
 </head>
@@ -1925,35 +2168,6 @@
                     In-progress values are provisional and may change as Opta updates match events.
                 </p>
             </div>
-        </div>
-
-        <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-x-auto">
-                <table class="min-w-full text-sm" id="inv-table">
-                    <thead class="bg-gray-50 text-gray-600 text-xs uppercase tracking-wide">
-                        <tr>
-                            <th class="text-left px-3 py-2 inv-th" data-inv-sort="name">Player</th>
-                            <th class="text-center px-3 py-2 inv-th" data-inv-sort="club">Club</th>
-                            <th class="text-center px-3 py-2 inv-th" data-inv-sort="position">Pos</th>
-                            <th class="text-center px-3 py-2 inv-th" data-inv-sort="matches_with_data" title="Completed Opta-covered matches included in this view.">M</th>
-                            <th class="text-center px-3 py-2 inv-th" data-inv-sort="shots_on_target" title="Shots on target">SOT</th>
-                            <th class="text-center px-3 py-2 inv-th" data-inv-sort="key_passes" title="Key passes">KP</th>
-                            <th class="text-center px-3 py-2 inv-th" data-inv-sort="successful_crosses" title="Successful crosses">Cross</th>
-                            <th class="text-center px-3 py-2 inv-th" data-inv-sort="successful_dribbles" title="Successful dribbles">Drib</th>
-                            <th class="text-center px-3 py-2 inv-th" data-inv-sort="attacking_actions" title="SOT + key passes + successful crosses + successful dribbles">Att Actions</th>
-                            <th class="text-center px-3 py-2 inv-th" data-inv-sort="attacking_points">Att Pts</th>
-                            <th class="text-center px-3 py-2 inv-th" data-inv-sort="tackles_won" title="Tackles won">Tkl</th>
-                            <th class="text-center px-3 py-2 inv-th" data-inv-sort="interceptions">Int</th>
-                            <th class="text-center px-3 py-2 inv-th" data-inv-sort="clearances">Clr</th>
-                            <th class="text-center px-3 py-2 inv-th" data-inv-sort="blocks">Blk</th>
-                            <th class="text-center px-3 py-2 inv-th" data-inv-sort="recoveries">Rec</th>
-                            <th class="text-center px-3 py-2 inv-th" data-inv-sort="defensive_actions" title="Tackles won + interceptions + clearances + blocks + recoveries">Def Actions</th>
-                            <th class="text-center px-3 py-2 inv-th" data-inv-sort="defensive_points">Def Pts</th>
-                            <th class="text-center px-3 py-2 inv-th" data-inv-sort="involvement_points">Total IP</th>
-                        </tr>
-                    </thead>
-                    <tbody id="inv-table-body"></tbody>
-                </table>
-            </div>
         </section>
 
         <section id="clean-sheets-view" class="hidden">
@@ -2264,26 +2478,15 @@
                 }
             };
 
-            // Custom sort for Bonus Average (BA): numeric ranks sort normally,
-            // but players with no bonus-rank sample always stay at the bottom.
-            $.fn.dataTable.ext.type.order['bonus-rank-null-last-asc'] = function(a, b) {
-                const av = (a === null || a === undefined || a === '' || a === '—') ? null : Number(a);
-                const bv = (b === null || b === undefined || b === '' || b === '—') ? null : Number(b);
-
-                if (av === null && bv === null) return 0;
-                if (av === null) return 1;
-                if (bv === null) return -1;
-                return av - bv;
-            };
-
-            $.fn.dataTable.ext.type.order['bonus-rank-null-last-desc'] = function(a, b) {
-                const av = (a === null || a === undefined || a === '' || a === '—') ? null : Number(a);
-                const bv = (b === null || b === undefined || b === '' || b === '—') ? null : Number(b);
-
-                if (av === null && bv === null) return 0;
-                if (av === null) return 1;
-                if (bv === null) return -1;
-                return bv - av;
+            // Custom sort for Bonus Average (BA).
+            // Lower ranks are better, and blank values should always be treated
+            // as "worse than any real rank".
+            $.fn.dataTable.ext.type.order['bonus-rank-null-last-pre'] = function(a) {
+                if (a === null || a === undefined || a === '' || a === '—') {
+                    return Number.POSITIVE_INFINITY;
+                }
+                const n = Number(a);
+                return Number.isFinite(n) ? n : Number.POSITIVE_INFINITY;
             };
 
             const RECENT_GAMES_COUNT = 4;
@@ -3443,13 +3646,14 @@
                     abbr: `BA`,
                     full: 'Average bonus rank across matches played. Lower is better. Players without a bonus-rank sample sort to the bottom.',
                     type: 'bonus-rank-null-last',
+                    orderSequence: ['asc', 'desc'],
                     render: function(data, type) {
                         if (data === null || data === undefined || data === '') {
-                            return type === 'display' ? '<span class="text-gray-400">—</span>' : null;
+                            return type === 'display' ? '<span class="text-gray-400">—</span>' : '';
                         }
                         const n = Number(data);
                         if (!Number.isFinite(n)) {
-                            return type === 'display' ? '<span class="text-gray-400">—</span>' : null;
+                            return type === 'display' ? '<span class="text-gray-400">—</span>' : '';
                         }
                         return type === 'display' ? n.toFixed(1) : n;
                     },
