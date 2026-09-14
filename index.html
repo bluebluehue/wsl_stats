@@ -2173,6 +2173,101 @@
             font-size: 11px !important;
         }
 
+    
+        /* ================================================================ */
+        /* V10 — READABLE COMPACT TABLE + CONSISTENT SUPPORTING TYPE       */
+        /* ================================================================ */
+
+        #table-view table.dataTable {
+            font-size: 12px !important;
+        }
+
+        #table-view table.dataTable tbody tr {
+            height: 27px !important;
+        }
+
+        #table-view table.dataTable tbody td {
+            height: 27px !important;
+            padding: 2px 5px !important;
+            line-height: 1.05 !important;
+            font-size: 12px !important;
+            vertical-align: middle !important;
+        }
+
+        #table-view table.dataTable tbody td span,
+        #table-view table.dataTable tbody td div,
+        #table-view table.dataTable tbody td a {
+            font-size: 12px !important;
+            line-height: 1.05 !important;
+        }
+
+        #table-view table.dataTable tbody td:first-child {
+            font-size: 12.5px !important;
+            font-weight: 600 !important;
+        }
+
+        #table-view table.dataTable thead th {
+            font-size: 10.75px !important;
+            line-height: 1.05 !important;
+            padding: 4px 5px !important;
+        }
+
+        #table-view table.dataTable tbody td span.rounded-full {
+            padding: 3.5px 7px !important;
+            min-width: 39px !important;
+            font-size: 12px !important;
+        }
+
+        #table-view .team-badge,
+        #table-view .pos-badge {
+            font-size: 12px !important;
+        }
+
+        #table-view .day-pill {
+            font-size: 11.5px !important;
+        }
+
+        /* Column-header tooltips should read like prose, not inherit ALL CAPS. */
+        .custom-tooltip-content {
+            text-transform: none !important;
+            letter-spacing: normal !important;
+            font-family: inherit !important;
+            font-size: 12px !important;
+            line-height: 1.35 !important;
+            font-weight: 400 !important;
+        }
+
+        .custom-tooltip-content strong {
+            font-weight: 650 !important;
+        }
+
+        /* Match DataTables chrome + footer to the same type system as the page. */
+        #table-view .dataTables_wrapper .dataTables_length,
+        #table-view .dataTables_wrapper .dataTables_filter,
+        #table-view .dataTables_wrapper .dataTables_info,
+        #table-view .dataTables_wrapper .dataTables_paginate,
+        #table-view .dataTables_wrapper .dataTables_length label,
+        #table-view .dataTables_wrapper .dataTables_filter label,
+        #table-view .dataTables_wrapper .dataTables_length select,
+        #table-view .dataTables_wrapper .dataTables_filter input {
+            font-family: inherit !important;
+            font-size: 12px !important;
+            font-weight: 400 !important;
+        }
+
+        body > center,
+        body > center a {
+            font-family: inherit !important;
+            font-size: 12px !important;
+            font-weight: 400 !important;
+            color: #64748b !important;
+            text-decoration: none !important;
+        }
+
+        body > center {
+            margin-top: 0.45rem !important;
+        }
+
     </style>
 
 </head>
@@ -3726,6 +3821,103 @@
                 return `<div class="custom-tooltip-container"><span class="custom-tooltip-points">${abbr}</span><div class="custom-tooltip-content">${fullTitle.replace(/\n/g, '<br>')}</div></div>`;
             }
 
+
+            function signedFantasyPoints(value) {
+                const n = Number(value || 0);
+                if (!Number.isFinite(n) || n === 0) return null;
+                return n > 0 ? `+${n}` : `${n}`;
+            }
+
+            function fantasyGwTooltip(row, gwKey, data) {
+                const officialRows = (row["Official Match Stats"] || [])
+                    .filter(match =>
+                        String(match.fantasy_game_week ?? '') === String(gwKey)
+                    );
+
+                if (!officialRows.length) {
+                    const fallback = data && data.tooltip ? String(data.tooltip).trim() : '';
+                    return fallback
+                        ? fallback.replace(/\\n/g, '<br>').replace(/\n/g, '<br>')
+                        : `Fantasy GW${gwKey}: ${data?.points ?? '—'} pts`;
+                }
+
+                return officialRows.map(match => {
+                    const total = Number(match.total_points || 0);
+                    const opponent = match.fixture_opponent
+                        ? canonicalTeamCodeUI(match.fixture_opponent)
+                        : '';
+                    const location = match.fixture_location
+                        ? ` (${match.fixture_location})`
+                        : '';
+                    const title = opponent
+                        ? `<strong>GW${gwKey} · ${opponent}${location}: ${total} pts</strong>`
+                        : `<strong>GW${gwKey}: ${total} pts</strong>`;
+
+                    const parts = [];
+                    const add = (label, points, detail = '') => {
+                        const signed = signedFantasyPoints(points);
+                        if (!signed) return;
+                        parts.push(`${label} ${signed}${detail ? ` <span style="opacity:.78">(${detail})</span>` : ''}`);
+                    };
+
+                    add(
+                        'Appearance',
+                        match.appearance_points,
+                        `${Number(match.minutes || 0)} min`
+                    );
+                    add(
+                        'Goals',
+                        match.goal_points,
+                        Number(match.goals || 0) ? `${Number(match.goals)} goal${Number(match.goals) === 1 ? '' : 's'}` : ''
+                    );
+                    add(
+                        'Assists',
+                        match.assist_points,
+                        Number(match.assists || 0) ? `${Number(match.assists)} assist${Number(match.assists) === 1 ? '' : 's'}` : ''
+                    );
+                    add('Clean sheet', match.clean_sheet_points);
+                    add(
+                        'Saves',
+                        match.save_points,
+                        Number(match.saves || 0) ? `${Number(match.saves)} saves` : ''
+                    );
+                    add('Attacking involvement', match.attacking_points);
+                    add('Defensive involvement', match.defensive_points);
+
+                    const bonusDetail = Number(match.bonus_rank || 0) > 0
+                        ? `rank #${Number(match.bonus_rank)}`
+                        : '';
+                    add('Bonus', match.bonus_points, bonusDetail);
+
+                    add('Yellow card', match.yellow_card_points);
+                    add('Red card', match.red_card_points);
+                    add('Own goal', match.own_goal_points);
+                    add('Penalty miss', match.penalty_miss_points);
+                    add('Goals conceded', match.goals_conceded_points);
+
+                    const knownComponentSum = [
+                        match.appearance_points,
+                        match.goal_points,
+                        match.assist_points,
+                        match.clean_sheet_points,
+                        match.save_points,
+                        match.attacking_points,
+                        match.defensive_points,
+                        match.bonus_points,
+                        match.yellow_card_points,
+                        match.red_card_points,
+                        match.own_goal_points,
+                        match.penalty_miss_points,
+                        match.goals_conceded_points
+                    ].reduce((sum, value) => sum + Number(value || 0), 0);
+
+                    const residual = total - knownComponentSum;
+                    if (residual) add('Other scoring', residual);
+
+                    return `${title}<br>${parts.length ? parts.join('<br>') : 'No scoring-component detail available.'}`;
+                }).join('<br><br>');
+            }
+
             // Helper function to safely format data, returning '-' for missing values (No Change)
             function safeToFixed(data, decimals) {
                 if (data === null || data === undefined || isNaN(data) || !isFinite(data) || data === '-') {
@@ -4751,13 +4943,12 @@
                             if (typeof data === 'object' && data !== null && data.hasOwnProperty('points')) {
                                 const points = data.points === null || data.points === undefined ? '-' : data.points;
 
-                                const tooltip = data.tooltip ? data.tooltip.trim() : '';
-
                                 if (type === 'sort' || type === 'type') {
                                     return data.points;
                                 }
 
-                                return `<div class="custom-tooltip-container"><span class="custom-tooltip-points">${points}</span><div class="custom-tooltip-content">${tooltip.replace(/\\n/g, '<br>').replace(/\n/g, '<br>')}</div></div>`;
+                                const tooltip = fantasyGwTooltip(row, gwKey, data);
+                                return `<div class="custom-tooltip-container"><span class="custom-tooltip-points">${points}</span><div class="custom-tooltip-content">${tooltip}</div></div>`;
                             }
 
                             return '-';
