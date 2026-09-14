@@ -2264,6 +2264,28 @@
                 }
             };
 
+            // Custom sort for Bonus Average (BA): numeric ranks sort normally,
+            // but players with no bonus-rank sample always stay at the bottom.
+            $.fn.dataTable.ext.type.order['bonus-rank-null-last-asc'] = function(a, b) {
+                const av = (a === null || a === undefined || a === '' || a === '—') ? null : Number(a);
+                const bv = (b === null || b === undefined || b === '' || b === '—') ? null : Number(b);
+
+                if (av === null && bv === null) return 0;
+                if (av === null) return 1;
+                if (bv === null) return -1;
+                return av - bv;
+            };
+
+            $.fn.dataTable.ext.type.order['bonus-rank-null-last-desc'] = function(a, b) {
+                const av = (a === null || a === undefined || a === '' || a === '—') ? null : Number(a);
+                const bv = (b === null || b === undefined || b === '' || b === '—') ? null : Number(b);
+
+                if (av === null && bv === null) return 0;
+                if (av === null) return 1;
+                if (bv === null) return -1;
+                return bv - av;
+            };
+
             const RECENT_GAMES_COUNT = 4;
             let dataTableInstance = null;
             let fullPlayerData = [];
@@ -3419,13 +3441,16 @@
 
                 "Average Bonus Rank": {
                     abbr: `BA`,
-                    full: 'Average bonus rank across matches played. Lower is better.',
-                    type: 'num',
+                    full: 'Average bonus rank across matches played. Lower is better. Players without a bonus-rank sample sort to the bottom.',
+                    type: 'bonus-rank-null-last',
                     render: function(data, type) {
                         if (data === null || data === undefined || data === '') {
-                            return type === 'display' ? '<span class="text-gray-400">—</span>' : 999;
+                            return type === 'display' ? '<span class="text-gray-400">—</span>' : null;
                         }
                         const n = Number(data);
+                        if (!Number.isFinite(n)) {
+                            return type === 'display' ? '<span class="text-gray-400">—</span>' : null;
+                        }
                         return type === 'display' ? n.toFixed(1) : n;
                     },
                     className: 'dt-center'
