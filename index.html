@@ -2006,6 +2006,133 @@
             }
         }
 
+    
+        /* ================================================================ */
+        /* V8 — TRUE COMPACT TABLE: CONSISTENT TYPE + SHORTER ROWS          */
+        /* ================================================================ */
+
+        #table-view table.dataTable {
+            font-size: 11px !important;
+        }
+
+        #table-view table.dataTable tbody tr {
+            height: 24px !important;
+        }
+
+        #table-view table.dataTable tbody td {
+            height: 24px !important;
+            padding: 1px 4px !important;
+            line-height: 1 !important;
+            font-size: 11px !important;
+            vertical-align: middle !important;
+        }
+
+        /* Keep every textual element inside a row on the same type scale. */
+        #table-view table.dataTable tbody td span,
+        #table-view table.dataTable tbody td div,
+        #table-view table.dataTable tbody td a {
+            font-size: 11px !important;
+            line-height: 1 !important;
+        }
+
+        #table-view table.dataTable tbody td:first-child {
+            font-size: 11.5px !important;
+            font-weight: 600 !important;
+            white-space: nowrap;
+        }
+
+        #table-view table.dataTable thead th {
+            padding: 4px 4px !important;
+            font-size: 10px !important;
+            line-height: 1 !important;
+        }
+
+        /* Score pills were the main row-height culprit. */
+        #table-view table.dataTable tbody td span.rounded-full {
+            padding: 3px 7px !important;
+            min-width: 38px !important;
+            font-size: 11px !important;
+            line-height: 1 !important;
+        }
+
+        #table-view .team-badge {
+            width: auto !important;
+            min-width: 36px !important;
+            padding: 3px 7px !important;
+            font-size: 11px !important;
+            line-height: 1 !important;
+        }
+
+        #table-view .pos-badge {
+            min-width: 31px !important;
+            padding: 3px 5px !important;
+            font-size: 11px !important;
+            line-height: 1 !important;
+        }
+
+        #table-view .day-pill {
+            padding-top: 2px !important;
+            padding-bottom: 2px !important;
+            font-size: 10.5px !important;
+            line-height: 1 !important;
+        }
+
+        /* Use available vertical space for rows, not DataTables chrome. */
+        #table-view .dataTables_wrapper {
+            padding-top: 0.1rem !important;
+        }
+
+        #table-view .dataTables_wrapper .dataTables_length,
+        #table-view .dataTables_wrapper .dataTables_filter {
+            margin: 0 0.25rem 0.15rem !important;
+            font-size: 11px !important;
+            line-height: 1 !important;
+        }
+
+        #table-view .dataTables_wrapper .dataTables_length select,
+        #table-view .dataTables_wrapper .dataTables_filter input {
+            min-height: 26px !important;
+            height: 26px !important;
+            padding: 2px 6px !important;
+            font-size: 11px !important;
+        }
+
+        #table-view .dataTables_info,
+        #table-view .dataTables_paginate {
+            padding-top: 0.25rem !important;
+            padding-bottom: 0.1rem !important;
+            font-size: 11px !important;
+            line-height: 1 !important;
+        }
+
+        #table-view .dataTables_paginate .paginate_button {
+            min-width: 1.65rem !important;
+            padding: 0.22rem 0.34rem !important;
+        }
+
+        /* A little more space recovered above the table. */
+        body > .max-w-full {
+            padding-top: 0.42rem !important;
+        }
+
+        .stats-topbar {
+            margin-bottom: 0.22rem !important;
+        }
+
+        #table-view .table-controls-shell {
+            padding-top: 0.34rem !important;
+            padding-bottom: 0.34rem !important;
+            margin-bottom: 0.32rem !important;
+        }
+
+        #table-view .filter-row select,
+        #table-view .filter-row input[type="number"] {
+            min-height: 1.65rem !important;
+            height: 1.65rem !important;
+        }
+
+        /* Keep modal cards readable; compacting applies only to main table. */
+
     </style>
 
 </head>
@@ -3100,6 +3227,103 @@
             });
             // --- END GLOBAL MODAL FUNCTIONS ---
 
+            // Build up to three upcoming fixtures for the player popup.
+            // player.upcoming_fixtures currently tends to expose only two; use the
+            // canonical full fixture calendar to fill the third (and future) slot.
+            function popupUpcomingFixtures(player, limit = 3) {
+                const direct = Array.isArray(player.upcoming_fixtures)
+                    ? player.upcoming_fixtures.slice()
+                    : [];
+
+                const club = String(player.Club || '').toUpperCase();
+                const now = new Date();
+
+                const fixtureKey = fixture => {
+                    const matchId = fixture.match_id || fixture.matchId || '';
+                    if (matchId) return `id:${matchId}`;
+                    return [
+                        fixture.fantasy_game_week ?? fixture.game_week ?? '',
+                        fixture.home_id || '',
+                        fixture.away_id || '',
+                        fixture.match_date_time_utc || fixture.fixture_date_iso || fixture.game_date || ''
+                    ].join('|');
+                };
+
+                const result = [];
+                const seen = new Set();
+
+                direct.forEach(fixture => {
+                    const key = fixtureKey(fixture);
+                    if (!seen.has(key)) {
+                        seen.add(key);
+                        result.push(fixture);
+                    }
+                });
+
+                if (club && Array.isArray(fullFixtureData)) {
+                    const canonical = fullFixtureData
+                        .filter(fixture => {
+                            const home = String(fixture.home_id || '').toUpperCase();
+                            const away = String(fixture.away_id || '').toUpperCase();
+                            if (home !== club && away !== club) return false;
+
+                            const rawDate =
+                                fixture.match_date_time_utc ||
+                                fixture.fixture_date_iso ||
+                                fixture.game_date ||
+                                '';
+                            if (!rawDate) return true;
+
+                            const parsed = new Date(rawDate);
+                            return Number.isNaN(parsed.getTime()) || parsed > now;
+                        })
+                        .sort((a, b) => {
+                            const agw = Number(a.fantasy_game_week ?? a.game_week ?? 999);
+                            const bgw = Number(b.fantasy_game_week ?? b.game_week ?? 999);
+                            if (agw !== bgw) return agw - bgw;
+
+                            const ad = String(a.match_date_time_utc || a.fixture_date_iso || a.game_date || '');
+                            const bd = String(b.match_date_time_utc || b.fixture_date_iso || b.game_date || '');
+                            return ad.localeCompare(bd);
+                        });
+
+                    canonical.forEach(fixture => {
+                        if (result.length >= limit) return;
+
+                        const key = fixtureKey(fixture);
+                        const gw = String(fixture.fantasy_game_week ?? fixture.game_week ?? '');
+                        const duplicateGw = result.some(existing =>
+                            gw &&
+                            String(existing.fantasy_game_week ?? existing.game_week ?? '') === gw &&
+                            String(existing.home_id || '').toUpperCase() === String(fixture.home_id || '').toUpperCase() &&
+                            String(existing.away_id || '').toUpperCase() === String(fixture.away_id || '').toUpperCase()
+                        );
+
+                        if (seen.has(key) || duplicateGw) return;
+
+                        const home = String(fixture.home_id || '').toUpperCase();
+                        const isHome = home === club;
+                        result.push({
+                            ...fixture,
+                            opponent_id: isHome ? fixture.away_id : fixture.home_id,
+                            location: isHome ? 'H' : 'A'
+                        });
+                        seen.add(key);
+                    });
+                }
+
+                return result
+                    .sort((a, b) => {
+                        const agw = Number(a.fantasy_game_week ?? a.game_week ?? 999);
+                        const bgw = Number(b.fantasy_game_week ?? b.game_week ?? 999);
+                        if (agw !== bgw) return agw - bgw;
+                        const ad = String(a.match_date_time_utc || a.fixture_date_iso || a.game_date || '');
+                        const bd = String(b.match_date_time_utc || b.fixture_date_iso || b.game_date || '');
+                        return ad.localeCompare(bd);
+                    })
+                    .slice(0, limit);
+            }
+
             // --- PLAYER DETAILS FUNCTION ---
             function populatePlayerDetails(player) {
                 const nameEl = $('#modal-player-name');
@@ -3240,7 +3464,7 @@
                     }).join(''));
                 }
 
-                const fixtures = player.upcoming_fixtures || [];
+                const fixtures = popupUpcomingFixtures(player, 3);
                 const playerClubCode = player.Club;
                 let fixturesHTML = '';
 
@@ -3249,11 +3473,14 @@
                 } else {
                     let listHTML = '';
 
-                    fixtures.slice(0, 3).forEach((fixture, idx) => {
+                    fixtures.forEach((fixture, idx) => {
+                        const clubCode = String(player.Club || '').toUpperCase();
+                        const homeCode = String(fixture.home_id || '').toUpperCase();
                         const opponent =
                             fixture.opponent_id ||
                             fixture.opponent_short_name ||
                             fixture.opponent_name ||
+                            (homeCode === clubCode ? fixture.away_id : fixture.home_id) ||
                             'TBD';
                         const location = fixture.location
                             ? ` (${fixture.location === 'H' ? 'Home' : 'Away'})`
@@ -3263,7 +3490,12 @@
                             ? player["Comparison Fixture Rating"]
                             : idx === 1
                                 ? player["Comparison Following Fixture Rating"]
-                                : null;
+                                : (
+                                    fixture.comparison_rating ??
+                                    fixture.opportunity_rating ??
+                                    fixture.fixture_rating ??
+                                    null
+                                );
 
                         const fixText = comparison === null || comparison === undefined || comparison === ''
                             ? ''
