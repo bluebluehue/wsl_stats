@@ -1,38 +1,609 @@
 {
   "metadata": {
-    "source": "ByeGoals screenshot supplied by user",
+    "source": "ByeGoals screenshots supplied by user",
     "generated_at_utc": null,
     "season": "2026/27",
-    "fantasy_game_week": "2",
-    "note": "Manual snapshot of the supplied MW2 eGoals/eDF table. Values are stored exactly as supplied and are audit/display only. No eDF formula is inferred."
+    "fantasy_game_weeks": [
+      "1",
+      "2",
+      "3"
+    ],
+    "note": "Manual eGoals/eDF snapshots; audit/display only. No eDF formula inferred. GW3 currently contains WSL only; WSL2 can be appended when supplied."
   },
   "teams": [
-    {"game_week":"2","league":"WSL","team":"ARS","opponent":"CRY","location":"H","egoals":3.93,"edf":2.48},
-    {"game_week":"2","league":"WSL","team":"MCI","opponent":"AVL","location":"A","egoals":2.43,"edf":1.65},
-    {"game_week":"2","league":"WSL","team":"LCL","opponent":"WHU","location":"A","egoals":2.18,"edf":1.57},
-    {"game_week":"2","league":"WSL","team":"EVE","opponent":"CHA","location":"H","egoals":2.02,"edf":1.54},
-    {"game_week":"2","league":"WSL","team":"BHA","opponent":"BIR","location":"A","egoals":1.92,"edf":1.25},
-    {"game_week":"2","league":"WSL","team":"CHE","opponent":"MUN","location":"A","egoals":1.90,"edf":1.37},
-    {"game_week":"2","league":"WSL","team":"LIV","opponent":"TOT","location":"H","egoals":1.37,"edf":0.68},
-    {"game_week":"2","league":"WSL","team":"TOT","opponent":"LIV","location":"A","egoals":1.30,"edf":0.56},
-    {"game_week":"2","league":"WSL","team":"BIR","opponent":"BHA","location":"H","egoals":0.97,"edf":-0.12},
-    {"game_week":"2","league":"WSL","team":"MUN","opponent":"CHE","location":"H","egoals":0.91,"edf":-0.10},
-    {"game_week":"2","league":"WSL","team":"CHA","opponent":"EVE","location":"A","egoals":0.83,"edf":-0.22},
-    {"game_week":"2","league":"WSL","team":"WHU","opponent":"LCL","location":"H","egoals":0.81,"edf":-0.37},
-    {"game_week":"2","league":"WSL","team":"AVL","opponent":"MCI","location":"H","egoals":0.78,"edf":-0.57},
-    {"game_week":"2","league":"WSL","team":"CRY","opponent":"ARS","location":"A","egoals":0.45,"edf":-1.38},
-
-    {"game_week":"2","league":"WSL2","team":"LEI","opponent":"DUR","location":"H","egoals":2.12,"edf":1.18},
-    {"game_week":"2","league":"WSL2","team":"SOU","opponent":"IPS","location":"H","egoals":1.83,"edf":1.33},
-    {"game_week":"2","league":"WSL2","team":"NFO","opponent":"WAT","location":"H","egoals":1.76,"edf":1.23},
-    {"game_week":"2","league":"WSL2","team":"SUN","opponent":"BUR","location":"A","egoals":1.41,"edf":0.62},
-    {"game_week":"2","league":"WSL2","team":"BUR","opponent":"SUN","location":"H","egoals":1.34,"edf":0.52},
-    {"game_week":"2","league":"WSL2","team":"DUR","opponent":"LEI","location":"A","egoals":1.01,"edf":-0.31},
-    {"game_week":"2","league":"WSL2","team":"WAT","opponent":"NFO","location":"A","egoals":0.98,"edf":0.06},
-    {"game_week":"2","league":"WSL2","team":"IPS","opponent":"SOU","location":"A","egoals":0.93,"edf":-0.01},
-    {"game_week":"2","league":"WSL2","team":"BRC","opponent":"NEW","location":"H","egoals":0.00,"edf":0.00},
-    {"game_week":"2","league":"WSL2","team":"NEW","opponent":"BRC","location":"A","egoals":0.00,"edf":0.00},
-    {"game_week":"2","league":"WSL2","team":"SHU","opponent":"WOL","location":"A","egoals":0.00,"edf":0.00},
-    {"game_week":"2","league":"WSL2","team":"WOL","opponent":"SHU","location":"H","egoals":0.00,"edf":0.00}
+    {
+      "game_week": "1",
+      "league": "WSL",
+      "team": "MCI",
+      "opponent": "BIR",
+      "location": "H",
+      "egoals": 3.0,
+      "edf": 2.67
+    },
+    {
+      "game_week": "1",
+      "league": "WSL",
+      "team": "ARS",
+      "opponent": "BHA",
+      "location": "A",
+      "egoals": 2.42,
+      "edf": 1.97
+    },
+    {
+      "game_week": "1",
+      "league": "WSL",
+      "team": "CHE",
+      "opponent": "AVL",
+      "location": "H",
+      "egoals": 2.37,
+      "edf": 1.84
+    },
+    {
+      "game_week": "1",
+      "league": "WSL",
+      "team": "TOT",
+      "opponent": "WHU",
+      "location": "H",
+      "egoals": 2.05,
+      "edf": 1.75
+    },
+    {
+      "game_week": "1",
+      "league": "WSL",
+      "team": "LIV",
+      "opponent": "CHA",
+      "location": "A",
+      "egoals": 1.71,
+      "edf": 1.61
+    },
+    {
+      "game_week": "1",
+      "league": "WSL",
+      "team": "EVE",
+      "opponent": "CRY",
+      "location": "A",
+      "egoals": 1.65,
+      "edf": 1.17
+    },
+    {
+      "game_week": "1",
+      "league": "WSL",
+      "team": "LCL",
+      "opponent": "MUN",
+      "location": "H",
+      "egoals": 1.49,
+      "edf": 1.09
+    },
+    {
+      "game_week": "1",
+      "league": "WSL",
+      "team": "MUN",
+      "opponent": "LCL",
+      "location": "A",
+      "egoals": 1.22,
+      "edf": 0.63
+    },
+    {
+      "game_week": "1",
+      "league": "WSL",
+      "team": "CRY",
+      "opponent": "EVE",
+      "location": "H",
+      "egoals": 1.18,
+      "edf": 0.39
+    },
+    {
+      "game_week": "1",
+      "league": "WSL",
+      "team": "CHA",
+      "opponent": "LIV",
+      "location": "H",
+      "egoals": 0.98,
+      "edf": 0.29
+    },
+    {
+      "game_week": "1",
+      "league": "WSL",
+      "team": "WHU",
+      "opponent": "TOT",
+      "location": "A",
+      "egoals": 0.92,
+      "edf": -0.11
+    },
+    {
+      "game_week": "1",
+      "league": "WSL",
+      "team": "AVL",
+      "opponent": "CHE",
+      "location": "A",
+      "egoals": 0.88,
+      "edf": -0.43
+    },
+    {
+      "game_week": "1",
+      "league": "WSL",
+      "team": "BHA",
+      "opponent": "ARS",
+      "location": "H",
+      "egoals": 0.83,
+      "edf": -0.48
+    },
+    {
+      "game_week": "1",
+      "league": "WSL",
+      "team": "BIR",
+      "opponent": "MCI",
+      "location": "A",
+      "egoals": 0.59,
+      "edf": -0.9
+    },
+    {
+      "game_week": "1",
+      "league": "WSL2",
+      "team": "BUR",
+      "opponent": "WAT",
+      "location": "A",
+      "egoals": 1.72,
+      "edf": 0.56
+    },
+    {
+      "game_week": "1",
+      "league": "WSL2",
+      "team": "WAT",
+      "opponent": "BUR",
+      "location": "H",
+      "egoals": 1.53,
+      "edf": 0.28
+    },
+    {
+      "game_week": "1",
+      "league": "WSL2",
+      "team": "BRC",
+      "opponent": "SUN",
+      "location": "A",
+      "egoals": 0.0,
+      "edf": 0.0
+    },
+    {
+      "game_week": "1",
+      "league": "WSL2",
+      "team": "DUR",
+      "opponent": "SOU",
+      "location": "H",
+      "egoals": 0.0,
+      "edf": 0.0
+    },
+    {
+      "game_week": "1",
+      "league": "WSL2",
+      "team": "IPS",
+      "opponent": "NFO",
+      "location": "H",
+      "egoals": 0.0,
+      "edf": 0.0
+    },
+    {
+      "game_week": "1",
+      "league": "WSL2",
+      "team": "LEI",
+      "opponent": "SHU",
+      "location": "A",
+      "egoals": 0.0,
+      "edf": 0.0
+    },
+    {
+      "game_week": "1",
+      "league": "WSL2",
+      "team": "NEW",
+      "opponent": "WOL",
+      "location": "H",
+      "egoals": 0.0,
+      "edf": 0.0
+    },
+    {
+      "game_week": "1",
+      "league": "WSL2",
+      "team": "NFO",
+      "opponent": "IPS",
+      "location": "A",
+      "egoals": 0.0,
+      "edf": 0.0
+    },
+    {
+      "game_week": "1",
+      "league": "WSL2",
+      "team": "SHU",
+      "opponent": "LEI",
+      "location": "H",
+      "egoals": 0.0,
+      "edf": 0.0
+    },
+    {
+      "game_week": "1",
+      "league": "WSL2",
+      "team": "SOU",
+      "opponent": "DUR",
+      "location": "A",
+      "egoals": 0.0,
+      "edf": 0.0
+    },
+    {
+      "game_week": "1",
+      "league": "WSL2",
+      "team": "SUN",
+      "opponent": "BRC",
+      "location": "H",
+      "egoals": 0.0,
+      "edf": 0.0
+    },
+    {
+      "game_week": "1",
+      "league": "WSL2",
+      "team": "WOL",
+      "opponent": "NEW",
+      "location": "A",
+      "egoals": 0.0,
+      "edf": 0.0
+    },
+    {
+      "game_week": "2",
+      "league": "WSL",
+      "team": "ARS",
+      "opponent": "CRY",
+      "location": "H",
+      "egoals": 3.93,
+      "edf": 2.48
+    },
+    {
+      "game_week": "2",
+      "league": "WSL",
+      "team": "MCI",
+      "opponent": "AVL",
+      "location": "A",
+      "egoals": 2.43,
+      "edf": 1.65
+    },
+    {
+      "game_week": "2",
+      "league": "WSL",
+      "team": "LCL",
+      "opponent": "WHU",
+      "location": "A",
+      "egoals": 2.18,
+      "edf": 1.57
+    },
+    {
+      "game_week": "2",
+      "league": "WSL",
+      "team": "EVE",
+      "opponent": "CHA",
+      "location": "H",
+      "egoals": 2.02,
+      "edf": 1.54
+    },
+    {
+      "game_week": "2",
+      "league": "WSL",
+      "team": "BHA",
+      "opponent": "BIR",
+      "location": "A",
+      "egoals": 1.92,
+      "edf": 1.25
+    },
+    {
+      "game_week": "2",
+      "league": "WSL",
+      "team": "CHE",
+      "opponent": "MUN",
+      "location": "A",
+      "egoals": 1.9,
+      "edf": 1.37
+    },
+    {
+      "game_week": "2",
+      "league": "WSL",
+      "team": "LIV",
+      "opponent": "TOT",
+      "location": "H",
+      "egoals": 1.37,
+      "edf": 0.68
+    },
+    {
+      "game_week": "2",
+      "league": "WSL",
+      "team": "TOT",
+      "opponent": "LIV",
+      "location": "A",
+      "egoals": 1.3,
+      "edf": 0.56
+    },
+    {
+      "game_week": "2",
+      "league": "WSL",
+      "team": "BIR",
+      "opponent": "BHA",
+      "location": "H",
+      "egoals": 0.97,
+      "edf": -0.12
+    },
+    {
+      "game_week": "2",
+      "league": "WSL",
+      "team": "MUN",
+      "opponent": "CHE",
+      "location": "H",
+      "egoals": 0.91,
+      "edf": -0.1
+    },
+    {
+      "game_week": "2",
+      "league": "WSL",
+      "team": "CHA",
+      "opponent": "EVE",
+      "location": "A",
+      "egoals": 0.83,
+      "edf": -0.22
+    },
+    {
+      "game_week": "2",
+      "league": "WSL",
+      "team": "WHU",
+      "opponent": "LCL",
+      "location": "H",
+      "egoals": 0.81,
+      "edf": -0.37
+    },
+    {
+      "game_week": "2",
+      "league": "WSL",
+      "team": "AVL",
+      "opponent": "MCI",
+      "location": "H",
+      "egoals": 0.78,
+      "edf": -0.57
+    },
+    {
+      "game_week": "2",
+      "league": "WSL",
+      "team": "CRY",
+      "opponent": "ARS",
+      "location": "A",
+      "egoals": 0.45,
+      "edf": -1.38
+    },
+    {
+      "game_week": "2",
+      "league": "WSL2",
+      "team": "LEI",
+      "opponent": "DUR",
+      "location": "H",
+      "egoals": 2.12,
+      "edf": 1.18
+    },
+    {
+      "game_week": "2",
+      "league": "WSL2",
+      "team": "SOU",
+      "opponent": "IPS",
+      "location": "H",
+      "egoals": 1.83,
+      "edf": 1.33
+    },
+    {
+      "game_week": "2",
+      "league": "WSL2",
+      "team": "NFO",
+      "opponent": "WAT",
+      "location": "H",
+      "egoals": 1.76,
+      "edf": 1.23
+    },
+    {
+      "game_week": "2",
+      "league": "WSL2",
+      "team": "SUN",
+      "opponent": "BUR",
+      "location": "A",
+      "egoals": 1.41,
+      "edf": 0.62
+    },
+    {
+      "game_week": "2",
+      "league": "WSL2",
+      "team": "BUR",
+      "opponent": "SUN",
+      "location": "H",
+      "egoals": 1.34,
+      "edf": 0.52
+    },
+    {
+      "game_week": "2",
+      "league": "WSL2",
+      "team": "DUR",
+      "opponent": "LEI",
+      "location": "A",
+      "egoals": 1.01,
+      "edf": -0.31
+    },
+    {
+      "game_week": "2",
+      "league": "WSL2",
+      "team": "WAT",
+      "opponent": "NFO",
+      "location": "A",
+      "egoals": 0.98,
+      "edf": 0.06
+    },
+    {
+      "game_week": "2",
+      "league": "WSL2",
+      "team": "IPS",
+      "opponent": "SOU",
+      "location": "A",
+      "egoals": 0.93,
+      "edf": -0.01
+    },
+    {
+      "game_week": "2",
+      "league": "WSL2",
+      "team": "BRC",
+      "opponent": "NEW",
+      "location": "H",
+      "egoals": 0.0,
+      "edf": 0.0
+    },
+    {
+      "game_week": "2",
+      "league": "WSL2",
+      "team": "NEW",
+      "opponent": "BRC",
+      "location": "A",
+      "egoals": 0.0,
+      "edf": 0.0
+    },
+    {
+      "game_week": "2",
+      "league": "WSL2",
+      "team": "SHU",
+      "opponent": "WOL",
+      "location": "A",
+      "egoals": 0.0,
+      "edf": 0.0
+    },
+    {
+      "game_week": "2",
+      "league": "WSL2",
+      "team": "WOL",
+      "opponent": "SHU",
+      "location": "H",
+      "egoals": 0.0,
+      "edf": 0.0
+    },
+    {
+      "game_week": "3",
+      "league": "WSL",
+      "team": "CHE",
+      "opponent": "BIR",
+      "location": "H",
+      "egoals": 3.5,
+      "edf": 2.44
+    },
+    {
+      "game_week": "3",
+      "league": "WSL",
+      "team": "LCL",
+      "opponent": "CHA",
+      "location": "A",
+      "egoals": 2.46,
+      "edf": 2.0
+    },
+    {
+      "game_week": "3",
+      "league": "WSL",
+      "team": "MCI",
+      "opponent": "LIV",
+      "location": "H",
+      "egoals": 2.38,
+      "edf": 1.68
+    },
+    {
+      "game_week": "3",
+      "league": "WSL",
+      "team": "ARS",
+      "opponent": "MUN",
+      "location": "H",
+      "egoals": 2.24,
+      "edf": 1.59
+    },
+    {
+      "game_week": "3",
+      "league": "WSL",
+      "team": "TOT",
+      "opponent": "CRY",
+      "location": "A",
+      "egoals": 1.93,
+      "edf": 1.34
+    },
+    {
+      "game_week": "3",
+      "league": "WSL",
+      "team": "BHA",
+      "opponent": "AVL",
+      "location": "H",
+      "egoals": 1.87,
+      "edf": 0.8
+    },
+    {
+      "game_week": "3",
+      "league": "WSL",
+      "team": "WHU",
+      "opponent": "EVE",
+      "location": "H",
+      "egoals": 1.5,
+      "edf": 0.75
+    },
+    {
+      "game_week": "3",
+      "league": "WSL",
+      "team": "EVE",
+      "opponent": "WHU",
+      "location": "A",
+      "egoals": 1.25,
+      "edf": 0.38
+    },
+    {
+      "game_week": "3",
+      "league": "WSL",
+      "team": "AVL",
+      "opponent": "BHA",
+      "location": "A",
+      "egoals": 1.22,
+      "edf": -0.06
+    },
+    {
+      "game_week": "3",
+      "league": "WSL",
+      "team": "CRY",
+      "opponent": "TOT",
+      "location": "H",
+      "egoals": 0.92,
+      "edf": -0.13
+    },
+    {
+      "game_week": "3",
+      "league": "WSL",
+      "team": "MUN",
+      "opponent": "ARS",
+      "location": "A",
+      "egoals": 0.8,
+      "edf": -0.42
+    },
+    {
+      "game_week": "3",
+      "league": "WSL",
+      "team": "LIV",
+      "opponent": "MCI",
+      "location": "A",
+      "egoals": 0.76,
+      "edf": -0.53
+    },
+    {
+      "game_week": "3",
+      "league": "WSL",
+      "team": "CHA",
+      "opponent": "LCL",
+      "location": "H",
+      "egoals": 0.63,
+      "edf": -0.6
+    },
+    {
+      "game_week": "3",
+      "league": "WSL",
+      "team": "BIR",
+      "opponent": "CHE",
+      "location": "A",
+      "egoals": 0.46,
+      "edf": -1.21
+    }
   ]
 }
