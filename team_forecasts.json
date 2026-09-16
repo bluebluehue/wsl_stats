@@ -161,8 +161,8 @@
       "team": "BRC",
       "opponent": "SUN",
       "location": "A",
-      "egoals": 0.0,
-      "edf": 0.0
+      "egoals": null,
+      "edf": null
     },
     {
       "game_week": "1",
@@ -170,8 +170,8 @@
       "team": "DUR",
       "opponent": "SOU",
       "location": "H",
-      "egoals": 0.0,
-      "edf": 0.0
+      "egoals": null,
+      "edf": null
     },
     {
       "game_week": "1",
@@ -179,8 +179,8 @@
       "team": "IPS",
       "opponent": "NFO",
       "location": "H",
-      "egoals": 0.0,
-      "edf": 0.0
+      "egoals": null,
+      "edf": null
     },
     {
       "game_week": "1",
@@ -188,8 +188,8 @@
       "team": "LEI",
       "opponent": "SHU",
       "location": "A",
-      "egoals": 0.0,
-      "edf": 0.0
+      "egoals": null,
+      "edf": null
     },
     {
       "game_week": "1",
@@ -197,8 +197,8 @@
       "team": "NEW",
       "opponent": "WOL",
       "location": "H",
-      "egoals": 0.0,
-      "edf": 0.0
+      "egoals": null,
+      "edf": null
     },
     {
       "game_week": "1",
@@ -206,8 +206,8 @@
       "team": "NFO",
       "opponent": "IPS",
       "location": "A",
-      "egoals": 0.0,
-      "edf": 0.0
+      "egoals": null,
+      "edf": null
     },
     {
       "game_week": "1",
@@ -215,8 +215,8 @@
       "team": "SHU",
       "opponent": "LEI",
       "location": "H",
-      "egoals": 0.0,
-      "edf": 0.0
+      "egoals": null,
+      "edf": null
     },
     {
       "game_week": "1",
@@ -224,8 +224,8 @@
       "team": "SOU",
       "opponent": "DUR",
       "location": "A",
-      "egoals": 0.0,
-      "edf": 0.0
+      "egoals": null,
+      "edf": null
     },
     {
       "game_week": "1",
@@ -233,8 +233,8 @@
       "team": "SUN",
       "opponent": "BRC",
       "location": "H",
-      "egoals": 0.0,
-      "edf": 0.0
+      "egoals": null,
+      "edf": null
     },
     {
       "game_week": "1",
@@ -242,8 +242,8 @@
       "team": "WOL",
       "opponent": "NEW",
       "location": "A",
-      "egoals": 0.0,
-      "edf": 0.0
+      "egoals": null,
+      "edf": null
     },
     {
       "game_week": "2",
@@ -449,8 +449,8 @@
       "team": "BRC",
       "opponent": "NEW",
       "location": "H",
-      "egoals": 0.0,
-      "edf": 0.0
+      "egoals": null,
+      "edf": null
     },
     {
       "game_week": "2",
@@ -458,8 +458,8 @@
       "team": "NEW",
       "opponent": "BRC",
       "location": "A",
-      "egoals": 0.0,
-      "edf": 0.0
+      "egoals": null,
+      "edf": null
     },
     {
       "game_week": "2",
@@ -467,8 +467,8 @@
       "team": "SHU",
       "opponent": "WOL",
       "location": "A",
-      "egoals": 0.0,
-      "edf": 0.0
+      "egoals": null,
+      "edf": null
     },
     {
       "game_week": "2",
@@ -476,8 +476,8 @@
       "team": "WOL",
       "opponent": "SHU",
       "location": "H",
-      "egoals": 0.0,
-      "edf": 0.0
+      "egoals": null,
+      "edf": null
     },
     {
       "game_week": "3",
