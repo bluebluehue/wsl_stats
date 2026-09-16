@@ -30,6 +30,7 @@ TRANSFORMED_PATH = ROOT / "transformed_data.json"
 FIXTURES_PATH = ROOT / "fixtures.json"
 GK_MODEL_INPUTS_PATH = ROOT / "gk_model_inputs.json"
 MARKET_ODDS_PATH = ROOT / "market_odds.json"
+TEAM_FORECASTS_PATH = ROOT / "team_forecasts.json"
 INVOLVEMENT_HISTORY_PATH = ROOT / "involvement_history.json"
 TEAMS_PATH = ROOT / "teams.json"
 RAW_DIR = ROOT / "raw_feeds"
@@ -874,6 +875,90 @@ def load_market_odds() -> tuple[dict[str, Any], dict[str, dict[str, Any]]]:
 
     lookup = {str(row.get("match_id")): row for row in fixtures if row.get("match_id")}
     return metadata, lookup
+
+
+def load_team_forecasts() -> tuple[dict[str, Any], dict[tuple[str, str], dict[str, Any]], dict[tuple[str, str], dict[str, Any]]]:
+    """Load optional external team eGoals/eDF forecasts without blending them into v17.
+
+    Supported shapes:
+      {"fixtures": [{"match_id": ..., "home_team": ..., "home_egoals": ..., ...}]}
+      {"teams": [{"game_week": "2", "team": "ARS", "egoals": 3.93, "edf": 2.48, ...}]}
+
+    Returns metadata plus lookups keyed by (match_id, team) and (game_week, team).
+    """
+    if not TEAM_FORECASTS_PATH.exists():
+        return {}, {}, {}
+    try:
+        payload = json.loads(TEAM_FORECASTS_PATH.read_text(encoding="utf-8"))
+    except Exception as exc:
+        print(f"Warning: could not load {TEAM_FORECASTS_PATH.name}: {exc}")
+        return {}, {}, {}
+
+    metadata = payload.get("metadata", {}) if isinstance(payload, dict) else {}
+    by_match: dict[tuple[str, str], dict[str, Any]] = {}
+    by_gw: dict[tuple[str, str], dict[str, Any]] = {}
+
+    for row in (payload.get("fixtures", []) if isinstance(payload, dict) else []):
+        if not isinstance(row, dict):
+            continue
+        match_id = str(row.get("match_id") or "")
+        gw = str(row.get("game_week") or row.get("fantasy_game_week") or "")
+        source = row.get("source") or metadata.get("source")
+        updated = row.get("updated_at") or metadata.get("generated_at_utc")
+        for side in ("home", "away"):
+            team = canonical_team_code(row.get(f"{side}_team"))
+            if not team:
+                continue
+            item = {
+                "egoals": row.get(f"{side}_egoals"),
+                "edf": row.get(f"{side}_edf"),
+                "source": source,
+                "updated_at": updated,
+            }
+            if match_id:
+                by_match[(match_id, team)] = item
+            if gw:
+                by_gw[(gw, team)] = item
+
+    for row in (payload.get("teams", []) if isinstance(payload, dict) else []):
+        if not isinstance(row, dict):
+            continue
+        team = canonical_team_code(row.get("team") or row.get("club"))
+        gw = str(row.get("game_week") or row.get("fantasy_game_week") or "")
+        match_id = str(row.get("match_id") or "")
+        if not team:
+            continue
+        item = {
+            "egoals": row.get("egoals"),
+            "edf": row.get("edf"),
+            "source": row.get("source") or metadata.get("source"),
+            "updated_at": row.get("updated_at") or metadata.get("generated_at_utc"),
+        }
+        if match_id:
+            by_match[(match_id, team)] = item
+        if gw:
+            by_gw[(gw, team)] = item
+
+    return metadata, by_match, by_gw
+
+
+def team_forecast_fields_for_fixture(
+    match_id: str | None,
+    game_week: str | int | None,
+    own_team_id: str | None,
+    by_match: dict[tuple[str, str], dict[str, Any]] | None,
+    by_gw: dict[tuple[str, str], dict[str, Any]] | None,
+) -> dict[str, Any]:
+    team = canonical_team_code(own_team_id)
+    match_key = (str(match_id or ""), team)
+    gw_key = (str(game_week or ""), team)
+    row = (by_match or {}).get(match_key) or (by_gw or {}).get(gw_key)
+    return {
+        "team_egoals": row.get("egoals") if row else None,
+        "team_edf": row.get("edf") if row else None,
+        "team_forecast_source": row.get("source") if row else None,
+        "team_forecast_updated_at": row.get("updated_at") if row else None,
+    }
 
 
 def market_fields_for_fixture(
@@ -3073,6 +3158,8 @@ def build_upcoming_fixture(
     gk_team_priors: dict[str, dict[str, Any]] | None = None,
     gk_model_inputs: dict[str, Any] | None = None,
     market_lookup: dict[str, dict[str, Any]] | None = None,
+    team_forecast_by_match: dict[tuple[str, str], dict[str, Any]] | None = None,
+    team_forecast_by_gw: dict[tuple[str, str], dict[str, Any]] | None = None,
     player_involvement_profiles: dict[str, dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     difficulty = raw.get("currentRating")
@@ -3131,6 +3218,10 @@ def build_upcoming_fixture(
 
     fixture_dt = fixture_local_dt(raw.get("matchDateTimeUtc"))
     market_detail = market_fields_for_fixture(raw.get("matchId"), location, market_lookup)
+    team_forecast_detail = team_forecast_fields_for_fixture(
+        raw.get("matchId"), raw.get("matchdayId"), own_team_id,
+        team_forecast_by_match, team_forecast_by_gw,
+    )
 
     return {
         "match_date_time_utc": raw.get("matchDateTimeUtc"),
@@ -3227,6 +3318,7 @@ def build_upcoming_fixture(
         "gk_venue_adjustment": gk_detail.get("venue_adjustment") if gk_detail else None,
 
         **market_detail,
+        **team_forecast_detail,
 
         "opportunity_rating": opportunity,
         "home_id": home_id or "",
@@ -3665,6 +3757,8 @@ def transform_player(
     gk_team_priors: dict[str, dict[str, Any]] | None = None,
     gk_model_inputs: dict[str, Any] | None = None,
     market_lookup: dict[str, dict[str, Any]] | None = None,
+    team_forecast_by_match: dict[tuple[str, str], dict[str, Any]] | None = None,
+    team_forecast_by_gw: dict[tuple[str, str], dict[str, Any]] | None = None,
     player_involvement_profiles: dict[str, dict[str, Any]] | None = None,
     official_match_stats_by_player: dict[str, list[dict[str, Any]]] | None = None,
     official_selected_by_player: dict[str, float] | None = None,
@@ -3716,6 +3810,8 @@ def transform_player(
             gk_team_priors or {},
             gk_model_inputs or {},
             market_lookup or {},
+            team_forecast_by_match or {},
+            team_forecast_by_gw or {},
         )
         for f in raw_upcoming
     ]
@@ -3831,10 +3927,17 @@ def transform_player(
         "Next Fixture Rating": round(next_rating, 1),
         "Next Market CS Probability": next_fixture.get("market_cs_probability") if next_fixture else None,
         "Next Market CS Source": next_fixture.get("market_cs_source") if next_fixture else None,
+        "Next Team eGoals": next_fixture.get("team_egoals") if next_fixture else None,
+        "Next Team eDF": next_fixture.get("team_edf") if next_fixture else None,
+        "Next Team Forecast Source": next_fixture.get("team_forecast_source") if next_fixture else None,
+        "Next Team Forecast Updated At": next_fixture.get("team_forecast_updated_at") if next_fixture else None,
         "Next Fixture Score": fixture_rating_to_score(next_rating) if next_fixture else "-",
         "Next Fixture Details": fixture_details_text(upcoming[:1], position),
         "Following Fixture Rating": round(following_rating, 1),
         "Following Market CS Probability": following_fixture.get("market_cs_probability") if following_fixture else None,
+        "Following Team eGoals": following_fixture.get("team_egoals") if following_fixture else None,
+        "Following Team eDF": following_fixture.get("team_edf") if following_fixture else None,
+        "Following Team Forecast Source": following_fixture.get("team_forecast_source") if following_fixture else None,
         "Following Fixture Score": fixture_rating_to_score(following_rating) if following_fixture else "-",
         "Following Fixture Details": fixture_details_text(upcoming[1:2], position),
         "Next Three Fixture Rating": round(
@@ -4076,6 +4179,7 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
     player_involvement_metadata, player_involvement_profiles = load_player_involvement_profiles()
     gk_model_inputs = load_gk_model_inputs()
     market_metadata, market_lookup = load_market_odds()
+    team_forecast_metadata, team_forecast_by_match, team_forecast_by_gw = load_team_forecasts()
     gk_team_priors = build_gk_team_priors(
         gk_model_inputs,
         team_strength,
@@ -4097,6 +4201,8 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
             gk_team_priors,
             gk_model_inputs,
             market_lookup,
+            team_forecast_by_match,
+            team_forecast_by_gw,
             player_involvement_profiles,
             official_match_stats_by_player,
             official_selected_by_player,
@@ -4308,6 +4414,13 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
     metadata = {
         "source": "WSL Fantasy public JSON feeds used by create-team UI",
         "generated_at_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "team_forecast_data": {
+            "available": bool(team_forecast_by_match or team_forecast_by_gw),
+            "input_file": TEAM_FORECASTS_PATH.name,
+            "source": team_forecast_metadata.get("source"),
+            "generated_at_utc": team_forecast_metadata.get("generated_at_utc"),
+            "note": "External team eGoals/eDF are audit/display signals only and are not blended into Decision, Fix, Form, Involvement, or the GK model.",
+        },
         "market_clean_sheet_data": {
             "available": bool(market_lookup),
             "input_file": MARKET_ODDS_PATH.name,
