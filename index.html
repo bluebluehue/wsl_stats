@@ -55,16 +55,11 @@
             transform: translateY(-5px);
         }
 
-        /* Show tooltip on hover (desktop) or tap (touch/mobile). */
-        .custom-tooltip-container:hover .custom-tooltip-content,
-        .custom-tooltip-container.tooltip-open .custom-tooltip-content {
+        /* Show the tooltip on hover */
+        .custom-tooltip-container:hover .custom-tooltip-content {
             visibility: visible;
             opacity: 1;
             transform: translateY(0);
-        }
-
-        @media (hover: none), (pointer: coarse) {
-            .custom-tooltip-container { cursor: pointer; }
         }
 
         /* Custom styling for better presentation */
@@ -1052,147 +1047,6 @@
             font-weight: 700;
         }
 
-        /* Involvement tab: match the standalone involvement page. */
-        #involvement-view .inv-panel {
-            background: #fff;
-            border: 1px solid #e5e7eb;
-            border-radius: 0.75rem;
-            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
-        }
-
-        #involvement-view .inv-status-key {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.35rem;
-            margin-top: 0.28rem;
-            font-size: 0.7rem;
-            color: #64748b;
-        }
-
-        #involvement-view .inv-status-dot {
-            width: 0.48rem;
-            height: 0.48rem;
-            border-radius: 999px;
-            display: inline-block;
-            flex: 0 0 auto;
-        }
-
-        #involvement-view .inv-status-dot-awaiting { background:#f59e0b; }
-        #involvement-view .inv-status-dot-progress { background:#3b82f6; }
-
-        #involvement-view .inv-group-row td {
-            padding: 0.48rem 0.75rem;
-            font-size: 0.72rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.045em;
-            border-top: 1px solid #e5e7eb;
-            border-bottom: 1px solid #e5e7eb;
-        }
-
-        #involvement-view .inv-group-latest td {
-            background: #eff6ff;
-            color: #1e40af;
-        }
-
-        #involvement-view .inv-group-settled td {
-            background: #f8fafc;
-            color: #64748b;
-        }
-
-        #involvement-view #inv-table .inv-player-sticky {
-            position: sticky;
-            left: 0;
-            z-index: 12;
-            min-width: 10.5rem;
-            max-width: 13rem;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            background: #fff;
-            box-shadow: 1px 0 0 #e5e7eb;
-        }
-
-        #involvement-view #inv-table thead .inv-player-sticky {
-            z-index: 25;
-            background: #f9fafb;
-        }
-
-        #involvement-view .inv-last-name { display:none; }
-
-        #involvement-view #inv-table-scroll.inv-scrolled-side .inv-full-name {
-            display:none;
-        }
-
-        #involvement-view #inv-table-scroll.inv-scrolled-side .inv-last-name {
-            display:inline;
-        }
-
-        #involvement-view #inv-table-scroll.inv-scrolled-side .inv-player-sticky {
-            min-width: 6.75rem;
-            max-width: 8.5rem;
-        }
-
-        /* Compact identity columns, but only Player is sticky. */
-        #involvement-view #inv-table th:nth-child(2),
-        #involvement-view #inv-table td:nth-child(2) {
-            min-width: 4.5rem;
-            width: 4.5rem;
-        }
-
-        #involvement-view #inv-table th:nth-child(3),
-        #involvement-view #inv-table td:nth-child(3) {
-            min-width: 3.5rem;
-            width: 3.5rem;
-        }
-
-        #involvement-view #inv-table th:nth-child(4),
-        #involvement-view #inv-table td:nth-child(4) {
-            min-width: 2.75rem;
-            width: 2.75rem;
-        }
-
-        /* Keep involvement position chips neutral, as on the standalone page. */
-        #involvement-view #inv-table .pos-badge {
-            background: #f3f4f6 !important;
-            color: #374151 !important;
-        }
-
-        @media (max-width: 640px) {
-            #involvement-view #inv-table .inv-player-sticky {
-                min-width: 9.25rem;
-                max-width: 10.5rem;
-            }
-
-            #involvement-view #inv-table-scroll.inv-scrolled-side .inv-player-sticky {
-                min-width: 5.75rem;
-                max-width: 7rem;
-            }
-
-            #involvement-view #inv-filter-row {
-                flex-wrap: nowrap;
-                gap: 0.35rem;
-                width: 100%;
-                align-items: flex-end;
-            }
-
-            #involvement-view #inv-filter-row label {
-                flex: 0 0 auto;
-                font-size: 0.67rem;
-            }
-
-            #involvement-view #inv-filter-row select {
-                margin-top: 0.18rem;
-                padding: 0.34rem 0.3rem;
-                font-size: 0.72rem;
-                line-height: 1.05rem;
-            }
-
-            #involvement-view #inv-gameweek { width: 4.55rem; }
-            #involvement-view #inv-league { width: 5.2rem; }
-            #involvement-view #inv-position { width: 3.55rem; }
-            #involvement-view #inv-club { width: 5rem; }
-        }
-
         /* ------------------------------------------------------------------ */
         /* --- COMPACT DESKTOP HEADER --- */
         /* ------------------------------------------------------------------ */
@@ -1370,1015 +1224,6 @@
             .filter-toggle-row #delta-reference-note {
                 font-size: 0.75rem !important;
             }
-        }
-
-    
-        /* ================================================================ */
-        /* PLAYER TABLE — MODERN VISUAL ALIGNMENT WITH INVOLVEMENT VIEW     */
-        /* ================================================================ */
-
-        body {
-            background: #f6f7fb;
-            color: #111827;
-        }
-
-        body > .max-w-full {
-            padding-left: 1.25rem !important;
-            padding-right: 1.25rem !important;
-            padding-top: 0.6rem !important;
-        }
-
-        .stats-topbar {
-            justify-content: flex-start !important;
-            gap: 0.85rem !important;
-            margin-bottom: 0.8rem !important;
-        }
-
-        .stats-title {
-            color: #111827 !important;
-            font-size: 1.65rem !important;
-            font-weight: 800 !important;
-            letter-spacing: -0.025em;
-        }
-
-        #view-tabs {
-            gap: 0.45rem !important;
-        }
-
-        #view-tabs .view-tab {
-            border: 1px solid #dfe3ea !important;
-            border-radius: 0.6rem !important;
-            background: #ffffff !important;
-            color: #374151 !important;
-            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04) !important;
-            font-weight: 700 !important;
-            transition: background .15s ease, border-color .15s ease, color .15s ease;
-        }
-
-        #view-tabs .view-tab:hover {
-            background: #f8fafc !important;
-            border-color: #cbd5e1 !important;
-        }
-
-        #view-tabs .view-tab.active {
-            background: #6d3df5 !important;
-            border-color: #6d3df5 !important;
-            color: #ffffff !important;
-            box-shadow: 0 3px 10px rgba(109, 61, 245, 0.18) !important;
-        }
-
-        #table-view .table-controls-shell {
-            background: #ffffff;
-            border: 1px solid #e5e7eb;
-            border-radius: 0.8rem;
-            padding: 0.8rem 0.9rem;
-            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
-            margin-bottom: 0.75rem !important;
-        }
-
-        #table-view .table-action-buttons button {
-            border-radius: 0.55rem !important;
-            box-shadow: none !important;
-            font-weight: 650 !important;
-        }
-
-        #table-view #show-key-button {
-            background: #6d3df5 !important;
-            border-color: #6d3df5 !important;
-        }
-
-        #table-view .filter-row select,
-        #table-view .filter-row input[type="number"] {
-            border-radius: 0.55rem !important;
-            border-color: #d7dce4 !important;
-            background: #f9fafb !important;
-            box-shadow: none !important;
-        }
-
-        #table-view .filter-row select:focus,
-        #table-view .filter-row input[type="number"]:focus {
-            border-color: #8b5cf6 !important;
-            box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.12) !important;
-        }
-
-        #table-view .filter-toggle-row {
-            color: #4b5563;
-        }
-
-        #table-view .filter-toggle-row input[type="checkbox"] {
-            accent-color: #6d3df5;
-        }
-
-        #table-view .table-scroll-container {
-            background: #ffffff !important;
-            border: 1px solid #e5e7eb !important;
-            border-radius: 0.8rem !important;
-            padding: 0 !important;
-            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05) !important;
-            overflow-x: auto !important;
-        }
-
-        #table-view .dataTables_wrapper {
-            padding: 0.55rem 0.3rem 0.35rem;
-        }
-
-        #table-view .dataTables_wrapper .dataTables_length,
-        #table-view .dataTables_wrapper .dataTables_filter {
-            margin: 0.15rem 0.35rem 0.55rem !important;
-            color: #4b5563;
-            font-size: 0.8rem;
-        }
-
-        #table-view .dataTables_wrapper .dataTables_length select,
-        #table-view .dataTables_wrapper .dataTables_filter input {
-            border: 1px solid #d7dce4 !important;
-            border-radius: 0.5rem !important;
-            background: #ffffff !important;
-            padding: 0.38rem 0.5rem !important;
-            box-shadow: none !important;
-        }
-
-        #table-view table.dataTable {
-            border-collapse: separate !important;
-            border-spacing: 0 !important;
-            border-top: 1px solid #e5e7eb !important;
-            border-bottom: 1px solid #e5e7eb !important;
-        }
-
-        #table-view table.dataTable thead th {
-            background: #f8fafc !important;
-            color: #475569 !important;
-            font-size: 0.69rem !important;
-            font-weight: 800 !important;
-            text-transform: uppercase;
-            letter-spacing: 0.035em;
-            border-bottom: 1px solid #dfe3ea !important;
-            white-space: nowrap;
-        }
-
-        #table-view table.dataTable tbody td {
-            border-bottom: 1px solid #edf0f4 !important;
-            background-clip: padding-box;
-        }
-
-        #table-view table.dataTable tbody tr:last-child td {
-            border-bottom: 0 !important;
-        }
-
-        #table-view table.dataTable tbody tr:hover td {
-            background-color: #f8fafc;
-        }
-
-        #table-view table.dataTable tbody tr.my-team-row td {
-            background-color: #eef5ff;
-        }
-
-        #table-view table.dataTable tbody tr.watchlist-row td {
-            background-color: #fffbea;
-        }
-
-        #table-view .dataTables_info {
-            color: #64748b !important;
-            font-size: 0.78rem !important;
-            padding: 0.7rem 0.45rem !important;
-        }
-
-        #table-view .dataTables_paginate {
-            padding: 0.45rem 0.35rem !important;
-        }
-
-        #table-view .dataTables_paginate .paginate_button {
-            border: 0 !important;
-            border-radius: 0.5rem !important;
-            background: transparent !important;
-            color: #475569 !important;
-            min-width: 2rem;
-            margin: 0 0.08rem !important;
-        }
-
-        #table-view .dataTables_paginate .paginate_button.current,
-        #table-view .dataTables_paginate .paginate_button.current:hover {
-            background: #f1edff !important;
-            color: #5b21b6 !important;
-            font-weight: 800;
-            border: 1px solid #ddd6fe !important;
-        }
-
-        #table-view .dataTables_paginate .paginate_button:hover {
-            background: #f8fafc !important;
-            color: #111827 !important;
-        }
-
-        /* Compact, modern score pills */
-        #table-view .pos-badge {
-            border-radius: 0.4rem !important;
-            font-size: 0.67rem !important;
-            line-height: 1 !important;
-            padding: 0.25rem 0.4rem !important;
-        }
-
-        /* Player names should feel like the primary row label. */
-        #table-view table.dataTable tbody td:first-child {
-            font-weight: 700;
-            color: #111827;
-        }
-
-        /* Make the numbered GW columns read as a separate trailing block. */
-        #table-view table.dataTable th.gameweek-col,
-        #table-view table.dataTable td.gameweek-col {
-            background: #fafbff !important;
-        }
-
-        /* Modal polish to align with the newer cards. */
-        #player-details-modal .modal-content {
-            border-radius: 1rem !important;
-            border: 1px solid #e5e7eb;
-            box-shadow: 0 24px 60px rgba(15, 23, 42, 0.22) !important;
-        }
-
-        @media (max-width: 768px) {
-            body > .max-w-full {
-                padding-left: 0.6rem !important;
-                padding-right: 0.6rem !important;
-            }
-
-            .stats-topbar {
-                align-items: flex-start !important;
-            }
-
-            .stats-title {
-                font-size: 1.35rem !important;
-            }
-
-            #table-view .table-controls-shell {
-                padding: 0.65rem !important;
-            }
-        }
-
-    
-        /* ================================================================ */
-        /* PLAYER TABLE REFINEMENT — closer to the involvement page         */
-        /* ================================================================ */
-
-        body {
-            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
-            background: #f7f8fb !important;
-            color: #1f2937 !important;
-        }
-
-        .stats-topbar {
-            display: flex !important;
-            align-items: center !important;
-            justify-content: flex-start !important;
-            flex-wrap: nowrap !important;
-            gap: 0.55rem !important;
-            margin-bottom: 0.45rem !important;
-            overflow-x: auto;
-            scrollbar-width: none;
-        }
-        .stats-topbar::-webkit-scrollbar { display: none; }
-
-        .stats-title {
-            flex: 0 0 auto;
-            margin: 0 !important;
-            font-size: 1.42rem !important;
-            line-height: 1.05 !important;
-            font-weight: 700 !important;
-            letter-spacing: -0.02em !important;
-            color: #111827 !important;
-            white-space: nowrap;
-        }
-
-        #view-tabs {
-            display: flex !important;
-            flex: 0 0 auto;
-            flex-wrap: nowrap !important;
-            gap: 0.3rem !important;
-            margin: 0 !important;
-        }
-
-        #view-tabs .view-tab {
-            padding: 0.39rem 0.58rem !important;
-            border-radius: 0.48rem !important;
-            font-size: 0.74rem !important;
-            line-height: 1.05 !important;
-            font-weight: 600 !important;
-            white-space: nowrap;
-            box-shadow: none !important;
-        }
-
-        #table-view .table-controls-shell {
-            padding: 0.55rem 0.7rem !important;
-            margin-bottom: 0.5rem !important;
-            row-gap: 0.15rem !important;
-            border-radius: 0.72rem !important;
-            box-shadow: 0 1px 2px rgba(15,23,42,.04) !important;
-        }
-
-        #table-view .table-action-buttons button {
-            padding: 0.38rem 0.58rem !important;
-            font-size: 0.74rem !important;
-            font-weight: 600 !important;
-        }
-
-        #table-view .filter-row { gap: 0.38rem !important; }
-        #table-view .filter-toggle-row {
-            gap: 0.5rem !important;
-            min-height: 1.4rem !important;
-        }
-
-        #table-view .filter-row label,
-        #table-view .filter-toggle-row label,
-        #table-view #delta-reference-note {
-            font-size: 0.71rem !important;
-            font-weight: 500 !important;
-            color: #4b5563 !important;
-        }
-
-        #table-view .filter-row select,
-        #table-view .filter-row input[type="number"] {
-            min-height: 1.95rem !important;
-            padding: 0.3rem 0.42rem !important;
-            font-size: 0.74rem !important;
-            background: #fff !important;
-        }
-
-        #table-view .table-scroll-container {
-            border-radius: 0.72rem !important;
-            box-shadow: 0 1px 2px rgba(15,23,42,.04) !important;
-        }
-
-        #table-view .dataTables_wrapper {
-            padding-top: 0.3rem !important;
-        }
-
-        #table-view .dataTables_wrapper .dataTables_length,
-        #table-view .dataTables_wrapper .dataTables_filter {
-            margin-bottom: 0.35rem !important;
-            font-size: 0.73rem !important;
-            font-weight: 400 !important;
-        }
-
-        #table-view .dataTables_wrapper .dataTables_length select,
-        #table-view .dataTables_wrapper .dataTables_filter input {
-            padding: 0.28rem 0.42rem !important;
-            font-size: 0.74rem !important;
-        }
-
-        #table-view table.dataTable {
-            font-size: 0.75rem !important;
-        }
-
-        #table-view table.dataTable thead th {
-            font-size: 0.64rem !important;
-            font-weight: 650 !important;
-            letter-spacing: 0.025em !important;
-            padding-top: 0.45rem !important;
-            padding-bottom: 0.45rem !important;
-            color: #475569 !important;
-        }
-
-        #table-view table.dataTable tbody td {
-            font-weight: 400 !important;
-            padding-top: 0.38rem !important;
-            padding-bottom: 0.38rem !important;
-        }
-
-        #table-view table.dataTable tbody td:first-child {
-            font-weight: 600 !important;
-        }
-
-        #table-view table.dataTable tbody .font-bold { font-weight: 600 !important; }
-        #table-view table.dataTable tbody .font-semibold { font-weight: 550 !important; }
-
-        /* Subtle column buckets */
-        #table-view table.dataTable thead th.bucket-decision { background: #f6f4ff !important; }
-        #table-view table.dataTable thead th.bucket-profile { background: #f8fafc !important; }
-        #table-view table.dataTable thead th.bucket-production { background: #f4f8ff !important; }
-        #table-view table.dataTable thead th.bucket-scoring { background: #faf7ff !important; }
-
-        #table-view table.dataTable th.bucket-start,
-        #table-view table.dataTable td.bucket-start {
-            border-left: 2px solid #d8dde7 !important;
-        }
-
-        #table-view table.dataTable tbody td.bucket-scoring {
-            background-color: rgba(247,245,255,.28);
-        }
-        #table-view table.dataTable tbody tr:hover td.bucket-scoring {
-            background-color: #f7f5ff !important;
-        }
-
-        #table-view .dataTables_info,
-        #table-view .dataTables_paginate {
-            font-size: 0.72rem !important;
-        }
-
-        #player-details-modal h2,
-        #player-details-modal h3,
-        #player-details-modal h4 {
-            font-weight: 650 !important;
-        }
-        #player-details-modal .font-extrabold { font-weight: 650 !important; }
-        #player-details-modal .font-bold { font-weight: 600 !important; }
-
-        @media (max-width: 900px) {
-            .stats-title { font-size: 1.25rem !important; }
-            #view-tabs .view-tab {
-                font-size: 0.7rem !important;
-                padding: 0.36rem 0.5rem !important;
-            }
-        }
-
-    
-        /* ================================================================ */
-        /* PLAYER TABLE V7 — DENSER DESKTOP + RIGHT-ALIGNED TABS            */
-        /* ================================================================ */
-
-        .stats-topbar {
-            display: flex !important;
-            align-items: center !important;
-            justify-content: space-between !important;
-            gap: 0.75rem !important;
-            margin-bottom: 0.3rem !important;
-            overflow: visible !important;
-        }
-
-        .stats-title {
-            flex: 0 0 auto;
-            margin: 0 !important;
-            font-size: 1.4rem !important;
-            line-height: 1 !important;
-        }
-
-        #view-tabs {
-            margin-left: auto !important;
-            justify-content: flex-end !important;
-            gap: 0.28rem !important;
-        }
-
-        #view-tabs .view-tab {
-            padding: 0.34rem 0.54rem !important;
-            font-size: 0.72rem !important;
-            line-height: 1 !important;
-        }
-
-        #table-view .table-controls-shell {
-            padding: 0.42rem 0.65rem !important;
-            margin-bottom: 0.38rem !important;
-            row-gap: 0.06rem !important;
-        }
-
-        #table-view .table-action-buttons {
-            gap: 0.28rem !important;
-        }
-
-        #table-view .table-action-buttons button {
-            padding: 0.32rem 0.52rem !important;
-            font-size: 0.71rem !important;
-        }
-
-        #table-view .filter-row {
-            gap: 0.32rem !important;
-            margin-top: 0 !important;
-            margin-bottom: 0 !important;
-        }
-
-        #table-view .filter-row label,
-        #table-view .filter-toggle-row label,
-        #table-view #delta-reference-note {
-            font-size: 0.68rem !important;
-            line-height: 1 !important;
-        }
-
-        #table-view .filter-row select,
-        #table-view .filter-row input[type="number"] {
-            min-height: 1.78rem !important;
-            padding: 0.24rem 0.38rem !important;
-            font-size: 0.7rem !important;
-        }
-
-        #table-view .filter-toggle-row {
-            gap: 0.42rem !important;
-            min-height: 1.15rem !important;
-            margin-top: 0.05rem !important;
-        }
-
-        /* Fit 15 rows more comfortably on a typical laptop viewport. */
-        #table-view .dataTables_wrapper {
-            padding-top: 0.18rem !important;
-        }
-
-        #table-view .dataTables_wrapper .dataTables_length,
-        #table-view .dataTables_wrapper .dataTables_filter {
-            margin-top: 0 !important;
-            margin-bottom: 0.2rem !important;
-            font-size: 0.7rem !important;
-        }
-
-        #table-view .dataTables_wrapper .dataTables_length select,
-        #table-view .dataTables_wrapper .dataTables_filter input {
-            padding: 0.22rem 0.34rem !important;
-            font-size: 0.7rem !important;
-            min-height: 1.7rem !important;
-        }
-
-        #table-view table.dataTable {
-            font-size: 0.71rem !important;
-        }
-
-        #table-view table.dataTable thead th {
-            font-size: 0.61rem !important;
-            padding-top: 0.34rem !important;
-            padding-bottom: 0.34rem !important;
-        }
-
-        #table-view table.dataTable tbody td {
-            padding-top: 0.27rem !important;
-            padding-bottom: 0.27rem !important;
-            line-height: 1.1 !important;
-        }
-
-        #table-view .dataTables_info,
-        #table-view .dataTables_paginate {
-            padding-top: 0.34rem !important;
-            padding-bottom: 0.18rem !important;
-            font-size: 0.69rem !important;
-        }
-
-        #table-view .dataTables_paginate .paginate_button {
-            min-width: 1.75rem !important;
-            padding: 0.28rem 0.4rem !important;
-        }
-
-        /* ================================================================ */
-        /* PLAYER MODAL — BUCKETED / CALMER / EASIER TO SCAN                */
-        /* ================================================================ */
-
-        #player-details-modal .modal-content {
-            max-width: 34rem !important;
-        }
-
-        #player-details-modal .player-bucket {
-            border: 1px solid #e5e7eb;
-            border-radius: 0.75rem;
-            background: #fff;
-            overflow: hidden;
-        }
-
-        #player-details-modal .player-bucket-title {
-            padding: 0.45rem 0.65rem;
-            font-size: 0.66rem;
-            font-weight: 700;
-            letter-spacing: 0.04em;
-            text-transform: uppercase;
-            color: #475569;
-            background: #f8fafc;
-            border-bottom: 1px solid #e5e7eb;
-        }
-
-        #player-details-modal .player-bucket-body {
-            padding: 0.6rem;
-        }
-
-        #player-details-modal .player-mini-grid {
-            display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 0.42rem;
-        }
-
-        #player-details-modal .player-mini-card {
-            border: 1px solid #e5e7eb;
-            border-radius: 0.58rem;
-            background: #fbfcfe;
-            padding: 0.48rem 0.52rem;
-            min-height: 3.25rem;
-        }
-
-        #player-details-modal .player-mini-label {
-            font-size: 0.61rem;
-            text-transform: uppercase;
-            letter-spacing: 0.035em;
-            color: #64748b;
-            font-weight: 650;
-        }
-
-        #player-details-modal .player-mini-value {
-            margin-top: 0.14rem;
-            font-size: 1rem;
-            line-height: 1.05;
-            color: #4f46e5;
-            font-weight: 650;
-        }
-
-        #player-details-modal .recent-match-card,
-        #player-details-modal .upcoming-match-card {
-            border: 1px solid #e5e7eb;
-            border-radius: 0.62rem;
-            background: #fff;
-            padding: 0.5rem 0.58rem;
-        }
-
-        #player-details-modal .recent-match-card + .recent-match-card,
-        #player-details-modal .upcoming-match-card + .upcoming-match-card {
-            margin-top: 0.42rem;
-        }
-
-        #player-details-modal .modal-section-heading {
-            font-size: 0.76rem !important;
-            font-weight: 650 !important;
-            color: #4f46e5 !important;
-            margin-bottom: 0.45rem !important;
-        }
-
-        #player-details-modal #modal-decision-strip {
-            gap: 0.4rem !important;
-            margin-bottom: 0.65rem !important;
-        }
-
-        @media (max-width: 900px) {
-            .stats-topbar {
-                overflow-x: auto !important;
-            }
-
-            #player-details-modal .player-mini-grid {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-            }
-        }
-
-    
-        /* ================================================================ */
-        /* V8 — TRUE COMPACT TABLE: CONSISTENT TYPE + SHORTER ROWS          */
-        /* ================================================================ */
-
-        #table-view table.dataTable {
-            font-size: 11px !important;
-        }
-
-        #table-view table.dataTable tbody tr {
-            height: 24px !important;
-        }
-
-        #table-view table.dataTable tbody td {
-            height: 24px !important;
-            padding: 1px 4px !important;
-            line-height: 1 !important;
-            font-size: 11px !important;
-            vertical-align: middle !important;
-        }
-
-        /* Keep every textual element inside a row on the same type scale. */
-        #table-view table.dataTable tbody td span,
-        #table-view table.dataTable tbody td div,
-        #table-view table.dataTable tbody td a {
-            font-size: 11px !important;
-            line-height: 1 !important;
-        }
-
-        #table-view table.dataTable tbody td:first-child {
-            font-size: 11.5px !important;
-            font-weight: 600 !important;
-            white-space: nowrap;
-        }
-
-        #table-view table.dataTable thead th {
-            padding: 4px 4px !important;
-            font-size: 10px !important;
-            line-height: 1 !important;
-        }
-
-        /* Score pills were the main row-height culprit. */
-        #table-view table.dataTable tbody td span.rounded-full {
-            padding: 3px 7px !important;
-            min-width: 38px !important;
-            font-size: 11px !important;
-            line-height: 1 !important;
-        }
-
-        #table-view .team-badge {
-            width: auto !important;
-            min-width: 36px !important;
-            padding: 3px 7px !important;
-            font-size: 11px !important;
-            line-height: 1 !important;
-        }
-
-        #table-view .pos-badge {
-            min-width: 31px !important;
-            padding: 3px 5px !important;
-            font-size: 11px !important;
-            line-height: 1 !important;
-        }
-
-        #table-view .day-pill {
-            padding-top: 2px !important;
-            padding-bottom: 2px !important;
-            font-size: 10.5px !important;
-            line-height: 1 !important;
-        }
-
-        /* Use available vertical space for rows, not DataTables chrome. */
-        #table-view .dataTables_wrapper {
-            padding-top: 0.1rem !important;
-        }
-
-        #table-view .dataTables_wrapper .dataTables_length,
-        #table-view .dataTables_wrapper .dataTables_filter {
-            margin: 0 0.25rem 0.15rem !important;
-            font-size: 11px !important;
-            line-height: 1 !important;
-        }
-
-        #table-view .dataTables_wrapper .dataTables_length select,
-        #table-view .dataTables_wrapper .dataTables_filter input {
-            min-height: 26px !important;
-            height: 26px !important;
-            padding: 2px 6px !important;
-            font-size: 11px !important;
-        }
-
-        #table-view .dataTables_info,
-        #table-view .dataTables_paginate {
-            padding-top: 0.25rem !important;
-            padding-bottom: 0.1rem !important;
-            font-size: 11px !important;
-            line-height: 1 !important;
-        }
-
-        #table-view .dataTables_paginate .paginate_button {
-            min-width: 1.65rem !important;
-            padding: 0.22rem 0.34rem !important;
-        }
-
-        /* A little more space recovered above the table. */
-        body > .max-w-full {
-            padding-top: 0.42rem !important;
-        }
-
-        .stats-topbar {
-            margin-bottom: 0.22rem !important;
-        }
-
-        #table-view .table-controls-shell {
-            padding-top: 0.34rem !important;
-            padding-bottom: 0.34rem !important;
-            margin-bottom: 0.32rem !important;
-        }
-
-        #table-view .filter-row select,
-        #table-view .filter-row input[type="number"] {
-            min-height: 1.65rem !important;
-            height: 1.65rem !important;
-        }
-
-        /* Keep modal cards readable; compacting applies only to main table. */
-
-    
-        /* ================================================================ */
-        /* V9 — SLIGHT TYPE BUMP, KEEP COMPACT ROW HEIGHT                  */
-        /* ================================================================ */
-
-        #table-view table.dataTable {
-            font-size: 11.5px !important;
-        }
-
-        #table-view table.dataTable tbody td {
-            font-size: 11.5px !important;
-        }
-
-        #table-view table.dataTable tbody td span,
-        #table-view table.dataTable tbody td div,
-        #table-view table.dataTable tbody td a {
-            font-size: 11.5px !important;
-        }
-
-        #table-view table.dataTable tbody td:first-child {
-            font-size: 12px !important;
-        }
-
-        #table-view table.dataTable thead th {
-            font-size: 10.5px !important;
-        }
-
-        #table-view table.dataTable tbody td span.rounded-full {
-            font-size: 11.5px !important;
-        }
-
-        #table-view .team-badge,
-        #table-view .pos-badge {
-            font-size: 11.5px !important;
-        }
-
-        #table-view .day-pill {
-            font-size: 11px !important;
-        }
-
-    
-        /* ================================================================ */
-        /* V10 — READABLE COMPACT TABLE + CONSISTENT SUPPORTING TYPE       */
-        /* ================================================================ */
-
-        #table-view table.dataTable {
-            font-size: 12px !important;
-        }
-
-        #table-view table.dataTable tbody tr {
-            height: 27px !important;
-        }
-
-        #table-view table.dataTable tbody td {
-            height: 27px !important;
-            padding: 2px 5px !important;
-            line-height: 1.05 !important;
-            font-size: 12px !important;
-            vertical-align: middle !important;
-        }
-
-        #table-view table.dataTable tbody td span,
-        #table-view table.dataTable tbody td div,
-        #table-view table.dataTable tbody td a {
-            font-size: 12px !important;
-            line-height: 1.05 !important;
-        }
-
-        #table-view table.dataTable tbody td:first-child {
-            font-size: 12.5px !important;
-            font-weight: 600 !important;
-        }
-
-        #table-view table.dataTable thead th {
-            font-size: 10.75px !important;
-            line-height: 1.05 !important;
-            padding: 4px 5px !important;
-        }
-
-        #table-view table.dataTable tbody td span.rounded-full {
-            padding: 3.5px 7px !important;
-            min-width: 39px !important;
-            font-size: 12px !important;
-        }
-
-        #table-view .team-badge,
-        #table-view .pos-badge {
-            font-size: 12px !important;
-        }
-
-        #table-view .day-pill {
-            font-size: 11.5px !important;
-        }
-
-        /* Column-header tooltips should read like prose, not inherit ALL CAPS. */
-        .custom-tooltip-content {
-            text-transform: none !important;
-            letter-spacing: normal !important;
-            font-family: inherit !important;
-            font-size: 12px !important;
-            line-height: 1.35 !important;
-            font-weight: 400 !important;
-        }
-
-        .custom-tooltip-content strong {
-            font-weight: 650 !important;
-        }
-
-        /* Match DataTables chrome + footer to the same type system as the page. */
-        #table-view .dataTables_wrapper .dataTables_length,
-        #table-view .dataTables_wrapper .dataTables_filter,
-        #table-view .dataTables_wrapper .dataTables_info,
-        #table-view .dataTables_wrapper .dataTables_paginate,
-        #table-view .dataTables_wrapper .dataTables_length label,
-        #table-view .dataTables_wrapper .dataTables_filter label,
-        #table-view .dataTables_wrapper .dataTables_length select,
-        #table-view .dataTables_wrapper .dataTables_filter input {
-            font-family: inherit !important;
-            font-size: 12px !important;
-            font-weight: 400 !important;
-        }
-
-        body > center,
-        body > center a {
-            font-family: inherit !important;
-            font-size: 12px !important;
-            font-weight: 400 !important;
-            color: #64748b !important;
-            text-decoration: none !important;
-        }
-
-        body > center {
-            margin-top: 0.45rem !important;
-        }
-
-    
-        /* ================================================================ */
-        /* V11 — 30PX ROWS + CLEANER INVOLVEMENT-STYLE TABLE               */
-        /* ================================================================ */
-
-        #table-view table.dataTable tbody tr {
-            height: 30px !important;
-        }
-
-        #table-view table.dataTable tbody td {
-            height: 30px !important;
-            padding: 3px 6px !important;
-            font-size: 12px !important;
-            line-height: 1.1 !important;
-        }
-
-        #table-view table.dataTable tbody td:first-child {
-            font-size: 12.5px !important;
-        }
-
-        /* Slightly airier header, but still compact. */
-        #table-view table.dataTable thead th {
-            padding: 5px 6px !important;
-            font-size: 10.75px !important;
-            background: #f8fafc !important;
-            border-bottom: 1px solid #e5e7eb !important;
-        }
-
-        /* Calm the bucket treatment to feel more like the involvement page:
-           subtle tint, less visual segmentation. */
-        #table-view table.dataTable thead th.bucket-decision,
-        #table-view table.dataTable thead th.bucket-profile,
-        #table-view table.dataTable thead th.bucket-production,
-        #table-view table.dataTable thead th.bucket-scoring {
-            background: #f8fafc !important;
-        }
-
-        #table-view table.dataTable th.bucket-start,
-        #table-view table.dataTable td.bucket-start {
-            border-left: 1px solid #dfe3ea !important;
-        }
-
-        #table-view table.dataTable tbody td.bucket-scoring {
-            background-color: transparent !important;
-        }
-
-        #table-view table.dataTable tbody tr:hover td,
-        #table-view table.dataTable tbody tr:hover td.bucket-scoring {
-            background-color: #f8fafc !important;
-        }
-
-        /* Cleaner card edge and less legacy-heavy chrome. */
-        #table-view .table-scroll-container {
-            border: 1px solid #e5e7eb !important;
-            border-radius: 0.75rem !important;
-            box-shadow: 0 1px 2px rgba(15,23,42,.035) !important;
-            background: #fff !important;
-        }
-
-        #table-view table.dataTable {
-            border-top: 0 !important;
-            border-bottom: 0 !important;
-        }
-
-        #table-view table.dataTable tbody td {
-            border-bottom: 1px solid #eef1f5 !important;
-        }
-
-        /* Reduce visual weight of controls to match involvement tab. */
-        #table-view .table-controls-shell {
-            border-color: #e5e7eb !important;
-            box-shadow: 0 1px 2px rgba(15,23,42,.035) !important;
-        }
-
-        #table-view .table-action-buttons button:not(#show-key-button) {
-            background: #fff !important;
-            color: #374151 !important;
-            border-color: #d9dee7 !important;
-            box-shadow: none !important;
-        }
-
-        #table-view .filter-row select,
-        #table-view .filter-row input[type="number"],
-        #table-view .dataTables_wrapper .dataTables_length select,
-        #table-view .dataTables_wrapper .dataTables_filter input {
-            border-color: #d9dee7 !important;
-            box-shadow: none !important;
-        }
-
-        /* Give section transitions a little breathing room without growing the page much. */
-        #table-view .dataTables_info,
-        #table-view .dataTables_paginate {
-            padding-top: 0.4rem !important;
-        }
-
-        /* Keep highlighted rows soft and modern. */
-        #table-view table.dataTable tbody tr.my-team-row td {
-            background-color: #edf5ff !important;
-        }
-
-        #table-view table.dataTable tbody tr.watchlist-row td {
-            background-color: #fffbe8 !important;
-        }
-
-        /* Neutralize some inherited boldness. */
-        #table-view table.dataTable tbody .font-bold {
-            font-weight: 600 !important;
-        }
-
-        #table-view table.dataTable tbody .font-semibold {
-            font-weight: 550 !important;
         }
 
     </style>
@@ -2839,66 +1684,57 @@
         </section>
 
         <section id="involvement-view" class="hidden">
-            <div class="inv-panel p-3 sm:p-4 mb-3">
+            <div class="bg-white border border-gray-200 rounded-lg p-3 mb-3 shadow-sm">
                 <div class="flex flex-wrap gap-3 items-end justify-between">
                     <div>
                         <h3 class="text-lg font-bold text-gray-800">Involvement Points</h3>
-                        <p class="text-sm text-gray-600 mt-1">
-                            Underlying Opta actions behind attacking and defensive involvement points.
+                        <p class="text-xs text-gray-500 mt-1">
+                            Official Opta event actions behind WSL Fantasy attacking and defensive involvement points.
+                            Thresholds are applied per match: 1 attacking point per 4 actions and 1 defensive point per 10 actions.
                         </p>
                     </div>
-
-                    <div class="flex flex-col items-start sm:items-end gap-1">
-                        <button id="inv-refresh-live" type="button" class="inv-live-button" title="Reload the latest involvement snapshot.">
+                    <div class="flex flex-wrap gap-2 items-end">
+                        <label class="text-xs font-semibold text-gray-600">Matchweek
+                            <select id="inv-gameweek" class="block mt-1 px-2 py-2 border border-gray-300 rounded-md text-sm bg-white">
+                                <option value="overall">Overall</option>
+                            </select>
+                        </label>
+                        <label class="text-xs font-semibold text-gray-600">League
+                            <select id="inv-league" class="block mt-1 px-2 py-2 border border-gray-300 rounded-md text-sm bg-white">
+                                <option value="">WSL + WSL2</option>
+                                <option value="WSL">WSL only</option>
+                                <option value="WSL2">WSL2 only</option>
+                            </select>
+                        </label>
+                        <label class="text-xs font-semibold text-gray-600">Position
+                            <select id="inv-position" class="block mt-1 px-2 py-2 border border-gray-300 rounded-md text-sm bg-white">
+                                <option value="">All</option>
+                                <option value="GK">GK</option>
+                                <option value="DEF">DEF</option>
+                                <option value="MID">MID</option>
+                                <option value="FOR">FOR</option>
+                            </select>
+                        </label>
+                        <label class="text-xs font-semibold text-gray-600">Club
+                            <select id="inv-club" class="block mt-1 px-2 py-2 border border-gray-300 rounded-md text-sm bg-white">
+                                <option value="">All clubs</option>
+                            </select>
+                        </label>
+                        <button id="inv-refresh-live" type="button" class="inv-live-button" title="Fetch the latest public Opta event data for matches that have started recently.">
                             <i class="fa-solid fa-rotate"></i>
                             Refresh Latest
                         </button>
-                        <div id="inv-refresh-state" class="text-xs text-gray-500"></div>
-                        <div class="text-xs text-gray-500">Updates available roughly every 15 minutes during matches.</div>
-                        <div class="inv-status-key">
-                            <span class="inv-status-dot inv-status-dot-progress"></span>
-                            <span>In-progress rows are provisional</span>
-                        </div>
+                        <span class="text-xs text-gray-500 self-end pb-2">Updates available roughly every 15 minutes during matches.</span>
                     </div>
                 </div>
-
-                <div id="inv-filter-row" class="flex flex-wrap gap-2 items-end mt-3">
-                    <label class="text-xs font-semibold text-gray-600">Matchweek
-                        <select id="inv-gameweek" class="block mt-1 px-2 py-2 border border-gray-300 rounded-md text-sm bg-white">
-                            <option value="overall">Overall</option>
-                        </select>
-                    </label>
-                    <label class="text-xs font-semibold text-gray-600">League
-                        <select id="inv-league" class="block mt-1 px-2 py-2 border border-gray-300 rounded-md text-sm bg-white">
-                            <option value="">WSL + WSL2</option>
-                            <option value="WSL">WSL only</option>
-                            <option value="WSL2">WSL2 only</option>
-                        </select>
-                    </label>
-                    <label class="text-xs font-semibold text-gray-600">Position
-                        <select id="inv-position" class="block mt-1 px-2 py-2 border border-gray-300 rounded-md text-sm bg-white">
-                            <option value="">All</option>
-                            <option value="GK">GK</option>
-                            <option value="DEF">DEF</option>
-                            <option value="MID">MID</option>
-                            <option value="FOR">FOR</option>
-                        </select>
-                    </label>
-                    <label class="text-xs font-semibold text-gray-600">Club
-                        <select id="inv-club" class="block mt-1 px-2 py-2 border border-gray-300 rounded-md text-sm bg-white">
-                            <option value="">All clubs</option>
-                        </select>
-                    </label>
-                </div>
-
                 <div id="inv-summary" class="mt-3 text-xs text-gray-600"></div>
             </div>
 
-            <div id="inv-table-scroll" class="inv-panel overflow-x-auto">
+            <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-x-auto">
                 <table class="min-w-full text-sm" id="inv-table">
                     <thead class="bg-gray-50 text-gray-600 text-xs uppercase tracking-wide">
                         <tr>
-                            <th class="text-left px-3 py-2 inv-th inv-player-sticky" data-inv-sort="name">Player</th>
+                            <th class="text-left px-3 py-2 inv-th" data-inv-sort="name">Player</th>
                             <th class="text-center px-3 py-2 inv-th" data-inv-sort="club">Club</th>
                             <th class="text-center px-3 py-2 inv-th" data-inv-sort="position">Pos</th>
                             <th class="text-center px-3 py-2 inv-th" data-inv-sort="matches_with_data" title="Completed Opta-covered matches included in this view.">M</th>
@@ -2906,33 +1742,20 @@
                             <th class="text-center px-3 py-2 inv-th" data-inv-sort="key_passes" title="Key passes">KP</th>
                             <th class="text-center px-3 py-2 inv-th" data-inv-sort="successful_crosses" title="Successful crosses">Cross</th>
                             <th class="text-center px-3 py-2 inv-th" data-inv-sort="successful_dribbles" title="Successful dribbles">Drib</th>
-                            <th class="text-center px-3 py-2 inv-th" data-inv-sort="attacking_actions">Att Actions</th>
+                            <th class="text-center px-3 py-2 inv-th" data-inv-sort="attacking_actions" title="SOT + key passes + successful crosses + successful dribbles">Att Actions</th>
                             <th class="text-center px-3 py-2 inv-th" data-inv-sort="attacking_points">Att Pts</th>
-                            <th class="text-center px-3 py-2 inv-th" data-inv-sort="tackles_won">Tkl</th>
+                            <th class="text-center px-3 py-2 inv-th" data-inv-sort="tackles_won" title="Tackles won">Tkl</th>
                             <th class="text-center px-3 py-2 inv-th" data-inv-sort="interceptions">Int</th>
                             <th class="text-center px-3 py-2 inv-th" data-inv-sort="clearances">Clr</th>
                             <th class="text-center px-3 py-2 inv-th" data-inv-sort="blocks">Blk</th>
                             <th class="text-center px-3 py-2 inv-th" data-inv-sort="recoveries">Rec</th>
-                            <th class="text-center px-3 py-2 inv-th" data-inv-sort="defensive_actions">Def Actions</th>
+                            <th class="text-center px-3 py-2 inv-th" data-inv-sort="defensive_actions" title="Tackles won + interceptions + clearances + blocks + recoveries">Def Actions</th>
                             <th class="text-center px-3 py-2 inv-th" data-inv-sort="defensive_points">Def Pts</th>
                             <th class="text-center px-3 py-2 inv-th" data-inv-sort="involvement_points">Total IP</th>
                         </tr>
                     </thead>
                     <tbody id="inv-table-body"></tbody>
                 </table>
-            </div>
-
-            <div class="inv-panel mt-3 p-3 sm:p-4 text-xs text-gray-600 leading-relaxed">
-                <p>
-                    <strong>Scoring:</strong>
-                    1 attacking involvement point per 4 combined shots on target,
-                    key passes, successful crosses and successful dribbles.
-                    1 defensive involvement point per 10 combined tackles won,
-                    interceptions, clearances, blocked shots and recoveries.
-                </p>
-                <p class="mt-2 text-gray-500">
-                    In-progress values are provisional and may change as Opta updates match events.
-                </p>
             </div>
         </section>
 
@@ -3039,39 +1862,14 @@
             </div>
             <div id="modal-tab-content">
                 <div id="tab-details" class="tab-pane">
-                    <div class="player-bucket mb-3">
-                        <div class="player-bucket-title">Decision profile</div>
-                        <div class="player-bucket-body">
-                            <div id="modal-decision-strip" class="grid grid-cols-2 sm:grid-cols-5"></div>
-                        </div>
+                    <div id="modal-stats-grid" class="grid grid-cols-2 gap-2">
                     </div>
 
-                    <div class="player-bucket mb-3">
-                        <div class="player-bucket-title">Fantasy production</div>
-                        <div class="player-bucket-body">
-                            <div id="modal-production-grid" class="player-mini-grid"></div>
-                        </div>
-                    </div>
-
-                    <div class="player-bucket mb-3">
-                        <div class="player-bucket-title">Scoring profile</div>
-                        <div class="player-bucket-body">
-                            <div id="modal-scoring-grid" class="player-mini-grid"></div>
-                        </div>
-                    </div>
-
-                    <div class="mt-4">
-                        <h4 class="modal-section-heading flex items-center">
-                            <i class="fa-solid fa-clock-rotate-left mr-2"></i> Recent Matches
-                        </h4>
-                        <div id="modal-recent-matches"></div>
-                    </div>
-
-                    <div class="mt-4 pt-3 border-t">
-                        <h4 class="modal-section-heading flex items-center">
+                    <div class="mt-6 pt-4 border-t">
+                        <h4 class="text-xl font-semibold text-indigo-700 mb-3 flex items-center">
                             <i class="fa-solid fa-calendar-alt mr-2"></i> Upcoming Matches
                         </h4>
-                        <div id="modal-fixtures-list">
+                        <div id="modal-fixtures-list" class="space-y-3">
                             <p class="text-gray-500 text-sm italic">Loading fixtures...</p>
                         </div>
                     </div>
@@ -3151,23 +1949,6 @@
             const displayCode = canonicalTeamCodeUI(raw);
         
             return `<span class="team-badge badge-${displayCode}">${displayCode}</span>`;
-        }
-
-        function compactInvolvementPlayerName(fullName) {
-            const name = String(fullName || '').trim();
-            if (!name) return '—';
-            const parts = name.split(/\s+/);
-            return parts.length > 1 ? parts[parts.length - 1] : name;
-        }
-
-        function involvementLastNameSortKey(fullName) {
-            const name = String(fullName || '').trim();
-            if (!name) return '';
-            const parts = name.split(/\s+/);
-            return parts[parts.length - 1]
-                .normalize('NFD')
-                .replace(/[\u0300-\u036f]/g, '')
-                .toLocaleLowerCase();
         }
 
         function normalizeKey(name) {
@@ -3258,26 +2039,6 @@
                 if (dataTableInstance) {
                     dataTableInstance.rows().invalidate().draw(false);
                 }
-            };
-
-            // Custom sort for Bonus Average (BA).
-            // Lower ranks are better. Missing values always sort last.
-            $.fn.dataTable.ext.type.order['bonus-rank-null-last-asc'] = function(a, b) {
-                const aBlank = a === null || a === undefined || a === '' || a === '—';
-                const bBlank = b === null || b === undefined || b === '' || b === '—';
-                if (aBlank && bBlank) return 0;
-                if (aBlank) return 1;
-                if (bBlank) return -1;
-                return Number(a) - Number(b);
-            };
-
-            $.fn.dataTable.ext.type.order['bonus-rank-null-last-desc'] = function(a, b) {
-                const aBlank = a === null || a === undefined || a === '' || a === '—';
-                const bBlank = b === null || b === undefined || b === '' || b === '—';
-                if (aBlank && bBlank) return 0;
-                if (aBlank) return 1;
-                if (bBlank) return -1;
-                return Number(b) - Number(a);
             };
 
             const RECENT_GAMES_COUNT = 4;
@@ -3391,7 +2152,7 @@
 
             function getExportColumns(rows) {
                 const preferred = [
-                    'Name', 'Club', 'Position', 'Value', 'Next Fixture Day', 'Next Fixture Date ISO', 'Next Fixture Kickoff', 'Next Fixture Opponent', 'Next Fixture H/A', 'Sub Flex', 'Decision Rating', 'Comparison Fixture Rating', 'Comparison Following Fixture Rating', 'Comparison Form Rating', 'Comparison Involvement Rating', 'Form Rating', 'Player Involvement Rating',
+                    'Name', 'Club', 'Position', 'Value', 'Next Fixture Day', 'Next Fixture Date ISO', 'Next Fixture Kickoff', 'Next Fixture Opponent', 'Next Fixture H/A', 'Sub Flex', 'Decision Rating', 'Form Rating',
                     'Total Points', 'Points Per Game', 'Selected Percentage',
                     'Selected Percentage Change 1W',
                     'Selected Percentage Change Since Last Global Price Change',
@@ -3475,103 +2236,6 @@
             });
             // --- END GLOBAL MODAL FUNCTIONS ---
 
-            // Build up to three upcoming fixtures for the player popup.
-            // player.upcoming_fixtures currently tends to expose only two; use the
-            // canonical full fixture calendar to fill the third (and future) slot.
-            function popupUpcomingFixtures(player, limit = 3) {
-                const direct = Array.isArray(player.upcoming_fixtures)
-                    ? player.upcoming_fixtures.slice()
-                    : [];
-
-                const club = String(player.Club || '').toUpperCase();
-                const now = new Date();
-
-                const fixtureKey = fixture => {
-                    const matchId = fixture.match_id || fixture.matchId || '';
-                    if (matchId) return `id:${matchId}`;
-                    return [
-                        fixture.fantasy_game_week ?? fixture.game_week ?? '',
-                        fixture.home_id || '',
-                        fixture.away_id || '',
-                        fixture.match_date_time_utc || fixture.fixture_date_iso || fixture.game_date || ''
-                    ].join('|');
-                };
-
-                const result = [];
-                const seen = new Set();
-
-                direct.forEach(fixture => {
-                    const key = fixtureKey(fixture);
-                    if (!seen.has(key)) {
-                        seen.add(key);
-                        result.push(fixture);
-                    }
-                });
-
-                if (club && Array.isArray(fullFixtureData)) {
-                    const canonical = fullFixtureData
-                        .filter(fixture => {
-                            const home = String(fixture.home_id || '').toUpperCase();
-                            const away = String(fixture.away_id || '').toUpperCase();
-                            if (home !== club && away !== club) return false;
-
-                            const rawDate =
-                                fixture.match_date_time_utc ||
-                                fixture.fixture_date_iso ||
-                                fixture.game_date ||
-                                '';
-                            if (!rawDate) return true;
-
-                            const parsed = new Date(rawDate);
-                            return Number.isNaN(parsed.getTime()) || parsed > now;
-                        })
-                        .sort((a, b) => {
-                            const agw = Number(a.fantasy_game_week ?? a.game_week ?? 999);
-                            const bgw = Number(b.fantasy_game_week ?? b.game_week ?? 999);
-                            if (agw !== bgw) return agw - bgw;
-
-                            const ad = String(a.match_date_time_utc || a.fixture_date_iso || a.game_date || '');
-                            const bd = String(b.match_date_time_utc || b.fixture_date_iso || b.game_date || '');
-                            return ad.localeCompare(bd);
-                        });
-
-                    canonical.forEach(fixture => {
-                        if (result.length >= limit) return;
-
-                        const key = fixtureKey(fixture);
-                        const gw = String(fixture.fantasy_game_week ?? fixture.game_week ?? '');
-                        const duplicateGw = result.some(existing =>
-                            gw &&
-                            String(existing.fantasy_game_week ?? existing.game_week ?? '') === gw &&
-                            String(existing.home_id || '').toUpperCase() === String(fixture.home_id || '').toUpperCase() &&
-                            String(existing.away_id || '').toUpperCase() === String(fixture.away_id || '').toUpperCase()
-                        );
-
-                        if (seen.has(key) || duplicateGw) return;
-
-                        const home = String(fixture.home_id || '').toUpperCase();
-                        const isHome = home === club;
-                        result.push({
-                            ...fixture,
-                            opponent_id: isHome ? fixture.away_id : fixture.home_id,
-                            location: isHome ? 'H' : 'A'
-                        });
-                        seen.add(key);
-                    });
-                }
-
-                return result
-                    .sort((a, b) => {
-                        const agw = Number(a.fantasy_game_week ?? a.game_week ?? 999);
-                        const bgw = Number(b.fantasy_game_week ?? b.game_week ?? 999);
-                        if (agw !== bgw) return agw - bgw;
-                        const ad = String(a.match_date_time_utc || a.fixture_date_iso || a.game_date || '');
-                        const bd = String(b.match_date_time_utc || b.fixture_date_iso || b.game_date || '');
-                        return ad.localeCompare(bd);
-                    })
-                    .slice(0, limit);
-            }
-
             // --- PLAYER DETAILS FUNCTION ---
             function populatePlayerDetails(player) {
                 const nameEl = $('#modal-player-name');
@@ -3579,8 +2243,7 @@
                 const clubEl = $('#modal-player-club');
                 const valueEl = $('#modal-player-value');
                 const natEl = $('#modal-player-nat');
-                const productionGrid = $('#modal-production-grid');
-                const scoringGrid = $('#modal-scoring-grid');
+                const statsGrid = $('#modal-stats-grid');
                 const fixturesListEl = $('#modal-fixtures-list'); 
 
                 if (player.Visionary) {
@@ -3603,116 +2266,54 @@
                     newsContainerEl.html(newsHtml);
                 }
                 
-                const decisionStripEl = $('#modal-decision-strip');
-                const recentMatchesEl = $('#modal-recent-matches');
-
-                const decisionCard = (label, value) => {
-                    const n = Number(value);
-                    const display = Number.isFinite(n) ? n.toFixed(1) : '—';
-                    return `<div class="rounded-lg border border-gray-200 bg-gray-50 px-2 py-2 text-center">
-                        <div class="text-[10px] uppercase tracking-wide text-gray-500 font-semibold">${label}</div>
-                        <div class="text-lg font-bold text-indigo-600">${display}</div>
-                    </div>`;
-                };
-
-                decisionStripEl.html(
-                    decisionCard('Decision', player["Decision Rating"]) +
-                    decisionCard('Fix', player["Comparison Fixture Rating"]) +
-                    decisionCard('Fix+1', player["Comparison Following Fixture Rating"]) +
-                    decisionCard('Form', player["Comparison Form Rating"]) +
-                    decisionCard('Inv', player["Comparison Involvement Rating"])
-                );
-
-                const gamesPlayed = Number(player["Total Games Played"] || 0);
-                const totalPoints = Number(player["Total Points"] || 0);
-                const ppg = gamesPlayed > 0 ? totalPoints / gamesPlayed : null;
-
-                const productionCards = [
-                    {label:'Points', value:totalPoints},
-                    {label:'PPG', value:ppg, decimal:true},
-                    {label:'Apps', value:gamesPlayed},
-                    {label:'60+ Apps', value:player["Total 60 min Appearances"]},
-                    {label:'Minutes', value:player["Total Minutes"]},
-                    {label:'P4', value:player["Total Over 4 Gameweeks"]},
-                    {label:'G4', value:player["Games Played Over 4 Gameweeks"]},
-                    {label:'PG4', value:player["Points Per Game Over 4 Gameweeks"], decimal:true},
-                    {label:'Selection', value:player["Selected Percentage"], decimal:true, suffix:'%'},
-                    {label:'Δ Selection', value:player[selectedDeltaField], decimal:true, signed:true}
+                const statKeys = [
+                    { "label": "Total Points (P)", "key": "Total Points", "unit": "" },
+                    { "label": "Points Per Game (PG)", "key": "Points Per Game", "unit": "", "calc": true }, 
+                    { "label": "Selection Rate (S%)", "key": "Selected Percentage", "unit": "%", "raw_unit": true },
+                    { "label": "Selection Change", "key": "Ownership Delta", "unit": "", "raw_unit": true, "delta": true },
+                    { "label": "Next Fixture Score (0-100)", "key": "Next Fixture Rating", "unit": "", "raw_unit": true },
+                    <!-- { "label": "Recommendation", "key": "Recommendation", "unit": "", "raw_unit": true }, -->
+                    { "label": "Goals Scored", "key": "Total Goals", "unit": "" },
+                    { "label": "Assists", "key": "Total Assists", "unit": "" },
+                    { "label": "Clean Sheets (CS)", "key": "Total Clean Sheet", "unit": "" },
+                    { "label": "Points Last 4 GWs (P4)", "key": "Total Over 4 Gameweeks", "unit": "" },
+                    { "label": "Points/M Last 4 GWs (PM4)", "key": "Points Per Million Over 4 Gameweeks", "unit": "", "raw_unit": true }, 
                 ];
+                let detailsHTML = '';
 
-                const scoringCards = [
-                    {label:'G+A', value:player["Total Goals + Assists"]},
-                    {label:'Clean Sheets', value:player["Total Clean Sheet"]},
-                    {label:'Att IP', value:player["Total Attacking Involvement Points"]},
-                    {label:'Def IP', value:player["Total Defensive Involvement Points"]},
-                    {label:'Bonus', value:player["Total Bonus Points"]},
-                    {label:'Bonus Avg Rank', value:player["Average Bonus Rank"], decimal:true},
-                    {label:'Bonus Games', value:player["Total Bonus Games"]},
-                    {label:'Saves', value:player["Total Saves"]},
-                    {label:'Yellow', value:player["Total Yellow Cards"]},
-                    {label:'Red', value:player["Total Red Cards"]},
-                    {label:'Pen Miss', value:player["Total Missed Penalties"]},
-                    {label:'Own Goals', value:player["Total Own Goals"]},
-                    {label:'Goals Conceded', value:player["Total Conceded"]}
-                ];
+                statKeys.forEach(stat => {
+                    let displayValue = '-';
 
-                const renderMiniCards = cards => cards.map(card => {
-                    const n = Number(card.value);
-                    let display = '—';
-
-                    if (
-                        card.value !== null &&
-                        card.value !== undefined &&
-                        card.value !== '' &&
-                        Number.isFinite(n)
-                    ) {
-                        display = card.decimal ? n.toFixed(1) : String(Math.round(n));
-                        if (card.signed && n > 0) display = '+' + display;
-                        if (card.suffix) display += card.suffix;
+                    if (stat.calc) {
+                        const totalPoints = player["Total Points"];
+                        const gamesPlayed = player["Total Games Played"];
+                        displayValue = gamesPlayed > 0 ? safeToFixed(totalPoints / gamesPlayed, 1) : '-';
+                    } else if (stat.key === "Ownership Delta") {
+                        displayValue = player[selectedDeltaField];
+                    } else if (player[stat.key] !== undefined && player[stat.key] !== null) {
+                        displayValue = player[stat.key];
                     }
+                    if (stat.delta) {
+                        displayValue = formatOwnershipDelta(displayValue);
+                    } else if (typeof displayValue === 'number' && !stat.raw_unit) {
+                        displayValue = safeToFixed(displayValue, 0); 
+                    } else if (typeof displayValue === 'number' && (stat.key === 'Selected Percentage' || stat.key === 'Points Per Million Over 4 Gameweeks')) {
+                        displayValue = safeToFixed(displayValue, 1);
+                    }
+                    
+                    detailsHTML += `
+                    <div class="flex flex-col p-1 bg-gray-50 rounded-lg shadow-sm border border-gray-200">
+                        <span class="text-xs font-medium text-gray-500 uppercase tracking-wider">${stat.label}</span>
+                        <span class="text-xl font-extrabold text-indigo-600 mt-1">
+                            ${displayValue}${stat.raw_unit ? '' : stat.unit}
+                        </span>
+                    </div>
+                `;
+                });
 
-                    return `<div class="player-mini-card">
-                        <div class="player-mini-label">${card.label}</div>
-                        <div class="player-mini-value">${display}</div>
-                    </div>`;
-                }).join('');
+                statsGrid.html(detailsHTML);
 
-                productionGrid.html(renderMiniCards(productionCards));
-                scoringGrid.html(renderMiniCards(scoringCards));
-
-                const recent = (player["Official Match Stats"] || [])
-                    .filter(row => row && Number(row.minutes || 0) > 0)
-                    .slice()
-                    .sort((a,b) => String(b.fixture_date_utc || '').localeCompare(String(a.fixture_date_utc || '')))
-                    .slice(0,5);
-
-                if (!recent.length) {
-                    recentMatchesEl.html('<p class="text-gray-500 text-sm italic">No completed-match detail available yet.</p>');
-                } else {
-                    recentMatchesEl.html(recent.map(row => {
-                        const gw = row.fantasy_game_week ? `GW${row.fantasy_game_week}` : 'Match';
-                        const opponent = row.fixture_opponent ? ` · ${canonicalTeamCodeUI(row.fixture_opponent)}` : '';
-                        const location = row.fixture_location ? ` (${row.fixture_location})` : '';
-                        const bonusRank = Number(row.bonus_rank || 0) > 0 ? `#${row.bonus_rank}` : '—';
-
-                        return `<div class="recent-match-card">
-                            <div class="flex items-center justify-between gap-2">
-                                <div class="font-semibold text-gray-800">${gw}${opponent}${location}</div>
-                                <div class="text-lg font-bold text-indigo-700">${Number(row.total_points || 0)} pts</div>
-                            </div>
-                            <div class="mt-1 text-xs text-gray-600 flex flex-wrap gap-x-3 gap-y-1">
-                                <span>${Number(row.minutes || 0)} min</span>
-                                <span>G ${Number(row.goals || 0)}</span>
-                                <span>A ${Number(row.assists || 0)}</span>
-                                <span>Att +${Number(row.attacking_points || 0)}</span>
-                                <span>Def +${Number(row.defensive_points || 0)}</span>
-                                <span>Bonus ${bonusRank} → +${Number(row.bonus_points || 0)}</span>
-                            </div>
-                        </div>`;
-                    }).join(''));
-                }
-
-                const fixtures = popupUpcomingFixtures(player, 3);
+                const fixtures = player.upcoming_fixtures || [];
                 const playerClubCode = player.Club;
                 let fixturesHTML = '';
 
@@ -3721,41 +2322,28 @@
                 } else {
                     let listHTML = '';
 
-                    fixtures.forEach((fixture, idx) => {
-                        const clubCode = String(player.Club || '').toUpperCase();
-                        const homeCode = String(fixture.home_id || '').toUpperCase();
-                        const opponent =
-                            fixture.opponent_id ||
-                            fixture.opponent_short_name ||
-                            fixture.opponent_name ||
-                            (homeCode === clubCode ? fixture.away_id : fixture.home_id) ||
-                            'TBD';
-                        const location = fixture.location
-                            ? ` (${fixture.location === 'H' ? 'Home' : 'Away'})`
-                            : '';
-                        const gw = fixture.fantasy_game_week || fixture.game_week || '?';
-                        const comparison = idx === 0
-                            ? player["Comparison Fixture Rating"]
-                            : idx === 1
-                                ? player["Comparison Following Fixture Rating"]
-                                : (
-                                    fixture.comparison_rating ??
-                                    fixture.opportunity_rating ??
-                                    fixture.fixture_rating ??
-                                    null
-                                );
+                    fixtures.forEach(fixture => {
+                        const homeTeamCode = fixture.home_id;
+                        const awayTeamCode = fixture.away_id;
+                        const isHome = homeTeamCode === playerClubCode;
 
-                        const fixText = comparison === null || comparison === undefined || comparison === ''
-                            ? ''
-                            : `<span class="font-bold text-indigo-700">Fix ${Number(comparison).toFixed(1)}</span>`;
+                        const opponentCode = isHome ? fixture.away_short_name : fixture.home_short_name;
+                        const location = isHome ? ' (Home)' : ' (Away)';
+                        const displayOpponentCode = opponentCode || '???';
+
+                        const opponentClass = isHome
+                            ? 'font-bold text-gray-900'
+                            : 'font-medium text-gray-600';
 
                         listHTML += `
-                        <div class="upcoming-match-card flex justify-between items-center gap-3 text-sm">
-                            <div>
-                                <div class="font-semibold text-gray-800">GW${gw} · ${canonicalTeamCodeUI(opponent)}${location}</div>
-                                <div class="text-xs text-gray-500">${fixture.game_date || fixture.fixture_date_iso || ''}${fixture.kick_off_time ? ' @ ' + fixture.kick_off_time : ''}</div>
+                        <div class="flex justify-between items-center text-sm border-b border-gray-100 pb-2">
+                            <div class="flex items-center space-x-2">
+                                <span class="text-xs font-bold text-gray-600 w-[130px] flex-shrink-0">Game Week ${fixture.game_week}</span>
+                                <span class="${opponentClass}">${displayOpponentCode}${location}</span>
                             </div>
-                            ${fixText}
+                            <div class="flex items-center space-x-3">
+                                <span class="font-medium text-gray-900">${fixture.game_date} @ ${fixture.kick_off_time}</span>
+                            </div>
                         </div>
                     `;
                     });
@@ -3934,103 +2522,6 @@
                 return `<div class="custom-tooltip-container"><span class="custom-tooltip-points">${abbr}</span><div class="custom-tooltip-content">${fullTitle.replace(/\n/g, '<br>')}</div></div>`;
             }
 
-
-            function signedFantasyPoints(value) {
-                const n = Number(value || 0);
-                if (!Number.isFinite(n) || n === 0) return null;
-                return n > 0 ? `+${n}` : `${n}`;
-            }
-
-            function fantasyGwTooltip(row, gwKey, data) {
-                const officialRows = (row["Official Match Stats"] || [])
-                    .filter(match =>
-                        String(match.fantasy_game_week ?? '') === String(gwKey)
-                    );
-
-                if (!officialRows.length) {
-                    const fallback = data && data.tooltip ? String(data.tooltip).trim() : '';
-                    return fallback
-                        ? fallback.replace(/\\n/g, '<br>').replace(/\n/g, '<br>')
-                        : `Fantasy GW${gwKey}: ${data?.points ?? '—'} pts`;
-                }
-
-                return officialRows.map(match => {
-                    const total = Number(match.total_points || 0);
-                    const opponent = match.fixture_opponent
-                        ? canonicalTeamCodeUI(match.fixture_opponent)
-                        : '';
-                    const location = match.fixture_location
-                        ? ` (${match.fixture_location})`
-                        : '';
-                    const title = opponent
-                        ? `<strong>GW${gwKey} · ${opponent}${location}: ${total} pts</strong>`
-                        : `<strong>GW${gwKey}: ${total} pts</strong>`;
-
-                    const parts = [];
-                    const add = (label, points, detail = '') => {
-                        const signed = signedFantasyPoints(points);
-                        if (!signed) return;
-                        parts.push(`${label} ${signed}${detail ? ` <span style="opacity:.78">(${detail})</span>` : ''}`);
-                    };
-
-                    add(
-                        'Appearance',
-                        match.appearance_points,
-                        `${Number(match.minutes || 0)} min`
-                    );
-                    add(
-                        'Goals',
-                        match.goal_points,
-                        Number(match.goals || 0) ? `${Number(match.goals)} goal${Number(match.goals) === 1 ? '' : 's'}` : ''
-                    );
-                    add(
-                        'Assists',
-                        match.assist_points,
-                        Number(match.assists || 0) ? `${Number(match.assists)} assist${Number(match.assists) === 1 ? '' : 's'}` : ''
-                    );
-                    add('Clean sheet', match.clean_sheet_points);
-                    add(
-                        'Saves',
-                        match.save_points,
-                        Number(match.saves || 0) ? `${Number(match.saves)} saves` : ''
-                    );
-                    add('Attacking involvement', match.attacking_points);
-                    add('Defensive involvement', match.defensive_points);
-
-                    const bonusDetail = Number(match.bonus_rank || 0) > 0
-                        ? `rank #${Number(match.bonus_rank)}`
-                        : '';
-                    add('Bonus', match.bonus_points, bonusDetail);
-
-                    add('Yellow card', match.yellow_card_points);
-                    add('Red card', match.red_card_points);
-                    add('Own goal', match.own_goal_points);
-                    add('Penalty miss', match.penalty_miss_points);
-                    add('Goals conceded', match.goals_conceded_points);
-
-                    const knownComponentSum = [
-                        match.appearance_points,
-                        match.goal_points,
-                        match.assist_points,
-                        match.clean_sheet_points,
-                        match.save_points,
-                        match.attacking_points,
-                        match.defensive_points,
-                        match.bonus_points,
-                        match.yellow_card_points,
-                        match.red_card_points,
-                        match.own_goal_points,
-                        match.penalty_miss_points,
-                        match.goals_conceded_points
-                    ].reduce((sum, value) => sum + Number(value || 0), 0);
-
-                    const residual = total - knownComponentSum;
-                    if (residual) add('Other scoring', residual);
-
-                    return `${title}<br>${parts.length ? parts.join('<br>') : 'No scoring-component detail available.'}`;
-                }).join('<br><br>');
-            }
-
             // Helper function to safely format data, returning '-' for missing values (No Change)
             function safeToFixed(data, decimals) {
                 if (data === null || data === undefined || isNaN(data) || !isFinite(data) || data === '-') {
@@ -4090,33 +2581,6 @@
             }
             
             // --- Mapped column definitions for STATIC data (No Change) ---
-            function comparisonScoreClass(score) {
-                let classes = 'px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap inline-block min-w-[44px] text-center';
-                if (score >= 80) {
-                    classes += ' bg-green-600 text-white';
-                } else if (score >= 65) {
-                    classes += ' bg-green-200 text-green-900';
-                } else if (score >= 45) {
-                    classes += ' bg-gray-200 text-gray-800';
-                } else if (score >= 25) {
-                    classes += ' bg-red-200 text-red-900';
-                } else {
-                    classes += ' bg-red-600 text-white';
-                }
-                return classes;
-            }
-
-            function comparisonTooltip(label, comparison, raw, percentile, extraHtml = '') {
-                const compText = Number.isFinite(Number(comparison)) ? Number(comparison).toFixed(1) : '—';
-                const rawText = Number.isFinite(Number(raw)) ? Number(raw).toFixed(1) : '—';
-                const pctText = Number.isFinite(Number(percentile)) ? Number(percentile).toFixed(1) : '—';
-                return `<strong>${label}: ${compText}</strong><br>` +
-                    `Raw model rating: ${rawText}<br>` +
-                    `League percentile: ${pctText}${pctText === '—' ? '' : 'th'}<br>` +
-                    `Comparison score: 70% percentile + 30% raw` +
-                    (extraHtml ? `<br><br>${extraHtml}` : '');
-            }
-
             const STATIC_COLUMN_MAP = {
                 "Name": {
                     abbr: 'Name',
@@ -4217,7 +2681,7 @@
                 },
                 "Decision Rating": {
                     abbr: 'Decision',
-                    full: 'Overall fantasy recommendation score. Outfield: 35% comparison Fixture + 35% comparison Form + 30% comparison Involvement, then current-role confidence. GK keeps its specialized fixture/form model.',
+                    full: 'Overall Decision Rating (0-100). Position-specific blend of next-GW fixture opportunity and recent form: GK 85/15, DEF 65/35, MID 35/65, FWD 25/75.',
                     type: 'num',
                     render: function (data, type, row) {
                         const numericRating = (data === null || data === undefined || data === "")
@@ -4227,39 +2691,35 @@
                         if (type !== 'display') {
                             return numericRating === null || isNaN(numericRating) ? -1 : numericRating;
                         }
+
                         if (numericRating === null || isNaN(numericRating)) {
                             return '<span class="text-gray-400">-</span>';
                         }
 
                         let classes = 'px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap inline-block min-w-[48px] text-center';
-                        if (numericRating >= 80) classes += ' bg-green-600 text-white';
-                        else if (numericRating >= 65) classes += ' bg-green-200 text-green-900';
-                        else if (numericRating >= 50) classes += ' bg-gray-200 text-gray-800';
-                        else if (numericRating >= 35) classes += ' bg-red-200 text-red-900';
-                        else classes += ' bg-red-600 text-white';
+                        if (numericRating >= 80) {
+                            classes += ' bg-green-600 text-white';
+                        } else if (numericRating >= 65) {
+                            classes += ' bg-green-200 text-green-900';
+                        } else if (numericRating >= 50) {
+                            classes += ' bg-gray-200 text-gray-800';
+                        } else if (numericRating >= 35) {
+                            classes += ' bg-red-200 text-red-900';
+                        } else {
+                            classes += ' bg-red-600 text-white';
+                        }
 
                         const pos = row["Position"] || '';
-                        const role = Number(row["Current Role Confidence"] ?? 1);
-                        const base = Number(row["Base Decision Rating Before Role"] ?? numericRating);
-
-                        let tooltipHtml;
-                        if (pos === 'GK') {
-                            const rawFix = Number(row["Next Fixture Rating"] ?? 0);
-                            const rawForm = Number(row["Form Rating"] ?? 0);
-                            tooltipHtml = `<strong>Decision ${numericRating.toFixed(1)}/100</strong><br>` +
-                                `GK model: 85% raw fixture + 15% raw form<br>` +
-                                `Raw Fixture: ${rawFix.toFixed(1)} | Raw Form: ${rawForm.toFixed(1)}<br>` +
-                                `Role confidence: ${(role * 100).toFixed(0)}%`;
-                        } else {
-                            const fix = Number(row["Comparison Fixture Rating"] ?? 50);
-                            const form = Number(row["Comparison Form Rating"] ?? 50);
-                            const inv = Number(row["Comparison Involvement Rating"] ?? 50);
-                            tooltipHtml = `<strong>Decision ${numericRating.toFixed(1)}/100</strong><br>` +
-                                `35% Fix + 35% Form + 30% Inv<br>` +
-                                `Fix ${fix.toFixed(1)} | Form ${form.toFixed(1)} | Inv ${inv.toFixed(1)}<br>` +
-                                `Base before role: ${base.toFixed(1)}<br>` +
-                                `Role confidence: ${(role * 100).toFixed(0)}%`;
-                        }
+                        const form = parseFloat(row["Form Rating"] || 0);
+                        const fixture = parseFloat(row["Next Fixture Rating"] || 0);
+                        const weights = {
+                            GK: [85, 15],
+                            DEF: [65, 35],
+                            MID: [35, 65],
+                            FOR: [25, 75]
+                        };
+                        const w = weights[pos] || [50, 50];
+                        const tooltipHtml = `Decision ${numericRating.toFixed(1)}/100<br>${pos}: ${w[0]}% next fixture + ${w[1]}% form<br>Fixture: ${fixture.toFixed(1)} | Form: ${form.toFixed(0)}`;
 
                         return `
                             <div class="custom-tooltip-container">
@@ -4273,33 +2733,46 @@
 
                 "Next Fixture Score": {
                     abbr: 'Fix',
-                    full: 'League-comparable next-fixture score. 70% league percentile + 30% raw position-aware fixture rating. Hover for both values and the underlying fixture model.',
+                    full: 'Next gameweek fixture opportunity from 0-100 (higher = better). Goalkeepers use GK Model v2: clean-sheet environment + 3-save point chance + keeper quality + 3+ goals-conceded penalty risk. Outfield players use the general fixture model.',
                     type: 'num',
                     render: function (data, type, row) {
-                        const comparison = row["Comparison Fixture Rating"];
-                        const numericRating = (comparison === null || comparison === undefined || comparison === "")
-                            ? null : parseFloat(comparison);
+                        const rating = row["Next Fixture Rating"];
+                        const numericRating = (rating === null || rating === undefined || rating === "")
+                            ? null
+                            : parseFloat(rating);
 
                         if (type !== 'display') {
                             return numericRating === null || isNaN(numericRating) ? -1 : numericRating;
                         }
+
                         if (numericRating === null || isNaN(numericRating)) {
                             return '<span class="text-gray-400">-</span>';
                         }
 
-                        const raw = row["Next Fixture Rating"];
-                        const pct = row["Normalized Fixture Rating"];
-                        const details = (row["Next Fixture Details"] || "")
+                        let classes = 'px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap inline-block min-w-[48px] text-center';
+
+                        if (numericRating >= 80) {
+                            classes += ' bg-green-600 text-white';
+                        } else if (numericRating >= 65) {
+                            classes += ' bg-green-200 text-green-900';
+                        } else if (numericRating >= 45) {
+                            classes += ' bg-gray-200 text-gray-800';
+                        } else if (numericRating >= 25) {
+                            classes += ' bg-red-200 text-red-900';
+                        } else {
+                            classes += ' bg-red-600 text-white';
+                        }
+
+                        const tooltipText = row["Next Fixture Details"] || "";
+                        const tooltipHtml = tooltipText
                             .replace(/&/g, '&amp;')
                             .replace(/</g, '&lt;')
                             .replace(/>/g, '&gt;')
                             .replace(/\\n/g, '<br>').replace(/\n/g, '<br>');
 
-                        const tooltipHtml = comparisonTooltip('Fixture comparison', numericRating, raw, pct, details);
-
                         return `
                             <div class="custom-tooltip-container">
-                                <span class="${comparisonScoreClass(numericRating)}">${numericRating.toFixed(1)}</span>
+                                <span class="${classes}">${numericRating.toFixed(1)}</span>
                                 <span class="custom-tooltip-content">${tooltipHtml}</span>
                             </div>
                         `;
@@ -4308,148 +2781,117 @@
                 },
                 "Following Fixture Score": {
                     abbr: 'Fix+1',
-                    full: 'League-comparable following-fixture score. 70% league percentile + 30% raw position-aware fixture rating.',
+                    full: 'Following gameweek fixture opportunity from 0-100 (higher = better). Goalkeepers use GK Model v2: clean-sheet environment + 3-save point chance + keeper quality + 3+ goals-conceded penalty risk. Outfield players use the general fixture model.',
                     type: 'num',
                     render: function (data, type, row) {
-                        const comparison = row["Comparison Following Fixture Rating"];
-                        const numericRating = (comparison === null || comparison === undefined || comparison === "")
-                            ? null : parseFloat(comparison);
+                        const rating = row["Following Fixture Rating"];
+                        const numericRating = (rating === null || rating === undefined || rating === "")
+                            ? null
+                            : parseFloat(rating);
 
                         if (type !== 'display') {
                             return numericRating === null || isNaN(numericRating) ? -1 : numericRating;
                         }
+
                         if (numericRating === null || isNaN(numericRating)) {
                             return '<span class="text-gray-400">-</span>';
                         }
 
-                        const raw = row["Following Fixture Rating"];
-                        const pct = row["Normalized Following Fixture Rating"];
-                        const details = (row["Following Fixture Details"] || "")
+                        let classes = 'px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap inline-block min-w-[48px] text-center';
+
+                        if (numericRating >= 80) {
+                            classes += ' bg-green-600 text-white';
+                        } else if (numericRating >= 65) {
+                            classes += ' bg-green-200 text-green-900';
+                        } else if (numericRating >= 45) {
+                            classes += ' bg-gray-200 text-gray-800';
+                        } else if (numericRating >= 25) {
+                            classes += ' bg-red-200 text-red-900';
+                        } else {
+                            classes += ' bg-red-600 text-white';
+                        }
+
+                        const tooltipText = row["Following Fixture Details"] || "";
+                        const tooltipHtml = tooltipText
                             .replace(/&/g, '&amp;')
                             .replace(/</g, '&lt;')
                             .replace(/>/g, '&gt;')
                             .replace(/\\n/g, '<br>').replace(/\n/g, '<br>');
 
-                        const tooltipHtml = comparisonTooltip('Following fixture comparison', numericRating, raw, pct, details);
-
                         return `
                             <div class="custom-tooltip-container">
-                                <span class="${comparisonScoreClass(numericRating)}">${numericRating.toFixed(1)}</span>
+                                <span class="${classes}">${numericRating.toFixed(1)}</span>
                                 <span class="custom-tooltip-content">${tooltipHtml}</span>
                             </div>
                         `;
+                    },
+                    className: 'dt-center'
+                },
+
+                "Next Team eGoals": {
+                    abbr: 'eG',
+                    full: 'External team expected-goals forecast for the next fixture. Audit/display only: it is not blended into Decision, Fix, Form, Involvement, or the GK model.',
+                    type: 'num',
+                    render: function (data, type, row) {
+                        const value = (data === null || data === undefined || data === '') ? null : parseFloat(data);
+                        if (type !== 'display') return value === null || isNaN(value) ? -999 : value;
+                        if (value === null || isNaN(value)) return '<span class="text-gray-400">-</span>';
+                        const source = row["Next Team Forecast Source"] || 'External forecast';
+                        const opponent = row["Next Fixture Opponent"] || '';
+                        const ha = row["Next Fixture H/A"] || '';
+                        const tooltip = `${source}<br>${row["Club"]} ${ha ? `(${ha})` : ''} vs ${opponent}<br>Team eGoals: ${value.toFixed(2)}<br>Not used in v17 Decision/Fix.`;
+                        return `<div class="custom-tooltip-container"><span class="px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap inline-block min-w-[48px] text-center bg-blue-100 text-blue-900">${value.toFixed(2)}</span><span class="custom-tooltip-content">${tooltip}</span></div>`;
+                    },
+                    className: 'dt-center'
+                },
+                "Next Team eDF": {
+                    abbr: 'eDF',
+                    full: 'External eDF fixture signal for the next fixture. Higher values are shown as supplied by the source. The exact source methodology is not assumed here; this field is audit/display only.',
+                    type: 'num',
+                    render: function (data, type, row) {
+                        const value = (data === null || data === undefined || data === '') ? null : parseFloat(data);
+                        if (type !== 'display') return value === null || isNaN(value) ? -999 : value;
+                        if (value === null || isNaN(value)) return '<span class="text-gray-400">-</span>';
+                        const source = row["Next Team Forecast Source"] || 'External forecast';
+                        const tooltip = `${source}<br>eDF: ${value.toFixed(2)}<br>Displayed exactly as supplied; no formula is inferred.<br>Not used in v17 Decision/Fix.`;
+                        return `<div class="custom-tooltip-container"><span class="px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap inline-block min-w-[48px] text-center bg-purple-100 text-purple-900">${value > 0 ? '+' : ''}${value.toFixed(2)}</span><span class="custom-tooltip-content">${tooltip}</span></div>`;
                     },
                     className: 'dt-center'
                 },
 
                 "Form Rating": {
                     abbr: 'Form',
-                    full: 'League-comparable form score. 70% league percentile + 30% raw season-transition form rating. Hover for production, prior and confidence details.',
+                    full: 'Recent form rating from 0-100, based on last 4 games: recent points, consistency, and bonus involvement',
                     type: 'num',
                     render: function (data, type, row) {
-                        const comparison = row["Comparison Form Rating"];
-                        const numericRating = (comparison === null || comparison === undefined || comparison === "")
-                            ? null : parseFloat(comparison);
-
                         if (type !== 'display') {
-                            return numericRating === null || isNaN(numericRating) ? -1 : numericRating;
+                            return data === null || data === undefined ? 0 : data;
                         }
-                        if (numericRating === null || isNaN(numericRating)) {
+                
+                        if (data === null || data === undefined) {
                             return '<span class="text-gray-400">-</span>';
                         }
-
-                        const raw = row["Form Rating"];
-                        const pct = row["Normalized Form Rating"];
-                        const apps = Number(row["Current Season Appearance Count"] ?? 0);
-                        const ppa = row["Current Season Points Per Appearance"];
-                        const prod = row["Current Season Production Rating"];
-                        const prior = row["Previous Season Form Prior Rating"];
-                        const conf = Number(row["Form Current Season Confidence"] ?? 0);
-
-                        const extra =
-                            `Current appearances: ${apps}<br>` +
-                            `Points/appearance: ${ppa === null || ppa === undefined ? '—' : Number(ppa).toFixed(1)}<br>` +
-                            `Current production rating: ${prod === null || prod === undefined ? '—' : Number(prod).toFixed(1)}<br>` +
-                            `Previous-season prior: ${prior === null || prior === undefined ? '—' : Number(prior).toFixed(1)}<br>` +
-                            `Current-season confidence: ${(conf * 100).toFixed(0)}%`;
-
-                        const tooltipHtml = comparisonTooltip('Form comparison', numericRating, raw, pct, extra);
-
-                        return `
-                            <div class="custom-tooltip-container">
-                                <span class="${comparisonScoreClass(numericRating)}">${numericRating.toFixed(1)}</span>
-                                <span class="custom-tooltip-content">${tooltipHtml}</span>
-                            </div>
-                        `;
+                
+                        const score = parseInt(data, 10);
+                
+                        let classes = 'px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap inline-block min-w-[42px] text-center';
+                
+                        if (score >= 80) {
+                            classes += ' bg-green-600 text-white';
+                        } else if (score >= 65) {
+                            classes += ' bg-green-200 text-green-900';
+                        } else if (score >= 50) {
+                            classes += ' bg-gray-200 text-gray-800';
+                        } else if (score >= 35) {
+                            classes += ' bg-red-200 text-red-900';
+                        } else {
+                            classes += ' bg-red-600 text-white';
+                        }
+                
+                        return `<span class="${classes}">${score}</span>`;
                     },
                     className: 'dt-center'
                 },
-
-                "Player Involvement Rating": {
-                    abbr: 'Inv',
-                    full: 'League-comparable underlying involvement score from Opta attacking and defensive actions. Hover to see exactly what went into it.',
-                    type: 'num',
-                    render: function (data, type, row) {
-                        const comparison = row["Comparison Involvement Rating"];
-                        const pos = row["Position"] || '';
-
-                        if (pos === 'GK') {
-                            if (type !== 'display') return -1;
-                            return `
-                                <div class="custom-tooltip-container">
-                                    <span class="text-gray-400">—</span>
-                                    <span class="custom-tooltip-content"><strong>Involvement: not used for GK</strong><br>Goalkeepers use the specialized clean-sheet/save/keeper-quality model.</span>
-                                </div>
-                            `;
-                        }
-
-                        const numericRating = (comparison === null || comparison === undefined || comparison === "")
-                            ? null : parseFloat(comparison);
-
-                        if (type !== 'display') {
-                            return numericRating === null || isNaN(numericRating) ? -1 : numericRating;
-                        }
-                        if (numericRating === null || isNaN(numericRating)) {
-                            return '<span class="text-gray-400">-</span>';
-                        }
-
-                        const raw = row["Player Involvement Rating"];
-                        const rawRole = row["Player Involvement Raw Rating"];
-                        const pct = row["Normalized Involvement Rating"];
-                        const conf = Number(row["Player Involvement Confidence"] ?? 0);
-                        const matches = Number(row["Player Involvement Matches"] ?? 0);
-                        const attackPct = row["Player Attack Involvement Percentile"];
-                        const defensePct = row["Player Defense Involvement Percentile"];
-
-                        const extra =
-                            `Evidence: ${matches} match${matches === 1 ? '' : 'es'} · ${(conf * 100).toFixed(0)}% confidence<br>` +
-                            `Raw role rating before shrinkage: ${rawRole === null || rawRole === undefined ? '—' : Number(rawRole).toFixed(1)}<br>` +
-                            `Attack involvement percentile: ${attackPct === null || attackPct === undefined ? '—' : (Number(attackPct) * 100).toFixed(0) + 'th'}<br>` +
-                            `Defense involvement percentile: ${defensePct === null || defensePct === undefined ? '—' : (Number(defensePct) * 100).toFixed(0) + 'th'}<br><br>` +
-                            `<strong>Attacking actions / match: ${Number(row["Attacking Actions Per Match"] ?? 0).toFixed(1)}</strong><br>` +
-                            `Shots on target: ${Number(row["Shots on Target Per Match"] ?? 0).toFixed(1)}<br>` +
-                            `Key passes: ${Number(row["Key Passes Per Match"] ?? 0).toFixed(1)}<br>` +
-                            `Successful crosses: ${Number(row["Successful Crosses Per Match"] ?? 0).toFixed(1)}<br>` +
-                            `Successful dribbles: ${Number(row["Successful Dribbles Per Match"] ?? 0).toFixed(1)}<br><br>` +
-                            `<strong>Defensive actions / match: ${Number(row["Defensive Actions Per Match"] ?? 0).toFixed(1)}</strong><br>` +
-                            `Tackles won: ${Number(row["Tackles Won Per Match"] ?? 0).toFixed(1)}<br>` +
-                            `Interceptions: ${Number(row["Interceptions Per Match"] ?? 0).toFixed(1)}<br>` +
-                            `Clearances: ${Number(row["Clearances Per Match"] ?? 0).toFixed(1)}<br>` +
-                            `Blocks: ${Number(row["Blocks Per Match"] ?? 0).toFixed(1)}<br>` +
-                            `Recoveries: ${Number(row["Recoveries Per Match"] ?? 0).toFixed(1)}`;
-
-                        const tooltipHtml = comparisonTooltip('Involvement comparison', numericRating, raw, pct, extra);
-
-                        return `
-                            <div class="custom-tooltip-container">
-                                <span class="${comparisonScoreClass(numericRating)}">${numericRating.toFixed(1)}</span>
-                                <span class="custom-tooltip-content">${tooltipHtml}</span>
-                            </div>
-                        `;
-                    },
-                    className: 'dt-center'
-                },
-
                 "Position": {
                     abbr: 'Pos',
                     full: 'Player Position',
@@ -4490,43 +2932,36 @@
                     data: null,
                     defaultContent: '-',
                     abbr: 'ΔS%',
-                    full: 'Change in selection percentage. Default is approximately the last 7 days; early-season mode uses the oldest prior snapshot available.',
+                    full: 'Change in selection percentage for the chosen delta mode',
                     type: 'num',
                     render: function (data, type, row) {
                         const value = row[selectedDeltaField];
-
+                
                         if (type === 'sort' || type === 'type') {
-                            const num = parseFloat(value);
-                            return Number.isFinite(num) ? num : -9999;
-                        }
-
-                        if (type === 'display') {
-                            const num = parseFloat(value);
-                            if (!Number.isFinite(num)) return '<span class="text-gray-400">—</span>';
-
-                            let colorClass = 'text-gray-700';
-                            if (num > 0) colorClass = 'text-green-600 font-semibold';
-                            else if (num < 0) colorClass = 'text-red-600 font-semibold';
-
-                            const formatted = num > 0 ? `+${num.toFixed(1)}` : num.toFixed(1);
-
-                            let tooltip = '<strong>Selection change</strong>';
-                            if (selectedDeltaField === 'Selected Percentage Change 1W') {
-                                const current = Number(row["Selected Percentage"] ?? 0);
-                                const baseline = row["Selected Percentage Change 1W Baseline"];
-                                const baselineDate = row["Selected Percentage Change 1W Baseline Date"];
-                                const mode = row["Selected Percentage Change 1W Mode"];
-                                tooltip += `<br>Current: ${current.toFixed(1)}%`;
-                                tooltip += `<br>Baseline: ${baseline === null || baseline === undefined ? '—' : Number(baseline).toFixed(1) + '%'}`;
-                                tooltip += `<br>Reference: ${baselineDate || 'not enough history'}`;
-                                if (mode === 'oldest_available') tooltip += ' (oldest available)';
-                            } else {
-                                tooltip += '<br>Since last detected global price-change date.';
+                            if (value === null || value === undefined || value === '' || value === '-') {
+                                return -9999;
                             }
-
-                            return `<div class="custom-tooltip-container"><span class="${colorClass}">${formatted}</span><span class="custom-tooltip-content">${tooltip}</span></div>`;
+                            const num = parseFloat(value);
+                            return isNaN(num) ? -9999 : num;
                         }
-
+                
+                        if (type === 'display') {
+                            const formatted = formatOwnershipDelta(value);
+                
+                            if (formatted === '-') {
+                                return '<div style="padding-left: 8px; padding-right: 8px;">-</div>';
+                            }
+                
+                            let colorClass = 'text-gray-700';
+                            if (parseFloat(value) > 0) {
+                                colorClass = 'text-green-600 font-semibold';
+                            } else if (parseFloat(value) < 0) {
+                                colorClass = 'text-red-600 font-semibold';
+                            }
+                
+                            return `<div class="${colorClass}" style="padding-left: 8px; padding-right: 8px;">${formatted}</div>`;
+                        }
+                
                         return value;
                     },
                     className: 'dt-center'
@@ -4632,42 +3067,10 @@
                     className: 'dt-center'
                 },
 
-                "Total Attacking Involvement Points": {
-                    abbr: `Att`,
-                    full: 'Attacking involvement points earned this season',
-                    type: 'num',
-                    className: 'dt-center font-semibold'
-                },
-
-                "Total Defensive Involvement Points": {
-                    abbr: `Def`,
-                    full: 'Defensive involvement points earned this season',
-                    type: 'num',
-                    className: 'dt-center font-semibold'
-                },
-
                 "Total Bonus Points": {
-                    abbr: `B`,
-                    full: 'Total bonus points earned this season',
+                    abbr: `<i class="fa-solid fa-star icon-yellow text-base fa-header-icon"></i>`,
+                    full: 'Bonus points won this season',
                     type: 'num',
-                    className: 'dt-center font-semibold'
-                },
-
-                "Average Bonus Rank": {
-                    abbr: `BA`,
-                    full: 'Average bonus rank across matches played. Lower is better. Players without a bonus-rank sample always sort to the bottom.',
-                    type: 'bonus-rank-null-last',
-                    orderSequence: ['asc', 'desc'],
-                    render: function(data, type) {
-                        if (data === null || data === undefined || data === '') {
-                            return type === 'display' ? '<span class="text-gray-400">—</span>' : '';
-                        }
-                        const n = Number(data);
-                        if (!Number.isFinite(n)) {
-                            return type === 'display' ? '<span class="text-gray-400">—</span>' : '';
-                        }
-                        return type === 'display' ? n.toFixed(1) : n;
-                    },
                     className: 'dt-center'
                 },
 
@@ -4826,7 +3229,7 @@
 
                     // Minimum next-GW fixture opportunity (0-100, higher is better)
                     const minFixture = parseFloat($('#min-fixture-filter').val());
-                    const nextFixture = parseFloat(rowData["Comparison Fixture Rating"] ?? rowData["Next Fixture Rating"]);
+                    const nextFixture = parseFloat(rowData["Next Fixture Rating"]);
                     if (!isNaN(minFixture)) {
                         if (isNaN(nextFixture) || nextFixture < minFixture) {
                             return false;
@@ -4835,7 +3238,7 @@
 
                     // Minimum following-GW fixture opportunity
                     const minFollowingFixture = parseFloat($('#min-following-fixture-filter').val());
-                    const followingFixture = parseFloat(rowData["Comparison Following Fixture Rating"] ?? rowData["Following Fixture Rating"]);
+                    const followingFixture = parseFloat(rowData["Following Fixture Rating"]);
                     if (!isNaN(minFollowingFixture)) {
                         if (isNaN(followingFixture) || followingFixture < minFollowingFixture) {
                             return false;
@@ -4844,7 +3247,7 @@
 
                     // Minimum player form rating
                     const minForm = parseFloat($('#min-form-filter').val());
-                    const playerForm = parseFloat(rowData["Comparison Form Rating"] ?? rowData["Form Rating"]);
+                    const playerForm = parseFloat(rowData["Form Rating"]);
                     if (!isNaN(minForm)) {
                         if (isNaN(playerForm) || playerForm < minForm) {
                             return false;
@@ -4890,20 +3293,11 @@
                         return false;
                     }
 
-                    // Played in Last 2 GWs:
-                    // require an ACTUAL appearance in at least one of the two most
-                    // recent populated fantasy gameweeks.
-                    //
-                    // Official matchdayStats now creates a GW object even for players
-                    // who did not play, so the old test ("does this GW have a points
-                    // object?") incorrectly treated non-appearances as appearances.
+                    // Hide stale bench/injured players: require an appearance in at least
+                    // one of the two most recent gameweeks represented in the dataset.
                     if ($('#recently-active-filter').is(':checked')) {
                         const recentGwKeys = Object.keys(rowData)
                             .filter(key => /^\d+$/.test(key))
-                            .filter(key => {
-                                const value = rowData[key];
-                                return value && typeof value === 'object';
-                            })
                             .map(Number)
                             .sort((a, b) => b - a)
                             .slice(0, 2)
@@ -4911,23 +3305,11 @@
 
                         const playedRecently = recentGwKeys.some(gwKey => {
                             const gwValue = rowData[gwKey];
-                            if (!gwValue || typeof gwValue !== 'object') return false;
-
-                            // New official-matchdayStats format: appearances is the
-                            // authoritative signal, including 0-point appearances.
-                            if (Object.prototype.hasOwnProperty.call(gwValue, 'appearances')) {
-                                return Number(gwValue.appearances || 0) > 0;
-                            }
-
-                            // Legacy fallback for older generated data: if no explicit
-                            // appearance count exists, a nonzero points value is the
-                            // safest available proxy. (The next refresh should use the
-                            // official appearances field.)
-                            if (Object.prototype.hasOwnProperty.call(gwValue, 'points')) {
-                                return Number(gwValue.points || 0) !== 0;
-                            }
-
-                            return false;
+                            return (
+                                gwValue &&
+                                typeof gwValue === 'object' &&
+                                Object.prototype.hasOwnProperty.call(gwValue, 'points')
+                            );
                         });
 
                         if (!playedRecently) {
@@ -4969,63 +3351,21 @@
                 let columns = [];
                 let headerRow = '<tr>';
 
-                const STATIC_KEYS_ORDERED = [
-                    "Name",
-                    "Club",
-                    "Next Fixture Day Short",
-                    "Decision Rating",
-                    "Next Fixture Score",
-                    "Following Fixture Score",
-                    "Form Rating",
-                    "Player Involvement Rating",
-                    "Position",
-                    "Value",
-                    "Selected Percentage",
-                    "Ownership Delta",
-                    "Total Points",
-                    "Total Games Played",
-                    "Points Per Game",
-                    "Total Over 4 Gameweeks",
-                    "Games Played Over 4 Gameweeks",
-                    "Points Per Game Over 4 Gameweeks",
-                    "Total Goals + Assists",
-                    "Total Clean Sheet",
-                    "Total Attacking Involvement Points",
-                    "Total Defensive Involvement Points",
-                    "Total Bonus Points",
-                    "Average Bonus Rank",
-                    "Total Bonus Games",
-                    "Total 60 min Appearances"
-                ];
+                const STATIC_KEYS_ORDERED = Object.keys(STATIC_COLUMN_MAP);
 
                 STATIC_KEYS_ORDERED.forEach(key => {
                     const config = STATIC_COLUMN_MAP[key];
 
-                    const bucketClass =
-                        ["Decision Rating","Next Fixture Score","Following Fixture Score","Form Rating","Player Involvement Rating"].includes(key)
-                            ? 'bucket-decision'
-                            : ["Position","Value","Selected Percentage","Ownership Delta"].includes(key)
-                                ? 'bucket-profile'
-                                : ["Total Points","Total Games Played","Points Per Game","Total Over 4 Gameweeks","Games Played Over 4 Gameweeks","Points Per Game Over 4 Gameweeks"].includes(key)
-                                    ? 'bucket-production'
-                                    : ["Total Goals + Assists","Total Clean Sheet","Total Attacking Involvement Points","Total Defensive Involvement Points","Total Bonus Points","Average Bonus Rank","Total Bonus Games","Total 60 min Appearances"].includes(key)
-                                        ? 'bucket-scoring'
-                                        : 'bucket-identity';
-                    const bucketStart = ["Decision Rating","Position","Total Points","Total Goals + Assists"].includes(key)
-                        ? 'bucket-start'
-                        : '';
-
                     columns.push({
                         data: config.data !== undefined ? config.data : key,
                         title: createHeader(config.abbr, config.full),
-                        className: `${config.className || 'dt-center'} ${bucketClass} ${bucketStart}`.trim(),
-                        type: config.type === 'num' ? 'num-fmt' : (config.type || 'string'),
-                        orderSequence: config.orderSequence || ['desc', 'asc'],
+                        className: config.className || 'dt-center',
+                        type: config.type === 'num' ? 'num-fmt' : 'string',
                         render: config.render
                     });
 
                     const headerClass = key === "Name" ? 'player-name-header' : '';
-                    headerRow += `<th class="dt-head-center ${headerClass} ${bucketClass} ${bucketStart}">${createHeader(config.abbr, config.full)}</th>`;
+                    headerRow += `<th class="dt-head-center ${headerClass}">${createHeader(config.abbr, config.full)}</th>`;
                 });
 
                 const firstPlayer = data[0];
@@ -5051,17 +3391,17 @@
                         title: createHeader(gwKey, `GW${gwKey}`),
                         className: 'gw-col dt-center',
                         type: 'num-fmt',
-                        orderSequence: ['desc', 'asc'],
                         render: function (data, type, row) {
                             if (typeof data === 'object' && data !== null && data.hasOwnProperty('points')) {
                                 const points = data.points === null || data.points === undefined ? '-' : data.points;
+
+                                const tooltip = data.tooltip ? data.tooltip.trim() : '';
 
                                 if (type === 'sort' || type === 'type') {
                                     return data.points;
                                 }
 
-                                const tooltip = fantasyGwTooltip(row, gwKey, data);
-                                return `<div class="custom-tooltip-container"><span class="custom-tooltip-points">${points}</span><div class="custom-tooltip-content">${tooltip}</div></div>`;
+                                return `<div class="custom-tooltip-container"><span class="custom-tooltip-points">${points}</span><div class="custom-tooltip-content">${tooltip.replace(/\\n/g, '<br>').replace(/\n/g, '<br>')}</div></div>`;
                             }
 
                             return '-';
@@ -5082,7 +3422,7 @@
                     searching: true,
                     scrollX: false,
                     autoWidth: false,
-                    order: [[3, 'desc']],
+                    order: [[4, 'desc']],
                     responsive: false,
                     info: true,
 
@@ -5102,6 +3442,10 @@
                         ['10', '15', '25', '50', '100', 'All']
                     ],
                     pageLength: 15,
+
+                    columnDefs: [
+                        { orderSequence: ['desc', 'asc'], targets: '_all' }
+                    ],
 
                     language: {
                         search: "Search:",
@@ -5171,39 +3515,6 @@
                         right: '',
                         bottom: ''
                     });
-                });
-
-                // Mobile/touch: tap the same cells that expose hover explanations
-                // on desktop. Tap elsewhere to close the explanation.
-                $('#myTable').on('click', '.custom-tooltip-container', function (e) {
-                    if (!window.matchMedia('(hover: none), (pointer: coarse)').matches) return;
-
-                    e.stopPropagation();
-
-                    const $container = $(this);
-                    const wasOpen = $container.hasClass('tooltip-open');
-                    $('#myTable .custom-tooltip-container.tooltip-open').removeClass('tooltip-open');
-
-                    if (!wasOpen) {
-                        $container.addClass('tooltip-open');
-                        const $tooltip = $container.find('.custom-tooltip-content');
-                        const rect = $container[0].getBoundingClientRect();
-                        const width = Math.min($tooltip.outerWidth() || 280, window.innerWidth - 16);
-                        const left = Math.max(8, Math.min(rect.left, window.innerWidth - width - 8));
-                        const top = Math.max(8, Math.min(rect.bottom + 6, window.innerHeight - 140));
-
-                        $tooltip.css({
-                            left: left + 'px',
-                            top: top + 'px',
-                            right: 'auto',
-                            bottom: 'auto',
-                            maxWidth: (window.innerWidth - 16) + 'px'
-                        });
-                    }
-                });
-
-                $(document).on('click', function () {
-                    $('#myTable .custom-tooltip-container.tooltip-open').removeClass('tooltip-open');
                 });
                 
                 $('#visionary-filter, #hot-pick-filter, #recently-active-filter, #my-team-filter, #watchlist-filter').on('change', function () {
@@ -6979,10 +5290,6 @@
                 );
             }
 
-            function isUnmatchedInvolvementRow(row) {
-                return String(row?.name || '').startsWith('Unmatched Opta player');
-            }
-
             function renderInvolvement() {
                 if (!involvementHistoryData || !(involvementHistoryData.matches || []).length) {
                     $('#inv-summary').text('No completed-match involvement data available yet.');
@@ -6996,7 +5303,6 @@
                 const selectedGw = $('#inv-gameweek').val() || 'overall';
 
                 let rows = involvementRowsForSelection().filter(row => {
-                    if (isUnmatchedInvolvementRow(row)) return false;
                     if (league && row.league !== league) return false;
                     if (position && row.position !== position) return false;
                     if (club && row.club !== club) return false;
@@ -7007,16 +5313,6 @@
                 const dir = direction === 'asc' ? 1 : -1;
 
                 rows.sort((a, b) => {
-                    if (key === 'name') {
-                        const surnameCompare = involvementLastNameSortKey(a.name)
-                            .localeCompare(involvementLastNameSortKey(b.name));
-
-                        if (surnameCompare !== 0) return surnameCompare * dir;
-
-                        return String(a.name || '')
-                            .localeCompare(String(b.name || '')) * dir;
-                    }
-
                     const av = a[key];
                     const bv = b[key];
 
@@ -7049,11 +5345,10 @@
                     return value;
                 };
 
-                const rowHtml = row => `
+                const body = rows.map(row => `
                     <tr class="border-t border-gray-100 hover:bg-gray-50">
-                        <td class="px-3 py-2 font-semibold whitespace-nowrap inv-player-sticky" title="${row.name || '—'}">
-                            <span class="inv-full-name">${row.name || '—'}</span>
-                            <span class="inv-last-name">${compactInvolvementPlayerName(row.name)}</span>
+                        <td class="px-3 py-2 font-semibold whitespace-nowrap">
+                            ${row.name || '—'}
                             ${row.has_live_data ? '<span class="inv-live-badge"><span class="inv-live-dot"></span>IN PROGRESS</span>' : ''}
                         </td>
                         <td class="px-3 py-2 text-center">${teamBadgeHtml(row.club)}</td>
@@ -7074,32 +5369,10 @@
                         <td class="px-3 py-2 text-center inv-point-cell">${row.defensive_points ?? 0}</td>
                         <td class="px-3 py-2 text-center"><span class="inv-total-pill">${row.involvement_points ?? 0}</span></td>
                     </tr>
-                `;
-
-                const liveRows = rows.filter(row => row.has_live_data);
-                const settledRows = rows.filter(row => !row.has_live_data);
-                let tableHtml = '';
-
-                if (liveRows.length) {
-                    tableHtml += `
-                        <tr class="inv-group-row inv-group-latest">
-                            <td colspan="18">Latest match data · in progress</td>
-                        </tr>
-                    `;
-                    tableHtml += liveRows.map(rowHtml).join('');
-                }
-
-                if (settledRows.length) {
-                    tableHtml += `
-                        <tr class="inv-group-row inv-group-settled">
-                            <td colspan="18">Settled match data</td>
-                        </tr>
-                    `;
-                    tableHtml += settledRows.map(rowHtml).join('');
-                }
+                `).join('');
 
                 $('#inv-table-body').html(
-                    tableHtml || '<tr><td colspan="18" class="px-3 py-8 text-center text-gray-500">No players match these filters.</td></tr>'
+                    body || '<tr><td colspan="18" class="px-3 py-8 text-center text-gray-500">No players match these filters.</td></tr>'
                 );
 
                 const activeMatches = combinedInvolvementMatches();
@@ -7159,20 +5432,6 @@
             $('#table-view-tab').on('click', () => setMainView('table'));
             $('#involvement-view-tab').on('click', () => setMainView('involvement'));
             $('#inv-refresh-live').on('click', refreshLiveInvolvement);
-
-            function initializeInvolvementHorizontalScrollNames() {
-                const scroller = document.querySelector('#inv-table-scroll');
-                if (!scroller) return;
-
-                const update = () => {
-                    scroller.classList.toggle('inv-scrolled-side', scroller.scrollLeft > 28);
-                };
-
-                scroller.addEventListener('scroll', update, {passive: true});
-                update();
-            }
-
-            initializeInvolvementHorizontalScrollNames();
             $('#planner-view-tab').on('click', () => setMainView('planner'));
             $('#pairings-view-tab').on('click', () => setMainView('pairings'));
             $('#clean-sheets-view-tab').on('click', () => setMainView('clean-sheets'));
