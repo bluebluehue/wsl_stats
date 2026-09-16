@@ -878,11 +878,11 @@ def load_market_odds() -> tuple[dict[str, Any], dict[str, dict[str, Any]]]:
 
 
 def load_team_forecasts() -> tuple[dict[str, Any], dict[tuple[str, str], dict[str, Any]], dict[tuple[str, str], dict[str, Any]]]:
-    """Load optional external team eGoals/eDF forecasts without blending them into v17.
+    """Load optional external team eGoals/eGoalsAgainst forecasts without blending them into v17.
 
     Supported shapes:
       {"fixtures": [{"match_id": ..., "home_team": ..., "home_egoals": ..., ...}]}
-      {"teams": [{"game_week": "2", "team": "ARS", "egoals": 3.93, "edf": 2.48, ...}]}
+      {"teams": [{"game_week": "2", "team": "ARS", "egoals": 3.93, "egoals_against": 0.45, ...}]}
 
     Returns metadata plus lookups keyed by (match_id, team) and (game_week, team).
     """
@@ -911,7 +911,8 @@ def load_team_forecasts() -> tuple[dict[str, Any], dict[tuple[str, str], dict[st
                 continue
             item = {
                 "egoals": row.get(f"{side}_egoals"),
-                "edf": row.get(f"{side}_edf"),
+                "egoals_against": row.get(f"{side}_egoals_against"),
+                "opponent": canonical_transition_team_code(row.get(f"{'away' if side == 'home' else 'home'}_team")),
                 "source": source,
                 "updated_at": updated,
             }
@@ -930,7 +931,8 @@ def load_team_forecasts() -> tuple[dict[str, Any], dict[tuple[str, str], dict[st
             continue
         item = {
             "egoals": row.get("egoals"),
-            "edf": row.get("edf"),
+            "egoals_against": row.get("egoals_against"),
+            "opponent": canonical_transition_team_code(row.get("opponent")),
             "source": row.get("source") or metadata.get("source"),
             "updated_at": row.get("updated_at") or metadata.get("generated_at_utc"),
         }
@@ -938,6 +940,22 @@ def load_team_forecasts() -> tuple[dict[str, Any], dict[tuple[str, str], dict[st
             by_match[(match_id, team)] = item
         if gw:
             by_gw[(gw, team)] = item
+
+    # Derive eGoals Against from the opponent's eGoals when it is not stored explicitly.
+    # This remains display/audit-only and does not feed any v17 model calculation.
+    for (gw, team), item in by_gw.items():
+        if item.get("egoals_against") is None:
+            opponent = item.get("opponent")
+            opponent_item = by_gw.get((gw, opponent)) if opponent else None
+            if opponent_item is not None:
+                item["egoals_against"] = opponent_item.get("egoals")
+
+    for (match_id, team), item in by_match.items():
+        if item.get("egoals_against") is None:
+            opponent = item.get("opponent")
+            opponent_item = by_match.get((match_id, opponent)) if opponent else None
+            if opponent_item is not None:
+                item["egoals_against"] = opponent_item.get("egoals")
 
     return metadata, by_match, by_gw
 
@@ -955,7 +973,7 @@ def team_forecast_fields_for_fixture(
     row = (by_match or {}).get(match_key) or (by_gw or {}).get(gw_key)
     return {
         "team_egoals": row.get("egoals") if row else None,
-        "team_edf": row.get("edf") if row else None,
+        "team_egoals_against": row.get("egoals_against") if row else None,
         "team_forecast_source": row.get("source") if row else None,
         "team_forecast_updated_at": row.get("updated_at") if row else None,
     }
@@ -3928,7 +3946,7 @@ def transform_player(
         "Next Market CS Probability": next_fixture.get("market_cs_probability") if next_fixture else None,
         "Next Market CS Source": next_fixture.get("market_cs_source") if next_fixture else None,
         "Next Team eGoals": next_fixture.get("team_egoals") if next_fixture else None,
-        "Next Team eDF": next_fixture.get("team_edf") if next_fixture else None,
+        "Next Team eGoals Against": next_fixture.get("team_egoals_against") if next_fixture else None,
         "Next Team Forecast Source": next_fixture.get("team_forecast_source") if next_fixture else None,
         "Next Team Forecast Updated At": next_fixture.get("team_forecast_updated_at") if next_fixture else None,
         "Next Fixture Score": fixture_rating_to_score(next_rating) if next_fixture else "-",
@@ -3936,7 +3954,7 @@ def transform_player(
         "Following Fixture Rating": round(following_rating, 1),
         "Following Market CS Probability": following_fixture.get("market_cs_probability") if following_fixture else None,
         "Following Team eGoals": following_fixture.get("team_egoals") if following_fixture else None,
-        "Following Team eDF": following_fixture.get("team_edf") if following_fixture else None,
+        "Following Team eGoals Against": following_fixture.get("team_egoals_against") if following_fixture else None,
         "Following Team Forecast Source": following_fixture.get("team_forecast_source") if following_fixture else None,
         "Following Fixture Score": fixture_rating_to_score(following_rating) if following_fixture else "-",
         "Following Fixture Details": fixture_details_text(upcoming[1:2], position),
