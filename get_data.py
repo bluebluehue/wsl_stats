@@ -906,7 +906,7 @@ def load_team_forecasts() -> tuple[dict[str, Any], dict[tuple[str, str], dict[st
         source = row.get("source") or metadata.get("source")
         updated = row.get("updated_at") or metadata.get("generated_at_utc")
         for side in ("home", "away"):
-            team = canonical_team_code(row.get(f"{side}_team"))
+            team = canonical_transition_team_code(row.get(f"{side}_team"))
             if not team:
                 continue
             item = {
@@ -923,7 +923,7 @@ def load_team_forecasts() -> tuple[dict[str, Any], dict[tuple[str, str], dict[st
     for row in (payload.get("teams", []) if isinstance(payload, dict) else []):
         if not isinstance(row, dict):
             continue
-        team = canonical_team_code(row.get("team") or row.get("club"))
+        team = canonical_transition_team_code(row.get("team") or row.get("club"))
         gw = str(row.get("game_week") or row.get("fantasy_game_week") or "")
         match_id = str(row.get("match_id") or "")
         if not team:
@@ -949,7 +949,7 @@ def team_forecast_fields_for_fixture(
     by_match: dict[tuple[str, str], dict[str, Any]] | None,
     by_gw: dict[tuple[str, str], dict[str, Any]] | None,
 ) -> dict[str, Any]:
-    team = canonical_team_code(own_team_id)
+    team = canonical_transition_team_code(own_team_id)
     match_key = (str(match_id or ""), team)
     gw_key = (str(game_week or ""), team)
     row = (by_match or {}).get(match_key) or (by_gw or {}).get(gw_key)
