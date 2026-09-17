@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "generated_at_utc": "2026-09-16T17:02:27+00:00",
+    "generated_at_utc": "2026-09-17T12:37:11+00:00",
     "source": "Pinnacle via OddsPapi",
     "method": "Opponent team total Under 0.5, de-vigged against Over 0.5",
     "tournament_id": 1044,
@@ -64,16 +64,16 @@
       "home_name": "Charlton Athletic",
       "away_name": "London City Lionesses",
       "home_market_cs_probability": null,
-      "away_market_cs_probability": 0.55041,
+      "away_market_cs_probability": 0.571279,
       "home_opponent_team_total_0_5": null,
       "away_opponent_team_total_0_5": {
-        "over_odds": 2.08,
-        "under_odds": 1.699,
-        "raw_under_probability": 0.588582,
-        "overround": 0.069351,
-        "fair_under_probability": 0.55041,
+        "over_odds": 2.18,
+        "under_odds": 1.636,
+        "raw_under_probability": 0.611247,
+        "overround": 0.069963,
+        "fair_under_probability": 0.571279,
         "main_line": true,
-        "bookmaker_market_id": "line/29/8713/1636439242/3730754537/0/teamTotal",
+        "bookmaker_market_id": "line/29/8713/1636439242/3731886786/0/teamTotal",
         "market_type": "teamTotal",
         "period": "full_match",
         "team_total_side": "home",
@@ -81,7 +81,7 @@
       },
       "source": "Pinnacle",
       "method": "opponent_team_total_under_0.5_devig",
-      "market_updated_at": "2026-09-16T03:56:40.124Z"
+      "market_updated_at": "2026-09-16T23:32:00.981Z"
     },
     {
       "match_id": "wpll::Football_Match::4f7de4e451d54c11b0e2ff8644855354",
@@ -110,7 +110,7 @@
       "away_opponent_team_total_0_5": null,
       "source": "Pinnacle",
       "method": "opponent_team_total_under_0.5_devig",
-      "market_updated_at": "2026-09-16T03:56:40.355Z"
+      "market_updated_at": "2026-09-16T23:32:01.019Z"
     },
     {
       "match_id": "wpll::Football_Match::78822e157876488bbc6e4550ba5116d0",
