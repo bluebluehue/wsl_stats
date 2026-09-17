@@ -4154,7 +4154,7 @@
                                 classString += ' text-gray-800';
                             }
 
-                            const nameSpan = `<span class="${classString}">${data}</span>`;
+                            const nameSpan = `<span class="${classString} player-modal-trigger cursor-pointer" title="Open player details">${data}</span>`;
 
                             const hotPickIcon = row["Hot Pick"] === true
                                 ? `<span class="ml-1" title="Hot Pick">🔥</span>`
@@ -5181,12 +5181,17 @@
                     }
                 }, 250);
 
-                $('#myTable tbody').on('click', 'tr', function () {
-                    if (dataTableInstance) {
-                        const rowData = dataTableInstance.row(this).data();
-                        if (rowData) {
-                            showModal('player', rowData);
-                        }
+                // Open player details only when the player NAME is clicked/tapped.
+                // This leaves score/stat cells free to expose their tooltips on touch devices.
+                $('#myTable tbody').on('click', '.player-modal-trigger', function (e) {
+                    e.stopPropagation();
+                    if (!dataTableInstance) return;
+
+                    const rowEl = $(this).closest('tr')[0];
+                    const rowData = dataTableInstance.row(rowEl).data();
+                    if (rowData) {
+                        $('#myTable .custom-tooltip-container.tooltip-open').removeClass('tooltip-open');
+                        showModal('player', rowData);
                     }
                 });
 
@@ -5241,6 +5246,9 @@
                 // on desktop. Tap elsewhere to close the explanation.
                 $('#myTable').on('click', '.custom-tooltip-container', function (e) {
                     if (!window.matchMedia('(hover: none), (pointer: coarse)').matches) return;
+                    // A player name may itself sit inside a news-tooltip container.
+                    // Name taps belong to the player modal; all other tooltip cells open here.
+                    if ($(e.target).closest('.player-modal-trigger').length) return;
 
                     e.stopPropagation();
 
