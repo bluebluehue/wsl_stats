@@ -1,7 +1,7 @@
 {
   "metadata": {
     "source": "WSL Fantasy public JSON feeds used by create-team UI",
-    "generated_at_utc": "2026-09-18T19:50:36+00:00",
+    "generated_at_utc": "2026-09-18T19:57:14+00:00",
     "team_forecast_data": {
       "available": true,
       "input_file": "team_forecasts.json",
@@ -15,14 +15,14 @@
       "fixture_count": 3,
       "source": "Pinnacle via OddsPapi",
       "method": "Opponent team total Under 0.5, de-vigged against Over 0.5",
-      "generated_at_utc": "2026-09-18T19:49:44+00:00",
+      "generated_at_utc": "2026-09-18T19:56:34+00:00",
       "note": "Market CS% is kept separate from the independent GK model for calibration; it is not yet blended into GK Fix."
     },
     "current_season_team_evidence": {
       "available": true,
       "input_file": "involvement_history.json",
       "match_count": 26,
-      "generated_at_utc": "2026-09-18T12:16:12+00:00",
+      "generated_at_utc": "2026-09-18T19:50:36+00:00",
       "source": "Public Opta Player Stats widget match-event feed",
       "attack_signal_weights": {
         "shots_on_target": 5.0,
