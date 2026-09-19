@@ -1,11 +1,28 @@
 {
   "metadata": {
-    "generated_at": "2026-09-19T09:33:52.284669Z",
+    "generated_at": "2026-09-19T11:30:43.838539Z",
     "refresh_interval_minutes": 15,
-    "candidate_match_count": 0,
-    "match_count": 0,
+    "candidate_match_count": 1,
+    "match_count": 1,
     "failures": [],
     "scoring_note": "Rules/Opta-derived involvement values reconciled against the official WSL Fantasy player-match feed."
   },
-  "matches": []
+  "matches": [
+    {
+      "match_id": "wpll::Football_Match::ef62c1e58fa2499c9b9f8b31d8377401",
+      "date": "2026-09-19T11:30:00",
+      "opta_match_id": "141z1zd5g17kw6nbs9l6rznro",
+      "home_id": "CHA",
+      "away_id": "LCL",
+      "competition_id": "wpll::Football_Competition::e32284e8a1214f1ca83a3245d690b336",
+      "league_game_week": "3",
+      "fantasy_game_week": "3",
+      "description": "Charlton Athletic vs London City Lionesses",
+      "match_status": "Fixture",
+      "in_progress": true,
+      "minute": 0,
+      "players": [],
+      "event_count": 2
+    }
+  ]
 }
