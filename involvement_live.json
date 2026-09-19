@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "generated_at": "2026-09-19T13:26:02.076433Z",
+    "generated_at": "2026-09-19T13:27:26.965044Z",
     "refresh_interval_minutes": 15,
     "candidate_match_count": 2,
     "match_count": 2,
@@ -823,7 +823,7 @@
           "involvement_points": 0
         }
       ],
-      "event_count": 1821
+      "event_count": 1825
     },
     {
       "match_id": "wpll::Football_Match::4f7de4e451d54c11b0e2ff8644855354",
