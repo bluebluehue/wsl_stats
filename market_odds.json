@@ -1,12 +1,12 @@
 {
   "metadata": {
-    "generated_at_utc": "2026-09-19T11:56:46+00:00",
+    "generated_at_utc": "2026-09-20T12:26:15+00:00",
     "source": "Pinnacle via OddsPapi",
     "method": "Opponent team total Under 0.5, de-vigged against Over 0.5",
     "tournament_id": 1044,
-    "fixture_count": 2,
-    "unmatched_fixture_count": 1,
-    "learned_participant_count": 9,
+    "fixture_count": 1,
+    "unmatched_fixture_count": 2,
+    "learned_participant_count": 8,
     "participant_mapping": {
       "606004": "LCL",
       "494374": "MUN",
@@ -15,61 +15,31 @@
       "301890": "TOT",
       "499630": "WHU",
       "372788": "BHA",
-      "26243": "ARS",
-      "290394": "CHA"
+      "26243": "ARS"
     },
     "participant_mapping_method": "manual verified overrides + kickoff-unique fallback",
     "note": "A team's CS probability equals the opponent's fair probability of scoring 0 goals. Only Pinnacle bookmakerMarketId values explicitly ending in teamTotal with home/away 0.5 over+under outcomes are accepted; prices are normalized within that same market. Participant IDs are learned from kickoff-unique fixtures and reused to resolve simultaneous kickoffs."
   },
   "fixtures": [
     {
-      "match_id": "wpll::Football_Match::ef62c1e58fa2499c9b9f8b31d8377401",
-      "fixture_id": "id1000104473346014",
-      "pinnacle_fixture_id": "1636439242",
-      "start_time_utc": "2026-09-19T11:30:00.000Z",
-      "home_team": "CHA",
-      "away_team": "LCL",
-      "home_name": "Charlton Athletic",
-      "away_name": "London City Lionesses",
-      "home_market_cs_probability": null,
-      "away_market_cs_probability": 0.641957,
-      "home_opponent_team_total_0_5": null,
-      "away_opponent_team_total_0_5": {
-        "over_odds": 2.65,
-        "under_odds": 1.478,
-        "raw_under_probability": 0.67659,
-        "overround": 0.053948,
-        "fair_under_probability": 0.641957,
-        "main_line": true,
-        "bookmaker_market_id": "line/29/8713/1636949679/3734145191/0/teamTotal",
-        "market_type": "teamTotal",
-        "period": "full_match",
-        "team_total_side": "home",
-        "line": 0.5
-      },
-      "source": "Pinnacle",
-      "method": "opponent_team_total_under_0.5_devig",
-      "market_updated_at": "2026-09-19T11:31:35.662Z"
-    },
-    {
-      "match_id": "wpll::Football_Match::78822e157876488bbc6e4550ba5116d0",
-      "fixture_id": "id1000104473346018",
-      "pinnacle_fixture_id": "1636483920",
-      "start_time_utc": "2026-09-19T16:30:00.000Z",
-      "home_team": "ARS",
-      "away_team": "MUN",
-      "home_name": "Arsenal",
-      "away_name": "Manchester United",
-      "home_market_cs_probability": 0.453207,
+      "match_id": "wpll::Football_Match::6f358d0ebcd3472d934d0cfea8a3a2a2",
+      "fixture_id": "id1000104473346024",
+      "pinnacle_fixture_id": "1636554049",
+      "start_time_utc": "2026-09-20T13:00:00.000Z",
+      "home_team": "BHA",
+      "away_team": "AVL",
+      "home_name": "Brighton & Hove Albion",
+      "away_name": "Aston Villa",
+      "home_market_cs_probability": 0.358819,
       "away_market_cs_probability": null,
       "home_opponent_team_total_0_5": {
-        "over_odds": 1.724,
-        "under_odds": 2.08,
-        "raw_under_probability": 0.480769,
-        "overround": 0.060816,
-        "fair_under_probability": 0.453207,
+        "over_odds": 1.483,
+        "under_odds": 2.65,
+        "raw_under_probability": 0.377358,
+        "overround": 0.051667,
+        "fair_under_probability": 0.358819,
         "main_line": true,
-        "bookmaker_market_id": "line/29/8713/1636483920/3734044672/0/teamTotal",
+        "bookmaker_market_id": "line/29/8713/1636554049/3736240170/0/teamTotal",
         "market_type": "teamTotal",
         "period": "full_match",
         "team_total_side": "away",
@@ -78,7 +48,7 @@
       "away_opponent_team_total_0_5": null,
       "source": "Pinnacle",
       "method": "opponent_team_total_under_0.5_devig",
-      "market_updated_at": "2026-09-13T18:14:22.877Z"
+      "market_updated_at": "2026-09-17T22:55:45.395Z"
     }
   ]
 }
