@@ -1,11 +1,11 @@
 {
   "metadata": {
-    "generated_at_utc": "2026-09-20T12:26:15+00:00",
+    "generated_at_utc": "2026-09-21T14:14:57+00:00",
     "source": "Pinnacle via OddsPapi",
     "method": "Opponent team total Under 0.5, de-vigged against Over 0.5",
     "tournament_id": 1044,
-    "fixture_count": 1,
-    "unmatched_fixture_count": 2,
+    "fixture_count": 2,
+    "unmatched_fixture_count": 1,
     "learned_participant_count": 8,
     "participant_mapping": {
       "606004": "LCL",
@@ -22,24 +22,24 @@
   },
   "fixtures": [
     {
-      "match_id": "wpll::Football_Match::6f358d0ebcd3472d934d0cfea8a3a2a2",
-      "fixture_id": "id1000104473346024",
-      "pinnacle_fixture_id": "1636554049",
-      "start_time_utc": "2026-09-20T13:00:00.000Z",
-      "home_team": "BHA",
-      "away_team": "AVL",
-      "home_name": "Brighton & Hove Albion",
-      "away_name": "Aston Villa",
-      "home_market_cs_probability": 0.358819,
+      "match_id": "wpll::Football_Match::e532f5703fed4cf785fdb10ea5aec6ed",
+      "fixture_id": "id1000104473346030",
+      "pinnacle_fixture_id": "1637143720",
+      "start_time_utc": "2026-09-27T12:00:00.000Z",
+      "home_team": "MUN",
+      "away_team": "WHU",
+      "home_name": "Manchester United",
+      "away_name": "West Ham United",
+      "home_market_cs_probability": 0.348622,
       "away_market_cs_probability": null,
       "home_opponent_team_total_0_5": {
-        "over_odds": 1.483,
-        "under_odds": 2.65,
-        "raw_under_probability": 0.377358,
-        "overround": 0.051667,
-        "fair_under_probability": 0.358819,
+        "over_odds": 1.429,
+        "under_odds": 2.67,
+        "raw_under_probability": 0.374532,
+        "overround": 0.074322,
+        "fair_under_probability": 0.348622,
         "main_line": true,
-        "bookmaker_market_id": "line/29/8713/1636554049/3736240170/0/teamTotal",
+        "bookmaker_market_id": "line/29/8713/1637143720/3736432008/0/teamTotal",
         "market_type": "teamTotal",
         "period": "full_match",
         "team_total_side": "away",
@@ -48,7 +48,36 @@
       "away_opponent_team_total_0_5": null,
       "source": "Pinnacle",
       "method": "opponent_team_total_under_0.5_devig",
-      "market_updated_at": "2026-09-17T22:55:45.395Z"
+      "market_updated_at": "2026-09-20T19:19:21.028Z"
+    },
+    {
+      "match_id": "wpll::Football_Match::14547ff6e9cc4965bb506aa2c04e8b27",
+      "fixture_id": "id1000104473346032",
+      "pinnacle_fixture_id": "1637148464",
+      "start_time_utc": "2026-09-27T13:00:00.000Z",
+      "home_team": "TOT",
+      "away_team": "AVL",
+      "home_name": "Tottenham Hotspur",
+      "away_name": "Aston Villa",
+      "home_market_cs_probability": 0.352306,
+      "away_market_cs_probability": null,
+      "home_opponent_team_total_0_5": {
+        "over_odds": 1.436,
+        "under_odds": 2.64,
+        "raw_under_probability": 0.378788,
+        "overround": 0.075167,
+        "fair_under_probability": 0.352306,
+        "main_line": true,
+        "bookmaker_market_id": "line/29/8713/1637148464/3736522235/0/teamTotal",
+        "market_type": "teamTotal",
+        "period": "full_match",
+        "team_total_side": "away",
+        "line": 0.5
+      },
+      "away_opponent_team_total_0_5": null,
+      "source": "Pinnacle",
+      "method": "opponent_team_total_under_0.5_devig",
+      "market_updated_at": "2026-09-20T19:19:21.531Z"
     }
   ]
 }
