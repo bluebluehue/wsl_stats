@@ -1,10 +1,10 @@
 {
   "metadata": {
-    "generated_at_utc": "2026-09-25T12:48:09+00:00",
+    "generated_at_utc": "2026-09-25T17:16:09+00:00",
     "source": "Pinnacle via OddsPapi",
     "method": "Opponent team total Under 0.5, de-vigged against Over 0.5",
     "tournament_id": 1044,
-    "fixture_count": 2,
+    "fixture_count": 3,
     "unmatched_fixture_count": 2,
     "learned_participant_count": 10,
     "participant_mapping": {
@@ -42,7 +42,7 @@
         "overround": 0.078757,
         "fair_under_probability": 0.652812,
         "main_line": true,
-        "bookmaker_market_id": "line/29/8713/1637069469/3741224912/0/teamTotal",
+        "bookmaker_market_id": "line/29/8713/1637069469/3741261162/0/teamTotal",
         "market_type": "teamTotal",
         "period": "full_match",
         "team_total_side": "home",
@@ -80,6 +80,35 @@
       "source": "Pinnacle",
       "method": "opponent_team_total_under_0.5_devig",
       "market_updated_at": "2026-09-24T22:25:23.690Z"
+    },
+    {
+      "match_id": "wpll::Football_Match::14547ff6e9cc4965bb506aa2c04e8b27",
+      "fixture_id": "id1000104473346032",
+      "pinnacle_fixture_id": "1637148464",
+      "start_time_utc": "2026-09-27T13:00:00.000Z",
+      "home_team": "TOT",
+      "away_team": "AVL",
+      "home_name": "Tottenham Hotspur",
+      "away_name": "Aston Villa",
+      "home_market_cs_probability": 0.330357,
+      "away_market_cs_probability": null,
+      "home_opponent_team_total_0_5": {
+        "over_odds": 1.406,
+        "under_odds": 2.85,
+        "raw_under_probability": 0.350877,
+        "overround": 0.062115,
+        "fair_under_probability": 0.330357,
+        "main_line": true,
+        "bookmaker_market_id": "line/29/8713/1637148464/3741356405/0/teamTotal",
+        "market_type": "teamTotal",
+        "period": "full_match",
+        "team_total_side": "away",
+        "line": 0.5
+      },
+      "away_opponent_team_total_0_5": null,
+      "source": "Pinnacle",
+      "method": "opponent_team_total_under_0.5_devig",
+      "market_updated_at": "2026-09-24T22:25:23.992Z"
     }
   ]
 }
