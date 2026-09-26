@@ -1888,36 +1888,34 @@ def normalize_fixture(fixture: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def build_team_fixture_schedule(fixtures_raw: list[dict[str, Any]]) -> dict[str, list[dict[str, Any]]]:
-    """Build a full-season, team-indexed fixture schedule from the central fixtures feed.
+def build_team_fixture_schedule(fixtures: list[dict[str, Any]]) -> dict[str, list[dict[str, Any]]]:
+    """Build a full-season team-indexed schedule from normalized fixtures.
 
-    The player feed's ``upcomingFixtures`` list is not guaranteed to include more
-    than the immediate fixture.  The central fixtures feed contains the published
-    season schedule, so use it as the authoritative source for Fix/Fix+1 and
-    longer fixture horizons.  Entries are shaped like player upcoming-fixture
-    objects so ``build_upcoming_fixture`` can continue to own all rating logic.
+    Use the already-normalized central fixture list as the authoritative source
+    for Fix/Fix+1.  This deliberately avoids depending on the per-player
+    ``upcomingFixtures`` list, which may contain only the immediate match.
     """
     schedule: dict[str, list[dict[str, Any]]] = {}
 
-    for fixture in fixtures_raw or []:
-        competition_id = fixture.get("competitionId")
-        home_code = fixture.get("homeAcronymName") or compact_id(fixture.get("homeTeamId"))
-        away_code = fixture.get("awayAcronymName") or compact_id(fixture.get("awayTeamId"))
+    for fixture in fixtures or []:
+        competition_id = fixture.get("competition_id")
+        home_code = fixture.get("home_id")
+        away_code = fixture.get("away_id")
 
         sides = (
             (
                 home_code,
                 "H",
                 away_code,
-                fixture.get("awayOfficialName") or fixture.get("awayMediaName"),
-                fixture.get("awayShortName") or fixture.get("awayMediaShortName"),
+                fixture.get("away_name"),
+                fixture.get("away_short_name"),
             ),
             (
                 away_code,
                 "A",
                 home_code,
-                fixture.get("homeOfficialName") or fixture.get("homeMediaName"),
-                fixture.get("homeShortName") or fixture.get("homeMediaShortName"),
+                fixture.get("home_name"),
+                fixture.get("home_short_name"),
             ),
         )
 
@@ -1927,23 +1925,20 @@ def build_team_fixture_schedule(fixtures_raw: list[dict[str, Any]]) -> dict[str,
                 continue
             schedule.setdefault(key, []).append(
                 {
-                    "matchId": fixture.get("matchId"),
-                    "matchDateTimeUtc": fixture.get("matchDateTimeUtc"),
-                    "matchdayId": fixture.get("matchdayId"),
+                    "matchId": fixture.get("match_id"),
+                    "matchDateTimeUtc": fixture.get("match_date_time_utc"),
+                    "matchdayId": fixture.get("game_week"),
                     "competitionId": competition_id,
                     "location": location,
                     "vsTeamAcronymName": opponent_code,
                     "vsTeamName": opponent_name,
                     "vsTeamShortName": opponent_short,
-                    # The central feed exposes team ratings rather than the
-                    # player-feed fixture difficulty.  If a matching player-feed
-                    # item exists, transform_player overlays currentRating below.
                     "currentRating": None,
                 }
             )
 
-    for fixtures in schedule.values():
-        fixtures.sort(
+    for team_fixtures in schedule.values():
+        team_fixtures.sort(
             key=lambda f: parse_dt(f.get("matchDateTimeUtc"))
             or datetime.max.replace(tzinfo=timezone.utc)
         )
@@ -4298,7 +4293,8 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
     gk_model_inputs = load_gk_model_inputs()
     market_metadata, market_lookup = load_market_odds()
     team_forecast_metadata, team_forecast_by_match, team_forecast_by_gw = load_team_forecasts()
-    team_fixture_schedule = build_team_fixture_schedule(fixtures_raw)
+    fixtures = [normalize_fixture(f) for f in fixtures_raw]
+    team_fixture_schedule = build_team_fixture_schedule(fixtures)
     gk_team_priors = build_gk_team_priors(
         gk_model_inputs,
         team_strength,
@@ -4355,7 +4351,6 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
             history, player["Name"], selected, last_price_change
         )
 
-    fixtures = [normalize_fixture(f) for f in fixtures_raw]
     fantasy_gameweeks = assign_canonical_fantasy_gameweeks(fixtures)
 
     # The frontend already knows how to display numbered GW objects.  Populate
