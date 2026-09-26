@@ -223,6 +223,11 @@ CURRENT_SEASON_ATTACK_SIGNAL_WEIGHTS = {
     "successful_dribbles": 0.75,
 }
 
+# Current-season team evidence: underlying Opta process remains dominant,
+# while actual goals scored/conceded provide a modest results check.
+CURRENT_SEASON_PROCESS_WEIGHT = 0.75
+CURRENT_SEASON_GOALS_WEIGHT = 0.25
+
 
 
 # Player-level current-season role/involvement model. This is deliberately
@@ -1157,7 +1162,47 @@ def current_season_actuals_weight(matches_with_data: int) -> float:
     return CURRENT_SEASON_ACTUALS_WEIGHT_BY_MATCHES.get(mp, 0.0)
 
 
-def load_current_season_team_evidence() -> tuple[dict[str, Any], dict[str, dict[str, Any]]]:
+def build_official_match_score_lookup(
+    players_raw: list[dict[str, Any]],
+    official_match_stats_by_player: dict[str, list[dict[str, Any]]],
+) -> dict[str, dict[str, Any]]:
+    """Build one authoritative score record per completed match from player-detail stats.
+
+    The official player-detail matchdayStats repeat home/away score and team IDs on
+    every player's row. Deduplicating by match ID lets current-season team evidence
+    incorporate actual goals without relying on the less reliable fixture status feed.
+    """
+    team_id_to_code: dict[str, str] = {}
+    for player in players_raw:
+        team_id = str(player.get("teamId") or "").strip()
+        code = canonical_transition_team_code(
+            player.get("teamAcronymName") or player.get("teamShortName")
+        )
+        if team_id and code:
+            team_id_to_code[team_id] = code
+
+    scores: dict[str, dict[str, Any]] = {}
+    for rows in (official_match_stats_by_player or {}).values():
+        for row in rows or []:
+            match_id = str(row.get("match_id") or "").strip()
+            if not match_id or match_id in scores:
+                continue
+            home_team_id = str(row.get("home_team_id") or "").strip()
+            away_team_id = str(row.get("away_team_id") or "").strip()
+            home = team_id_to_code.get(home_team_id)
+            away = team_id_to_code.get(away_team_id)
+            if not home or not away:
+                continue
+            scores[match_id] = {
+                "home": home,
+                "away": away,
+                "home_score": safe_int(row.get("home_score")),
+                "away_score": safe_int(row.get("away_score")),
+            }
+    return scores
+
+
+def load_current_season_team_evidence(match_scores: dict[str, dict[str, Any]] | None = None) -> tuple[dict[str, Any], dict[str, dict[str, Any]]]:
     """Build current-season team ATT/DEF evidence from involvement_history.json.
 
     Attack evidence uses primitive Opta event output per completed match:
@@ -1231,6 +1276,9 @@ def load_current_season_team_evidence() -> tuple[dict[str, Any], dict[str, dict[
                 "matches_with_data": 0,
                 "attack_signal_total": 0.0,
                 "opponent_attack_signal_total": 0.0,
+                "goals_for_total": 0.0,
+                "goals_against_total": 0.0,
+                "matches_with_score_data": 0,
                 **{f"{field}_total": 0.0 for field in CURRENT_SEASON_ATTACK_SIGNAL_WEIGHTS},
             })
             row["matches_with_data"] += 1
@@ -1238,6 +1286,19 @@ def load_current_season_team_evidence() -> tuple[dict[str, Any], dict[str, dict[
             row["opponent_attack_signal_total"] += attack_signal[opponent]
             for field in CURRENT_SEASON_ATTACK_SIGNAL_WEIGHTS:
                 row[f"{field}_total"] += per_team[club][field]
+
+            score = (match_scores or {}).get(str(match.get("match_id") or ""))
+            if score:
+                if club == score.get("home") and opponent == score.get("away"):
+                    gf, ga = score.get("home_score"), score.get("away_score")
+                elif club == score.get("away") and opponent == score.get("home"):
+                    gf, ga = score.get("away_score"), score.get("home_score")
+                else:
+                    gf = ga = None
+                if gf is not None and ga is not None:
+                    row["goals_for_total"] += safe_float(gf)
+                    row["goals_against_total"] += safe_float(ga)
+                    row["matches_with_score_data"] += 1
 
         usable_matches += 1
 
@@ -1251,6 +1312,8 @@ def load_current_season_team_evidence() -> tuple[dict[str, Any], dict[str, dict[
 
     attack_by_comp: dict[str, dict[str, float]] = {}
     opp_attack_by_comp: dict[str, dict[str, float]] = {}
+    goals_for_by_comp: dict[str, dict[str, float]] = {}
+    goals_against_by_comp: dict[str, dict[str, float]] = {}
 
     for team, row in team_rows.items():
         mp = max(1, safe_int(row.get("matches_with_data"), 1))
@@ -1262,16 +1325,45 @@ def load_current_season_team_evidence() -> tuple[dict[str, Any], dict[str, dict[
         attack_by_comp.setdefault(comp, {})[team] = attack_avg
         opp_attack_by_comp.setdefault(comp, {})[team] = opp_avg
 
+        score_mp = safe_int(row.get("matches_with_score_data"))
+        if score_mp > 0:
+            gf_avg = safe_float(row.get("goals_for_total")) / score_mp
+            ga_avg = safe_float(row.get("goals_against_total")) / score_mp
+            row["goals_for_per_match"] = gf_avg
+            row["goals_against_per_match"] = ga_avg
+            goals_for_by_comp.setdefault(comp, {})[team] = gf_avg
+            goals_against_by_comp.setdefault(comp, {})[team] = ga_avg
+
     attack_ranks = {comp: rank_percentile(vals) for comp, vals in attack_by_comp.items()}
     opp_attack_ranks = {comp: rank_percentile(vals) for comp, vals in opp_attack_by_comp.items()}
+    goals_for_ranks = {comp: rank_percentile(vals) for comp, vals in goals_for_by_comp.items()}
+    goals_against_ranks = {comp: rank_percentile(vals) for comp, vals in goals_against_by_comp.items()}
 
     evidence: dict[str, dict[str, Any]] = {}
 
     for team, row in team_rows.items():
         comp = row.get("competition_id")
-        attack_rank = attack_ranks.get(comp, {}).get(team, 0.5)
+        process_attack_rank = attack_ranks.get(comp, {}).get(team, 0.5)
         # Lower opponent attacking signal = stronger defensive performance.
-        defense_rank = 1.0 - opp_attack_ranks.get(comp, {}).get(team, 0.5)
+        process_defense_rank = 1.0 - opp_attack_ranks.get(comp, {}).get(team, 0.5)
+
+        score_mp = safe_int(row.get("matches_with_score_data"))
+        has_goal_evidence = score_mp > 0 and team in goals_for_ranks.get(comp, {})
+        goals_attack_rank = goals_for_ranks.get(comp, {}).get(team, 0.5)
+        goals_defense_rank = 1.0 - goals_against_ranks.get(comp, {}).get(team, 0.5)
+
+        if has_goal_evidence:
+            attack_rank = (
+                CURRENT_SEASON_PROCESS_WEIGHT * process_attack_rank
+                + CURRENT_SEASON_GOALS_WEIGHT * goals_attack_rank
+            )
+            defense_rank = (
+                CURRENT_SEASON_PROCESS_WEIGHT * process_defense_rank
+                + CURRENT_SEASON_GOALS_WEIGHT * goals_defense_rank
+            )
+        else:
+            attack_rank = process_attack_rank
+            defense_rank = process_defense_rank
 
         if comp == WSL_COMPETITION_ID:
             low, high = 0.18, 0.92
@@ -1292,6 +1384,13 @@ def load_current_season_team_evidence() -> tuple[dict[str, Any], dict[str, dict[
             "defense_actual_strength_index": round(max(0.05, min(0.95, defense_strength)), 4),
             "attack_rank_current_season": round(attack_rank, 4),
             "defense_rank_current_season": round(defense_rank, 4),
+            "process_attack_rank_current_season": round(process_attack_rank, 4),
+            "process_defense_rank_current_season": round(process_defense_rank, 4),
+            "goals_attack_rank_current_season": round(goals_attack_rank, 4) if has_goal_evidence else None,
+            "goals_defense_rank_current_season": round(goals_defense_rank, 4) if has_goal_evidence else None,
+            "matches_with_score_data": score_mp,
+            "goals_for_per_match": round(safe_float(row.get("goals_for_per_match")), 3) if has_goal_evidence else None,
+            "goals_against_per_match": round(safe_float(row.get("goals_against_per_match")), 3) if has_goal_evidence else None,
             "attack_signal_per_match": round(safe_float(row.get("attack_signal_per_match")), 3),
             "opponent_attack_signal_per_match": round(safe_float(row.get("opponent_attack_signal_per_match")), 3),
             **{
@@ -1308,15 +1407,20 @@ def load_current_season_team_evidence() -> tuple[dict[str, Any], dict[str, dict[
         "generated_at_utc": source_meta.get("generated_at_utc"),
         "source": source_meta.get("source", "Public Opta Player Stats widget match-event feed"),
         "attack_signal_weights": CURRENT_SEASON_ATTACK_SIGNAL_WEIGHTS,
+        "process_results_blend": {
+            "opta_process": CURRENT_SEASON_PROCESS_WEIGHT,
+            "actual_goals": CURRENT_SEASON_GOALS_WEIGHT,
+        },
         "actuals_weight_by_matches": {
             **{str(k): v for k, v in CURRENT_SEASON_ACTUALS_WEIGHT_BY_MATCHES.items()},
             "12+": CURRENT_SEASON_ACTUALS_MAX_WEIGHT,
         },
         "note": (
-            "Current-season team evidence uses shots on target, key passes, successful crosses "
-            "and successful dribbles from completed Opta matches. Defensive evidence is the "
-            "inverse of opponent attacking output. Evidence is ranked within the current league "
-            "and blended conservatively with preseason priors as sample size grows."
+            "Current-season team evidence is 75% underlying Opta process and 25% actual goals. "
+            "Attack process uses shots on target, key passes, successful crosses and successful "
+            "dribbles; defense process is the inverse of opponent attacking output. Goals scored "
+            "support attack and goals conceded support defense. Both pieces are ranked within the "
+            "current league before being blended conservatively with preseason priors."
         ),
     }
     return metadata, evidence
@@ -4453,7 +4557,13 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
     fixture_calibration = build_competition_fixture_calibration(players_raw)
     team_strength = build_team_strength_priors(players_raw)
     current_season_matches = count_completed_team_matches(players_raw)
-    current_team_evidence_metadata, current_team_evidence = load_current_season_team_evidence()
+    official_match_scores = build_official_match_score_lookup(
+        players_raw,
+        official_match_stats_by_player,
+    )
+    current_team_evidence_metadata, current_team_evidence = load_current_season_team_evidence(
+        official_match_scores
+    )
     player_involvement_metadata, player_involvement_profiles = load_player_involvement_profiles()
     gk_model_inputs = load_gk_model_inputs()
     market_metadata, market_lookup = load_market_odds()
@@ -4790,7 +4900,7 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
         "last_global_price_change_date": last_price_change,
         "feed_urls": {key: urljoin(BASE_URL, path) for key, path in URLS.items()},
         "fixture_model": {
-            "version": "fantasy-opportunity-v17-hybrid-comparison-roster-bridge-test",
+            "version": "fantasy-opportunity-v17-hybrid-comparison-roster-bridge-goals-test",
             "note": (
                 "Player-facing outfield Fixture Rating is now position-specific fantasy "
                 "opportunity. MID/FOR use own attacking strength versus opponent defensive "
