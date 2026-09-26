@@ -186,13 +186,14 @@ DEFENSIVE_PLAYER_ATTACK_WEIGHT = 0.15
 
 # v11: growing 2026/27 actual team-performance evidence.
 # The prior remains important early, while current-season evidence grows to
-# 85% after 12+ completed matches.
+# 85% after 12+ completed matches. GW4 audit test: trust live evidence slightly
+# faster at 3-4 completed matches (40%/50% rather than 30%/40%).
 CURRENT_SEASON_ACTUALS_WEIGHT_BY_MATCHES = {
     0: 0.00,
     1: 0.10,
     2: 0.20,
-    3: 0.30,
-    4: 0.40,
+    3: 0.40,
+    4: 0.50,
     5: 0.50,
     6: 0.57,
     7: 0.64,
@@ -1885,6 +1886,69 @@ def normalize_fixture(fixture: dict[str, Any]) -> dict[str, Any]:
         "away_score": fixture.get("awayScore"),
         "deadline_date": fixture.get("deadlineDate"),
     }
+
+
+def build_team_fixture_schedule(fixtures_raw: list[dict[str, Any]]) -> dict[str, list[dict[str, Any]]]:
+    """Build a full-season, team-indexed fixture schedule from the central fixtures feed.
+
+    The player feed's ``upcomingFixtures`` list is not guaranteed to include more
+    than the immediate fixture.  The central fixtures feed contains the published
+    season schedule, so use it as the authoritative source for Fix/Fix+1 and
+    longer fixture horizons.  Entries are shaped like player upcoming-fixture
+    objects so ``build_upcoming_fixture`` can continue to own all rating logic.
+    """
+    schedule: dict[str, list[dict[str, Any]]] = {}
+
+    for fixture in fixtures_raw or []:
+        competition_id = fixture.get("competitionId")
+        home_code = fixture.get("homeAcronymName") or compact_id(fixture.get("homeTeamId"))
+        away_code = fixture.get("awayAcronymName") or compact_id(fixture.get("awayTeamId"))
+
+        sides = (
+            (
+                home_code,
+                "H",
+                away_code,
+                fixture.get("awayOfficialName") or fixture.get("awayMediaName"),
+                fixture.get("awayShortName") or fixture.get("awayMediaShortName"),
+            ),
+            (
+                away_code,
+                "A",
+                home_code,
+                fixture.get("homeOfficialName") or fixture.get("homeMediaName"),
+                fixture.get("homeShortName") or fixture.get("homeMediaShortName"),
+            ),
+        )
+
+        for own_code, location, opponent_code, opponent_name, opponent_short in sides:
+            key = canonical_gk_team_code(own_code)
+            if not key:
+                continue
+            schedule.setdefault(key, []).append(
+                {
+                    "matchId": fixture.get("matchId"),
+                    "matchDateTimeUtc": fixture.get("matchDateTimeUtc"),
+                    "matchdayId": fixture.get("matchdayId"),
+                    "competitionId": competition_id,
+                    "location": location,
+                    "vsTeamAcronymName": opponent_code,
+                    "vsTeamName": opponent_name,
+                    "vsTeamShortName": opponent_short,
+                    # The central feed exposes team ratings rather than the
+                    # player-feed fixture difficulty.  If a matching player-feed
+                    # item exists, transform_player overlays currentRating below.
+                    "currentRating": None,
+                }
+            )
+
+    for fixtures in schedule.values():
+        fixtures.sort(
+            key=lambda f: parse_dt(f.get("matchDateTimeUtc"))
+            or datetime.max.replace(tzinfo=timezone.utc)
+        )
+
+    return schedule
 
 
 def normalize_team(team: dict[str, Any]) -> dict[str, Any]:
@@ -3780,6 +3844,7 @@ def transform_player(
     player_involvement_profiles: dict[str, dict[str, Any]] | None = None,
     official_match_stats_by_player: dict[str, list[dict[str, Any]]] | None = None,
     official_selected_by_player: dict[str, float] | None = None,
+    team_fixture_schedule: dict[str, list[dict[str, Any]]] | None = None,
 ) -> dict[str, Any]:
     name = f"{raw.get('mediaFirstName', '').strip()} {raw.get('mediaLastName', '').strip()}".strip()
     short_name = raw.get("mediaShortName") or name
@@ -3802,16 +3867,47 @@ def transform_player(
     own_team_short_name = raw.get("teamShortName") or own_team_name
     competition_id = raw.get("competitionId")
 
-    # The official player feed can lag fantasy settlement and briefly leave a
-    # completed fixture in upcomingFixtures.  A past kickoff is never a future
-    # fixture, so roll Fix/Fix+1 forward immediately based on time.
+    # Use the full central fixtures feed as the authoritative future schedule.
+    # The per-player upcomingFixtures array can contain only the immediate match,
+    # which previously caused Fix+1 to collapse to a fake 35.0 comparison score.
+    # Preserve currentRating from the player feed when that same match is present,
+    # but source the actual future fixture list from the full-season schedule.
     now_utc = datetime.now(timezone.utc)
-    raw_upcoming = []
-    for fixture in raw.get("upcomingFixtures", []) or []:
-        kickoff = parse_dt(fixture.get("matchDateTimeUtc"))
+    player_upcoming_by_match = {
+        str(f.get("matchId")): f
+        for f in (raw.get("upcomingFixtures", []) or [])
+        if f.get("matchId")
+    }
+
+    schedule_key = canonical_gk_team_code(own_team_id)
+    scheduled_fixtures = list((team_fixture_schedule or {}).get(schedule_key, []))
+    raw_upcoming: list[dict[str, Any]] = []
+
+    for scheduled in scheduled_fixtures:
+        if competition_id and scheduled.get("competitionId") not in {None, competition_id}:
+            continue
+        kickoff = parse_dt(scheduled.get("matchDateTimeUtc"))
         if kickoff is not None and kickoff <= now_utc:
             continue
+
+        fixture = dict(scheduled)
+        player_fixture = player_upcoming_by_match.get(str(fixture.get("matchId")))
+        if player_fixture is not None and player_fixture.get("currentRating") is not None:
+            fixture["currentRating"] = player_fixture.get("currentRating")
         raw_upcoming.append(fixture)
+
+    # Defensive fallback for an unexpected central-feed outage.  This keeps the
+    # site usable while still filtering stale past fixtures from the player feed.
+    if not raw_upcoming:
+        for fixture in raw.get("upcomingFixtures", []) or []:
+            kickoff = parse_dt(fixture.get("matchDateTimeUtc"))
+            if kickoff is not None and kickoff <= now_utc:
+                continue
+            raw_upcoming.append(fixture)
+        raw_upcoming.sort(
+            key=lambda f: parse_dt(f.get("matchDateTimeUtc"))
+            or datetime.max.replace(tzinfo=timezone.utc)
+        )
 
     upcoming = [
         build_upcoming_fixture(
@@ -3846,7 +3942,11 @@ def transform_player(
     next_fixture = upcoming[0] if upcoming else None
     following_fixture = upcoming[1] if len(upcoming) > 1 else None
     next_rating = safe_float(next_fixture.get("opportunity_rating"), 0.0) if next_fixture else 0.0
-    following_rating = safe_float(following_fixture.get("opportunity_rating"), 0.0) if following_fixture else 0.0
+    following_rating = (
+        safe_float(following_fixture.get("opportunity_rating"), 0.0)
+        if following_fixture
+        else None
+    )
     involvement_profile = (player_involvement_profiles or {}).get(str(raw.get("playerId") or ""), {})
 
     row: dict[str, Any] = {
@@ -3951,7 +4051,7 @@ def transform_player(
         "Next Team Forecast Updated At": next_fixture.get("team_forecast_updated_at") if next_fixture else None,
         "Next Fixture Score": fixture_rating_to_score(next_rating) if next_fixture else "-",
         "Next Fixture Details": fixture_details_text(upcoming[:1], position),
-        "Following Fixture Rating": round(following_rating, 1),
+        "Following Fixture Rating": round(following_rating, 1) if following_rating is not None else None,
         "Following Market CS Probability": following_fixture.get("market_cs_probability") if following_fixture else None,
         "Following Team eGoals": following_fixture.get("team_egoals") if following_fixture else None,
         "Following Team eGoals Against": following_fixture.get("team_egoals_against") if following_fixture else None,
@@ -4198,6 +4298,7 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
     gk_model_inputs = load_gk_model_inputs()
     market_metadata, market_lookup = load_market_odds()
     team_forecast_metadata, team_forecast_by_match, team_forecast_by_gw = load_team_forecasts()
+    team_fixture_schedule = build_team_fixture_schedule(fixtures_raw)
     gk_team_priors = build_gk_team_priors(
         gk_model_inputs,
         team_strength,
@@ -4224,6 +4325,7 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
             player_involvement_profiles,
             official_match_stats_by_player,
             official_selected_by_player,
+            team_fixture_schedule,
         )
         for p in players_raw
     ]
