@@ -204,6 +204,15 @@ CURRENT_SEASON_ACTUALS_WEIGHT_BY_MATCHES = {
 }
 CURRENT_SEASON_ACTUALS_MAX_WEIGHT = 0.85
 
+# Experimental roster-prior reliability bridge.
+# Historical fantasy points remain the preseason prior where they are informative,
+# but low/no-history current players are shrunk toward a neutral league/unit prior
+# instead of being treated as zero-quality. Current-season involvement is used only
+# to estimate how complete/reliable the historical roster prior is; it is NOT added
+# directly to the prior score, avoiding double-counting with live team evidence.
+ROSTER_PRIOR_RELIABILITY_MAX_ACTUALS_BOOST = 0.25
+ROSTER_PRIOR_MIN_ACTUALS_WEIGHT = 0.0
+
 # Primitive Opta involvement-event weights used to create a team attacking
 # signal. The model intentionally uses underlying chance/pressure creation
 # rather than fantasy points.
@@ -2601,11 +2610,122 @@ def map_rank_to_destination_strength(
     return max(0.05, min(0.95, strength)), note
 
 
+def build_roster_prior_bridge_context(
+    players_raw: list[dict[str, Any]],
+    player_involvement_profiles: dict[str, dict[str, Any]] | None = None,
+) -> tuple[dict[tuple[str, str], float], dict[str, dict[str, float]]]:
+    """Build neutral prior values and current-role-weighted historical coverage.
+
+    Neutral values are the median positive previous-season fantasy points within
+    each current competition and unit (attack=MID/FOR, defense=GK/DEF).
+
+    A player's historical reliability is pts / neutral, capped at 1.0. Therefore:
+      - established players at/above the league-unit median keep their history;
+      - limited-history players are partially shrunk toward neutral;
+      - zero-history players are treated as unknown/neutral, not zero-quality.
+
+    Team coverage is weighted by current-season role evidence from Opta involvement.
+    Involvement affects only *how much we trust the old prior*, not the prior score
+    itself, so the same current-season actions are not double-counted.
+    """
+    profiles = player_involvement_profiles or {}
+    positive_by_group: dict[tuple[str, str], list[float]] = {}
+
+    def unit_for_position(position: str) -> str | None:
+        if position in {"MID", "FOR"}:
+            return "attack"
+        if position in {"GK", "DEF"}:
+            return "defense"
+        return None
+
+    # Neutral = current-league/unit median of positive prior fantasy points.
+    for raw in players_raw:
+        comp = str(raw.get("competitionId") or "")
+        position = POSITION_MAP.get(
+            str(raw.get("skillName") or "").lower(),
+            str(raw.get("skillName") or "").upper(),
+        )
+        unit = unit_for_position(position)
+        pts = safe_float(raw.get("pointsLastSeason"), 0.0)
+        if comp and unit and pts > 0:
+            positive_by_group.setdefault((comp, unit), []).append(pts)
+
+    neutral_by_group: dict[tuple[str, str], float] = {}
+    for key, vals in positive_by_group.items():
+        vals = sorted(vals)
+        n = len(vals)
+        if not n:
+            neutral_by_group[key] = 50.0
+        elif n % 2:
+            neutral_by_group[key] = float(vals[n // 2])
+        else:
+            neutral_by_group[key] = float((vals[n // 2 - 1] + vals[n // 2]) / 2.0)
+
+    role_totals: dict[str, dict[str, float]] = {}
+    reliable_totals: dict[str, dict[str, float]] = {}
+
+    for raw in players_raw:
+        team = canonical_transition_team_code(
+            raw.get("teamAcronymName") or raw.get("teamShortName")
+        )
+        comp = str(raw.get("competitionId") or "")
+        position = POSITION_MAP.get(
+            str(raw.get("skillName") or "").lower(),
+            str(raw.get("skillName") or "").upper(),
+        )
+        unit = unit_for_position(position)
+        if not team or not comp or not unit:
+            continue
+
+        neutral = max(1.0, safe_float(neutral_by_group.get((comp, unit)), 50.0))
+        pts = max(0.0, safe_float(raw.get("pointsLastSeason"), 0.0))
+        history_reliability = max(0.0, min(1.0, pts / neutral))
+
+        pid = str(raw.get("playerId") or "")
+        profile = profiles.get(pid, {}) or {}
+        matches = max(0, safe_int(profile.get("matches_with_data"), 0))
+        if matches <= 0:
+            continue
+
+        # Give every observed appearance some role weight, then add involvement
+        # volume so a heavily involved player matters more than a peripheral one.
+        if unit == "attack":
+            actions_per_match = max(0.0, safe_float(profile.get("attacking_actions_per_match"), 0.0))
+        else:
+            # GK profiles intentionally do not carry outfield defensive actions;
+            # their observed matches still count via the +1 baseline below.
+            actions_per_match = max(0.0, safe_float(profile.get("defensive_actions_per_match"), 0.0))
+
+        role_weight = matches * (1.0 + actions_per_match)
+        role_totals.setdefault(team, {"attack": 0.0, "defense": 0.0})[unit] += role_weight
+        reliable_totals.setdefault(team, {"attack": 0.0, "defense": 0.0})[unit] += role_weight * history_reliability
+
+    coverage: dict[str, dict[str, float]] = {}
+    teams = set(role_totals) | set(reliable_totals)
+    for team in teams:
+        coverage[team] = {}
+        for unit in ("attack", "defense"):
+            total = role_totals.get(team, {}).get(unit, 0.0)
+            reliable = reliable_totals.get(team, {}).get(unit, 0.0)
+            coverage[team][unit] = max(0.0, min(1.0, reliable / total)) if total > 0 else 1.0
+
+    return neutral_by_group, coverage
+
+
+def roster_adjusted_actuals_weight(base_weight: float, coverage: float) -> float:
+    """Increase live-evidence weight when the historical roster prior is incomplete."""
+    base = max(ROSTER_PRIOR_MIN_ACTUALS_WEIGHT, min(CURRENT_SEASON_ACTUALS_MAX_WEIGHT, safe_float(base_weight)))
+    cov = max(0.0, min(1.0, safe_float(coverage, 1.0)))
+    boosted = base + ((1.0 - cov) * ROSTER_PRIOR_RELIABILITY_MAX_ACTUALS_BOOST)
+    return max(base, min(CURRENT_SEASON_ACTUALS_MAX_WEIGHT, boosted))
+
+
 def build_team_unit_priors(
     players_raw: list[dict[str, Any]],
     team_strength: dict[str, dict[str, Any]],
     current_season_matches: dict[str, int] | None = None,
     current_team_evidence: dict[str, dict[str, Any]] | None = None,
+    player_involvement_profiles: dict[str, dict[str, Any]] | None = None,
 ) -> dict[str, dict[str, Any]]:
     """Build separate attacking and defensive team-strength priors.
 
@@ -2625,6 +2745,11 @@ def build_team_unit_priors(
     """
     current_season_matches = current_season_matches or {}
     current_team_evidence = current_team_evidence or {}
+    player_involvement_profiles = player_involvement_profiles or {}
+    neutral_prior_by_group, prior_coverage_by_team = build_roster_prior_bridge_context(
+        players_raw,
+        player_involvement_profiles,
+    )
     units: dict[str, dict[str, Any]] = {}
 
     for raw in players_raw:
@@ -2644,7 +2769,8 @@ def build_team_unit_priors(
             str(raw.get("skillName") or "").upper(),
         )
 
-        pts = safe_float(raw.get("pointsLastSeason"), 0.0)
+        pts = max(0.0, safe_float(raw.get("pointsLastSeason"), 0.0))
+        unit = "attack" if position in {"MID", "FOR"} else "defense" if position in {"GK", "DEF"} else None
 
         bucket = units.setdefault(
             team,
@@ -2652,14 +2778,36 @@ def build_team_unit_priors(
                 "competition_id": comp,
                 "attack_points": [],
                 "defense_points": [],
+                "attack_bridge_players": [],
+                "defense_bridge_players": [],
             },
         )
 
-        if pts > 0:
-            if position in {"MID", "FOR"}:
-                bucket["attack_points"].append(pts)
-            elif position in {"GK", "DEF"}:
-                bucket["defense_points"].append(pts)
+        if unit:
+            neutral = max(1.0, safe_float(neutral_prior_by_group.get((str(comp), unit)), 50.0))
+            history_reliability = max(0.0, min(1.0, pts / neutral))
+            pid = str(raw.get("playerId") or "")
+            profile = player_involvement_profiles.get(pid, {}) or {}
+            has_current_role = safe_int(profile.get("matches_with_data"), 0) > 0
+
+            # Only bridge low/no-history players once current-season appearances
+            # confirm that they actually have a role. Unused signings/bench players
+            # cannot inflate the club prior merely by existing on the roster.
+            adjusted_pts = pts
+            if has_current_role and history_reliability < 1.0:
+                adjusted_pts = (history_reliability * pts) + ((1.0 - history_reliability) * neutral)
+                bucket[f"{unit}_bridge_players"].append({
+                    "player_id": pid,
+                    "name": f"{raw.get('mediaFirstName', '').strip()} {raw.get('mediaLastName', '').strip()}".strip(),
+                    "prior_points": round(pts, 1),
+                    "neutral_points": round(neutral, 1),
+                    "history_reliability": round(history_reliability, 3),
+                    "adjusted_prior_points": round(adjusted_pts, 1),
+                    "current_matches": safe_int(profile.get("matches_with_data"), 0),
+                })
+
+            if adjusted_pts > 0:
+                bucket[f"{unit}_points"].append(adjusted_pts)
 
     attack_scores_by_comp: dict[str, dict[str, float]] = {}
     defense_scores_by_comp: dict[str, dict[str, float]] = {}
@@ -2813,27 +2961,36 @@ def build_team_unit_priors(
         pre_actuals_attack_strength = attack_strength
         pre_actuals_defense_strength = defense_strength
 
-        (
-            attack_strength,
-            defense_strength,
-            actuals_weight,
-            actuals_detail,
-        ) = blend_current_season_unit_strength(
-            team,
-            attack_strength,
-            defense_strength,
-            current_team_evidence,
-        )
-
+        actuals_detail = current_team_evidence.get(canonical_transition_team_code(team), {}) or {}
         actuals_matches = safe_int(actuals_detail.get("matches_with_data"), 0) if actuals_detail else 0
+        base_actuals_weight = current_season_actuals_weight(actuals_matches) if actuals_detail else 0.0
+        attack_prior_coverage = prior_coverage_by_team.get(canonical_transition_team_code(team), {}).get("attack", 1.0)
+        defense_prior_coverage = prior_coverage_by_team.get(canonical_transition_team_code(team), {}).get("defense", 1.0)
+        attack_actuals_weight = roster_adjusted_actuals_weight(base_actuals_weight, attack_prior_coverage) if actuals_detail else 0.0
+        defense_actuals_weight = roster_adjusted_actuals_weight(base_actuals_weight, defense_prior_coverage) if actuals_detail else 0.0
 
-        if actuals_weight > 0:
-            live_text = (
-                f"2026/27 actuals {actuals_weight:.0%} weight from "
+        if actuals_detail and base_actuals_weight > 0:
+            actual_attack = safe_float(actuals_detail.get("attack_actual_strength_index"), attack_strength)
+            actual_defense = safe_float(actuals_detail.get("defense_actual_strength_index"), defense_strength)
+            attack_strength = ((1.0 - attack_actuals_weight) * attack_strength) + (attack_actuals_weight * actual_attack)
+            defense_strength = ((1.0 - defense_actuals_weight) * defense_strength) + (defense_actuals_weight * actual_defense)
+            attack_strength = max(0.05, min(0.95, attack_strength))
+            defense_strength = max(0.05, min(0.95, defense_strength))
+
+        actuals_weight = base_actuals_weight
+        if base_actuals_weight > 0:
+            attack_live_text = (
+                f"2026/27 actuals {attack_actuals_weight:.0%} attack weight "
+                f"(base {base_actuals_weight:.0%}; prior coverage {attack_prior_coverage:.0%}) from "
                 f"{actuals_matches} match{'' if actuals_matches == 1 else 'es'}"
             )
-            attack_note = ((attack_note + " | ") if attack_note else "") + live_text
-            defense_note = ((defense_note + " | ") if defense_note else "") + live_text
+            defense_live_text = (
+                f"2026/27 actuals {defense_actuals_weight:.0%} defense weight "
+                f"(base {base_actuals_weight:.0%}; prior coverage {defense_prior_coverage:.0%}) from "
+                f"{actuals_matches} match{'' if actuals_matches == 1 else 'es'}"
+            )
+            attack_note = ((attack_note + " | ") if attack_note else "") + attack_live_text
+            defense_note = ((defense_note + " | ") if defense_note else "") + defense_live_text
 
         priors[team] = {
             "competition_id": comp,
@@ -2899,6 +3056,14 @@ def build_team_unit_priors(
             "pre_current_season_defense_strength_index": round(pre_actuals_defense_strength, 4),
             "current_season_actuals_matches": actuals_matches,
             "current_season_actuals_weight": round(actuals_weight, 4),
+            "current_season_attack_actuals_weight": round(attack_actuals_weight, 4),
+            "current_season_defense_actuals_weight": round(defense_actuals_weight, 4),
+            "attack_historical_prior_coverage": round(attack_prior_coverage, 4),
+            "defense_historical_prior_coverage": round(defense_prior_coverage, 4),
+            "attack_low_history_bridge_players": info.get("attack_bridge_players", []),
+            "defense_low_history_bridge_players": info.get("defense_bridge_players", []),
+            "attack_neutral_prior_points": round(safe_float(neutral_prior_by_group.get((str(comp), "attack")), 50.0), 1),
+            "defense_neutral_prior_points": round(safe_float(neutral_prior_by_group.get((str(comp), "defense")), 50.0), 1),
             "current_season_attack_strength_index": (
                 actuals_detail.get("attack_actual_strength_index") if actuals_detail else None
             ),
@@ -4306,6 +4471,7 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
         team_strength,
         current_season_matches,
         current_team_evidence,
+        player_involvement_profiles,
     )
     players = [
         transform_player(
@@ -4624,7 +4790,7 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
         "last_global_price_change_date": last_price_change,
         "feed_urls": {key: urljoin(BASE_URL, path) for key, path in URLS.items()},
         "fixture_model": {
-            "version": "fantasy-opportunity-v17-hybrid-comparison",
+            "version": "fantasy-opportunity-v17-hybrid-comparison-roster-bridge-test",
             "note": (
                 "Player-facing outfield Fixture Rating is now position-specific fantasy "
                 "opportunity. MID/FOR use own attacking strength versus opponent defensive "
@@ -4671,7 +4837,7 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
                 "legacy_v5_retained_for_audit": True,
             },
             "defensive_fixture_model": {
-                "version": "unit-strength-defense-v10-current-season-evidence",
+                "version": "unit-strength-v11-roster-reliability-bridge",
                 "note": (
                     "Schedule-only attacking and defensive fixture opportunities remain distinct "
                     "from projected team strength. Unit priors now use a unified promoted-team "
