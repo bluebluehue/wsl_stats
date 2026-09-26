@@ -163,8 +163,8 @@ WSL2_PRESEASON_FADE_MATCHES = 5
 # one input. The independent team-matchup prior gets the larger weight.
 SOURCE_RATING_WEIGHT = 0.35
 TEAM_MATCHUP_WEIGHT = 0.65
-HOME_ADVANTAGE_POINTS = 4.0
-AWAY_DISADVANTAGE_POINTS = -4.0
+HOME_ADVANTAGE_POINTS = 2.5
+AWAY_DISADVANTAGE_POINTS = -2.5
 
 # Fixture Model v10: position-specific fantasy opportunity.
 #
