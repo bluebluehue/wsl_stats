@@ -28,6 +28,8 @@ import json
 import os
 import re
 from collections import Counter, defaultdict
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from urllib.parse import quote
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -47,6 +49,8 @@ DEFAULT_WIDGET_FEED_ID = "ft1tiv1inq7v1sk3y9tv12yh5"
 WIDGET_FEED_ID = os.getenv("OPTA_WIDGET_FEED_ID", DEFAULT_WIDGET_FEED_ID)
 
 PERFORMFEEDS_BASE = "https://api.performfeeds.com/soccerdata/matchevent"
+OFFICIAL_PLAYER_DETAIL_BASE = "https://gaming.wslfootball.com/feeds/popup/stats/player_en_1_"
+OFFICIAL_PLAYER_DETAIL_WORKERS = max(1, int(os.getenv("WSL_PLAYER_DETAIL_WORKERS", "8")))
 
 # Opta F24 event ids used by the fantasy action definitions.
 PASS = 1
@@ -229,6 +233,171 @@ def match_metadata(payload: dict[str, Any]) -> dict[str, Any]:
         "coverage_level": mi.get("coverageLevel"),
         "last_updated": mi.get("lastUpdated"),
     }
+
+
+def transformed_bonus_rank_lookup(
+    players: list[dict[str, Any]],
+) -> dict[tuple[str, str], int]:
+    """Build (player_id, match_id) -> bonus rank from existing transformed data."""
+    lookup: dict[tuple[str, str], int] = {}
+
+    for player in players:
+        player_id = str(player.get("Player ID") or player.get("player_id") or "")
+        if not player_id:
+            continue
+
+        stats = player.get("Official Match Stats") or player.get("official_match_stats") or []
+        if not isinstance(stats, list):
+            continue
+
+        for row in stats:
+            if not isinstance(row, dict):
+                continue
+
+            match_id = str(row.get("match_id") or row.get("matchId") or "")
+            raw_rank = row.get("bonus_rank")
+            if raw_rank is None:
+                raw_rank = row.get("bonusRank")
+            if raw_rank is None:
+                raw_rank = row.get("matchBonus")
+
+            try:
+                rank = int(float(raw_rank))
+            except (TypeError, ValueError):
+                continue
+
+            if match_id and rank > 0:
+                lookup[(player_id, match_id)] = rank
+
+    return lookup
+
+
+def fetch_official_player_detail(player_id: str) -> dict[str, Any]:
+    """Fetch official WSL Fantasy player detail, including matchBonus ranks."""
+    encoded_id = quote(str(player_id), safe=":")
+    url = f"{OFFICIAL_PLAYER_DETAIL_BASE}{encoded_id}.json"
+    params = {
+        "v": "3",
+        "buster": str(int(datetime.now(timezone.utc).timestamp() * 1000)),
+    }
+    headers = {
+        "User-Agent": "Mozilla/5.0 WSL fantasy involvement stats parser",
+        "Accept": "application/json,text/plain,*/*",
+        "Referer": "https://www.wslfootball.com/fantasy/view-team",
+    }
+    response = requests.get(url, params=params, headers=headers, timeout=30)
+    response.raise_for_status()
+    return response.json()
+
+
+def extract_matchday_stats(payload: dict[str, Any]) -> list[dict[str, Any]]:
+    """Find the richest matchdayStats array in an official player payload."""
+    candidates: list[list[dict[str, Any]]] = []
+
+    def walk(value: Any, depth: int = 0) -> None:
+        if depth > 6:
+            return
+        if isinstance(value, dict):
+            for key, child in value.items():
+                if key == "matchdayStats" and isinstance(child, list):
+                    candidates.append([row for row in child if isinstance(row, dict)])
+                else:
+                    walk(child, depth + 1)
+        elif isinstance(value, list):
+            for child in value[:12]:
+                walk(child, depth + 1)
+
+    walk(payload)
+    return max(candidates, key=len) if candidates else []
+
+
+def bonus_rank_from_player_detail(
+    payload: dict[str, Any],
+    match_id: str,
+) -> int | None:
+    """Return the official WSL Fantasy matchBonus rank for one match."""
+    target = str(match_id or "")
+    if not target:
+        return None
+
+    for row in extract_matchday_stats(payload):
+        row_match_id = str(row.get("matchId") or row.get("match_id") or "")
+        if row_match_id != target:
+            continue
+
+        raw_rank = row.get("matchBonus")
+        if raw_rank is None:
+            raw_rank = row.get("bonusRank")
+        if raw_rank is None:
+            raw_rank = row.get("bonus_rank")
+
+        try:
+            rank = int(float(raw_rank))
+        except (TypeError, ValueError):
+            return None
+
+        return rank if rank > 0 else None
+
+    return None
+
+
+def enrich_completed_match_bonus_ranks(
+    match_id: str,
+    player_rows: list[dict[str, Any]],
+    transformed_rank_lookup: dict[tuple[str, str], int],
+    detail_cache: dict[str, dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """Persist official final bonus ranks onto permanent involvement rows."""
+    failures: list[dict[str, Any]] = []
+    rows_by_player: dict[str, list[dict[str, Any]]] = defaultdict(list)
+
+    for row in player_rows:
+        player_id = str(row.get("player_id") or "")
+        if not player_id:
+            row["bonus_rank"] = None
+            continue
+
+        known = transformed_rank_lookup.get((player_id, str(match_id)))
+        if known is not None:
+            row["bonus_rank"] = known
+            continue
+
+        if player_id in detail_cache:
+            row["bonus_rank"] = bonus_rank_from_player_detail(
+                detail_cache[player_id], str(match_id)
+            )
+            continue
+
+        rows_by_player[player_id].append(row)
+
+    if not rows_by_player:
+        return failures
+
+    with ThreadPoolExecutor(max_workers=OFFICIAL_PLAYER_DETAIL_WORKERS) as pool:
+        future_map = {
+            pool.submit(fetch_official_player_detail, player_id): player_id
+            for player_id in rows_by_player
+        }
+
+        for future in as_completed(future_map):
+            player_id = future_map[future]
+            try:
+                payload = future.result()
+                detail_cache[player_id] = payload
+                rank = bonus_rank_from_player_detail(payload, str(match_id))
+                for row in rows_by_player[player_id]:
+                    row["bonus_rank"] = rank
+            except Exception as exc:
+                for row in rows_by_player[player_id]:
+                    row["bonus_rank"] = None
+                failures.append({
+                    "stage": "official_bonus_rank",
+                    "player_id": player_id,
+                    "match_id": str(match_id),
+                    "error": str(exc),
+                })
+
+    return failures
 
 
 def aggregate_match(
@@ -543,6 +712,9 @@ def main() -> None:
         if opta_id:
             opta_to_player[opta_id] = player
 
+    existing_bonus_ranks = transformed_bonus_rank_lookup(players)
+    official_player_detail_cache: dict[str, dict[str, Any]] = {}
+
     match_candidates = build_past_match_candidates(raw_players, fixtures)
     if not match_candidates:
         raise SystemExit("No past fixture candidates with Opta provider ids were found.")
@@ -556,7 +728,7 @@ def main() -> None:
             "note": (
                 "Involvement thresholds are applied per match, then summed. "
                 "Raw event payloads are cached by Opta match id. "
-                "Values are rules/Opta-derived; known WSL UI discrepancies are not force-fitted."
+                "Values are rules/Opta-derived; official WSL Fantasy bonus ranks are persisted per completed match."
             ),
         },
         "matches": [],
@@ -581,6 +753,16 @@ def main() -> None:
                 continue
 
             player_rows, diagnostics = aggregate_match(payload, opta_to_player)
+
+            failures.extend(
+                enrich_completed_match_bonus_ranks(
+                    str(match.get("match_id") or ""),
+                    player_rows,
+                    existing_bonus_ranks,
+                    official_player_detail_cache,
+                )
+            )
+
             output["matches"].append({
                 **match,
                 **match_metadata(payload),
