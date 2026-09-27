@@ -14,8 +14,10 @@ import json
 import os
 import re
 import sys
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
+from urllib.parse import quote
 
 import requests
 
@@ -28,6 +30,8 @@ HISTORY_FILE = ROOT / "involvement_history.json"
 OPTA_WIDGET_FEED_ID = os.getenv("OPTA_WIDGET_FEED_ID", "ft1tiv1inq7v1sk3y9tv12yh5")
 OPTA_BASE = "https://api.performfeeds.com/soccerdata/matchevent"
 REFERER = "https://optaplayerstats.statsperform.com/"
+OFFICIAL_PLAYER_DETAIL_BASE = "https://gaming.wslfootball.com/feeds/popup/stats/player_en_1_"
+OFFICIAL_PLAYER_DETAIL_WORKERS = max(1, int(os.getenv("WSL_PLAYER_DETAIL_WORKERS", "8")))
 
 # Include a little pre-kickoff grace and a long enough post-kickoff window to
 # cover regulation time, stoppage, and feed lag. Completed matches are harmless:
@@ -95,6 +99,114 @@ def player_lookup(players):
         if oid:
             lookup[oid] = p
     return lookup
+
+def fetch_official_player_detail(player_id):
+    """Fetch the official WSL Fantasy player-detail payload with live matchday stats."""
+    encoded_id = quote(str(player_id), safe=":")
+    url = f"{OFFICIAL_PLAYER_DETAIL_BASE}{encoded_id}.json"
+    headers = {
+        "User-Agent": "Mozilla/5.0 (compatible; WSL involvement snapshot)",
+        "Accept": "application/json,text/plain,*/*",
+        "Referer": "https://www.wslfootball.com/fantasy/view-team",
+    }
+    params = {
+        "v": "3",
+        "buster": str(int(datetime.now(timezone.utc).timestamp() * 1000)),
+    }
+    r = requests.get(url, params=params, headers=headers, timeout=25)
+    r.raise_for_status()
+    return r.json()
+
+
+def extract_matchday_stats(payload):
+    """Return the richest matchdayStats list found in a player-detail payload."""
+    candidate_lists = []
+
+    def walk(value, depth=0):
+        if depth > 6:
+            return
+        if isinstance(value, dict):
+            for key, child in value.items():
+                if key == "matchdayStats" and isinstance(child, list):
+                    candidate_lists.append([row for row in child if isinstance(row, dict)])
+                else:
+                    walk(child, depth + 1)
+        elif isinstance(value, list):
+            for child in value[:12]:
+                walk(child, depth + 1)
+
+    walk(payload)
+    return max(candidate_lists, key=len) if candidate_lists else []
+
+
+def official_bonus_rank_for_match(payload, match_id):
+    """Read the official live/final bonus rank for one WSL Fantasy match."""
+    target = str(match_id or "")
+    if not target:
+        return None
+
+    for row in extract_matchday_stats(payload):
+        row_match_id = str(row.get("matchId") or row.get("match_id") or "")
+        if row_match_id != target:
+            continue
+
+        raw = row.get("matchBonus")
+        if raw is None:
+            raw = row.get("bonusRank")
+        if raw is None:
+            raw = row.get("bonus_rank")
+
+        try:
+            rank = int(float(raw))
+        except (TypeError, ValueError):
+            return None
+
+        return rank if rank > 0 else None
+
+    return None
+
+
+def enrich_match_with_bonus_ranks(match):
+    """Attach official WSL Fantasy bonus_rank to the live player rows.
+
+    Only players already present in the Opta live snapshot are queried, which keeps
+    this lightweight compared with fetching the entire fantasy player pool.
+    """
+    rows = match.get("players") or []
+    match_id = match.get("match_id")
+    failures = []
+
+    jobs = []
+    for row in rows:
+        player_id = row.get("player_id")
+        if player_id:
+            jobs.append((row, str(player_id)))
+
+    if not jobs or not match_id:
+        return failures
+
+    with ThreadPoolExecutor(max_workers=OFFICIAL_PLAYER_DETAIL_WORKERS) as pool:
+        future_map = {
+            pool.submit(fetch_official_player_detail, player_id): (row, player_id)
+            for row, player_id in jobs
+        }
+
+        for future in as_completed(future_map):
+            row, player_id = future_map[future]
+            try:
+                payload = future.result()
+                row["bonus_rank"] = official_bonus_rank_for_match(payload, match_id)
+            except Exception as exc:
+                row["bonus_rank"] = None
+                failures.append({
+                    "stage": "official_bonus_rank",
+                    "player_id": player_id,
+                    "match_id": match_id,
+                    "error": str(exc),
+                })
+
+    return failures
+
 
 def fetch_match(opta_id):
     url = f"{OPTA_BASE}/{OPTA_WIDGET_FEED_ID}/{opta_id}"
@@ -261,6 +373,7 @@ def main():
                 continue
             match = aggregate(payload, f, lookup)
             if match["event_count"] > 0:
+                failures.extend(enrich_match_with_bonus_ranks(match))
                 matches.append(match)
         except Exception as exc:
             failures.append({"opta_match_id": oid, "error": str(exc)})
@@ -303,6 +416,7 @@ def main():
             "match_count": len(final_matches),
             "failures": failures,
             "scoring_note": "Rules/Opta-derived involvement values reconciled against the official WSL Fantasy player-match feed.",
+            "bonus_note": "bonus_rank is the official WSL Fantasy matchBonus rank. Live values are provisional.",
         },
         "matches": final_matches,
     }
