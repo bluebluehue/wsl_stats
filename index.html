@@ -1052,6 +1052,28 @@
             font-weight: 700;
         }
 
+
+        #involvement-view .inv-bonus-rank {
+            display: inline-flex;
+            min-width: 1.75rem;
+            justify-content: center;
+            align-items: center;
+            padding: 0.12rem 0.34rem;
+            border-radius: 9999px;
+            font-weight: 700;
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        #involvement-view .inv-bonus-rank-paying {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        #involvement-view .inv-bonus-rank-live {
+            box-shadow: inset 0 0 0 1px #60a5fa;
+        }
+
         /* Involvement tab: match the standalone involvement page. */
         #involvement-view .inv-panel {
             background: #fff;
@@ -2930,6 +2952,8 @@
                             <th class="text-center px-3 py-2 inv-th" data-inv-sort="defensive_actions">Def Actions</th>
                             <th class="text-center px-3 py-2 inv-th" data-inv-sort="defensive_points">Def Pts</th>
                             <th class="text-center px-3 py-2 inv-th" data-inv-sort="involvement_points">Total IP</th>
+                            <th class="text-center px-3 py-2 inv-th" data-inv-sort="bonus_rank"
+                                title="Official WSL Fantasy bonus rank for the selected match(es). Lower is better. Live ranks are provisional; multiple included matches are averaged.">B Rank</th>
                         </tr>
                     </thead>
                     <tbody id="inv-table-body"></tbody>
@@ -2945,7 +2969,7 @@
                     interceptions, clearances, blocked shots and recoveries.
                 </p>
                 <p class="mt-2 text-gray-500">
-                    In-progress values are provisional and may change as Opta updates match events.
+                    In-progress values and bonus ranks are provisional and may change as Opta/WSL Fantasy updates the match.
                 </p>
             </div>
         </section>
@@ -6873,6 +6897,94 @@
                 };
             }
 
+
+            let officialBonusRankIndex = new Map();
+
+            function rebuildOfficialBonusRankIndex() {
+                officialBonusRankIndex.clear();
+
+                (fullPlayerData || []).forEach(player => {
+                    const playerIds = [
+                        String(player["Player ID"] || player.player_id || ''),
+                        compactOptaId(player["Opta Player ID"] || player.opta_player_id || player.optaPlayerId || '')
+                    ].filter(Boolean);
+
+                    const stats =
+                        player["Official Match Stats"] ||
+                        player.official_match_stats ||
+                        [];
+
+                    (Array.isArray(stats) ? stats : []).forEach(stat => {
+                        const matchId = String(stat.match_id || stat.matchId || '');
+                        const rawRank =
+                            stat.bonus_rank ??
+                            stat.bonusRank ??
+                            stat.matchBonus;
+
+                        const rank = Number(rawRank);
+                        if (!matchId || !Number.isFinite(rank) || rank <= 0) return;
+
+                        playerIds.forEach(playerId => {
+                            officialBonusRankIndex.set(`${playerId}::${matchId}`, rank);
+                        });
+                    });
+                });
+            }
+
+            function officialBonusRankForRow(match, row) {
+                const direct = Number(
+                    row?.bonus_rank ??
+                    row?.bonusRank ??
+                    row?.matchBonus
+                );
+
+                if (Number.isFinite(direct) && direct > 0) {
+                    return direct;
+                }
+
+                const matchId = String(
+                    match?.match_id ||
+                    match?.matchId ||
+                    ''
+                );
+
+                if (!matchId) return null;
+
+                const ids = [
+                    String(row?.player_id || ''),
+                    compactOptaId(row?.opta_player_id || '')
+                ].filter(Boolean);
+
+                for (const id of ids) {
+                    const rank =
+                        officialBonusRankIndex.get(`${id}::${matchId}`);
+
+                    if (Number.isFinite(rank) && rank > 0) {
+                        return rank;
+                    }
+                }
+
+                return null;
+            }
+
+            function bonusRankDisplay(row) {
+                const rank = Number(row?.bonus_rank);
+
+                if (!Number.isFinite(rank) || rank <= 0) {
+                    return '<span class="text-gray-400">—</span>';
+                }
+
+                const text = Number.isInteger(rank)
+                    ? String(rank)
+                    : rank.toFixed(1);
+
+                const paying = rank <= 3 ? ' inv-bonus-rank-paying' : '';
+                const live = row?.bonus_rank_live ? ' inv-bonus-rank-live' : '';
+
+                return `<span class="inv-bonus-rank${paying}${live}"
+                    title="${row?.bonus_rank_live ? 'Live/provisional official WSL Fantasy bonus rank' : 'Official WSL Fantasy bonus rank'}">${text}</span>`;
+            }
+
             function combinedInvolvementMatches() {
                 const staticMatches = (involvementHistoryData.matches || []).map(match => ({...match}));
                 const byId = new Map(staticMatches.map(match => [String(match.opta_match_id || ''), match]));
@@ -6906,6 +7018,10 @@
                                 position: row.position,
                                 matches_with_data: 0,
                                 has_live_data: false,
+                                bonus_rank_sum: 0,
+                                bonus_rank_samples: 0,
+                                bonus_rank_live: false,
+                                bonus_rank: null,
                                 ...Object.fromEntries(countFields.map(key => [key, 0]))
                             });
                         }
@@ -6914,10 +7030,27 @@
                         agg.matches_with_data += 1;
                         agg.has_live_data = agg.has_live_data || Boolean(match.live);
                         countFields.forEach(key => agg[key] += Number(row[key] || 0));
+
+                        const bonusRank =
+                            officialBonusRankForRow(match, row);
+
+                        if (Number.isFinite(bonusRank) && bonusRank > 0) {
+                            agg.bonus_rank_sum += bonusRank;
+                            agg.bonus_rank_samples += 1;
+                            agg.bonus_rank_live =
+                                agg.bonus_rank_live ||
+                                Boolean(match.live || match.in_progress);
+                        }
                     });
                 });
 
-                return Array.from(byPlayer.values());
+                return Array.from(byPlayer.values()).map(row => ({
+                    ...row,
+                    bonus_rank:
+                        row.bonus_rank_samples > 0
+                            ? row.bonus_rank_sum / row.bonus_rank_samples
+                            : null
+                }));
             }
 
             function liveCandidateFixtures() {
@@ -7058,7 +7191,7 @@
             function renderInvolvement() {
                 if (!involvementHistoryData || !(involvementHistoryData.matches || []).length) {
                     $('#inv-summary').text('No completed-match involvement data available yet.');
-                    $('#inv-table-body').html('<tr><td colspan="18" class="px-3 py-8 text-center text-gray-500">No involvement data available.</td></tr>');
+                    $('#inv-table-body').html('<tr><td colspan="19" class="px-3 py-8 text-center text-gray-500">No involvement data available.</td></tr>');
                     return;
                 }
 
@@ -7091,6 +7224,13 @@
 
                     const av = a[key];
                     const bv = b[key];
+
+                    if (key === 'bonus_rank') {
+                        const aMissing = !Number.isFinite(Number(av)) || Number(av) <= 0;
+                        const bMissing = !Number.isFinite(Number(bv)) || Number(bv) <= 0;
+
+                        if (aMissing !== bMissing) return aMissing ? 1 : -1;
+                    }
 
                     if (typeof av === 'string' || typeof bv === 'string') {
                         return String(av || '').localeCompare(String(bv || '')) * dir;
@@ -7145,6 +7285,7 @@
                         <td class="px-3 py-2 text-center">${defDisplay(row.defensive_actions ?? 0)}</td>
                         <td class="px-3 py-2 text-center inv-point-cell">${row.defensive_points ?? 0}</td>
                         <td class="px-3 py-2 text-center"><span class="inv-total-pill">${row.involvement_points ?? 0}</span></td>
+                        <td class="px-3 py-2 text-center">${bonusRankDisplay(row)}</td>
                     </tr>
                 `;
 
@@ -7155,7 +7296,7 @@
                 if (liveRows.length) {
                     tableHtml += `
                         <tr class="inv-group-row inv-group-latest">
-                            <td colspan="18">Latest match data · in progress</td>
+                            <td colspan="19">Latest match data · in progress</td>
                         </tr>
                     `;
                     tableHtml += liveRows.map(rowHtml).join('');
@@ -7164,14 +7305,14 @@
                 if (settledRows.length) {
                     tableHtml += `
                         <tr class="inv-group-row inv-group-settled">
-                            <td colspan="18">Settled match data</td>
+                            <td colspan="19">Settled match data</td>
                         </tr>
                     `;
                     tableHtml += settledRows.map(rowHtml).join('');
                 }
 
                 $('#inv-table-body').html(
-                    tableHtml || '<tr><td colspan="18" class="px-3 py-8 text-center text-gray-500">No players match these filters.</td></tr>'
+                    tableHtml || '<tr><td colspan="19" class="px-3 py-8 text-center text-gray-500">No players match these filters.</td></tr>'
                 );
 
                 const activeMatches = combinedInvolvementMatches();
@@ -7290,7 +7431,7 @@
                     involvementSort.direction = involvementSort.direction === 'desc' ? 'asc' : 'desc';
                 } else {
                     involvementSort.key = key;
-                    involvementSort.direction = ['name','club','position'].includes(key) ? 'asc' : 'desc';
+                    involvementSort.direction = ['name','club','position','bonus_rank'].includes(key) ? 'asc' : 'desc';
                 }
                 renderInvolvement();
             });
@@ -7472,6 +7613,7 @@
                     }
 
                     fullPlayerData = playerData.slice();
+                    rebuildOfficialBonusRankIndex();
 
                     const initialLeaguePreference = getStoredLeaguePreference();
                     $('#league-filter').val(initialLeaguePreference);
