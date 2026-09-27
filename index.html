@@ -1074,6 +1074,29 @@
             box-shadow: inset 0 0 0 1px #60a5fa;
         }
 
+
+        /* Compact the involvement table so the full stat set fits more comfortably. */
+        #involvement-view #inv-table th,
+        #involvement-view #inv-table td {
+            padding-left: 0.42rem !important;
+            padding-right: 0.42rem !important;
+            white-space: nowrap;
+        }
+
+        #involvement-view #inv-table thead th {
+            font-size: 0.66rem !important;
+            letter-spacing: 0.02em !important;
+        }
+
+        #involvement-view #inv-table tbody td {
+            font-size: 0.76rem !important;
+        }
+
+        #involvement-view #inv-table th:nth-child(n+4),
+        #involvement-view #inv-table td:nth-child(n+4) {
+            min-width: 2.55rem;
+        }
+
         /* Involvement tab: match the standalone involvement page. */
         #involvement-view .inv-panel {
             background: #fff;
@@ -2942,18 +2965,18 @@
                             <th class="text-center px-3 py-2 inv-th" data-inv-sort="key_passes" title="Key passes">KP</th>
                             <th class="text-center px-3 py-2 inv-th" data-inv-sort="successful_crosses" title="Successful crosses">Cross</th>
                             <th class="text-center px-3 py-2 inv-th" data-inv-sort="successful_dribbles" title="Successful dribbles">Drib</th>
-                            <th class="text-center px-3 py-2 inv-th" data-inv-sort="attacking_actions">Att Actions</th>
+                            <th class="text-center px-3 py-2 inv-th" data-inv-sort="attacking_actions">Att Act</th>
                             <th class="text-center px-3 py-2 inv-th" data-inv-sort="attacking_points">Att Pts</th>
                             <th class="text-center px-3 py-2 inv-th" data-inv-sort="tackles_won">Tkl</th>
                             <th class="text-center px-3 py-2 inv-th" data-inv-sort="interceptions">Int</th>
                             <th class="text-center px-3 py-2 inv-th" data-inv-sort="clearances">Clr</th>
                             <th class="text-center px-3 py-2 inv-th" data-inv-sort="blocks">Blk</th>
                             <th class="text-center px-3 py-2 inv-th" data-inv-sort="recoveries">Rec</th>
-                            <th class="text-center px-3 py-2 inv-th" data-inv-sort="defensive_actions">Def Actions</th>
+                            <th class="text-center px-3 py-2 inv-th" data-inv-sort="defensive_actions">Def Act</th>
                             <th class="text-center px-3 py-2 inv-th" data-inv-sort="defensive_points">Def Pts</th>
                             <th class="text-center px-3 py-2 inv-th" data-inv-sort="involvement_points">Total IP</th>
-                            <th class="text-center px-3 py-2 inv-th" data-inv-sort="bonus_rank"
-                                title="Official WSL Fantasy bonus rank for the selected match(es). Lower is better. Live ranks are provisional; multiple included matches are averaged.">B Rank</th>
+                            <th class="text-center px-3 py-2 inv-th inv-bonus-col hidden" data-inv-sort="bonus_rank"
+                                title="Official WSL Fantasy bonus rank for this gameweek. Lower is better. Live ranks are provisional.">B Rank</th>
                         </tr>
                     </thead>
                     <tbody id="inv-table-body"></tbody>
@@ -7191,7 +7214,8 @@
             function renderInvolvement() {
                 if (!involvementHistoryData || !(involvementHistoryData.matches || []).length) {
                     $('#inv-summary').text('No completed-match involvement data available yet.');
-                    $('#inv-table-body').html('<tr><td colspan="19" class="px-3 py-8 text-center text-gray-500">No involvement data available.</td></tr>');
+                    const emptyCols = ($('#inv-gameweek').val() || 'overall') === 'overall' ? 18 : 19;
+                    $('#inv-table-body').html(`<tr><td colspan="${emptyCols}" class="px-3 py-8 text-center text-gray-500">No involvement data available.</td></tr>`);
                     return;
                 }
 
@@ -7199,6 +7223,13 @@
                 const position = $('#inv-position').val() || '';
                 const club = $('#inv-club').val() || '';
                 const selectedGw = $('#inv-gameweek').val() || 'overall';
+                const isSingleGw = selectedGw !== 'overall';
+
+                $('#inv-table thead .inv-bonus-col').toggleClass('hidden', !isSingleGw);
+
+                if (!isSingleGw && involvementSort.key === 'bonus_rank') {
+                    involvementSort = {key: 'involvement_points', direction: 'desc'};
+                }
 
                 let rows = involvementRowsForSelection().filter(row => {
                     if (isUnmatchedInvolvementRow(row)) return false;
@@ -7247,7 +7278,6 @@
                 activeHeader.addClass('inv-sort-active');
                 activeHeader.attr('title', (activeHeader.attr('title') || '') + (direction === 'asc' ? ' · sorted ascending' : ' · sorted descending'));
 
-                const isSingleGw = selectedGw !== 'overall';
                 const attDisplay = value => {
                     if (!isSingleGw) return value;
                     const remainder = Number(value || 0) % 4;
@@ -7285,18 +7315,19 @@
                         <td class="px-3 py-2 text-center">${defDisplay(row.defensive_actions ?? 0)}</td>
                         <td class="px-3 py-2 text-center inv-point-cell">${row.defensive_points ?? 0}</td>
                         <td class="px-3 py-2 text-center"><span class="inv-total-pill">${row.involvement_points ?? 0}</span></td>
-                        <td class="px-3 py-2 text-center">${bonusRankDisplay(row)}</td>
+                        ${isSingleGw ? `<td class="px-3 py-2 text-center">${bonusRankDisplay(row)}</td>` : ''}
                     </tr>
                 `;
 
                 const liveRows = rows.filter(row => row.has_live_data);
                 const settledRows = rows.filter(row => !row.has_live_data);
+                const involvementColumnCount = isSingleGw ? 19 : 18;
                 let tableHtml = '';
 
                 if (liveRows.length) {
                     tableHtml += `
                         <tr class="inv-group-row inv-group-latest">
-                            <td colspan="19">Latest match data · in progress</td>
+                            <td colspan="${involvementColumnCount}">Latest match data · in progress</td>
                         </tr>
                     `;
                     tableHtml += liveRows.map(rowHtml).join('');
@@ -7305,14 +7336,14 @@
                 if (settledRows.length) {
                     tableHtml += `
                         <tr class="inv-group-row inv-group-settled">
-                            <td colspan="19">Settled match data</td>
+                            <td colspan="${involvementColumnCount}">Settled match data</td>
                         </tr>
                     `;
                     tableHtml += settledRows.map(rowHtml).join('');
                 }
 
                 $('#inv-table-body').html(
-                    tableHtml || '<tr><td colspan="19" class="px-3 py-8 text-center text-gray-500">No players match these filters.</td></tr>'
+                    tableHtml || `<tr><td colspan="${involvementColumnCount}" class="px-3 py-8 text-center text-gray-500">No players match these filters.</td></tr>`
                 );
 
                 const activeMatches = combinedInvolvementMatches();
