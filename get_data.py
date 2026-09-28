@@ -2041,6 +2041,7 @@ def build_team_fixture_schedule(fixtures: list[dict[str, Any]]) -> dict[str, lis
                     "matchId": fixture.get("match_id"),
                     "matchDateTimeUtc": fixture.get("match_date_time_utc"),
                     "matchdayId": fixture.get("game_week"),
+                    "fantasyGameWeek": fixture.get("fantasy_game_week"),
                     "competitionId": competition_id,
                     "location": location,
                     "vsTeamAcronymName": opponent_code,
@@ -3578,6 +3579,7 @@ def build_upcoming_fixture(
         "game_date": format_fixture_date(raw.get("matchDateTimeUtc")),
         "kick_off_time": format_fixture_time(raw.get("matchDateTimeUtc")),
         "game_week": str(raw.get("matchdayId") or ""),
+        "fantasy_game_week": str(raw.get("fantasyGameWeek") or raw.get("fantasy_game_week") or ""),
         "match_id": raw.get("matchId"),
         "opponent_id": opponent_id,
         "opponent_name": opponent_name,
@@ -3702,7 +3704,7 @@ def fixture_details_text(fixtures: list[dict[str, Any]], position: str) -> str:
         score = fixture_rating_to_score(opportunity)
 
         lines.append(
-            f"GW{f.get('game_week')}: vs {opponent} ({loc}) on "
+            f"GW{f.get('fantasy_game_week') or f.get('game_week')}: vs {opponent} ({loc}) on "
             f"{f.get('game_date')} {f.get('kick_off_time')}"
         )
 
@@ -4204,7 +4206,32 @@ def transform_player(
     if official_match_stats:
         total_points = float(official_aggregate["total_points"])
     next_fixture = upcoming[0] if upcoming else None
-    following_fixture = upcoming[1] if len(upcoming) > 1 else None
+
+    # Fix+1 means the NEXT FANTASY GAMEWEEK, not merely the next chronological
+    # fixture. This matters when one competition has a bye in a shared fantasy
+    # window (for example WSL2 sitting out Fantasy GW6): in that case Fix+1 must
+    # be blank rather than skipping ahead and showing the club's GW7 fixture.
+    following_fixture = None
+    if next_fixture:
+        try:
+            next_fantasy_gw = int(next_fixture.get("fantasy_game_week") or "")
+        except (TypeError, ValueError):
+            next_fantasy_gw = None
+
+        if next_fantasy_gw is not None:
+            target_fantasy_gw = str(next_fantasy_gw + 1)
+            following_fixture = next(
+                (
+                    fixture
+                    for fixture in upcoming[1:]
+                    if str(fixture.get("fantasy_game_week") or "") == target_fantasy_gw
+                ),
+                None,
+            )
+        elif len(upcoming) > 1:
+            # Defensive fallback if canonical Fantasy GW metadata is ever absent.
+            following_fixture = upcoming[1]
+
     next_rating = safe_float(next_fixture.get("opportunity_rating"), 0.0) if next_fixture else 0.0
     following_rating = (
         safe_float(following_fixture.get("opportunity_rating"), 0.0)
@@ -4321,7 +4348,10 @@ def transform_player(
         "Following Team eGoals Against": following_fixture.get("team_egoals_against") if following_fixture else None,
         "Following Team Forecast Source": following_fixture.get("team_forecast_source") if following_fixture else None,
         "Following Fixture Score": fixture_rating_to_score(following_rating) if following_fixture else "-",
-        "Following Fixture Details": fixture_details_text(upcoming[1:2], position),
+        "Following Fixture Details": fixture_details_text(
+            [following_fixture] if following_fixture else [],
+            position,
+        ),
         "Next Three Fixture Rating": round(
             sum(safe_float(f.get("opportunity_rating")) for f in upcoming[:3]) / len(upcoming[:3]), 1
         ) if upcoming[:3] else 0.0,
