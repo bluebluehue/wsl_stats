@@ -4208,9 +4208,8 @@ def transform_player(
     next_fixture = upcoming[0] if upcoming else None
 
     # Fix+1 means the NEXT FANTASY GAMEWEEK, not merely the next chronological
-    # fixture. This matters when one competition has a bye in a shared fantasy
-    # window (for example WSL2 sitting out Fantasy GW6): in that case Fix+1 must
-    # be blank rather than skipping ahead and showing the club's GW7 fixture.
+    # fixture. If a club has a bye in that next fantasy window, Fix+1 is blank
+    # rather than skipping ahead to a later gameweek.
     following_fixture = None
     if next_fixture:
         try:
@@ -4228,9 +4227,6 @@ def transform_player(
                 ),
                 None,
             )
-        elif len(upcoming) > 1:
-            # Defensive fallback if canonical Fantasy GW metadata is ever absent.
-            following_fixture = upcoming[1]
 
     next_rating = safe_float(next_fixture.get("opportunity_rating"), 0.0) if next_fixture else 0.0
     following_rating = (
@@ -4599,7 +4595,13 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
     market_metadata, market_lookup = load_market_odds()
     team_forecast_metadata, team_forecast_by_match, team_forecast_by_gw = load_team_forecasts()
     fixtures = [normalize_fixture(f) for f in fixtures_raw]
+
+    # Canonical Fantasy GW labels must exist BEFORE building the full-season team
+    # schedule and player Fix/Fix+1 fields. Otherwise the schedule cannot know
+    # that (for example) WSL2 has a bye in Fantasy GW6.
+    fantasy_gameweeks = assign_canonical_fantasy_gameweeks(fixtures)
     team_fixture_schedule = build_team_fixture_schedule(fixtures)
+
     gk_team_priors = build_gk_team_priors(
         gk_model_inputs,
         team_strength,
@@ -4656,8 +4658,6 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
         player["Selected Percentage Change Since Last Global Price Change"] = selected_delta_since(
             history, player["Name"], selected, last_price_change
         )
-
-    fantasy_gameweeks = assign_canonical_fantasy_gameweeks(fixtures)
 
     # The frontend already knows how to display numbered GW objects.  Populate
     # them from the official cumulative totalPoints history now that the shared
