@@ -1,11 +1,11 @@
 {
   "metadata": {
-    "generated_at_utc": "2026-09-28T19:35:39+00:00",
+    "generated_at_utc": "2026-09-29T14:06:34+00:00",
     "source": "Pinnacle via OddsPapi",
     "method": "Opponent team total Under 0.5, de-vigged against Over 0.5",
     "tournament_id": 1044,
     "fixture_count": 1,
-    "unmatched_fixture_count": 1,
+    "unmatched_fixture_count": 2,
     "learned_participant_count": 10,
     "participant_mapping": {
       "606004": "LCL",
@@ -42,7 +42,7 @@
         "overround": 0.065499,
         "fair_under_probability": 0.521404,
         "main_line": true,
-        "bookmaker_market_id": "line/29/8713/1637428927/3745067652/0/teamTotal",
+        "bookmaker_market_id": "line/29/8713/1637428927/3746178672/0/teamTotal",
         "market_type": "teamTotal",
         "period": "full_match",
         "team_total_side": "home",
@@ -50,7 +50,7 @@
       },
       "source": "Pinnacle",
       "method": "opponent_team_total_under_0.5_devig",
-      "market_updated_at": "2026-09-27T13:40:30.404Z"
+      "market_updated_at": "2026-09-27T21:26:13.124Z"
     }
   ]
 }
