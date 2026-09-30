@@ -1,11 +1,11 @@
 {
   "metadata": {
-    "generated_at_utc": "2026-09-29T14:06:34+00:00",
+    "generated_at_utc": "2026-09-30T13:48:57+00:00",
     "source": "Pinnacle via OddsPapi",
     "method": "Opponent team total Under 0.5, de-vigged against Over 0.5",
     "tournament_id": 1044,
     "fixture_count": 1,
-    "unmatched_fixture_count": 2,
+    "unmatched_fixture_count": 3,
     "learned_participant_count": 10,
     "participant_mapping": {
       "606004": "LCL",
