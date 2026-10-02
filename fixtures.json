@@ -5140,7 +5140,7 @@
     "away_market_cs_probability": 0.521404,
     "market_cs_source": "Pinnacle",
     "market_cs_method": "opponent_team_total_under_0.5_devig",
-    "market_cs_updated_at": "2026-09-27T21:26:13.124Z",
+    "market_cs_updated_at": "2026-10-01T22:50:19.002Z",
     "home_market_cs_over_odds": null,
     "home_market_cs_under_odds": null,
     "away_market_cs_over_odds": 1.961,

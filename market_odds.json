@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "generated_at_utc": "2026-10-01T14:31:59+00:00",
+    "generated_at_utc": "2026-10-02T13:54:30+00:00",
     "source": "Pinnacle via OddsPapi",
     "method": "Opponent team total Under 0.5, de-vigged against Over 0.5",
     "tournament_id": 1044,
@@ -50,7 +50,7 @@
       },
       "source": "Pinnacle",
       "method": "opponent_team_total_under_0.5_devig",
-      "market_updated_at": "2026-09-27T21:26:13.124Z"
+      "market_updated_at": "2026-10-01T22:50:19.002Z"
     }
   ]
 }
