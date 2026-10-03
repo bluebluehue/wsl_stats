@@ -1,12 +1,29 @@
 {
   "metadata": {
-    "generated_at": "2026-10-03T08:10:44.212960Z",
+    "generated_at": "2026-10-03T12:28:50.723288Z",
     "refresh_interval_minutes": 15,
-    "candidate_match_count": 0,
-    "match_count": 0,
+    "candidate_match_count": 1,
+    "match_count": 1,
     "failures": [],
     "scoring_note": "Rules/Opta-derived involvement values reconciled against the official WSL Fantasy player-match feed.",
     "bonus_note": "bonus_rank is the official WSL Fantasy matchBonus rank. Live values are provisional."
   },
-  "matches": []
+  "matches": [
+    {
+      "match_id": "wpll::Football_Match::afab794465174afab54552809d76f5fb",
+      "date": "2026-10-03T12:30:00",
+      "opta_match_id": "188auqpv0foe0byd1ledk5990",
+      "home_id": "MNU",
+      "away_id": "LIV",
+      "competition_id": "wpll::Football_Competition::e32284e8a1214f1ca83a3245d690b336",
+      "league_game_week": "5",
+      "fantasy_game_week": "5",
+      "description": "Manchester United vs Liverpool",
+      "match_status": "Fixture",
+      "in_progress": true,
+      "minute": 0,
+      "players": [],
+      "event_count": 2
+    }
+  ]
 }
