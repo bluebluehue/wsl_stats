@@ -1,11 +1,11 @@
 {
   "metadata": {
-    "generated_at_utc": "2026-10-03T12:36:01+00:00",
+    "generated_at_utc": "2026-10-04T13:14:48+00:00",
     "source": "Pinnacle via OddsPapi",
     "method": "Opponent team total Under 0.5, de-vigged against Over 0.5",
     "tournament_id": 1044,
-    "fixture_count": 1,
-    "unmatched_fixture_count": 3,
+    "fixture_count": 0,
+    "unmatched_fixture_count": 0,
     "learned_participant_count": 9,
     "participant_mapping": {
       "606004": "LCL",
@@ -21,35 +21,5 @@
     "participant_mapping_method": "manual verified overrides + kickoff-unique fallback",
     "note": "A team's CS probability equals the opponent's fair probability of scoring 0 goals. Only Pinnacle bookmakerMarketId values explicitly ending in teamTotal with home/away 0.5 over+under outcomes are accepted; prices are normalized within that same market. Participant IDs are learned from kickoff-unique fixtures and reused to resolve simultaneous kickoffs."
   },
-  "fixtures": [
-    {
-      "match_id": "wpll::Football_Match::24afafc14446459989582f21b2381074",
-      "fixture_id": "id1000104473346044",
-      "pinnacle_fixture_id": "1637428927",
-      "start_time_utc": "2026-10-04T13:00:00.000Z",
-      "home_team": "WHU",
-      "away_team": "CHE",
-      "home_name": "West Ham United",
-      "away_name": "Chelsea",
-      "home_market_cs_probability": null,
-      "away_market_cs_probability": 0.524355,
-      "home_opponent_team_total_0_5": null,
-      "away_opponent_team_total_0_5": {
-        "over_odds": 1.97,
-        "under_odds": 1.787,
-        "raw_under_probability": 0.559597,
-        "overround": 0.067211,
-        "fair_under_probability": 0.524355,
-        "main_line": true,
-        "bookmaker_market_id": "line/29/8713/1637428927/3749775110/0/teamTotal",
-        "market_type": "teamTotal",
-        "period": "full_match",
-        "team_total_side": "home",
-        "line": 0.5
-      },
-      "source": "Pinnacle",
-      "method": "opponent_team_total_under_0.5_devig",
-      "market_updated_at": "2026-10-01T22:50:19.002Z"
-    }
-  ]
+  "fixtures": []
 }
