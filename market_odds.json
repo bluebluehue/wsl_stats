@@ -1,10 +1,10 @@
 {
   "metadata": {
-    "generated_at_utc": "2026-10-04T13:14:48+00:00",
+    "generated_at_utc": "2026-10-10T13:47:15+00:00",
     "source": "Pinnacle via OddsPapi",
     "method": "Opponent team total Under 0.5, de-vigged against Over 0.5",
     "tournament_id": 1044,
-    "fixture_count": 0,
+    "fixture_count": 1,
     "unmatched_fixture_count": 0,
     "learned_participant_count": 9,
     "participant_mapping": {
@@ -16,10 +16,40 @@
       "499630": "WHU",
       "372788": "BHA",
       "26243": "ARS",
-      "142658": "MCI"
+      "66766": "BIR"
     },
     "participant_mapping_method": "manual verified overrides + kickoff-unique fallback",
     "note": "A team's CS probability equals the opponent's fair probability of scoring 0 goals. Only Pinnacle bookmakerMarketId values explicitly ending in teamTotal with home/away 0.5 over+under outcomes are accepted; prices are normalized within that same market. Participant IDs are learned from kickoff-unique fixtures and reused to resolve simultaneous kickoffs."
   },
-  "fixtures": []
+  "fixtures": [
+    {
+      "match_id": "wpll::Football_Match::c18b112b3f9b464b894c473030404bd2",
+      "fixture_id": "id1000104473346056",
+      "pinnacle_fixture_id": "1638143534",
+      "start_time_utc": "2026-10-17T11:45:00.000Z",
+      "home_team": "ARS",
+      "away_team": "BIR",
+      "home_name": "Arsenal",
+      "away_name": "Birmingham City",
+      "home_market_cs_probability": 0.52714,
+      "away_market_cs_probability": null,
+      "home_opponent_team_total_0_5": {
+        "over_odds": 1.952,
+        "under_odds": 1.751,
+        "raw_under_probability": 0.571102,
+        "overround": 0.083397,
+        "fair_under_probability": 0.52714,
+        "main_line": true,
+        "bookmaker_market_id": "line/29/8713/1638143534/3758629653/0/teamTotal",
+        "market_type": "teamTotal",
+        "period": "full_match",
+        "team_total_side": "away",
+        "line": 0.5
+      },
+      "away_opponent_team_total_0_5": null,
+      "source": "Pinnacle",
+      "method": "opponent_team_total_under_0.5_devig",
+      "market_updated_at": "2026-10-10T12:17:51.679Z"
+    }
+  ]
 }
