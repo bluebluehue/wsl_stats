@@ -1,11 +1,11 @@
 {
   "metadata": {
-    "generated_at_utc": "2026-10-10T13:47:15+00:00",
+    "generated_at_utc": "2026-10-11T14:06:14+00:00",
     "source": "Pinnacle via OddsPapi",
     "method": "Opponent team total Under 0.5, de-vigged against Over 0.5",
     "tournament_id": 1044,
-    "fixture_count": 1,
-    "unmatched_fixture_count": 0,
+    "fixture_count": 2,
+    "unmatched_fixture_count": 3,
     "learned_participant_count": 9,
     "participant_mapping": {
       "606004": "LCL",
@@ -49,7 +49,36 @@
       "away_opponent_team_total_0_5": null,
       "source": "Pinnacle",
       "method": "opponent_team_total_under_0.5_devig",
-      "market_updated_at": "2026-10-10T12:17:51.679Z"
+      "market_updated_at": "2026-10-10T22:38:37.286Z"
+    },
+    {
+      "match_id": "wpll::Football_Match::9cebd47ddf2b44ad98ba5b078ed9ef88",
+      "fixture_id": "id1000104473346064",
+      "pinnacle_fixture_id": "1638215070",
+      "start_time_utc": "2026-10-18T11:00:00.000Z",
+      "home_team": "CHE",
+      "away_team": "TOT",
+      "home_name": "Chelsea",
+      "away_name": "Tottenham Hotspur",
+      "home_market_cs_probability": 0.424274,
+      "away_market_cs_probability": null,
+      "home_opponent_team_total_0_5": {
+        "over_odds": 1.636,
+        "under_odds": 2.22,
+        "raw_under_probability": 0.45045,
+        "overround": 0.061697,
+        "fair_under_probability": 0.424274,
+        "main_line": true,
+        "bookmaker_market_id": "line/29/8713/1638215070/3760865080/0/teamTotal",
+        "market_type": "teamTotal",
+        "period": "full_match",
+        "team_total_side": "away",
+        "line": 0.5
+      },
+      "away_opponent_team_total_0_5": null,
+      "source": "Pinnacle",
+      "method": "opponent_team_total_under_0.5_devig",
+      "market_updated_at": "2026-10-11T12:07:06.050Z"
     }
   ]
 }
