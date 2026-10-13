@@ -1,11 +1,11 @@
 {
   "metadata": {
-    "generated_at_utc": "2026-10-12T16:46:25+00:00",
+    "generated_at_utc": "2026-10-13T15:06:00+00:00",
     "source": "Pinnacle via OddsPapi",
     "method": "Opponent team total Under 0.5, de-vigged against Over 0.5",
     "tournament_id": 1044,
     "fixture_count": 3,
-    "unmatched_fixture_count": 3,
+    "unmatched_fixture_count": 2,
     "learned_participant_count": 10,
     "participant_mapping": {
       "606004": "LCL",
@@ -41,7 +41,7 @@
         "overround": 0.083397,
         "fair_under_probability": 0.52714,
         "main_line": true,
-        "bookmaker_market_id": "line/29/8713/1638143534/3758629653/0/teamTotal",
+        "bookmaker_market_id": "line/29/8713/1638143534/3763043841/0/teamTotal",
         "market_type": "teamTotal",
         "period": "full_match",
         "team_total_side": "away",
@@ -50,7 +50,7 @@
       "away_opponent_team_total_0_5": null,
       "source": "Pinnacle",
       "method": "opponent_team_total_under_0.5_devig",
-      "market_updated_at": "2026-10-10T22:38:37.286Z"
+      "market_updated_at": "2026-10-12T19:44:58.272Z"
     },
     {
       "match_id": "wpll::Football_Match::9cebd47ddf2b44ad98ba5b078ed9ef88",
@@ -61,16 +61,16 @@
       "away_team": "TOT",
       "home_name": "Chelsea",
       "away_name": "Tottenham Hotspur",
-      "home_market_cs_probability": 0.425019,
+      "home_market_cs_probability": 0.45416,
       "away_market_cs_probability": null,
       "home_opponent_team_total_0_5": {
-        "over_odds": 1.641,
-        "under_odds": 2.22,
-        "raw_under_probability": 0.45045,
-        "overround": 0.059835,
-        "fair_under_probability": 0.425019,
+        "over_odds": 1.714,
+        "under_odds": 2.06,
+        "raw_under_probability": 0.485437,
+        "overround": 0.068867,
+        "fair_under_probability": 0.45416,
         "main_line": true,
-        "bookmaker_market_id": "line/29/8713/1638215070/3762001895/0/teamTotal",
+        "bookmaker_market_id": "line/29/8713/1638215070/3763061088/0/teamTotal",
         "market_type": "teamTotal",
         "period": "full_match",
         "team_total_side": "away",
@@ -79,7 +79,7 @@
       "away_opponent_team_total_0_5": null,
       "source": "Pinnacle",
       "method": "opponent_team_total_under_0.5_devig",
-      "market_updated_at": "2026-10-11T17:21:37.894Z"
+      "market_updated_at": "2026-10-12T19:45:01.228Z"
     },
     {
       "match_id": "wpll::Football_Match::88f1060db0464a16a85a9112afcaf45b",
@@ -90,16 +90,16 @@
       "away_team": "BHA",
       "home_name": "Manchester City",
       "away_name": "Brighton & Hove Albion",
-      "home_market_cs_probability": 0.340319,
+      "home_market_cs_probability": 0.351717,
       "away_market_cs_probability": null,
       "home_opponent_team_total_0_5": {
-        "over_odds": 1.429,
-        "under_odds": 2.77,
-        "raw_under_probability": 0.361011,
-        "overround": 0.060801,
-        "fair_under_probability": 0.340319,
+        "over_odds": 1.454,
+        "under_odds": 2.68,
+        "raw_under_probability": 0.373134,
+        "overround": 0.060892,
+        "fair_under_probability": 0.351717,
         "main_line": true,
-        "bookmaker_market_id": "line/29/8713/1638224550/3761243834/0/teamTotal",
+        "bookmaker_market_id": "line/29/8713/1638224550/3763165486/0/teamTotal",
         "market_type": "teamTotal",
         "period": "full_match",
         "team_total_side": "away",
@@ -108,7 +108,7 @@
       "away_opponent_team_total_0_5": null,
       "source": "Pinnacle",
       "method": "opponent_team_total_under_0.5_devig",
-      "market_updated_at": "2026-10-11T17:21:37.774Z"
+      "market_updated_at": "2026-10-12T19:44:58.477Z"
     }
   ]
 }
