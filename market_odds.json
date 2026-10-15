@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "generated_at_utc": "2026-10-14T12:54:15+00:00",
+    "generated_at_utc": "2026-10-15T12:41:22+00:00",
     "source": "Pinnacle via OddsPapi",
     "method": "Opponent team total Under 0.5, de-vigged against Over 0.5",
     "tournament_id": 1044,
@@ -41,7 +41,7 @@
         "overround": 0.083397,
         "fair_under_probability": 0.52714,
         "main_line": true,
-        "bookmaker_market_id": "line/29/8713/1638143534/3763043841/0/teamTotal",
+        "bookmaker_market_id": "line/29/8713/1638143534/3765436407/0/teamTotal",
         "market_type": "teamTotal",
         "period": "full_match",
         "team_total_side": "away",
@@ -50,7 +50,7 @@
       "away_opponent_team_total_0_5": null,
       "source": "Pinnacle",
       "method": "opponent_team_total_under_0.5_devig",
-      "market_updated_at": "2026-10-12T19:44:58.272Z"
+      "market_updated_at": "2026-10-14T23:29:31.543Z"
     },
     {
       "match_id": "wpll::Football_Match::9cebd47ddf2b44ad98ba5b078ed9ef88",
@@ -70,7 +70,7 @@
         "overround": 0.068867,
         "fair_under_probability": 0.45416,
         "main_line": true,
-        "bookmaker_market_id": "line/29/8713/1638215070/3763061088/0/teamTotal",
+        "bookmaker_market_id": "line/29/8713/1638215070/3765383659/0/teamTotal",
         "market_type": "teamTotal",
         "period": "full_match",
         "team_total_side": "away",
