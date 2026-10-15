@@ -19,6 +19,11 @@ from zoneinfo import ZoneInfo
 
 import requests
 
+from wsl_fixture_schedule_sync import (
+    fetch_website_matches,
+    reconcile_fantasy_fixture_feed,
+)
+
 BASE_URL = "https://gaming.wslfootball.com"
 TOUR_ID = 1
 LANGUAGE = "en"
@@ -4569,6 +4574,21 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
     players_raw = value_of(feeds["players"]) or []
     fixtures_raw = value_of(feeds["fixtures"]) or []
 
+    if from_local:
+        schedule_sync_report = {"status": "skipped_from_local"}
+    else:
+        # Correct fixture dates before building gameweeks and player schedules.
+        website_matches = fetch_website_matches()
+        schedule_sync_report = reconcile_fantasy_fixture_feed(
+            fixtures_raw, website_matches,
+        )
+        schedule_sync_report["status"] = "verified"
+        print(
+            f"Fixture schedule sync: {schedule_sync_report['corrected']} "
+            f"corrections, {schedule_sync_report['unmatched_count']} unmatched, "
+            f"{schedule_sync_report['unknown_kickoff_count']} unconfirmed."
+        )
+
     (
         official_match_stats_by_player,
         official_selected_by_player,
@@ -4860,6 +4880,7 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
         "tour_id": TOUR_ID,
         "player_count": len(players),
         "fixture_count": len(fixtures),
+        "fixture_schedule_sync": schedule_sync_report,
         "team_count": len(teams),
         "fantasy_gameweeks": fantasy_gameweeks,
         "official_match_stats": {
