@@ -4603,6 +4603,38 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
     fixture_calibration = build_competition_fixture_calibration(players_raw)
     team_strength = build_team_strength_priors(players_raw)
     current_season_matches = count_completed_team_matches(players_raw)
+    # Supplement the incomplete master-player match history with
+    # fresh official per-match stats already downloaded above.
+    # Count distinct completed match IDs per club, not player appearances.
+    official_completed_by_team = {}
+
+    for raw_player in players_raw:
+        team = canonical_transition_team_code(
+            raw_player.get("teamAcronymName")
+            or raw_player.get("teamShortName")
+        )
+        player_id = str(raw_player.get("playerId") or "")
+
+        if not team or not player_id:
+            continue
+
+        for match in official_match_stats_by_player.get(player_id, []):
+            match_id = str(match.get("match_id") or "")
+            minutes = safe_int(match.get("minutes"))
+
+            if match_id and minutes > 0:
+                official_completed_by_team.setdefault(team, set()).add(match_id)
+
+    for team, match_ids in official_completed_by_team.items():
+        current_season_matches[team] = max(
+            current_season_matches.get(team, 0),
+            len(match_ids),
+        )
+
+    print(
+        "Completed team matches (official):",
+        dict(sorted(current_season_matches.items())),
+    )
     official_match_scores = build_official_match_score_lookup(
         players_raw,
         official_match_stats_by_player,
