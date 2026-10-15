@@ -4449,6 +4449,66 @@ def availability_text(status: Any) -> str | None:
     return mapping.get(status, f"Availability status: {status}")
 
 
+# Explicit 2026/27 registration corrections confirmed by the user.
+# The fantasy roster feed can retain a previous club or a loanee's parent club.
+VERIFIED_CURRENT_CLUB_OVERRIDES = {
+    "Saki Kumagai": "WHU",
+    "Mary McAteer": "IPS",
+    "Ria Bose": "SUN",
+}
+
+
+def apply_verified_current_clubs(
+    players_raw: list[dict[str, Any]],
+    fixtures_raw: list[dict[str, Any]],
+) -> list[dict[str, str]]:
+    """Correct only verified roster entries using team details from the fixture feed.
+
+    Existing IDs and clubs for everyone else are untouched. Never infer a
+    player's own club from the opponent in an individual match stat row.
+    """
+    fixture_teams: dict[str, dict[str, Any]] = {}
+    for fixture in fixtures_raw:
+        for side in ("home", "away"):
+            code = str(fixture.get(f"{side}AcronymName") or "").upper()
+            if code and code not in fixture_teams:
+                fixture_teams[code] = {
+                    "teamId": fixture.get(f"{side}TeamId"),
+                    "competitionId": fixture.get("competitionId"),
+                    "teamAcronymName": code,
+                    "teamShortName": fixture.get(f"{side}ShortName") or fixture.get(f"{side}MediaShortName"),
+                    "teamOfficialName": fixture.get(f"{side}OfficialName") or fixture.get(f"{side}MediaName"),
+                }
+
+    corrections: list[dict[str, str]] = []
+    found: set[str] = set()
+    for player in players_raw:
+        name = f"{str(player.get('mediaFirstName') or '').strip()} {str(player.get('mediaLastName') or '').strip()}".strip()
+        target = VERIFIED_CURRENT_CLUB_OVERRIDES.get(name)
+        if not target:
+            continue
+        if name in found:
+            raise ValueError(f"Ambiguous duplicate verified player name: {name}")
+        found.add(name)
+        team = fixture_teams.get(target)
+        if not team or not team.get("teamId") or not team.get("competitionId"):
+            raise ValueError(f"Cannot verify target club {target} from fixtures for {name}")
+        previous = str(player.get("teamAcronymName") or "")
+        if previous == target and str(player.get("teamId") or "") == str(team["teamId"]):
+            continue
+        for field, value in team.items():
+            if value is not None:
+                player[field] = value
+        # Old source currentRating/upcomingFixtures belong to the former club.
+        # transform_player rebuilds the future schedule from central fixtures.
+        player["upcomingFixtures"] = []
+        corrections.append({"player": name, "from": previous, "to": target})
+    if found != set(VERIFIED_CURRENT_CLUB_OVERRIDES):
+        missing = sorted(set(VERIFIED_CURRENT_CLUB_OVERRIDES) - found)
+        raise ValueError(f"Verified players missing from fantasy feed: {missing}")
+    return corrections
+
+
 def count_completed_team_matches(players_raw: list[dict[str, Any]]) -> dict[str, int]:
     """Count completed 2026/27 league matches from player match arrays.
 
@@ -4574,6 +4634,9 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
     players_raw = value_of(feeds["players"]) or []
     fixtures_raw = value_of(feeds["fixtures"]) or []
 
+    verified_club_corrections = apply_verified_current_clubs(players_raw, fixtures_raw)
+    print("Verified player club corrections:", verified_club_corrections)
+
     if from_local:
         schedule_sync_report = {"status": "skipped_from_local"}
     else:
@@ -4603,33 +4666,32 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
     fixture_calibration = build_competition_fixture_calibration(players_raw)
     team_strength = build_team_strength_priors(players_raw)
     current_season_matches = count_completed_team_matches(players_raw)
-    # Supplement the incomplete master-player match history with
-    # fresh official per-match stats already downloaded above.
-    # Count distinct completed match IDs per club, not player appearances.
-    official_completed_by_team = {}
-
-    for raw_player in players_raw:
-        team = canonical_transition_team_code(
-            raw_player.get("teamAcronymName")
-            or raw_player.get("teamShortName")
-        )
-        player_id = str(raw_player.get("playerId") or "")
-
-        if not team or not player_id:
-            continue
-
-        for match in official_match_stats_by_player.get(player_id, []):
+    # Use official played-match evidence, but attribute each match to the
+    # two actual clubs listed in the central fixture feed, NOT the player's
+    # current or parent club (which can be stale for transfers and loans).
+    fixture_by_match_id = {
+        str(f.get("matchId")): f for f in fixtures_raw if f.get("matchId")
+    }
+    official_completed_by_team: dict[str, set[str]] = {}
+    for match_rows in official_match_stats_by_player.values():
+        for match in match_rows:
             match_id = str(match.get("match_id") or "")
-            minutes = safe_int(match.get("minutes"))
+            if not match_id or safe_int(match.get("minutes")) <= 0:
+                continue
+            fixture = fixture_by_match_id.get(match_id)
+            if fixture is None:
+                continue  # No unverified, off-season, or non-league matches.
+            for side in ("home", "away"):
+                team = canonical_transition_team_code(fixture.get(f"{side}AcronymName"))
+                fixture_team_id = str(fixture.get(f"{side}TeamId") or "")
+                match_team_id = str(match.get(f"{side}_team_id") or "")
+                if team and fixture_team_id and fixture_team_id == match_team_id:
+                    official_completed_by_team.setdefault(team, set()).add(match_id)
 
-            if match_id and minutes > 0:
-                official_completed_by_team.setdefault(team, set()).add(match_id)
-
+    # Replace the stale master-player estimate where verified official data exists.
+    # Its match arrays only expose GW1, and can misattribute loans/transfers.
     for team, match_ids in official_completed_by_team.items():
-        current_season_matches[team] = max(
-            current_season_matches.get(team, 0),
-            len(match_ids),
-        )
+        current_season_matches[team] = len(match_ids)
 
     print(
         "Completed team matches (official):",
@@ -4913,6 +4975,7 @@ def build_outputs(from_local: bool = False) -> dict[str, Any]:
         "player_count": len(players),
         "fixture_count": len(fixtures),
         "fixture_schedule_sync": schedule_sync_report,
+        "verified_player_club_corrections": verified_club_corrections,
         "team_count": len(teams),
         "fantasy_gameweeks": fantasy_gameweeks,
         "official_match_stats": {
