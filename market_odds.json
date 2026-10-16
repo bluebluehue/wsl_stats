@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "generated_at_utc": "2026-10-15T15:50:28+00:00",
+    "generated_at_utc": "2026-10-16T12:28:58+00:00",
     "source": "Pinnacle via OddsPapi",
     "method": "Opponent team total Under 0.5, de-vigged against Over 0.5",
     "tournament_id": 1044,
@@ -32,16 +32,16 @@
       "away_team": "BIR",
       "home_name": "Arsenal",
       "away_name": "Birmingham City",
-      "home_market_cs_probability": 0.52714,
+      "home_market_cs_probability": 0.541977,
       "away_market_cs_probability": null,
       "home_opponent_team_total_0_5": {
-        "over_odds": 1.952,
-        "under_odds": 1.751,
-        "raw_under_probability": 0.571102,
-        "overround": 0.083397,
-        "fair_under_probability": 0.52714,
+        "over_odds": 2.04,
+        "under_odds": 1.724,
+        "raw_under_probability": 0.580046,
+        "overround": 0.070242,
+        "fair_under_probability": 0.541977,
         "main_line": true,
-        "bookmaker_market_id": "line/29/8713/1638143534/3765436407/0/teamTotal",
+        "bookmaker_market_id": "line/29/8713/1638143534/3766224755/0/teamTotal",
         "market_type": "teamTotal",
         "period": "full_match",
         "team_total_side": "away",
@@ -79,7 +79,7 @@
       "away_opponent_team_total_0_5": null,
       "source": "Pinnacle",
       "method": "opponent_team_total_under_0.5_devig",
-      "market_updated_at": "2026-10-12T19:45:01.228Z"
+      "market_updated_at": "2026-10-16T01:22:40.252Z"
     },
     {
       "match_id": "wpll::Football_Match::88f1060db0464a16a85a9112afcaf45b",
@@ -108,7 +108,7 @@
       "away_opponent_team_total_0_5": null,
       "source": "Pinnacle",
       "method": "opponent_team_total_under_0.5_devig",
-      "market_updated_at": "2026-10-12T19:44:58.477Z"
+      "market_updated_at": "2026-10-16T01:22:39.753Z"
     }
   ]
 }
