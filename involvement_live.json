@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "generated_at": "2026-10-18T15:26:45.661824Z",
+    "generated_at": "2026-10-18T16:51:25.322976Z",
     "refresh_interval_minutes": 15,
     "candidate_match_count": 4,
     "match_count": 6,
@@ -47,7 +47,7 @@
           "defensive_actions": 4,
           "defensive_points": 0,
           "involvement_points": 1,
-          "bonus_rank": null
+          "bonus_rank": 3
         },
         {
           "opta_player_id": "cvq0jg2vh6kxwf0lcpmuf3i8k",
@@ -73,7 +73,7 @@
           "defensive_actions": 14,
           "defensive_points": 1,
           "involvement_points": 1,
-          "bonus_rank": null
+          "bonus_rank": 26
         },
         {
           "opta_player_id": "19cmbo4cc9cgh10wgotg3s0k5",
@@ -99,7 +99,7 @@
           "defensive_actions": 21,
           "defensive_points": 2,
           "involvement_points": 2,
-          "bonus_rank": null
+          "bonus_rank": 5
         },
         {
           "opta_player_id": "7dnd1g0ythx1mnsrbdjxl5bhm",
@@ -125,7 +125,7 @@
           "defensive_actions": 18,
           "defensive_points": 1,
           "involvement_points": 1,
-          "bonus_rank": null
+          "bonus_rank": 6
         },
         {
           "opta_player_id": "3ruj0we4jma5m60xumyoir1ii",
@@ -151,7 +151,7 @@
           "defensive_actions": 9,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 9
         },
         {
           "opta_player_id": "b3i5okqaspq6w7w456ab4cxjp",
@@ -177,7 +177,7 @@
           "defensive_actions": 14,
           "defensive_points": 1,
           "involvement_points": 1,
-          "bonus_rank": null
+          "bonus_rank": 13
         },
         {
           "opta_player_id": "60q198d41n3y887jeiezr850q",
@@ -203,7 +203,7 @@
           "defensive_actions": 12,
           "defensive_points": 1,
           "involvement_points": 1,
-          "bonus_rank": null
+          "bonus_rank": 25
         },
         {
           "opta_player_id": "5utqxprl108x404hqwul42plg",
@@ -229,7 +229,7 @@
           "defensive_actions": 3,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 1
         },
         {
           "opta_player_id": "5q1oexaovibgn83v5kmjfanvu",
@@ -255,7 +255,7 @@
           "defensive_actions": 8,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 19
         },
         {
           "opta_player_id": "1j5u2majmm2vnsgxscl9kjzyt",
@@ -281,7 +281,7 @@
           "defensive_actions": 13,
           "defensive_points": 1,
           "involvement_points": 1,
-          "bonus_rank": null
+          "bonus_rank": 4
         },
         {
           "opta_player_id": "ekmg1wlig0qdtzhafm3lwsz4l",
@@ -307,7 +307,7 @@
           "defensive_actions": 11,
           "defensive_points": 1,
           "involvement_points": 1,
-          "bonus_rank": null
+          "bonus_rank": 24
         },
         {
           "opta_player_id": "ds8eeciyv1vk6nwh26qgy1lg5",
@@ -333,7 +333,7 @@
           "defensive_actions": 11,
           "defensive_points": 1,
           "involvement_points": 1,
-          "bonus_rank": null
+          "bonus_rank": 23
         },
         {
           "opta_player_id": "4iweh8975rkssez3r9vlk1wfe",
@@ -359,7 +359,7 @@
           "defensive_actions": 9,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 10
         },
         {
           "opta_player_id": "2s15k44faiinj3gz5tswtv4d1",
@@ -385,7 +385,7 @@
           "defensive_actions": 16,
           "defensive_points": 1,
           "involvement_points": 1,
-          "bonus_rank": null
+          "bonus_rank": 21
         },
         {
           "opta_player_id": "cw97vxc7rkog1flgwkgv0dxck",
@@ -411,7 +411,7 @@
           "defensive_actions": 3,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 14
         },
         {
           "opta_player_id": "65yoc97g17o0dve863im0292i",
@@ -437,7 +437,7 @@
           "defensive_actions": 6,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 27
         },
         {
           "opta_player_id": "76q3qw1j9n3og4gep5pdedisq",
@@ -463,7 +463,7 @@
           "defensive_actions": 9,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 7
         },
         {
           "opta_player_id": "9l3elrrpmua8q1lt5a286wdii",
@@ -489,7 +489,7 @@
           "defensive_actions": 2,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 18
         },
         {
           "opta_player_id": "28yvc8jmyyfavb0hetafjdadx",
@@ -515,7 +515,7 @@
           "defensive_actions": 10,
           "defensive_points": 1,
           "involvement_points": 1,
-          "bonus_rank": null
+          "bonus_rank": 28
         },
         {
           "opta_player_id": "b47f25s8oh0ys3nwykimvywyy",
@@ -541,7 +541,7 @@
           "defensive_actions": 10,
           "defensive_points": 1,
           "involvement_points": 1,
-          "bonus_rank": null
+          "bonus_rank": 12
         },
         {
           "opta_player_id": "dp5zny5ls8ys3ml75himru4et",
@@ -567,7 +567,7 @@
           "defensive_actions": 4,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 29
         },
         {
           "opta_player_id": "7p90xt2oakctnbc9a0bgbjpw5",
@@ -593,7 +593,7 @@
           "defensive_actions": 12,
           "defensive_points": 1,
           "involvement_points": 2,
-          "bonus_rank": null
+          "bonus_rank": 11
         },
         {
           "opta_player_id": "5xeqrq3iczzork08c28rmx3ah",
@@ -619,7 +619,7 @@
           "defensive_actions": 6,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 22
         },
         {
           "opta_player_id": "4lfl3qipc5sf2b8cec6l43ap5",
@@ -645,7 +645,7 @@
           "defensive_actions": 1,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 17
         },
         {
           "opta_player_id": "5exouoey2r6wtpympr6drg3it",
@@ -671,7 +671,7 @@
           "defensive_actions": 3,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 15
         },
         {
           "opta_player_id": "7f7tbbjqhhyydjj4wurm28xcl",
@@ -697,7 +697,7 @@
           "defensive_actions": 3,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 2
         },
         {
           "opta_player_id": "1d7tayhjn8fifmy0brq7b5bvu",
@@ -723,7 +723,7 @@
           "defensive_actions": 0,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 16
         },
         {
           "opta_player_id": "e2lt71eeqb97hw6wnebjrrgt1",
@@ -749,7 +749,7 @@
           "defensive_actions": 3,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 20
         },
         {
           "opta_player_id": "c705ailfiov40xwoysz0ggct1",
@@ -775,7 +775,7 @@
           "defensive_actions": 0,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 8
         },
         {
           "opta_player_id": "40jps4rajqmy3werl8t3uzcwk",
@@ -801,7 +801,7 @@
           "defensive_actions": 0,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 30
         }
       ],
       "event_count": 1824
@@ -844,7 +844,7 @@
           "defensive_actions": 3,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 6
         },
         {
           "opta_player_id": "enh0z58rrftq2m6hybzhgf65l",
@@ -870,7 +870,7 @@
           "defensive_actions": 7,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 7
         },
         {
           "opta_player_id": "9t8eb24gwj56ucggp7x0n0ewa",
@@ -896,7 +896,7 @@
           "defensive_actions": 13,
           "defensive_points": 1,
           "involvement_points": 1,
-          "bonus_rank": null
+          "bonus_rank": 4
         },
         {
           "opta_player_id": "dqpv2janh4g4qkiqx7h7vs8gl",
@@ -922,7 +922,7 @@
           "defensive_actions": 4,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 14
         },
         {
           "opta_player_id": "10bzke6qefk3ajgynhy3bn561",
@@ -948,7 +948,7 @@
           "defensive_actions": 11,
           "defensive_points": 1,
           "involvement_points": 1,
-          "bonus_rank": null
+          "bonus_rank": 25
         },
         {
           "opta_player_id": "97pl91ffz5ac8khzqnixgu6wa",
@@ -974,7 +974,7 @@
           "defensive_actions": 6,
           "defensive_points": 0,
           "involvement_points": 1,
-          "bonus_rank": null
+          "bonus_rank": 26
         },
         {
           "opta_player_id": "756x46invianuf792bsj77q0a",
@@ -1000,7 +1000,7 @@
           "defensive_actions": 1,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 8
         },
         {
           "opta_player_id": "eh1yl4wo5vi5qxyxlkjzppmcq",
@@ -1026,7 +1026,7 @@
           "defensive_actions": 9,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 24
         },
         {
           "opta_player_id": "2zd7q1vj110evlsdjybgeltec",
@@ -1052,7 +1052,7 @@
           "defensive_actions": 12,
           "defensive_points": 1,
           "involvement_points": 1,
-          "bonus_rank": null
+          "bonus_rank": 27
         },
         {
           "opta_player_id": "acubyto4nolysndygirwjwhzo",
@@ -1078,7 +1078,7 @@
           "defensive_actions": 9,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 11
         },
         {
           "opta_player_id": "d0i38pk78vbxoqz7x2rzz8cx6",
@@ -1104,7 +1104,7 @@
           "defensive_actions": 8,
           "defensive_points": 0,
           "involvement_points": 2,
-          "bonus_rank": null
+          "bonus_rank": 2
         },
         {
           "opta_player_id": "auyj06nha2syoygo7prfadobu",
@@ -1130,7 +1130,7 @@
           "defensive_actions": 10,
           "defensive_points": 1,
           "involvement_points": 1,
-          "bonus_rank": null
+          "bonus_rank": 5
         },
         {
           "opta_player_id": "8iu9bdow1xgzswzl78cbioyxh",
@@ -1156,7 +1156,7 @@
           "defensive_actions": 2,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 3
         },
         {
           "opta_player_id": "tzc4bqcf2wkz1k7d96l8g3my",
@@ -1182,7 +1182,7 @@
           "defensive_actions": 17,
           "defensive_points": 1,
           "involvement_points": 1,
-          "bonus_rank": null
+          "bonus_rank": 28
         },
         {
           "opta_player_id": "elxejx7hth8mta5wgi4s4c7h1",
@@ -1208,7 +1208,7 @@
           "defensive_actions": 18,
           "defensive_points": 1,
           "involvement_points": 1,
-          "bonus_rank": null
+          "bonus_rank": 18
         },
         {
           "opta_player_id": "bmw6mvkeropjorm2rxzw2fzai",
@@ -1234,7 +1234,7 @@
           "defensive_actions": 10,
           "defensive_points": 1,
           "involvement_points": 3,
-          "bonus_rank": null
+          "bonus_rank": 1
         },
         {
           "opta_player_id": "87ixl0yqgckn127ovpk4mqihg",
@@ -1260,7 +1260,7 @@
           "defensive_actions": 4,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 29
         },
         {
           "opta_player_id": "3vnw015vllv7vzi79h7bplolx",
@@ -1286,7 +1286,7 @@
           "defensive_actions": 5,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 22
         },
         {
           "opta_player_id": "3ecf12u4gdkyag1ylcldcq95",
@@ -1312,7 +1312,7 @@
           "defensive_actions": 15,
           "defensive_points": 1,
           "involvement_points": 1,
-          "bonus_rank": null
+          "bonus_rank": 15
         },
         {
           "opta_player_id": "8btgs1e799s3xyjfqloeg2iju",
@@ -1338,7 +1338,7 @@
           "defensive_actions": 7,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 17
         },
         {
           "opta_player_id": "5r8d7as6hmq4dl8tt2ft6xuxh",
@@ -1389,7 +1389,7 @@
           "defensive_actions": 2,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 20
         },
         {
           "opta_player_id": "7we7zytfr2ektcc00m9i0o4r8",
@@ -1415,7 +1415,7 @@
           "defensive_actions": 1,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 19
         },
         {
           "opta_player_id": "a6nt0vn3kgt05g1hdnubrh0yc",
@@ -1441,7 +1441,7 @@
           "defensive_actions": 1,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 13
         },
         {
           "opta_player_id": "bwhwthiud4nqvdjy8rq1gcdsl",
@@ -1467,7 +1467,7 @@
           "defensive_actions": 0,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 9
         },
         {
           "opta_player_id": "drvx3sx495e31w659hx4odhm2",
@@ -1493,7 +1493,7 @@
           "defensive_actions": 0,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 16
         },
         {
           "opta_player_id": "f4fk70vhjmvfed0mdudpu3mdw",
@@ -1519,7 +1519,7 @@
           "defensive_actions": 1,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 21
         },
         {
           "opta_player_id": "1zysap8leri5d1mqltszrqxd6",
@@ -1545,7 +1545,7 @@
           "defensive_actions": 1,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 30
         },
         {
           "opta_player_id": "1v67tba1l3sxow1geovdqefo5",
@@ -1571,7 +1571,7 @@
           "defensive_actions": 4,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 10
         },
         {
           "opta_player_id": "en5gss0im4eenrtt3zctkpm8l",
@@ -1597,7 +1597,7 @@
           "defensive_actions": 1,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 12
         }
       ],
       "event_count": 1725
@@ -1640,7 +1640,7 @@
           "defensive_actions": 7,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 6
         },
         {
           "opta_player_id": "bkjq8yp0rffvauz0nz94flfu2",
@@ -1666,7 +1666,7 @@
           "defensive_actions": 8,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 16
         },
         {
           "opta_player_id": "80bmdjixjy34wx3e5fb8re961",
@@ -1692,7 +1692,7 @@
           "defensive_actions": 6,
           "defensive_points": 0,
           "involvement_points": 1,
-          "bonus_rank": null
+          "bonus_rank": 1
         },
         {
           "opta_player_id": "d80r13kh5f6bcpwsy3cka75d5",
@@ -1718,7 +1718,7 @@
           "defensive_actions": 6,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 20
         },
         {
           "opta_player_id": "5nrs4qmi2yic02758w90ociui",
@@ -1744,7 +1744,7 @@
           "defensive_actions": 10,
           "defensive_points": 1,
           "involvement_points": 1,
-          "bonus_rank": null
+          "bonus_rank": 14
         },
         {
           "opta_player_id": "3jdjaxxmie7gxyn1lhkh9p2ad",
@@ -1770,7 +1770,7 @@
           "defensive_actions": 10,
           "defensive_points": 1,
           "involvement_points": 1,
-          "bonus_rank": null
+          "bonus_rank": 28
         },
         {
           "opta_player_id": "3eg4d9dc0sh8rh4r8leuoqvl6",
@@ -1796,7 +1796,7 @@
           "defensive_actions": 11,
           "defensive_points": 1,
           "involvement_points": 3,
-          "bonus_rank": null
+          "bonus_rank": 4
         },
         {
           "opta_player_id": "1vpy4utdaxo6zs2enj4tphejt",
@@ -1822,7 +1822,7 @@
           "defensive_actions": 6,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 5
         },
         {
           "opta_player_id": "8jooatan3cxd38v2jyf23pot1",
@@ -1848,7 +1848,7 @@
           "defensive_actions": 5,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 15
         },
         {
           "opta_player_id": "49bajqj50h6lrbk4gt30eeodl",
@@ -1874,7 +1874,7 @@
           "defensive_actions": 12,
           "defensive_points": 1,
           "involvement_points": 1,
-          "bonus_rank": null
+          "bonus_rank": 22
         },
         {
           "opta_player_id": "9zmawcjx19fpz5yxrh2hkw3c9",
@@ -1900,7 +1900,7 @@
           "defensive_actions": 3,
           "defensive_points": 0,
           "involvement_points": 2,
-          "bonus_rank": null
+          "bonus_rank": 9
         },
         {
           "opta_player_id": "efvcf4syatkaw5fbo37i5hat",
@@ -1926,7 +1926,7 @@
           "defensive_actions": 8,
           "defensive_points": 0,
           "involvement_points": 1,
-          "bonus_rank": null
+          "bonus_rank": 2
         },
         {
           "opta_player_id": "doqt0my3sg0u3zmfgg59l8zxl",
@@ -1952,7 +1952,7 @@
           "defensive_actions": 7,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 24
         },
         {
           "opta_player_id": "230r9tcwg89z5b9kxdqwi336d",
@@ -1978,7 +1978,7 @@
           "defensive_actions": 15,
           "defensive_points": 1,
           "involvement_points": 1,
-          "bonus_rank": null
+          "bonus_rank": 25
         },
         {
           "opta_player_id": "bq6qae0iohn03ghdjgqiq7eac",
@@ -2004,7 +2004,7 @@
           "defensive_actions": 6,
           "defensive_points": 0,
           "involvement_points": 1,
-          "bonus_rank": null
+          "bonus_rank": 8
         },
         {
           "opta_player_id": "19awb0feelm6k12ooavqb5621",
@@ -2030,7 +2030,7 @@
           "defensive_actions": 8,
           "defensive_points": 0,
           "involvement_points": 1,
-          "bonus_rank": null
+          "bonus_rank": 21
         },
         {
           "opta_player_id": "7vkjugzwhhp5ml21o17qlz59m",
@@ -2056,7 +2056,7 @@
           "defensive_actions": 1,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 27
         },
         {
           "opta_player_id": "9cjjs4piq3t12iltsfon52h91",
@@ -2082,7 +2082,7 @@
           "defensive_actions": 8,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 17
         },
         {
           "opta_player_id": "5m8q057u3ek6rjdpmlu98uesq",
@@ -2108,7 +2108,7 @@
           "defensive_actions": 11,
           "defensive_points": 1,
           "involvement_points": 1,
-          "bonus_rank": null
+          "bonus_rank": 13
         },
         {
           "opta_player_id": "60xtq1idaqj2wckmuxbgv6v6y",
@@ -2134,7 +2134,7 @@
           "defensive_actions": 22,
           "defensive_points": 2,
           "involvement_points": 2,
-          "bonus_rank": null
+          "bonus_rank": 3
         },
         {
           "opta_player_id": "9eaqa98xjxsvqlcfrx69arxwq",
@@ -2160,7 +2160,7 @@
           "defensive_actions": 7,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 19
         },
         {
           "opta_player_id": "22blwbf4rlay0jfdecsxvu1hw",
@@ -2186,7 +2186,7 @@
           "defensive_actions": 1,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 18
         },
         {
           "opta_player_id": "4tsbzybsipqmnahwgm19uyivo",
@@ -2212,7 +2212,7 @@
           "defensive_actions": 10,
           "defensive_points": 1,
           "involvement_points": 1,
-          "bonus_rank": null
+          "bonus_rank": 10
         },
         {
           "opta_player_id": "eihksc6tdooqw7ref4nt520a",
@@ -2238,7 +2238,7 @@
           "defensive_actions": 10,
           "defensive_points": 1,
           "involvement_points": 1,
-          "bonus_rank": null
+          "bonus_rank": 26
         },
         {
           "opta_player_id": "15b0z85uttk1ibcag2g4476jt",
@@ -2264,7 +2264,7 @@
           "defensive_actions": 6,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 23
         },
         {
           "opta_player_id": "3ucjekvg77wnqsybahjae5iei",
@@ -2290,7 +2290,7 @@
           "defensive_actions": 3,
           "defensive_points": 0,
           "involvement_points": 2,
-          "bonus_rank": null
+          "bonus_rank": 7
         },
         {
           "opta_player_id": "3vbxj5q5ozvt3iagvvo8zznro",
@@ -2316,7 +2316,7 @@
           "defensive_actions": 0,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 11
         },
         {
           "opta_player_id": "cuwey2ph04gmxs7rwja65n1uc",
@@ -2342,7 +2342,7 @@
           "defensive_actions": 0,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 12
         }
       ],
       "event_count": 1819
@@ -2385,7 +2385,7 @@
           "defensive_actions": 4,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 19
         },
         {
           "opta_player_id": "1vejfm6fcp0xeyk30r6hv79wp",
@@ -2411,7 +2411,7 @@
           "defensive_actions": 4,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 26
         },
         {
           "opta_player_id": "2hkkfeyzmu2pkqgjw3bpl7cnp",
@@ -2437,7 +2437,7 @@
           "defensive_actions": 6,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 9
         },
         {
           "opta_player_id": "5jm71o1iwhepyn65jq6d9i4us",
@@ -2463,7 +2463,7 @@
           "defensive_actions": 5,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 6
         },
         {
           "opta_player_id": "9a8hx94k5of0oy00gloks66i2",
@@ -2489,7 +2489,7 @@
           "defensive_actions": 12,
           "defensive_points": 1,
           "involvement_points": 1,
-          "bonus_rank": null
+          "bonus_rank": 14
         },
         {
           "opta_player_id": "4gv8ud8pwhynhd4ehmzw2pgmi",
@@ -2515,7 +2515,7 @@
           "defensive_actions": 15,
           "defensive_points": 1,
           "involvement_points": 1,
-          "bonus_rank": null
+          "bonus_rank": 25
         },
         {
           "opta_player_id": "cm84oje8txj7m34zuhhv68ct1",
@@ -2541,7 +2541,7 @@
           "defensive_actions": 2,
           "defensive_points": 0,
           "involvement_points": 1,
-          "bonus_rank": null
+          "bonus_rank": 1
         },
         {
           "opta_player_id": "af3x1ptiil8vti00lxf1x8ewa",
@@ -2567,7 +2567,7 @@
           "defensive_actions": 18,
           "defensive_points": 1,
           "involvement_points": 1,
-          "bonus_rank": null
+          "bonus_rank": 21
         },
         {
           "opta_player_id": "2f1e295qn6s9l5d6v1degrizt",
@@ -2593,7 +2593,7 @@
           "defensive_actions": 9,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 24
         },
         {
           "opta_player_id": "7op9czmiln7ktmvetw97scz4l",
@@ -2619,7 +2619,7 @@
           "defensive_actions": 18,
           "defensive_points": 1,
           "involvement_points": 2,
-          "bonus_rank": null
+          "bonus_rank": 2
         },
         {
           "opta_player_id": "8i8zuouah6iycf9fdfmkdlppm",
@@ -2645,7 +2645,7 @@
           "defensive_actions": 4,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 18
         },
         {
           "opta_player_id": "3f6hkia6zu8xuwasqdz3w759m",
@@ -2671,7 +2671,7 @@
           "defensive_actions": 11,
           "defensive_points": 1,
           "involvement_points": 1,
-          "bonus_rank": null
+          "bonus_rank": 3
         },
         {
           "opta_player_id": "55kdqd5lxvk6crfor1sedetbd",
@@ -2697,7 +2697,7 @@
           "defensive_actions": 2,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 22
         },
         {
           "opta_player_id": "8m3okb64mh1m7dfmp0km4wct1",
@@ -2723,7 +2723,7 @@
           "defensive_actions": 8,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 23
         },
         {
           "opta_player_id": "8e7wbpcbwxvdz0fojwuyov3rp",
@@ -2749,7 +2749,7 @@
           "defensive_actions": 7,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 20
         },
         {
           "opta_player_id": "c0my4y3kjf7jbbfujj5l8e8yx",
@@ -2775,7 +2775,7 @@
           "defensive_actions": 9,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 8
         },
         {
           "opta_player_id": "d1fnp3b9t3mfz4aj2csayfhwq",
@@ -2801,7 +2801,7 @@
           "defensive_actions": 10,
           "defensive_points": 1,
           "involvement_points": 2,
-          "bonus_rank": null
+          "bonus_rank": 27
         },
         {
           "opta_player_id": "2w5e7dfxr588qpxex7cstyyy2",
@@ -2827,7 +2827,7 @@
           "defensive_actions": 12,
           "defensive_points": 1,
           "involvement_points": 1,
-          "bonus_rank": null
+          "bonus_rank": 17
         },
         {
           "opta_player_id": "10d8jj5vwrmib55tth0isfvft",
@@ -2853,7 +2853,7 @@
           "defensive_actions": 8,
           "defensive_points": 0,
           "involvement_points": 1,
-          "bonus_rank": null
+          "bonus_rank": 4
         },
         {
           "opta_player_id": "4vik7uie18zrie8cqb5pqlpzp",
@@ -2879,7 +2879,7 @@
           "defensive_actions": 18,
           "defensive_points": 1,
           "involvement_points": 1,
-          "bonus_rank": null
+          "bonus_rank": 7
         },
         {
           "opta_player_id": "8hq106ex872xezlr1j901kpux",
@@ -2905,7 +2905,7 @@
           "defensive_actions": 8,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 15
         },
         {
           "opta_player_id": "c6k1w8sothxmc08dbhqjzp1w5",
@@ -2931,7 +2931,7 @@
           "defensive_actions": 11,
           "defensive_points": 1,
           "involvement_points": 1,
-          "bonus_rank": null
+          "bonus_rank": 11
         },
         {
           "opta_player_id": "brflebs8m00rgali2owyoyove",
@@ -2957,7 +2957,7 @@
           "defensive_actions": 0,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 28
         },
         {
           "opta_player_id": "cu3fl794mtsnkfxi4jesxv9ey",
@@ -2983,7 +2983,7 @@
           "defensive_actions": 8,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 5
         },
         {
           "opta_player_id": "edmt80na0zi4pqxut0mrrb4h6",
@@ -3009,7 +3009,7 @@
           "defensive_actions": 3,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 13
         },
         {
           "opta_player_id": "1n48nxf4v6reoxuyai88haw6i",
@@ -3035,7 +3035,7 @@
           "defensive_actions": 5,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 10
         },
         {
           "opta_player_id": "dedol1cdecfmywapqdnndxucp",
@@ -3061,7 +3061,7 @@
           "defensive_actions": 1,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 16
         },
         {
           "opta_player_id": "cjnts0di96627z3iqhwy3kl0q",
@@ -3087,7 +3087,7 @@
           "defensive_actions": 0,
           "defensive_points": 0,
           "involvement_points": 0,
-          "bonus_rank": null
+          "bonus_rank": 12
         }
       ],
       "event_count": 1798
