@@ -1,11 +1,11 @@
 {
   "metadata": {
-    "generated_at_utc": "2026-10-18T12:05:13+00:00",
+    "generated_at_utc": "2026-10-19T14:43:16+00:00",
     "source": "Pinnacle via OddsPapi",
     "method": "Opponent team total Under 0.5, de-vigged against Over 0.5",
     "tournament_id": 1044,
     "fixture_count": 1,
-    "unmatched_fixture_count": 3,
+    "unmatched_fixture_count": 2,
     "learned_participant_count": 9,
     "participant_mapping": {
       "606004": "LCL",
@@ -23,24 +23,24 @@
   },
   "fixtures": [
     {
-      "match_id": "wpll::Football_Match::88f1060db0464a16a85a9112afcaf45b",
-      "fixture_id": "id1000104473346058",
-      "pinnacle_fixture_id": "1638224550",
-      "start_time_utc": "2026-10-18T13:30:00.000Z",
-      "home_team": "MCI",
-      "away_team": "BHA",
-      "home_name": "Manchester City",
-      "away_name": "Brighton & Hove Albion",
-      "home_market_cs_probability": 0.369592,
+      "match_id": "wpll::Football_Match::e36c961a24bb409498029478475ec755",
+      "fixture_id": "id1000104473346078",
+      "pinnacle_fixture_id": "1638686121",
+      "start_time_utc": "2026-10-24T16:15:00.000Z",
+      "home_team": "BHA",
+      "away_team": "WHU",
+      "home_name": "Brighton & Hove Albion",
+      "away_name": "West Ham United",
+      "home_market_cs_probability": 0.370612,
       "away_market_cs_probability": null,
       "home_opponent_team_total_0_5": {
-        "over_odds": 1.495,
-        "under_odds": 2.55,
-        "raw_under_probability": 0.392157,
-        "overround": 0.061053,
-        "fair_under_probability": 0.369592,
+        "over_odds": 1.478,
+        "under_odds": 2.51,
+        "raw_under_probability": 0.398406,
+        "overround": 0.074996,
+        "fair_under_probability": 0.370612,
         "main_line": true,
-        "bookmaker_market_id": "line/29/8713/1638224550/3770231482/0/teamTotal",
+        "bookmaker_market_id": "line/29/8713/1638686121/3770652531/0/teamTotal",
         "market_type": "teamTotal",
         "period": "full_match",
         "team_total_side": "away",
@@ -49,7 +49,7 @@
       "away_opponent_team_total_0_5": null,
       "source": "Pinnacle",
       "method": "opponent_team_total_under_0.5_devig",
-      "market_updated_at": "2026-10-16T01:22:39.753Z"
+      "market_updated_at": "2026-10-18T16:26:59.436Z"
     }
   ]
 }
