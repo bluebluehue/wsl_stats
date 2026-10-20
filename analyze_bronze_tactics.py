@@ -31,7 +31,7 @@ ROSTER = {
  'Toko Koga': ('Tottenham','RCB','usual',['koga']),
  'Amanda Nilden': ('Tottenham','LCB','usual',['nilden','nildén']),
  'Isa Kardinaal': ('London City','RCB','usual',['kardinaal']),
- 'Mapi Leon': ('London City','LCB','usual',['mapi leon','mapi león','mapí león','m. leon','m. león','maría pilar león','maria pilar leon']),
+ 'Mapi Leon': ('London City','LCB','usual',['mapi leon','mapi león','mapí león','m. leon','m. león']),
  'Jenna Clark': ('Liverpool','RCB','usual',['jenna clark','j. clark']),
  'Grace Fisk': ('Liverpool','LCB','usual',['grace fisk','g. fisk']),
  'Maya Le Tissier': ('Manchester United','RCB','usual',['le tissier','letissier']),
@@ -48,6 +48,8 @@ ROSTER = {
  "Elisha N'Dow": ('Charlton','RCB','usual',["n'dow",'ndow','n’dow']),
 }
 TARGETS = {n: v[3] for n,v in ROSTER.items()}
+MIN_APPEARANCES = 4  # editable: count games with recorded selected actions
+
 
 # Opta pass qualifiers for restarts. 107=throw-in; 2=corner; 5=free kick;
 # 6=goal kick; 124=goalkeeper throw (exclude conservatively).
@@ -128,12 +130,56 @@ def pitch_svg(path, points, title):
                     + ''.join(shapes) + '</svg>', encoding='utf-8')
 
 
+
+# Team-oriented Opta pitch units. Right side is assumed to be lower y;
+# this convention MUST be checked against broadcast footage before asserting
+# which sideline corresponds to a player's actual right.
+THIRDS = ('Defensive', 'Middle', 'Final')
+LANES = ('Right wide', 'Right inside', 'Centre', 'Left inside', 'Left wide')
+
+def pitch_cell(x, y):
+    if x is None or y is None or not (0 <= x <= 100 and 0 <= y <= 100):
+        return None
+    ix = min(2, int(x * 3 / 100))
+    iy = min(4, int(y / 20))
+    return ix, iy
+
+
+def zonal_pitch_svg(path, player, counts, total, title):
+    import html
+    # Vertical pitch in team-oriented Opta coordinates: attack from left to right;
+    # top horizontal band is y=0..20 (presumed right flank).
+    max_c = max(counts.values(), default=1) or 1
+    shapes = []
+    ox, oy, w, h = 60, 90, 900, 440
+    for ix in range(3):
+        for iy in range(5):
+            n = counts.get((ix, iy), 0)
+            x0, y0 = ox + ix*w/3, oy+iy*h/5
+            alpha = .12 + .80*(n/max_c) if n else .06
+            shapes.append(f'<rect x="{x0:.1f}" y="{y0:.1f}" width="{w/3:.1f}" height="{h/5:.1f}" fill="#f6b958" fill-opacity="{alpha:.3f}" stroke="white" stroke-opacity=".3"/>')
+            shapes.append(f'<text x="{x0+w/6:.1f}" y="{y0+h/10+5:.1f}" font-family="Arial" text-anchor="middle" font-weight="bold" fill="white" font-size="19">{n} ({(100*n/total if total else 0):.1f}%)</text>')
+    for ix, label in enumerate(THIRDS):
+        shapes.append(f'<text x="{ox+(ix+.5)*w/3:.1f}" y="{oy-16}" font-family="Arial" font-size="18" text-anchor="middle" fill="white">{label} third</text>')
+    for iy, label in enumerate(LANES):
+        shapes.append(f'<text x="{ox-10}" y="{oy+(iy+.5)*h/5+4:.1f}" font-family="Arial" font-size="13" text-anchor="end" fill="white">{label}</text>')
+    path.write_text('<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="620" viewBox="0 0 1080 620">'
+      '<rect width="100%" height="100%" fill="#18372e"/>'
+      f'<text x="45" y="35" font-family="Arial" font-size="24" fill="white">{html.escape(title)}</text>'
+      f'<text x="45" y="61" font-family="Arial" font-size="15" fill="white">{total} event points | percentage of that player\'s selected events | attacking →</text>'
+      + ''.join(shapes) + '</svg>', encoding='utf-8')
+
 def main():
     if not SOURCE.is_dir():
         raise SystemExit('Missing raw_opta_events/; run from repository root')
     OUT.mkdir(exist_ok=True)
     records, summaries, contexts = [], [], []
     all_points = defaultdict(list)
+    zone_event_rows = []
+    zone_by_match_rows = []
+    player_zone_counts = defaultdict(Counter)
+    player_pass_zone_counts = defaultdict(Counter)
+    player_other_zone_counts = defaultdict(Counter)
     files_seen, matches_seen, rejected, accepted = set(), 0, 0, 0
     appearances = Counter()
 
@@ -182,6 +228,30 @@ def main():
             points = [(num(e.get('x')),num(e.get('y'))) for e in action_events]
             points = [(x,y) for x,y in points if x is not None and y is not None and 0<=x<=100 and 0<=y<=100]
             all_points[name].extend(points)
+            match_zone_counts = Counter()
+            for e in action_events:
+                x0, y0 = num(e.get('x')), num(e.get('y'))
+                cell = pitch_cell(x0, y0)
+                if cell is None:
+                    continue
+                family = 'pass' if e.get('typeId') == PASS else 'other_action'
+                ix, iy = cell
+                match_zone_counts[(ix,iy,family)] += 1
+                player_zone_counts[name][(ix,iy)] += 1
+                (player_pass_zone_counts if family == 'pass' else player_other_zone_counts)[name][(ix,iy)] += 1
+                zone_event_rows.append({'date':day, 'match':fixture,'player':name,
+                    'team':ROSTER[name][0], 'usual_role':ROSTER[name][1],
+                    'event_id':e.get('id',''),'type_id':e.get('typeId',''),
+                    'event_family':family,'x':x0,'y':y0,
+                    'third':THIRDS[ix], 'lane':LANES[iy],
+                    'zone':THIRDS[ix]+' / '+LANES[iy]})
+            for ix in range(3):
+                for iy in range(5):
+                    for family in ('pass','other_action'):
+                        zone_by_match_rows.append({'date':day,'match':fixture,'player':name,
+                            'team':ROSTER[name][0], 'usual_role':ROSTER[name][1],
+                            'third':THIRDS[ix], 'lane':LANES[iy], 'event_family':family,
+                            'actions':match_zone_counts[(ix,iy,family)]})
             # Passing percentages are per pass attempt, not per minute nor adjusted for possessions.
             progressive = 0
             into_final = 0
@@ -243,6 +313,70 @@ def main():
                        'pct_pass_origins_attacking_half':round(100*nums['pass_origin_attacking_half']/p,1) if p else '',
                        'pct_pass_origins_final_third':round(100*nums['pass_origin_final_third']/p,1) if p else ''})
     write('open_play_player_comparison.csv',totals,list(totals[0].keys()))
+    # A 4-match eligibility threshold is a pragmatic sample-size filter, not
+    # proof of starts, centre-back minutes, nor verified positional deployment.
+    eligible = {name for name, count in appearances.items() if count >= MIN_APPEARANCES}
+    qualified = []
+    for r in totals:
+        enriched = dict(r)
+        enriched['qualified_4plus'] = 'yes' if r['player'] in eligible else 'no'
+        enriched['reason'] = ('>=4 matches with selected events' if r['player'] in eligible
+                              else '<4 matches with selected events; retained for transparency')
+        qualified.append(enriched)
+    write('comparison_full_with_eligibility.csv', qualified, list(qualified[0].keys()))
+    write('comparison_4plus.csv', [r for r in qualified if r['qualified_4plus']=='yes'],
+          list(qualified[0].keys()))
+    zone_fields=['date','match','player','team','usual_role','event_id','type_id','event_family','x','y','third','lane','zone']
+    write('zonal_events.csv', zone_event_rows,zone_fields)
+    write('zonal_by_match.csv',zone_by_match_rows,
+          ['date','match','player','team','usual_role','third','lane','event_family','actions'])
+    zone_totals=[]
+    for r in totals:
+        name=r['player']
+        player_total = sum(player_zone_counts[name].values())
+        pass_total = sum(player_pass_zone_counts[name].values())
+        nonpass_total = sum(player_other_zone_counts[name].values())
+        for ix in range(3):
+            for iy in range(5):
+                n=player_zone_counts[name][(ix,iy)]
+                pn=player_pass_zone_counts[name][(ix,iy)]
+                on=player_other_zone_counts[name][(ix,iy)]
+                zone_totals.append({'player':name,'team':r['team'],'usual_role':r['usual_role'],
+                   'matches_with_events':r['matches_with_events'],
+                   'qualified_4plus':'yes' if name in eligible else 'no',
+                   'position_verified':'no', 'third':THIRDS[ix], 'lane':LANES[iy],
+                   'action_count':n,'pct_player_actions':round(n/player_total*100,2) if player_total else '',
+                   'pass_count':pn,'pct_player_passes':round(pn/pass_total*100,2) if pass_total else '',
+                   'other_action_count':on,
+                   'pct_player_other_actions':round(on/nonpass_total*100,2) if nonpass_total else ''})
+        if name in eligible and player_total:
+            zonal_pitch_svg(OUT/('zones_'+name.lower().replace(' ','_').replace("'",'')+'.svg'),
+                            name,player_zone_counts[name],player_total,name+' — open-play zones')
+    zone_total_columns=['player','team','usual_role','matches_with_events','qualified_4plus',
+              'position_verified','third','lane','action_count','pct_player_actions',
+              'pass_count','pct_player_passes','other_action_count','pct_player_other_actions']
+    write('zonal_player_totals.csv',zone_totals,zone_total_columns)
+    write('zonal_4plus.csv',[r for r in zone_totals if r['qualified_4plus']=='yes'],zone_total_columns)
+    fingerprint=[]
+    for r in totals:
+        name=r['player']
+        c=player_zone_counts[name]
+        n=sum(c.values())
+        pn=sum(player_pass_zone_counts[name].values())
+        fingerprint.append({'player':name,'team':r['team'],'usual_role':r['usual_role'],
+          'matches_with_events':r['matches_with_events'],
+          'qualified_4plus':'yes' if name in eligible else 'no',
+          'position_verified':'no', 'action_count':n,'pass_count':pn,
+          'right_wide_final_count':c[(2,0)],
+          'right_wide_final_pct':round(100*c[(2,0)]/n,2) if n else '',
+          'right_side_attacking_half_count':sum(c[(ix,iy)] for ix in (1,2) for iy in (0,1)),
+          'right_side_attacking_half_pct':round(100*sum(c[(ix,iy)] for ix in (1,2) for iy in (0,1))/n,2) if n else '',
+          'central_attacking_half_pct':round(100*sum(c[(ix,2)] for ix in (1,2))/n,2) if n else '',
+          'final_third_count':sum(c[(2,iy)] for iy in range(5)),
+          'final_third_pct':round(100*sum(c[(2,iy)] for iy in range(5))/n,2) if n else ''})
+    write('zonal_fingerprint_all.csv',fingerprint,list(fingerprint[0].keys()))
+    write('zonal_fingerprint_4plus.csv',[r for r in fingerprint if r['qualified_4plus']=='yes'],
+         list(fingerprint[0].keys()))
     for name, points in all_points.items():
         pitch_svg(OUT/('open_actions_'+name.lower().replace(' ','_')+'.svg'),points,name+' — open-play event locations')
     write('position_review.csv', [dict(date=r['date'],match=r['match'],team=r['team'],player=r['player'],usual_role=r['usual_role'],position_review=r['position_review'],actual_match_position='',verified_by='') for r in summaries], ['date','match','team','player','usual_role','position_review','actual_match_position','verified_by'])
@@ -267,10 +401,19 @@ these aggregates as CB-only appearances until position_review.csv is checked.
 Names are matched by aliases PLUS club; please inspect unmatched or ambiguous names.
 Event coverage does not establish minutes played or centre-back position.
 No carry distances, off-ball runs, or positional rotations are claimed.
+ZONAL UPDATE: pitch divided into 3 thirds x 5 lanes. Separate pass and
+non-pass selected action counts; the latter are NOT synonymous with defensive
+interventions. 'Right' and 'left' assume y=0 right in Opta player-team frame;
+VERIFY this convention against footage. Qualified >=4 means >=4 matches with
+recorded selected events, NOT >=4 starts or >=4 games as CB. Injury absence
+is not penalized beyond the sample threshold. Files labeled *_4plus are the
+suggested comparison, while *_all preserves transparency. Match-by-match
+positional verification remains required before making strict CB-only claims.
 ''',encoding='utf-8')
     print('Unique WSL matches:',matches_seen,'Unreadable/invalid:',rejected,'Recorded open-play passes:',accepted)
     for r in totals:
         print(r['player'],'matched matches:',r['matches_with_events'],'passes:',r['open_pass_attempts'],'actions:',r['open_action_points'])
+    print('Eligible >=4 appearances:',len(eligible),'of',len(ROSTER))
     print('Results:',OUT)
 
 if __name__ == '__main__':
