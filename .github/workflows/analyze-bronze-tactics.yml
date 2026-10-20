@@ -1,4 +1,4 @@
-name: Analyze Bronze's Chelsea role
+name: Analyze Bronze open-play role
 
 on:
   workflow_dispatch:
@@ -14,11 +14,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Analyze cached Opta events
+      - name: Analyze WSL open-play Opta events (read-only)
         run: python analyze_bronze_tactics.py
-      - name: Upload analysis (CSV and SVG)
+      - name: Upload CSV reports, maps and methods
         uses: actions/upload-artifact@v4
         with:
-          name: bronze-tactical-analysis
+          name: bronze-open-play-analysis
           path: bronze_tactical_analysis/*
           if-no-files-found: error
