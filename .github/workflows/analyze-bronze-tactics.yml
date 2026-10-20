@@ -1,0 +1,24 @@
+name: Analyze Bronze's Chelsea role
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Analyze cached Opta events
+        run: python analyze_bronze_tactics.py
+      - name: Upload analysis (CSV and SVG)
+        uses: actions/upload-artifact@v4
+        with:
+          name: bronze-tactical-analysis
+          path: bronze_tactical_analysis/*
+          if-no-files-found: error
