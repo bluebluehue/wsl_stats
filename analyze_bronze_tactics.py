@@ -1,194 +1,248 @@
 #!/usr/bin/env python3
-"""Read-only Opta F24 analysis: Chelsea throw-ins, on-pitch teammates and subsequent actions.
-No third-party dependencies. Does not modify raw data or fantasy calculation files.
+"""Read-only WSL Opta F24 open-play event analysis focused on Lucy Bronze.
+
+Runs from repository root; reads raw_opta_events/*.json and writes ONLY to
+bronze_tactical_analysis/. No external packages. Event locations ≠ player tracking;
+pass progression ≠ progressive carry. No inference about off-ball positioning.
 """
 import csv
 import json
+import math
 from collections import Counter, defaultdict
 from pathlib import Path
 
 SOURCE = Path('raw_opta_events')
 OUT = Path('bronze_tactical_analysis')
+# Player names checked against case-insensitive substrings. Includes a Chelsea teammate
+# and the five RCBs from the original heatmap comparison.
+TARGETS = {
+    'Lucy Bronze': ['bronze'],
+    'Ellie Carpenter': ['carpenter'],
+    'Leah Williamson': ['williamson'],
+    'Toko Koga': ['koga'],
+    'Maya Le Tissier': ['le tissier', 'letissier'],
+    'Isa Kardinaal': ['kardinaal'],
+    'Jade Rose': ['jade rose', 'j. rose'],
+}
+# Opta pass qualifiers for restarts. 107=throw-in; 2=corner; 5=free kick;
+# 6=goal kick; 124=goalkeeper throw (exclude conservatively).
+# 4=indirect FK in some Opta dictionaries; 24=free kick (variant);
+# 26=corner taken (variant). Treat as possible restarts for transparent filtering.
+RESTART_Q = {2, 4, 5, 6, 24, 26, 107, 124}
+PASS = 1
+# Other events with reliably attributable ball action locations; these are
+# ACTION points, NOT an exhaustive list of touches or actual player positions.
+ACTION_TYPES = {1, 3, 4, 7, 8, 12, 13, 15, 49, 61, 74}
 
 
-def write(name, rows, fields):
-    with (OUT / name).open('w', encoding='utf-8-sig', newline='') as f:
-        w = csv.DictWriter(f, fieldnames=fields, extrasaction='ignore')
-        w.writeheader()
-        w.writerows(rows)
+def qids(e):
+    return {q.get('qualifierId') for q in (e.get('qualifier') or [])}
 
 
-def qual(e, id):
-    return next((q.get('value', True) for q in (e.get('qualifier') or []) if q.get('qualifierId') == id), None)
+def qvalue(e, qual_id):
+    return next((q.get('value') for q in (e.get('qualifier') or []) if q.get('qualifierId') == qual_id), None)
 
 
-def seconds(e):
-    return 60 * int(e.get('timeMin') or 0) + int(e.get('timeSec') or 0)
+def num(v):
+    try:
+        x = float(v)
+        return x if math.isfinite(x) else None
+    except (TypeError, ValueError):
+        return None
 
 
-def name(e):
-    return str(e.get('playerName') or e.get('player') or '')
+def player_label(name):
+    name = str(name or '').casefold()
+    for label, pieces in TARGETS.items():
+        if any(piece in name for piece in pieces):
+            return label
+    return None
 
 
-def is_bronze(e):
-    return 'bronze' in name(e).casefold()
+def write(name, rows, columns):
+    with (OUT / name).open('w', newline='', encoding='utf-8-sig') as f:
+        writer = csv.DictWriter(f, columns, extrasaction='ignore')
+        writer.writeheader()
+        writer.writerows(rows)
 
 
-def is_carpenter(e):
-    return 'carpenter' in name(e).casefold()
+def is_open_pass(e):
+    return e.get('typeId') == PASS and not qids(e).intersection(RESTART_Q)
 
 
-def active_intervals(events, team_id, player_id, duration):
-    # In F24, type 34 = initial formation; qualifier 30 is comma-separated player IDs
-    # and qualifier 131 marks 1..11 starters, 0 substitutes.
-    formations = [e for e in events if e.get('contestantId') == team_id and e.get('typeId') == 34]
-    starter = None
-    if formations:
-        f = formations[0]
-        ids = [x.strip() for x in str(qual(f, 30) or '').split(',')]
-        positions = [x.strip() for x in str(qual(f, 131) or '').split(',')]
-        starter = any(pid == player_id and idx < len(positions) and positions[idx] not in ('0', '')
-                      for idx, pid in enumerate(ids))
-    ins = sorted(seconds(e) for e in events if e.get('typeId') == 19 and e.get('playerId') == player_id and e.get('contestantId') == team_id)
-    outs = sorted(seconds(e) for e in events if e.get('typeId') == 18 and e.get('playerId') == player_id and e.get('contestantId') == team_id)
-    if starter is None and not ins and not outs:
-        return [], 'unavailable'
-    if starter is None:
-        starter = bool(outs)
-    changes = [(0, bool(starter))] + [(v, True) for v in ins] + [(v, False) for v in outs]
-    changes.sort(key=lambda x: (x[0], x[1]))  # OFF before ON at same second
-    spans = []
-    start = None
-    for t, on in changes:
-        if on and start is None:
-            start = t
-        if not on and start is not None:
-            spans.append((start, min(t, duration)))
-            start = None
-    if start is not None:
-        spans.append((start, duration))
-    return spans, 'verified' if formations else 'inferred_from_substitutions'
+def pass_end(e):
+    # Opta qualifiers 140 and 141 are pass end x/y (verify by sampling).
+    return num(qvalue(e, 140)), num(qvalue(e, 141))
 
 
-def on_at(spans, t):
-    return any(a <= t < b for a, b in spans)
+def zone(x, y):
+    if x is None or y is None:
+        return 'unknown'
+    third = 'defensive' if x < (100 / 3) else ('middle' if x < (200 / 3) else 'final')
+    lane = 'lower_touchline' if y <= 15 else ('upper_touchline' if y >= 85 else ('central' if 33 <= y <= 67 else 'half_space'))
+    return third + '_' + lane
 
 
-def overlap(a, b):
-    return sum(max(0, min(y, v) - max(x, u)) for x, y in a for u, v in b)
-
-
-def pitch_svg(path, points, label):
-    # Plot Chelsea attacking left -> right; Opta x is attacking progression (0..100).
-    width, height = 920, 600
-    x0, y0, pw, ph = 55, 90, 810, 460
-    def xy(x,y):
-        return (x0 + x * pw/100, y0 + (100-y)*ph/100)
-    strokes = [f'<rect x="{x0}" y="{y0}" width="{pw}" height="{ph}" fill="#133f34" stroke="white" stroke-width="3"/>',
-      f'<line x1="{x0+pw/2}" y1="{y0}" x2="{x0+pw/2}" y2="{y0+ph}" stroke="white" stroke-width="2"/>',
-      f'<circle cx="{x0+pw/2}" cy="{y0+ph/2}" r="64" fill="none" stroke="white" stroke-width="2"/>',
-      f'<rect x="{x0}" y="{y0+115}" width="120" height="230" fill="none" stroke="white" stroke-width="2"/>',
-      f'<rect x="{x0+pw-120}" y="{y0+115}" width="120" height="230" fill="none" stroke="white" stroke-width="2"/>']
-    for p in points:
-        try: x,y=float(p['x']),float(p['y'])
-        except (ValueError,TypeError,KeyError): continue
-        cx,cy=xy(max(0,min(100,x)),max(0,min(100,y)))
-        color='#ffc04d' if x > 50 else '#74d1f6'
-        strokes.append(f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="6.5" fill="{color}" fill-opacity=".70" stroke="#ffffff" stroke-width=".7"/>')
-    svg = f'''<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}">
-<rect width="100%" height="100%" fill="#112c26"/>
-<text x="55" y="44" font-family="Arial" font-size="23" font-weight="bold" fill="white">{label}</text>
-<text x="55" y="70" font-family="Arial" font-size="14" fill="#d3e6dd">Blue: defensive half  |  Gold: attacking half  |  Goal attacked →  |  {len(points)} events</text>
-{''.join(strokes)}</svg>'''
-    path.write_text(svg,encoding='utf-8')
+def pitch_svg(path, points, title):
+    # Pitch axes: attacking direction to the right; Opta 0..100 per team.
+    import html
+    width, height, x0, y0, pw, ph = 940, 560, 50, 78, 840, 415
+    shapes = [f'<rect x="{x0}" y="{y0}" width="{pw}" height="{ph}" fill="#225b49" stroke="white" stroke-width="2"/>',
+              f'<path d="M{x0+pw/2} {y0}V{y0+ph}" stroke="white" stroke-width="2"/>',
+              f'<circle cx="{x0+pw/2}" cy="{y0+ph/2}" r="62" stroke="white" stroke-width="2" fill="none"/>',
+              f'<rect x="{x0}" y="{y0+105}" width="125" height="205" stroke="white" stroke-width="2" fill="none"/>',
+              f'<rect x="{x0+pw-125}" y="{y0+105}" width="125" height="205" stroke="white" stroke-width="2" fill="none"/>']
+    for x, y in points:
+        xx = x0 + x * pw / 100
+        yy = y0 + (100-y) * ph / 100
+        shapes.append(f'<circle cx="{xx:.2f}" cy="{yy:.2f}" r="4" fill="#fed06b" fill-opacity=".26"/>')
+    path.write_text(f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}">'
+                    '<rect width="100%" height="100%" fill="#172f28"/>'
+                    f'<text x="50" y="37" fill="white" font-family="Arial" font-size="22">{html.escape(title)}</text>'
+                    f'<text x="50" y="523" fill="white" font-family="Arial" font-size="14">Attacking direction → | {len(points)} event locations | Not an off-ball position map</text>'
+                    + ''.join(shapes) + '</svg>', encoding='utf-8')
 
 
 def main():
-    if not SOURCE.is_dir(): raise SystemExit('Run from repository root; raw_opta_events/ not found.')
+    if not SOURCE.is_dir():
+        raise SystemExit('Missing raw_opta_events/; run from repository root')
     OUT.mkdir(exist_ok=True)
-    seen=set(); throw_rows=[]; next_rows=[]; shared_rows=[]; open_rows=[]; match_rows=[]; maps=defaultdict(list)
-    invalid=0; processed=0
-    for path in sorted(SOURCE.glob('*.json')):
-        try:
-            d=json.loads(path.read_text(encoding='utf-8-sig'))
-            info=d['matchInfo']; ev=d['liveData']['event']
-        except (ValueError,KeyError,OSError,TypeError): invalid+=1;continue
-        mid=str(info.get('id') or path.stem)
-        if mid in seen:continue
-        seen.add(mid); processed+=1
-        teams={str(t.get('id')):t.get('name','') for t in info.get('contestant',[])}
-        chelsea_id=next((k for k,v in teams.items() if 'chelsea' in v.casefold()),None)
-        if not chelsea_id:continue
-        date=info.get('localDate',info.get('date',''));match=info.get('description','')
-        ev=sorted(ev,key=lambda e:(seconds(e),int(e.get('id') or 0)))
-        max_time=max((seconds(e) for e in ev),default=5400)+1
-        bronze_id=next((e.get('playerId') for e in ev if is_bronze(e) and e.get('playerId')),None)
-        carpenter_id=next((e.get('playerId') for e in ev if is_carpenter(e) and e.get('playerId')),None)
-        bronze_sp, bronze_status=active_intervals(ev,chelsea_id,bronze_id,max_time) if bronze_id else ([], 'unavailable')
-        carpenter_sp,carpenter_status=active_intervals(ev,chelsea_id,carpenter_id,max_time) if carpenter_id else ([], 'unavailable')
-        shared=overlap(bronze_sp,carpenter_sp)
-        # Check substitution windows at the instant of the throw, not simply both appearing on teamsheets.
-        match_throws=[];count_both=Counter()
-        for ix,e in enumerate(ev):
-            if e.get('contestantId') != chelsea_id or e.get('typeId') != 1 or qual(e,107) is None:continue
-            t=seconds(e); x=e.get('x');y=e.get('y'); player=name(e)
-            is_b=is_bronze(e);is_c=is_carpenter(e)
-            b_on=on_at(bronze_sp,t);c_on=on_at(carpenter_sp,t)
-            both=(b_on and c_on) if bronze_status!='unavailable' and carpenter_status!='unavailable' else None
-            half='attacking' if isinstance(x,(int,float)) and x>50 else ('defensive' if isinstance(x,(int,float)) and x<50 else 'halfway_or_missing')
-            row={'date':date,'match':match,'minute':e.get('timeMin'),'second':e.get('timeSec'), 'player':player,'event_id':e.get('id'),
-                 'x':x,'y':y,'half':half,'bronze_on':b_on if bronze_status!='unavailable' else '',
-                 'carpenter_on':c_on if carpenter_status!='unavailable' else '',
-                 'both_on':both if both is not None else '', 'lineup_status':f'{bronze_status}/{carpenter_status}'}
-            throw_rows.append(row);match_throws.append(row)
-            if both:count_both[player]+=1
-            if is_b:maps['bronze'].append(row)
-            if is_c:maps['carpenter'].append(row)
-            if is_b or is_c:
-                # First same-team pass/touch (type 1 or 61) after throw, within 12 seconds;
-                # describes next involvement, NOT proof of actual throw-in recipient.
-                followers=[a for a in ev[ix+1:] if 0 <= seconds(a)-t <=12 and a.get('contestantId')==chelsea_id and a.get('typeId') in (1,61) and a.get('id') != e.get('id')]
-                first=followers[0] if followers else None
-                next_two=followers[1] if len(followers)>1 else None
-                next_three=followers[2] if len(followers)>2 else None
-                next_rows.append({**row,'next_chelsea_player':name(first) if first else '',
-                                  'next_event_type':first.get('typeId','') if first else '',
-                                  'seconds_to_next':seconds(first)-t if first else '',
-                                  'next_player_is_thrower':bool(first and first.get('playerId')==e.get('playerId')) if first else '',
-                                  'next_x':first.get('x','') if first else '', 'next_y':first.get('y','') if first else '',
-                                  'second_action_player':name(next_two) if next_two else '',
-                                  'third_action_player':name(next_three) if next_three else '',
-                                  'note':'First recorded Chelsea pass/touch ≤12 sec; NOT validated recipient'})
-        for p, total in count_both.items():shared_rows.append({'date':date,'match':match,'player':p,'throws_both_on':total})
-        for player_id, player_name, spans, status in [(bronze_id,'Lucy Bronze',bronze_sp,bronze_status),(carpenter_id,'Ellie Carpenter',carpenter_sp,carpenter_status)]:
-            if not player_id:continue
-            relevant=[e for e in ev if e.get('contestantId')==chelsea_id and e.get('playerId')==player_id and on_at(spans,seconds(e))]
-            # Passes: exclude throw-ins and other dead ball qualifiers; open-play proxy only.
-            passes=[e for e in relevant if e.get('typeId')==1 and not any(qual(e,q) is not None for q in (107,2,5,6,124))]
-            open_rows.append({'date':date,'match':match,'player':player_name,'minutes_estimated':round(sum(b-a for a,b in spans)/60,1),
-                              'lineup_status':status,'passes_excl_known_restarts':len(passes),
-                              'passes_final_third':sum((e.get('x') or 0)>=66.67 for e in passes),
-                              'passes_attacking_half':sum((e.get('x') or 0)>50 for e in passes),
-                              'touches_final_third_proxy':sum(e.get('typeId') in (1,61,7,8,3,4,13) and (e.get('x') or 0)>=66.67 and qual(e,107) is None for e in relevant),
-                              'note':'Pass/touch event proxies, not possession-adjusted; manual validation advised'})
-        match_rows.append({'date':date,'match':match,'bronze_minutes_est':round(sum(b-a for a,b in bronze_sp)/60,1),
-                           'carpenter_minutes_est':round(sum(b-a for a,b in carpenter_sp)/60,1),'shared_minutes_est':round(shared/60,1),
-                           'bronze_status':bronze_status,'carpenter_status':carpenter_status,
-                           'bronze_throws':sum(is_bronze(r) for r in match_throws),
-                           'carpenter_throws':sum(is_carpenter(r) for r in match_throws),
-                           'bronze_throws_both_on':sum(is_bronze(r) and r['both_on'] is True for r in match_throws),
-                           'carpenter_throws_both_on':sum(is_carpenter(r) and r['both_on'] is True for r in match_throws),
-                           'bronze_attacking':sum(is_bronze(r) and r['half']=='attacking' for r in match_throws),
-                           'carpenter_attacking':sum(is_carpenter(r) and r['half']=='attacking' for r in match_throws)})
-    write('chelsea_all_throwins.csv',throw_rows,['date','match','minute','second','player','event_id','x','y','half','bronze_on','carpenter_on','both_on','lineup_status'])
-    write('bronze_carpenter_throw_followups.csv',next_rows,['date','match','minute','second','player','event_id','x','y','half','both_on','next_chelsea_player','next_event_type','seconds_to_next','next_player_is_thrower','next_x','next_y','second_action_player','third_action_player','note'])
-    write('chelsea_shared_minutes_summary.csv',match_rows,['date','match','bronze_minutes_est','carpenter_minutes_est','shared_minutes_est','bronze_status','carpenter_status','bronze_throws','carpenter_throws','bronze_throws_both_on','carpenter_throws_both_on','bronze_attacking','carpenter_attacking'])
-    write('bronze_carpenter_open_play_proxies.csv',open_rows,['date','match','player','minutes_estimated','lineup_status','passes_excl_known_restarts','passes_final_third','passes_attacking_half','touches_final_third_proxy','note'])
-    pitch_svg(OUT/'bronze_throwin_map.svg',maps['bronze'],'Lucy Bronze: WSL throw-in locations')
-    pitch_svg(OUT/'carpenter_throwin_map.svg',maps['carpenter'],'Ellie Carpenter: WSL throw-in locations')
-    print('Unique matches:',processed,'unreadable:',invalid,'Chelsea matches:',len(match_rows))
-    print('Chelsea throws:',len(throw_rows),'Bronze:',len(maps['bronze']),'Carpenter:',len(maps['carpenter']))
-    for r in match_rows:print(r['date'],r['match'],'shared min',r['shared_minutes_est'],'throws while both on',r['bronze_throws_both_on'],r['carpenter_throws_both_on'])
-    print('Reports and SVG maps in',OUT)
+    records, summaries, contexts = [], [], []
+    all_points = defaultdict(list)
+    files_seen, matches_seen, rejected, accepted = set(), 0, 0, 0
+    appearances = Counter()
 
-if __name__=='__main__':main()
+    for file in sorted(SOURCE.glob('*.json')):
+        try:
+            d = json.loads(file.read_text(encoding='utf-8-sig'))
+            info = d['matchInfo']
+            events = d['liveData']['event']
+            mid = str(info.get('id') or file.stem)
+            if mid in files_seen:
+                continue
+            files_seen.add(mid)
+            competition = str((info.get('competition') or {}).get('competitionCode') or '')
+            if competition.upper() != 'WSL':
+                continue
+            teams = {str(c['id']): c.get('name', '') for c in info.get('contestant', [])}
+            if len(teams) != 2 or not isinstance(events, list):
+                rejected += 1
+                continue
+        except (KeyError, TypeError, ValueError, OSError):
+            rejected += 1
+            continue
+        matches_seen += 1
+        day = info.get('localDate') or info.get('date') or ''
+        fixture = info.get('description') or ''
+        by_player = defaultdict(list)
+        for e in events:
+            name = player_label(e.get('playerName'))
+            team = teams.get(str(e.get('contestantId')), '')
+            if name is None or not team:
+                continue
+            # Restrict to correct player's club (helps ambiguous initials).
+            expected = {'Lucy Bronze':'chelsea', 'Ellie Carpenter':'chelsea',
+                        'Leah Williamson':'arsenal', 'Toko Koga':'tottenham',
+                        'Maya Le Tissier':'manchester united',
+                        'Isa Kardinaal':'london city', 'Jade Rose':'manchester city'}[name]
+            if expected not in team.casefold():
+                continue
+            by_player[name].append(e)
+
+        for name, evs in by_player.items():
+            appearances[name] += 1
+            passes = [e for e in evs if is_open_pass(e)]
+            action_events = [e for e in evs if e.get('typeId') in ACTION_TYPES
+                             and not (e.get('typeId') == PASS and not is_open_pass(e))]
+            valid_p = [(e, num(e.get('x')), num(e.get('y')), *pass_end(e)) for e in passes]
+            valid_p = [(e, x, y, ex, ey) for e,x,y,ex,ey in valid_p if x is not None and y is not None]
+            points = [(num(e.get('x')),num(e.get('y'))) for e in action_events]
+            points = [(x,y) for x,y in points if x is not None and y is not None and 0<=x<=100 and 0<=y<=100]
+            all_points[name].extend(points)
+            # Passing percentages are per pass attempt, not per minute nor adjusted for possessions.
+            progressive = 0
+            into_final = 0
+            forward_10 = 0
+            completed = 0
+            with_endpoint = 0
+            for e,x,y,ex,ey in valid_p:
+                if ex is not None and ey is not None:
+                    with_endpoint += 1
+                    delta = ex - x
+                    if delta >= 10:
+                        forward_10 += 1
+                    if x < (200/3) <= ex:
+                        into_final += 1
+                    # Approx progressive-pass definition: advances ball >=25% of
+                    # remaining distance to goal, with >=10 units of x progress.
+                    if delta >= 10 and delta >= 0.25 * (100-x):
+                        progressive += 1
+                completed += e.get('outcome') == 1
+                records.append({'date':day,'match':fixture,'team':next((teams[str(e['contestantId'])] for _ in [0]),''),
+                                'player':name,'minute':e.get('timeMin',''),'second':e.get('timeSec',''),
+                                'event_id':e.get('id',''),'x':x,'y':y,'end_x':ex if ex is not None else '',
+                                'end_y':ey if ey is not None else '', 'origin_zone':zone(x,y),
+                                'completed':int(e.get('outcome')==1),
+                                'forward_10_units':int(ex is not None and ex-x>=10),
+                                'into_final_third':int(ex is not None and x<200/3<=ex),
+                                'progressive_pass_proxy':int(ex is not None and (ex-x)>=10 and (ex-x)>=.25*(100-x))})
+            n = len(points)
+            summaries.append({'date':day,'match':fixture,'player':name,
+                'open_pass_attempts':len(passes),'passes_with_start_coords':len(valid_p),
+                'passes_with_end_coords':with_endpoint,'completed_open_passes':completed,
+                'pass_origin_attacking_half':sum(x>50 for _,x,_,_,_ in valid_p),
+                'pass_origin_final_third':sum(x>=200/3 for _,x,_,_,_ in valid_p),
+                'pass_origin_wide_right_proxy':sum(y<=20 for _,_,y,_,_ in valid_p),
+                'forward_pass_10plus':forward_10,'passes_into_final_third':into_final,
+                'progressive_pass_proxy':progressive,
+                'open_action_points':n,
+                'open_actions_attacking_half':sum(x>50 for x,y in points),
+                'open_actions_final_third':sum(x>=200/3 for x,y in points),
+                'open_actions_touchline_band':sum(y<=15 or y>=85 for x,y in points),
+                'open_actions_wide_right_proxy':sum(y<=20 for x,y in points),
+                'avg_action_x':round(sum(x for x,y in points)/n,2) if n else '',
+                'avg_action_y':round(sum(y for x,y in points)/n,2) if n else ''})
+            accepted += len(valid_p)
+
+    write('open_play_passes.csv', records, ['date','match','team','player','minute','second','event_id','x','y','end_x','end_y','origin_zone','completed','forward_10_units','into_final_third','progressive_pass_proxy'])
+    fields = ['date','match','player','open_pass_attempts','passes_with_start_coords','passes_with_end_coords','completed_open_passes','pass_origin_attacking_half','pass_origin_final_third','pass_origin_wide_right_proxy','forward_pass_10plus','passes_into_final_third','progressive_pass_proxy','open_action_points','open_actions_attacking_half','open_actions_final_third','open_actions_touchline_band','open_actions_wide_right_proxy','avg_action_x','avg_action_y']
+    write('open_play_by_match.csv', summaries, fields)
+    totals = []
+    for name in TARGETS:
+        rows = [r for r in summaries if r['player']==name]
+        nums = {f:sum(r[f] for r in rows) for f in fields[3:-2]}
+        actions = nums.get('open_action_points',0)
+        p = nums.get('open_pass_attempts',0)
+        totals.append({'player':name,'matches_with_events':len(rows),**nums,
+                       'pct_actions_attacking_half':round(100*nums['open_actions_attacking_half']/actions,1) if actions else '',
+                       'pct_actions_final_third':round(100*nums['open_actions_final_third']/actions,1) if actions else '',
+                       'pct_action_touchline_band':round(100*nums['open_actions_touchline_band']/actions,1) if actions else '',
+                       'pct_pass_origins_attacking_half':round(100*nums['pass_origin_attacking_half']/p,1) if p else '',
+                       'pct_pass_origins_final_third':round(100*nums['pass_origin_final_third']/p,1) if p else ''})
+    write('open_play_player_comparison.csv',totals,list(totals[0].keys()))
+    for name, points in all_points.items():
+        pitch_svg(OUT/('open_actions_'+name.lower().replace(' ','_')+'.svg'),points,name+' — open-play event locations')
+    (OUT/'README_METHODS.txt').write_text('''WSL OPEN-PLAY EVENT ANALYSIS: INTERPRETATION NOTES
+
+Sources: cached Opta event data; deduplicated by match ID; WSL competition only.
+Throw-in passes (qualifier 107) and common other pass-restart qualifiers are excluded.
+Actions shown in maps are selected event-location types, NOT tracking heatmaps,
+not all true touches, and not players\' positions between recorded events.
+Pass end coordinates come from qualifier 140/141; x is attacking direction 0-100.
+Wide-right proxy y<=20 assumes Opta team-oriented y increases from its right
+touchline towards its left. Verify this orientation for a known filmed action.
+'Progressive pass proxy' requires >=10 x-unit advance AND >=25% of the remaining
+x-distance to the opponent goal; NOT a standard Opta progressive-pass metric.
+These are raw event counts/percentages, NOT per-90 or possession adjusted.
+Matches missing from raw_opta_events are not included. Empty target player rows
+mean player label was not matched or the player's club's feed was not available.
+Event coverage does not establish minutes played or centre-back position.
+No carry distances, off-ball runs, or positional rotations are claimed.
+''',encoding='utf-8')
+    print('Unique WSL matches:',matches_seen,'Unreadable/invalid:',rejected,'Recorded open-play passes:',accepted)
+    for r in totals:
+        print(r['player'],'matched matches:',r['matches_with_events'],'passes:',r['open_pass_attempts'],'actions:',r['open_action_points'])
+    print('Results:',OUT)
+
+if __name__ == '__main__':
+    main()
