@@ -15,15 +15,40 @@ SOURCE = Path('raw_opta_events')
 OUT = Path('bronze_tactical_analysis')
 # Player names checked against case-insensitive substrings. Includes a Chelsea teammate
 # and the five RCBs from the original heatmap comparison.
-TARGETS = {
-    'Lucy Bronze': ['bronze'],
-    'Ellie Carpenter': ['carpenter'],
-    'Leah Williamson': ['williamson'],
-    'Toko Koga': ['koga'],
-    'Maya Le Tissier': ['le tissier', 'letissier'],
-    'Isa Kardinaal': ['kardinaal'],
-    'Jade Rose': ['jade rose', 'j. rose'],
+# User-provided usual positions. "review" entries may play another position;
+# preserve them as candidates only, not verified CB match appearances.
+# No Birmingham/Everton RCB imputation.
+ROSTER = {
+ 'Lucy Bronze': ('Chelsea','RCB','usual',['bronze']),
+ 'Kadeisha Buchanan': ('Chelsea','LCB','review',['buchanan']),
+ 'Veerle Buurman': ('Chelsea','LCB','review',['buurman']),
+ 'Ellie Carpenter': ('Chelsea','RB','usual',['carpenter']),
+ 'Jade Rose': ('Manchester City','RCB','usual',['jade rose','j. rose']),
+ 'Alex Greenwood': ('Manchester City','LCB','review',['greenwood']),
+ 'Leah Williamson': ('Arsenal','RCB','usual',['williamson']),
+ 'Steph Catley': ('Arsenal','LCB','review',['catley']),
+ 'Lotte Wubben-Moy': ('Arsenal','LCB','review',['wubben-moy','wubben moy']),
+ 'Toko Koga': ('Tottenham','RCB','usual',['koga']),
+ 'Amanda Nilden': ('Tottenham','LCB','usual',['nilden','nildén']),
+ 'Isa Kardinaal': ('London City','RCB','usual',['kardinaal']),
+ 'Mapi Leon': ('London City','LCB','usual',['mapi leon','mapí león','m. leon','m. león']),
+ 'Jenna Clark': ('Liverpool','RCB','usual',['jenna clark','j. clark']),
+ 'Grace Fisk': ('Liverpool','LCB','usual',['grace fisk','g. fisk']),
+ 'Maya Le Tissier': ('Manchester United','RCB','usual',['le tissier','letissier']),
+ 'Dominique Janssen': ('Manchester United','LCB','usual',['janssen']),
+ 'Caitlin Hayes': ('Brighton','RCB','usual',['hayes']),
+ 'Gabby George': ('Brighton','LCB','usual',['gabby george','g. george']),
+ 'Laia Codina': ('West Ham','RCB','usual',['codina']),
+ 'Estelle Cascarino': ('West Ham','LCB','usual',['cascarino']),
+ 'Molly Bartrip': ('Crystal Palace','RCB','usual',['bartrip']),
+ 'Aimee Everett': ('Crystal Palace','LCB','usual',['everett']),
+ 'Millie Turner': ('Birmingham','LCB','usual',['millie turner','m. turner']),
+ 'Anna Patten': ('Aston Villa','RCB','usual',['anna patten','a. patten']),
+ 'Mathilde Harviken': ('Aston Villa','LCB','usual',['harviken']),
+ "Elisha N'Dow": ('Charlton','RCB','usual',["n'dow",'ndow','n’dow']),
 }
+TARGETS = {n: v[3] for n,v in ROSTER.items()}
+
 # Opta pass qualifiers for restarts. 107=throw-in; 2=corner; 5=free kick;
 # 6=goal kick; 124=goalkeeper throw (exclude conservatively).
 # 4=indirect FK in some Opta dictionaries; 24=free kick (variant);
@@ -140,12 +165,10 @@ def main():
             team = teams.get(str(e.get('contestantId')), '')
             if name is None or not team:
                 continue
-            # Restrict to correct player's club (helps ambiguous initials).
-            expected = {'Lucy Bronze':'chelsea', 'Ellie Carpenter':'chelsea',
-                        'Leah Williamson':'arsenal', 'Toko Koga':'tottenham',
-                        'Maya Le Tissier':'manchester united',
-                        'Isa Kardinaal':'london city', 'Jade Rose':'manchester city'}[name]
-            if expected not in team.casefold():
+            # Require club match as well as player alias; avoids 'J. Clark' matches
+            # for similarly named players on other clubs.
+            expected = ROSTER[name][0]
+            if expected.casefold() not in team.casefold():
                 continue
             by_player[name].append(e)
 
@@ -187,7 +210,7 @@ def main():
                                 'into_final_third':int(ex is not None and x<200/3<=ex),
                                 'progressive_pass_proxy':int(ex is not None and (ex-x)>=10 and (ex-x)>=.25*(100-x))})
             n = len(points)
-            summaries.append({'date':day,'match':fixture,'player':name,
+            summaries.append({'date':day,'match':fixture,'player':name, 'team':ROSTER[name][0], 'usual_role':ROSTER[name][1], 'position_review':('needs_match_verification' if ROSTER[name][2]=='review' else 'usual_role_not_lineup_verified'),
                 'open_pass_attempts':len(passes),'passes_with_start_coords':len(valid_p),
                 'passes_with_end_coords':with_endpoint,'completed_open_passes':completed,
                 'pass_origin_attacking_half':sum(x>50 for _,x,_,_,_ in valid_p),
@@ -205,15 +228,15 @@ def main():
             accepted += len(valid_p)
 
     write('open_play_passes.csv', records, ['date','match','team','player','minute','second','event_id','x','y','end_x','end_y','origin_zone','completed','forward_10_units','into_final_third','progressive_pass_proxy'])
-    fields = ['date','match','player','open_pass_attempts','passes_with_start_coords','passes_with_end_coords','completed_open_passes','pass_origin_attacking_half','pass_origin_final_third','pass_origin_wide_right_proxy','forward_pass_10plus','passes_into_final_third','progressive_pass_proxy','open_action_points','open_actions_attacking_half','open_actions_final_third','open_actions_touchline_band','open_actions_wide_right_proxy','avg_action_x','avg_action_y']
+    fields = ['date','match','player','team','usual_role','position_review','open_pass_attempts','passes_with_start_coords','passes_with_end_coords','completed_open_passes','pass_origin_attacking_half','pass_origin_final_third','pass_origin_wide_right_proxy','forward_pass_10plus','passes_into_final_third','progressive_pass_proxy','open_action_points','open_actions_attacking_half','open_actions_final_third','open_actions_touchline_band','open_actions_wide_right_proxy','avg_action_x','avg_action_y']
     write('open_play_by_match.csv', summaries, fields)
     totals = []
     for name in TARGETS:
         rows = [r for r in summaries if r['player']==name]
-        nums = {f:sum(r[f] for r in rows) for f in fields[3:-2]}
+        nums = {f:sum(r[f] for r in rows) for f in fields[6:-2]}
         actions = nums.get('open_action_points',0)
         p = nums.get('open_pass_attempts',0)
-        totals.append({'player':name,'matches_with_events':len(rows),**nums,
+        totals.append({'player':name,'team':ROSTER[name][0],'usual_role':ROSTER[name][1],'position_review':('needs_match_verification' if ROSTER[name][2]=='review' else 'usual_role_not_lineup_verified'),'matches_with_events':len(rows),**nums,
                        'pct_actions_attacking_half':round(100*nums['open_actions_attacking_half']/actions,1) if actions else '',
                        'pct_actions_final_third':round(100*nums['open_actions_final_third']/actions,1) if actions else '',
                        'pct_action_touchline_band':round(100*nums['open_actions_touchline_band']/actions,1) if actions else '',
@@ -222,6 +245,7 @@ def main():
     write('open_play_player_comparison.csv',totals,list(totals[0].keys()))
     for name, points in all_points.items():
         pitch_svg(OUT/('open_actions_'+name.lower().replace(' ','_')+'.svg'),points,name+' — open-play event locations')
+    write('position_review.csv', [dict(date=r['date'],match=r['match'],team=r['team'],player=r['player'],usual_role=r['usual_role'],position_review=r['position_review'],actual_match_position='',verified_by='') for r in summaries], ['date','match','team','player','usual_role','position_review','actual_match_position','verified_by'])
     (OUT/'README_METHODS.txt').write_text('''WSL OPEN-PLAY EVENT ANALYSIS: INTERPRETATION NOTES
 
 Sources: cached Opta event data; deduplicated by match ID; WSL competition only.
@@ -236,6 +260,11 @@ x-distance to the opponent goal; NOT a standard Opta progressive-pass metric.
 These are raw event counts/percentages, NOT per-90 or possession adjusted.
 Matches missing from raw_opta_events are not included. Empty target player rows
 mean player label was not matched or the player's club's feed was not available.
+USUAL ROLE comes from the user's roster, not match lineup verification.
+Players who sometimes start elsewhere are explicitly marked NEEDS_MATCH_VERIFICATION.
+Even 'usual' positions are NOT confirmed on every date. Do not interpret
+these aggregates as CB-only appearances until position_review.csv is checked.
+Names are matched by aliases PLUS club; please inspect unmatched or ambiguous names.
 Event coverage does not establish minutes played or centre-back position.
 No carry distances, off-ball runs, or positional rotations are claimed.
 ''',encoding='utf-8')
