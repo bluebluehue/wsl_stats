@@ -31,7 +31,7 @@ ROSTER = {
  'Toko Koga': ('Tottenham','RCB','usual',['koga']),
  'Amanda Nilden': ('Tottenham','LCB','usual',['nilden','nildén']),
  'Isa Kardinaal': ('London City','RCB','usual',['kardinaal']),
- 'Mapi Leon': ('London City','LCB','usual',['mapi leon','mapí león','m. leon','m. león']),
+ 'Mapi Leon': ('London City','LCB','usual',['mapi leon','mapí león','m. leon','m. león','maría pilar león','maria pilar leon','maría león','maria leon','m. p. leon','m. p. león','pilar león','pilar leon']),
  'Jenna Clark': ('Liverpool','RCB','usual',['jenna clark','j. clark']),
  'Grace Fisk': ('Liverpool','LCB','usual',['grace fisk','g. fisk']),
  'Maya Le Tissier': ('Manchester United','RCB','usual',['le tissier','letissier']),
