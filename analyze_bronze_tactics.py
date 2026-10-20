@@ -51,11 +51,9 @@ TARGETS = {n: v[3] for n,v in ROSTER.items()}
 MIN_APPEARANCES = 4  # editable: count games with recorded selected actions
 
 
-# Opta pass qualifiers for restarts. 107=throw-in; 2=corner; 5=free kick;
-# 6=goal kick; 124=goalkeeper throw (exclude conservatively).
-# 4=indirect FK in some Opta dictionaries; 24=free kick (variant);
-# 26=corner taken (variant). Treat as possible restarts for transparent filtering.
-RESTART_Q = {2, 4, 5, 6, 24, 26, 107, 124}
+# Standard Opta F24: 5=free kick, 6=corner, 107=throw, 124=goal kick,
+# 279=kickoff. 2=CROSS and 4=THROUGH BALL: do not exclude these!
+RESTART_Q = {5,6,107,124,279}
 PASS = 1
 # Other events with reliably attributable ball action locations; these are
 # ACTION points, NOT an exhaustive list of touches or actual player positions.
@@ -415,6 +413,130 @@ positional verification remains required before making strict CB-only claims.
         print(r['player'],'matched matches:',r['matches_with_events'],'passes:',r['open_pass_attempts'],'actions:',r['open_action_points'])
     print('Eligible >=4 appearances:',len(eligible),'of',len(ROSTER))
     print('Results:',OUT)
+    phase_analysis()
+
+FOLLOWUP_SECONDS = 12
+RESTART_NAMES = {5:'free_kick',6:'corner',107:'throw_in',124:'goal_kick',279:'kick_off'}
+KNOWN_NON_CB = {('Alex Greenwood','2026-09-06'), ('Alex Greenwood','2026-09-26'), ('Veerle Buurman','2026-09-13')}
+
+def match_seconds(e):
+    try: return int(e.get('timeMin',0))*60+int(e.get('timeSec',0))
+    except (TypeError,ValueError): return None
+
+def direct_restart(e):
+    if e.get('typeId') != PASS: return None
+    for key in (6,5,107,124,279):
+        if key in qids(e): return RESTART_NAMES[key]
+    return None
+
+def phase_analysis():
+    audits, per_match = [], []
+    files_seen=set()
+    keys=('all_action','all_wide','direct_restart','direct_restart_wide','restart_followup_12s','restart_followup_12s_wide','corner_situation_qualifier','corner_situation_qualifier_wide','established_open_proxy','established_open_proxy_wide','crosses')
+    for file in sorted(SOURCE.glob('*.json')):
+        try:
+            d=json.loads(file.read_text(encoding='utf-8-sig'))
+            info=d['matchInfo']; evs=d['liveData']['event']
+            if str((info.get('competition') or {}).get('competitionCode','')).upper()!='WSL': continue
+            mid=str(info.get('id') or file.stem)
+            if mid in files_seen: continue
+            files_seen.add(mid)
+            teams={str(x['id']):x.get('name','') for x in info.get('contestant',[])}
+            day=str(info.get('localDate') or info.get('date') or '')[:10]
+            fixture=info.get('description','')
+        except (ValueError,KeyError,TypeError,OSError): continue
+        events=sorted(enumerate(evs),key=lambda ie:(match_seconds(ie[1]) if match_seconds(ie[1]) is not None else 999999,ie[0]))
+        active={}; counts=defaultdict(Counter); names_in_match=set()
+        for _,e in events:
+            t=match_seconds(e); cid=str(e.get('contestantId',''))
+            restart=direct_restart(e)
+            if restart is not None:
+                active.clear(); active[cid]=(t,restart,e.get('id',''))
+            elif t is not None:
+                for other,(t0,kind,eventid) in list(active.items()):
+                    if t0 is None or t-t0 > FOLLOWUP_SECONDS or t<t0: active.pop(other,None)
+                if e.get('typeId') == PASS and e.get('outcome')==1:
+                    for other in list(active):
+                        if other!=cid:active.pop(other,None)
+            name=player_label(e.get('playerName'))
+            if name not in ROSTER or ROSTER[name][0].casefold() not in teams.get(cid,'').casefold(): continue
+            names_in_match.add(name)
+            if e.get('typeId') not in ACTION_TYPES: continue
+            x,y=num(e.get('x')),num(e.get('y'))
+            cell=pitch_cell(x,y)
+            if cell is None: continue
+            if restart is not None: phase='direct_restart'
+            elif cid in active and active[cid][0] is not None and t is not None and t>active[cid][0] and t-active[cid][0]<=FOLLOWUP_SECONDS:
+                phase='restart_followup_12s'
+            elif 96 in qids(e): phase='corner_situation_qualifier'
+            else: phase='established_open_proxy'
+            flank_cell = (2,0) if ROSTER[name][1] in ('RCB','RB') else (2,4)
+            wide=int(cell==flank_cell)
+            audits.append({'date':day,'match':fixture,'player':name,'usual_role':ROSTER[name][1],
+                'known_non_cb':'yes' if (name,day) in KNOWN_NON_CB else 'no',
+                'event_id':e.get('id',''),'minute':e.get('timeMin',''),'second':e.get('timeSec',''),
+                'type_id':e.get('typeId'),'qualifier_2_cross':int(2 in qids(e)),
+                'qualifier_4_through_ball':int(4 in qids(e)),
+                'phase':phase,'restart_kind':restart or (active[cid][1] if cid in active else ''),
+                'x':x,'y':y,'third':THIRDS[cell[0]],'lane':LANES[cell[1]],
+                'own_flank_final_wide':wide,'is_pass':int(e.get('typeId')==PASS)})
+            counts[name]['all_action']+=1; counts[name]['all_wide']+=wide
+            counts[name][phase]+=1
+            if wide:counts[name][phase+'_wide']+=1
+            if e.get('typeId')==PASS: counts[name]['crosses']+=int(2 in qids(e))
+        for name in names_in_match:
+            c=counts[name]
+            per_match.append({'date':day,'match':fixture,'player':name,'team':ROSTER[name][0],
+                'usual_role':ROSTER[name][1], 'known_non_cb':'yes' if (name,day) in KNOWN_NON_CB else 'no',
+                **{k:c[k] for k in keys}})
+    audit_cols=['date','match','player','usual_role','known_non_cb','event_id','minute','second','type_id','qualifier_2_cross','qualifier_4_through_ball','phase','restart_kind','x','y','third','lane','own_flank_final_wide','is_pass']
+    write('setpiece_event_audit.csv',audits,audit_cols)
+    write('setpiece_by_match.csv',per_match,['date','match','player','team','usual_role','known_non_cb',*keys])
+    combined=[]
+    for name in ROSTER:
+        rows=[r for r in per_match if r['player']==name]
+        cb_rows=[r for r in rows if r['known_non_cb']!='yes']
+        result={'player':name,'team':ROSTER[name][0],'usual_role':ROSTER[name][1],
+            'matched_appearances':len(rows),'qualified_4plus':'yes' if len(rows)>=MIN_APPEARANCES else 'no',
+            'known_non_cb_matches_excluded':len(rows)-len(cb_rows),
+            'remaining_appearances':len(cb_rows),
+            'remaining_4plus':'yes' if len(cb_rows)>=MIN_APPEARANCES else 'no',
+            'position_verified_all_matches':'no'}
+        for group,subset in [('all',rows),('after_known_lb_exclusions',cb_rows)]:
+            for key in keys:result[group+'_'+key]=sum(r[key] for r in subset)
+            den=result[group+'_established_open_proxy']; n=result[group+'_established_open_proxy_wide']
+            result[group+'_strict_wide_pct']=round(100*n/den,2) if den else ''
+            den2=result[group+'_all_action']-result[group+'_direct_restart']
+            n2=result[group+'_all_wide']-result[group+'_direct_restart_wide']
+            result[group+'_direct_only_wide_pct']=round(100*n2/den2,2) if den2 else ''
+        combined.append(result)
+    cols=list(combined[0]); write('setpiece_comparison_all.csv',combined,cols)
+    eligible=[r for r in combined if r['usual_role'] in ('RCB','LCB') and r['remaining_4plus']=='yes']
+    eligible.sort(key=lambda r:-(r['after_known_lb_exclusions_strict_wide_pct'] or 0))
+    write('setpiece_cb_ranking_4plus.csv',eligible,cols)
+    (OUT/'SETPIECE_AUDIT_README.txt').write_text('''RESTART-CONTAMINATION SENSITIVITY ANALYSIS
+
+Opta: 2=CROSS, 4=THROUGH BALL (both retained); 5=free kick, 6=corner,
+107=throw-in, 124=goal kick, 279=kickoff (direct restart excluded).
+Direct-only excludes directly tagged restart passes. Strict proxy also
+excludes selected actions of the same team in 12 seconds after a restart.
+A successful opposing pass ends the window. Corner-situation qualifier 96
+is excluded separately. The 12-second window is a SENSITIVITY HEURISTIC,
+not Opta's definition of open play. It can exclude genuine live play or
+retain later set-piece phases; defensive actions by the restarting team
+may also be within the exclusion window.
+
+IMPORTANT: Compared to older runs, the pass mapping fix changes BOTH the
+numerator and denominator. Compare direct_only vs strict from THIS run to
+isolate the effect of the follow-up-window exclusion.
+
+Known LB appearances excluded only in 'after_known_lb_exclusions':
+Greenwood Sep 6/Sep 26, Buurman Sep 13. Other appearances remain position
+UNVERIFIED. Minimum 4 is appearances with events after those exclusions,
+NOT four confirmed CB starts. 'Own flank' assumes team-oriented y=0 right.
+No tracking, minutes/possession adjustments, or verified carries.
+''',encoding='utf-8')
+    print('Set-piece audit:',len(audits),'action events; eligible CB:',len(eligible))
 
 if __name__ == '__main__':
     main()
