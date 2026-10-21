@@ -1,10 +1,10 @@
 {
   "metadata": {
-    "generated_at_utc": "2026-10-20T12:45:39+00:00",
+    "generated_at_utc": "2026-10-21T12:58:23+00:00",
     "source": "Pinnacle via OddsPapi",
     "method": "Opponent team total Under 0.5, de-vigged against Over 0.5",
     "tournament_id": 1044,
-    "fixture_count": 1,
+    "fixture_count": 2,
     "unmatched_fixture_count": 3,
     "learned_participant_count": 9,
     "participant_mapping": {
@@ -50,6 +50,35 @@
       "source": "Pinnacle",
       "method": "opponent_team_total_under_0.5_devig",
       "market_updated_at": "2026-10-18T16:26:59.436Z"
+    },
+    {
+      "match_id": "wpll::Football_Match::3817aa43b204470eb614a0c287f5e12a",
+      "fixture_id": "id1000104473346068",
+      "pinnacle_fixture_id": "1638748137",
+      "start_time_utc": "2026-10-25T18:00:00.000Z",
+      "home_team": "MUN",
+      "away_team": "MCI",
+      "home_name": "Manchester United",
+      "away_name": "Manchester City",
+      "home_market_cs_probability": null,
+      "away_market_cs_probability": 0.328341,
+      "home_opponent_team_total_0_5": null,
+      "away_opponent_team_total_0_5": {
+        "over_odds": 1.403,
+        "under_odds": 2.87,
+        "raw_under_probability": 0.348432,
+        "overround": 0.06119,
+        "fair_under_probability": 0.328341,
+        "main_line": true,
+        "bookmaker_market_id": "line/29/8713/1638748137/3772924666/0/teamTotal",
+        "market_type": "teamTotal",
+        "period": "full_match",
+        "team_total_side": "home",
+        "line": 0.5
+      },
+      "source": "Pinnacle",
+      "method": "opponent_team_total_under_0.5_devig",
+      "market_updated_at": "2026-10-18T20:42:22.202Z"
     }
   ]
 }
