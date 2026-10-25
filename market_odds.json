@@ -1,11 +1,11 @@
 {
   "metadata": {
-    "generated_at_utc": "2026-10-24T12:02:26+00:00",
+    "generated_at_utc": "2026-10-25T12:35:43+00:00",
     "source": "Pinnacle via OddsPapi",
     "method": "Opponent team total Under 0.5, de-vigged against Over 0.5",
     "tournament_id": 1044,
-    "fixture_count": 2,
-    "unmatched_fixture_count": 4,
+    "fixture_count": 1,
+    "unmatched_fixture_count": 2,
     "learned_participant_count": 9,
     "participant_mapping": {
       "606004": "LCL",
@@ -22,35 +22,6 @@
     "note": "A team's CS probability equals the opponent's fair probability of scoring 0 goals. Only Pinnacle bookmakerMarketId values explicitly ending in teamTotal with home/away 0.5 over+under outcomes are accepted; prices are normalized within that same market. Participant IDs are learned from kickoff-unique fixtures and reused to resolve simultaneous kickoffs."
   },
   "fixtures": [
-    {
-      "match_id": "wpll::Football_Match::e36c961a24bb409498029478475ec755",
-      "fixture_id": "id1000104473346078",
-      "pinnacle_fixture_id": "1638686121",
-      "start_time_utc": "2026-10-24T16:15:00.000Z",
-      "home_team": "BHA",
-      "away_team": "WHU",
-      "home_name": "Brighton & Hove Albion",
-      "away_name": "West Ham United",
-      "home_market_cs_probability": 0.381882,
-      "away_market_cs_probability": null,
-      "home_opponent_team_total_0_5": {
-        "over_odds": 1.526,
-        "under_odds": 2.47,
-        "raw_under_probability": 0.404858,
-        "overround": 0.060166,
-        "fair_under_probability": 0.381882,
-        "main_line": true,
-        "bookmaker_market_id": "line/29/8713/1638686121/3775650871/0/teamTotal",
-        "market_type": "teamTotal",
-        "period": "full_match",
-        "team_total_side": "away",
-        "line": 0.5
-      },
-      "away_opponent_team_total_0_5": null,
-      "source": "Pinnacle",
-      "method": "opponent_team_total_under_0.5_devig",
-      "market_updated_at": "2026-10-21T22:40:14.961Z"
-    },
     {
       "match_id": "wpll::Football_Match::3817aa43b204470eb614a0c287f5e12a",
       "fixture_id": "id1000104473346068",
