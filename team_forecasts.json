@@ -7,9 +7,10 @@
       "1",
       "2",
       "3",
-      "4"
+      "4",
+      "8"
     ],
-    "note": "Manual eGoals snapshots; audit/display only. eGoals Against is the opponent eGoals forecast. Source 0.00 values that meant prediction unavailable are stored as null. GW1-GW4 snapshots retained; GW3 contains WSL only, while GW4 contains both WSL and WSL2."
+    "note": "Manual eGoals snapshots; audit/display only. eGoals Against is the opponent eGoals forecast. Source 0.00 values that meant prediction unavailable are stored as null. GW1-GW4 snapshots retained; GW3 contains WSL only, while GW4 contains both WSL and WSL2. GW8 WSL eGoals added from user-supplied ByeGoals screenshot (October 30, 2026); no WSL2 GW8 projections supplied."
   },
   "teams": [
     {
@@ -839,6 +840,132 @@
       "location": "H",
       "egoals": 1.06,
       "egoals_against": 1.6
+    },
+    {
+      "game_week": "8",
+      "league": "WSL",
+      "team": "CHE",
+      "opponent": "CHA",
+      "location": "A",
+      "egoals": 3.47,
+      "egoals_against": 0.55
+    },
+    {
+      "game_week": "8",
+      "league": "WSL",
+      "team": "ARS",
+      "opponent": "AVL",
+      "location": "H",
+      "egoals": 3.56,
+      "egoals_against": 0.75
+    },
+    {
+      "game_week": "8",
+      "league": "WSL",
+      "team": "BHA",
+      "opponent": "CRY",
+      "location": "H",
+      "egoals": 2.88,
+      "egoals_against": 0.87
+    },
+    {
+      "game_week": "8",
+      "league": "WSL",
+      "team": "TOT",
+      "opponent": "BIR",
+      "location": "A",
+      "egoals": 1.93,
+      "egoals_against": 1.25
+    },
+    {
+      "game_week": "8",
+      "league": "WSL",
+      "team": "LIV",
+      "opponent": "WHU",
+      "location": "A",
+      "egoals": 1.55,
+      "egoals_against": 1.19
+    },
+    {
+      "game_week": "8",
+      "league": "WSL",
+      "team": "MUN",
+      "opponent": "EVE",
+      "location": "A",
+      "egoals": 1.57,
+      "egoals_against": 1.23
+    },
+    {
+      "game_week": "8",
+      "league": "WSL",
+      "team": "MCI",
+      "opponent": "LCL",
+      "location": "A",
+      "egoals": 1.65,
+      "egoals_against": 1.44
+    },
+    {
+      "game_week": "8",
+      "league": "WSL",
+      "team": "LCL",
+      "opponent": "MCI",
+      "location": "H",
+      "egoals": 1.44,
+      "egoals_against": 1.65
+    },
+    {
+      "game_week": "8",
+      "league": "WSL",
+      "team": "WHU",
+      "opponent": "LIV",
+      "location": "H",
+      "egoals": 1.19,
+      "egoals_against": 1.55
+    },
+    {
+      "game_week": "8",
+      "league": "WSL",
+      "team": "EVE",
+      "opponent": "MUN",
+      "location": "H",
+      "egoals": 1.23,
+      "egoals_against": 1.57
+    },
+    {
+      "game_week": "8",
+      "league": "WSL",
+      "team": "BIR",
+      "opponent": "TOT",
+      "location": "H",
+      "egoals": 1.25,
+      "egoals_against": 1.93
+    },
+    {
+      "game_week": "8",
+      "league": "WSL",
+      "team": "CRY",
+      "opponent": "BHA",
+      "location": "A",
+      "egoals": 0.87,
+      "egoals_against": 2.88
+    },
+    {
+      "game_week": "8",
+      "league": "WSL",
+      "team": "AVL",
+      "opponent": "ARS",
+      "location": "A",
+      "egoals": 0.75,
+      "egoals_against": 3.56
+    },
+    {
+      "game_week": "8",
+      "league": "WSL",
+      "team": "CHA",
+      "opponent": "CHE",
+      "location": "H",
+      "egoals": 0.55,
+      "egoals_against": 3.47
     }
   ]
 }
