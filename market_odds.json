@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "generated_at_utc": "2026-10-29T14:25:24+00:00",
+    "generated_at_utc": "2026-10-30T14:15:50+00:00",
     "source": "Pinnacle via OddsPapi",
     "method": "Opponent team total Under 0.5, de-vigged against Over 0.5",
     "tournament_id": 1044,
@@ -32,16 +32,16 @@
       "away_team": "AVL",
       "home_name": "Arsenal",
       "away_name": "Aston Villa",
-      "home_market_cs_probability": 0.470199,
+      "home_market_cs_probability": 0.453682,
       "away_market_cs_probability": null,
       "home_opponent_team_total_0_5": {
-        "over_odds": 1.775,
-        "under_odds": 2.0,
-        "raw_under_probability": 0.5,
-        "overround": 0.06338,
-        "fair_under_probability": 0.470199,
+        "over_odds": 1.719,
+        "under_odds": 2.07,
+        "raw_under_probability": 0.483092,
+        "overround": 0.064825,
+        "fair_under_probability": 0.453682,
         "main_line": true,
-        "bookmaker_market_id": "line/29/8713/1639253081/3784641921/0/teamTotal",
+        "bookmaker_market_id": "line/29/8713/1639253081/3785657199/0/teamTotal",
         "market_type": "teamTotal",
         "period": "full_match",
         "team_total_side": "away",
@@ -50,7 +50,7 @@
       "away_opponent_team_total_0_5": null,
       "source": "Pinnacle",
       "method": "opponent_team_total_under_0.5_devig",
-      "market_updated_at": "2026-10-25T17:28:29.228Z"
+      "market_updated_at": "2026-10-29T23:33:31.486Z"
     },
     {
       "match_id": "wpll::Football_Match::f8f32826f28a43d1b4e22ef48042d098",
@@ -62,16 +62,16 @@
       "home_name": "Charlton Athletic",
       "away_name": "Chelsea",
       "home_market_cs_probability": null,
-      "away_market_cs_probability": 0.579181,
+      "away_market_cs_probability": 0.559055,
       "home_opponent_team_total_0_5": null,
       "away_opponent_team_total_0_5": {
-        "over_odds": 2.22,
-        "under_odds": 1.613,
-        "raw_under_probability": 0.619963,
-        "overround": 0.070413,
-        "fair_under_probability": 0.579181,
+        "over_odds": 2.13,
+        "under_odds": 1.68,
+        "raw_under_probability": 0.595238,
+        "overround": 0.064722,
+        "fair_under_probability": 0.559055,
         "main_line": true,
-        "bookmaker_market_id": "line/29/8713/1639261661/3782783296/0/teamTotal",
+        "bookmaker_market_id": "line/29/8713/1639261661/3785680829/0/teamTotal",
         "market_type": "teamTotal",
         "period": "full_match",
         "team_total_side": "home",
@@ -79,7 +79,7 @@
       },
       "source": "Pinnacle",
       "method": "opponent_team_total_under_0.5_devig",
-      "market_updated_at": "2026-10-25T21:13:01.231Z"
+      "market_updated_at": "2026-10-29T23:33:31.836Z"
     }
   ]
 }
