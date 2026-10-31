@@ -1,10 +1,10 @@
 {
   "metadata": {
-    "generated_at_utc": "2026-10-30T23:31:22+00:00",
+    "generated_at_utc": "2026-10-31T13:41:05+00:00",
     "source": "Pinnacle via OddsPapi",
     "method": "Opponent team total Under 0.5, de-vigged against Over 0.5",
     "tournament_id": 1044,
-    "fixture_count": 2,
+    "fixture_count": 3,
     "unmatched_fixture_count": 1,
     "learned_participant_count": 10,
     "participant_mapping": {
@@ -23,6 +23,47 @@
     "note": "A team's CS probability equals the opponent's fair probability of scoring 0 goals. Only Pinnacle bookmakerMarketId values explicitly ending in teamTotal with home/away 0.5 over+under outcomes are accepted; prices are normalized within that same market. Participant IDs are learned from kickoff-unique fixtures and reused to resolve simultaneous kickoffs."
   },
   "fixtures": [
+    {
+      "match_id": "wpll::Football_Match::71ef1958bd1f4ecdb687f744972e5f65",
+      "fixture_id": "id1000104473346082",
+      "pinnacle_fixture_id": "1639169891",
+      "start_time_utc": "2026-10-31T12:45:00.000Z",
+      "home_team": "EVE",
+      "away_team": "MUN",
+      "home_name": "Everton",
+      "away_name": "Manchester United",
+      "home_market_cs_probability": 0.393558,
+      "away_market_cs_probability": 0.544838,
+      "home_opponent_team_total_0_5": {
+        "over_odds": 1.564,
+        "under_odds": 2.41,
+        "raw_under_probability": 0.414938,
+        "overround": 0.054324,
+        "fair_under_probability": 0.393558,
+        "main_line": true,
+        "bookmaker_market_id": "line/29/8713/1639591984/3787482068/0/teamTotal",
+        "market_type": "teamTotal",
+        "period": "full_match",
+        "team_total_side": "away",
+        "line": 0.5
+      },
+      "away_opponent_team_total_0_5": {
+        "over_odds": 2.09,
+        "under_odds": 1.746,
+        "raw_under_probability": 0.572738,
+        "overround": 0.051207,
+        "fair_under_probability": 0.544838,
+        "main_line": true,
+        "bookmaker_market_id": "line/29/8713/1639591984/3787482068/0/teamTotal",
+        "market_type": "teamTotal",
+        "period": "full_match",
+        "team_total_side": "home",
+        "line": 0.5
+      },
+      "source": "Pinnacle",
+      "method": "opponent_team_total_under_0.5_devig",
+      "market_updated_at": "2026-10-31T13:40:48.035Z"
+    },
     {
       "match_id": "wpll::Football_Match::61b0b7ce8475419292d11da218b35a2c",
       "fixture_id": "id1000104473346084",
