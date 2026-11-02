@@ -1,11 +1,11 @@
 {
   "metadata": {
-    "generated_at_utc": "2026-11-01T14:18:15+00:00",
+    "generated_at_utc": "2026-11-02T17:08:24+00:00",
     "source": "Pinnacle via OddsPapi",
     "method": "Opponent team total Under 0.5, de-vigged against Over 0.5",
     "tournament_id": 1044,
     "fixture_count": 2,
-    "unmatched_fixture_count": 2,
+    "unmatched_fixture_count": 3,
     "learned_participant_count": 9,
     "participant_mapping": {
       "606004": "LCL",
@@ -16,41 +16,12 @@
       "499630": "WHU",
       "372788": "BHA",
       "26243": "ARS",
-      "290394": "CHA"
+      "66766": "BIR"
     },
     "participant_mapping_method": "manual verified overrides + kickoff-unique fallback",
     "note": "A team's CS probability equals the opponent's fair probability of scoring 0 goals. Only Pinnacle bookmakerMarketId values explicitly ending in teamTotal with home/away 0.5 over+under outcomes are accepted; prices are normalized within that same market. Participant IDs are learned from kickoff-unique fixtures and reused to resolve simultaneous kickoffs."
   },
   "fixtures": [
-    {
-      "match_id": "wpll::Football_Match::f8f32826f28a43d1b4e22ef48042d098",
-      "fixture_id": "id1000104473346090",
-      "pinnacle_fixture_id": "1639261661",
-      "start_time_utc": "2026-11-01T14:30:00.000Z",
-      "home_team": "CHA",
-      "away_team": "CHE",
-      "home_name": "Charlton Athletic",
-      "away_name": "Chelsea",
-      "home_market_cs_probability": null,
-      "away_market_cs_probability": 0.588386,
-      "home_opponent_team_total_0_5": null,
-      "away_opponent_team_total_0_5": {
-        "over_odds": 2.29,
-        "under_odds": 1.602,
-        "raw_under_probability": 0.62422,
-        "overround": 0.060901,
-        "fair_under_probability": 0.588386,
-        "main_line": true,
-        "bookmaker_market_id": "line/29/8713/1639261661/3789903195/0/teamTotal",
-        "market_type": "teamTotal",
-        "period": "full_match",
-        "team_total_side": "home",
-        "line": 0.5
-      },
-      "source": "Pinnacle",
-      "method": "opponent_team_total_under_0.5_devig",
-      "market_updated_at": "2026-10-29T23:33:31.836Z"
-    },
     {
       "match_id": "wpll::Football_Match::08325bf7b99a4c4191666861a1e5e5d1",
       "fixture_id": "id1000104473346104",
@@ -78,7 +49,36 @@
       },
       "source": "Pinnacle",
       "method": "opponent_team_total_under_0.5_devig",
-      "market_updated_at": "2026-11-01T14:12:00.825Z"
+      "market_updated_at": "2026-11-01T14:28:46.836Z"
+    },
+    {
+      "match_id": "wpll::Football_Match::6f26948105984863a1640a9b8f29e05b",
+      "fixture_id": "id1000104473346098",
+      "pinnacle_fixture_id": "1639776976",
+      "start_time_utc": "2026-11-08T14:30:00.000Z",
+      "home_team": "LCL",
+      "away_team": "BIR",
+      "home_name": "London City Lionesses",
+      "away_name": "Birmingham City",
+      "home_market_cs_probability": 0.413731,
+      "away_market_cs_probability": null,
+      "home_opponent_team_total_0_5": {
+        "over_odds": 1.609,
+        "under_odds": 2.28,
+        "raw_under_probability": 0.438596,
+        "overround": 0.060101,
+        "fair_under_probability": 0.413731,
+        "main_line": true,
+        "bookmaker_market_id": "line/29/8713/1639776976/3791202053/0/teamTotal",
+        "market_type": "teamTotal",
+        "period": "full_match",
+        "team_total_side": "away",
+        "line": 0.5
+      },
+      "away_opponent_team_total_0_5": null,
+      "source": "Pinnacle",
+      "method": "opponent_team_total_under_0.5_devig",
+      "market_updated_at": "2026-11-01T17:14:52.436Z"
     }
   ]
 }
