@@ -1,8 +1,8 @@
 {
   "metadata": {
-    "generated_at": "2026-11-08T18:29:02.202842Z",
+    "generated_at": "2026-11-08T19:42:56.505433Z",
     "refresh_interval_minutes": 15,
-    "candidate_match_count": 2,
+    "candidate_match_count": 0,
     "match_count": 8,
     "failures": [],
     "scoring_note": "Rules/Opta-derived involvement values reconciled against the official WSL Fantasy player-match feed.",
@@ -752,7 +752,8 @@
           "bonus_rank": 10
         }
       ],
-      "event_count": 1759
+      "event_count": 1759,
+      "carried_forward": true
     },
     {
       "match_id": "wpll::Football_Match::04096940899347a0bef193c15fd306ec",
@@ -1497,7 +1498,8 @@
           "bonus_rank": 16
         }
       ],
-      "event_count": 1641
+      "event_count": 1641,
+      "carried_forward": true
     },
     {
       "match_id": "wpll::Football_Match::fad5e1d8beef4f89a0fd9a8dcf9ac05a",
