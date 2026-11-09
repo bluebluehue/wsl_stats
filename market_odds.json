@@ -1,12 +1,12 @@
 {
   "metadata": {
-    "generated_at_utc": "2026-11-08T14:20:13+00:00",
+    "generated_at_utc": "2026-11-09T17:35:34+00:00",
     "source": "Pinnacle via OddsPapi",
     "method": "Opponent team total Under 0.5, de-vigged against Over 0.5",
     "tournament_id": 1044,
-    "fixture_count": 3,
-    "unmatched_fixture_count": 0,
-    "learned_participant_count": 13,
+    "fixture_count": 2,
+    "unmatched_fixture_count": 1,
+    "learned_participant_count": 12,
     "participant_mapping": {
       "606004": "LCL",
       "494374": "MUN",
@@ -16,7 +16,6 @@
       "499630": "WHU",
       "372788": "BHA",
       "26243": "ARS",
-      "66766": "BIR",
       "290396": "CRY",
       "142658": "MCI",
       "36704": "EVE",
@@ -26,35 +25,6 @@
     "note": "A team's CS probability equals the opponent's fair probability of scoring 0 goals. Only Pinnacle bookmakerMarketId values explicitly ending in teamTotal with home/away 0.5 over+under outcomes are accepted; prices are normalized within that same market. Participant IDs are learned from kickoff-unique fixtures and reused to resolve simultaneous kickoffs."
   },
   "fixtures": [
-    {
-      "match_id": "wpll::Football_Match::6f26948105984863a1640a9b8f29e05b",
-      "fixture_id": "id1000104473346098",
-      "pinnacle_fixture_id": "1639776976",
-      "start_time_utc": "2026-11-08T14:30:00.000Z",
-      "home_team": "LCL",
-      "away_team": "BIR",
-      "home_name": "London City Lionesses",
-      "away_name": "Birmingham City",
-      "home_market_cs_probability": 0.491682,
-      "away_market_cs_probability": null,
-      "home_opponent_team_total_0_5": {
-        "over_odds": 1.862,
-        "under_odds": 1.925,
-        "raw_under_probability": 0.519481,
-        "overround": 0.056537,
-        "fair_under_probability": 0.491682,
-        "main_line": true,
-        "bookmaker_market_id": "line/29/8713/1639776976/3799158695/0/teamTotal",
-        "market_type": "teamTotal",
-        "period": "full_match",
-        "team_total_side": "away",
-        "line": 0.5
-      },
-      "away_opponent_team_total_0_5": null,
-      "source": "Pinnacle",
-      "method": "opponent_team_total_under_0.5_devig",
-      "market_updated_at": "2026-11-06T00:23:46.653Z"
-    },
     {
       "match_id": "wpll::Football_Match::ced23f61654344d7afa963d24f8651bd",
       "fixture_id": "id1000104473346114",
@@ -73,7 +43,7 @@
         "overround": 0.07721,
         "fair_under_probability": 0.421965,
         "main_line": true,
-        "bookmaker_market_id": "line/29/8713/1640205702/3799173036/0/teamTotal",
+        "bookmaker_market_id": "line/29/8713/1640205702/3799209019/0/teamTotal",
         "market_type": "teamTotal",
         "period": "full_match",
         "team_total_side": "away",
@@ -82,7 +52,7 @@
       "away_opponent_team_total_0_5": null,
       "source": "Pinnacle",
       "method": "opponent_team_total_under_0.5_devig",
-      "market_updated_at": "2026-11-07T14:23:54.538Z"
+      "market_updated_at": "2026-11-08T23:57:16.346Z"
     },
     {
       "match_id": "wpll::Football_Match::e9c1433c391b4fa98806d94e289f7944",
@@ -93,16 +63,16 @@
       "away_team": "EVE",
       "home_name": "Tottenham Hotspur",
       "away_name": "Everton",
-      "home_market_cs_probability": 0.391149,
+      "home_market_cs_probability": 0.407844,
       "away_market_cs_probability": null,
       "home_opponent_team_total_0_5": {
-        "over_odds": 1.529,
-        "under_odds": 2.38,
-        "raw_under_probability": 0.420168,
-        "overround": 0.07419,
-        "fair_under_probability": 0.391149,
+        "over_odds": 1.591,
+        "under_odds": 2.31,
+        "raw_under_probability": 0.4329,
+        "overround": 0.061436,
+        "fair_under_probability": 0.407844,
         "main_line": true,
-        "bookmaker_market_id": "line/29/8713/1640213834/3799173085/0/teamTotal",
+        "bookmaker_market_id": "line/29/8713/1640213834/3799376623/0/teamTotal",
         "market_type": "teamTotal",
         "period": "full_match",
         "team_total_side": "away",
@@ -111,7 +81,7 @@
       "away_opponent_team_total_0_5": null,
       "source": "Pinnacle",
       "method": "opponent_team_total_under_0.5_devig",
-      "market_updated_at": "2026-11-07T16:22:40.983Z"
+      "market_updated_at": "2026-11-08T23:57:16.792Z"
     }
   ]
 }
