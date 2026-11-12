@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "generated_at_utc": "2026-11-11T15:18:29+00:00",
+    "generated_at_utc": "2026-11-12T16:00:07+00:00",
     "source": "Pinnacle via OddsPapi",
     "method": "Opponent team total Under 0.5, de-vigged against Over 0.5",
     "tournament_id": 1044,
@@ -34,16 +34,16 @@
       "away_team": "CRY",
       "home_name": "Manchester United",
       "away_name": "Crystal Palace",
-      "home_market_cs_probability": 0.432587,
+      "home_market_cs_probability": 0.428423,
       "away_market_cs_probability": null,
       "home_opponent_team_total_0_5": {
-        "over_odds": 1.662,
-        "under_odds": 2.18,
-        "raw_under_probability": 0.458716,
-        "overround": 0.0604,
-        "fair_under_probability": 0.432587,
+        "over_odds": 1.649,
+        "under_odds": 2.2,
+        "raw_under_probability": 0.454545,
+        "overround": 0.060974,
+        "fair_under_probability": 0.428423,
         "main_line": true,
-        "bookmaker_market_id": "line/29/8713/1640205702/3802000218/0/teamTotal",
+        "bookmaker_market_id": "line/29/8713/1640205702/3802847580/0/teamTotal",
         "market_type": "teamTotal",
         "period": "full_match",
         "team_total_side": "away",
@@ -52,7 +52,7 @@
       "away_opponent_team_total_0_5": null,
       "source": "Pinnacle",
       "method": "opponent_team_total_under_0.5_devig",
-      "market_updated_at": "2026-11-08T23:57:16.346Z"
+      "market_updated_at": "2026-11-12T00:26:30.638Z"
     },
     {
       "match_id": "wpll::Football_Match::e9c1433c391b4fa98806d94e289f7944",
@@ -63,16 +63,16 @@
       "away_team": "EVE",
       "home_name": "Tottenham Hotspur",
       "away_name": "Everton",
-      "home_market_cs_probability": 0.407844,
+      "home_market_cs_probability": 0.403213,
       "away_market_cs_probability": null,
       "home_opponent_team_total_0_5": {
-        "over_odds": 1.591,
-        "under_odds": 2.31,
-        "raw_under_probability": 0.4329,
-        "overround": 0.061436,
-        "fair_under_probability": 0.407844,
+        "over_odds": 1.581,
+        "under_odds": 2.34,
+        "raw_under_probability": 0.42735,
+        "overround": 0.059861,
+        "fair_under_probability": 0.403213,
         "main_line": true,
-        "bookmaker_market_id": "line/29/8713/1640213834/3801965551/0/teamTotal",
+        "bookmaker_market_id": "line/29/8713/1640213834/3802841162/0/teamTotal",
         "market_type": "teamTotal",
         "period": "full_match",
         "team_total_side": "away",
@@ -81,7 +81,7 @@
       "away_opponent_team_total_0_5": null,
       "source": "Pinnacle",
       "method": "opponent_team_total_under_0.5_devig",
-      "market_updated_at": "2026-11-08T23:57:16.792Z"
+      "market_updated_at": "2026-11-12T00:26:30.665Z"
     }
   ]
 }
