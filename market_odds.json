@@ -1,12 +1,12 @@
 {
   "metadata": {
-    "generated_at_utc": "2026-11-14T14:13:15+00:00",
+    "generated_at_utc": "2026-11-15T14:48:37+00:00",
     "source": "Pinnacle via OddsPapi",
     "method": "Opponent team total Under 0.5, de-vigged against Over 0.5",
     "tournament_id": 1044,
     "fixture_count": 1,
     "unmatched_fixture_count": 1,
-    "learned_participant_count": 10,
+    "learned_participant_count": 9,
     "participant_mapping": {
       "606004": "LCL",
       "494374": "MUN",
@@ -16,7 +16,6 @@
       "499630": "WHU",
       "372788": "BHA",
       "26243": "ARS",
-      "36704": "EVE",
       "66774": "LIV"
     },
     "participant_mapping_method": "manual verified overrides + kickoff-unique fallback",
@@ -24,33 +23,33 @@
   },
   "fixtures": [
     {
-      "match_id": "wpll::Football_Match::e9c1433c391b4fa98806d94e289f7944",
-      "fixture_id": "id1000104473346118",
-      "pinnacle_fixture_id": "1640213834",
-      "start_time_utc": "2026-11-14T15:00:00.000Z",
-      "home_team": "TOT",
-      "away_team": "EVE",
-      "home_name": "Tottenham Hotspur",
-      "away_name": "Everton",
-      "home_market_cs_probability": 0.403213,
-      "away_market_cs_probability": null,
-      "home_opponent_team_total_0_5": {
-        "over_odds": 1.581,
-        "under_odds": 2.34,
-        "raw_under_probability": 0.42735,
-        "overround": 0.059861,
-        "fair_under_probability": 0.403213,
+      "match_id": "wpll::Football_Match::b5dad0723a7d4a2bbf0f873783ac4f99",
+      "fixture_id": "id1000104473346128",
+      "pinnacle_fixture_id": "1640481891",
+      "start_time_utc": "2026-11-21T12:45:00.000Z",
+      "home_team": "LIV",
+      "away_team": "CHE",
+      "home_name": "Liverpool",
+      "away_name": "Chelsea",
+      "home_market_cs_probability": null,
+      "away_market_cs_probability": 0.363636,
+      "home_opponent_team_total_0_5": null,
+      "away_opponent_team_total_0_5": {
+        "over_odds": 1.48,
+        "under_odds": 2.59,
+        "raw_under_probability": 0.3861,
+        "overround": 0.061776,
+        "fair_under_probability": 0.363636,
         "main_line": true,
-        "bookmaker_market_id": "line/29/8713/1640213834/3804990542/0/teamTotal",
+        "bookmaker_market_id": "line/29/8713/1640481891/3805611224/0/teamTotal",
         "market_type": "teamTotal",
         "period": "full_match",
-        "team_total_side": "away",
+        "team_total_side": "home",
         "line": 0.5
       },
-      "away_opponent_team_total_0_5": null,
       "source": "Pinnacle",
       "method": "opponent_team_total_under_0.5_devig",
-      "market_updated_at": "2026-11-12T00:26:30.665Z"
+      "market_updated_at": "2026-11-15T11:33:42.576Z"
     }
   ]
 }
