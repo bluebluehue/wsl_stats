@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "generated_at_utc": "2026-11-16T17:05:43+00:00",
+    "generated_at_utc": "2026-11-17T16:55:03+00:00",
     "source": "Pinnacle via OddsPapi",
     "method": "Opponent team total Under 0.5, de-vigged against Over 0.5",
     "tournament_id": 1044,
@@ -33,16 +33,16 @@
       "home_name": "Liverpool",
       "away_name": "Chelsea",
       "home_market_cs_probability": null,
-      "away_market_cs_probability": 0.363636,
+      "away_market_cs_probability": 0.378743,
       "home_opponent_team_total_0_5": null,
       "away_opponent_team_total_0_5": {
-        "over_odds": 1.48,
-        "under_odds": 2.59,
-        "raw_under_probability": 0.3861,
-        "overround": 0.061776,
-        "fair_under_probability": 0.363636,
+        "over_odds": 1.518,
+        "under_odds": 2.49,
+        "raw_under_probability": 0.401606,
+        "overround": 0.060368,
+        "fair_under_probability": 0.378743,
         "main_line": true,
-        "bookmaker_market_id": "line/29/8713/1640481891/3805611224/0/teamTotal",
+        "bookmaker_market_id": "line/29/8713/1640481891/3808121260/0/teamTotal",
         "market_type": "teamTotal",
         "period": "full_match",
         "team_total_side": "home",
@@ -61,16 +61,16 @@
       "away_team": "CRY",
       "home_name": "London City Lionesses",
       "away_name": "Crystal Palace",
-      "home_market_cs_probability": 0.544397,
+      "home_market_cs_probability": 0.555409,
       "away_market_cs_probability": null,
       "home_opponent_team_total_0_5": {
-        "over_odds": 2.06,
-        "under_odds": 1.724,
-        "raw_under_probability": 0.580046,
-        "overround": 0.065483,
-        "fair_under_probability": 0.544397,
+        "over_odds": 2.11,
+        "under_odds": 1.689,
+        "raw_under_probability": 0.592066,
+        "overround": 0.066,
+        "fair_under_probability": 0.555409,
         "main_line": true,
-        "bookmaker_market_id": "line/29/8713/1640511571/3807602379/0/teamTotal",
+        "bookmaker_market_id": "line/29/8713/1640511571/3808202901/0/teamTotal",
         "market_type": "teamTotal",
         "period": "full_match",
         "team_total_side": "away",
@@ -79,7 +79,7 @@
       "away_opponent_team_total_0_5": null,
       "source": "Pinnacle",
       "method": "opponent_team_total_under_0.5_devig",
-      "market_updated_at": "2026-11-15T18:30:41.858Z"
+      "market_updated_at": "2026-11-16T20:35:48.679Z"
     },
     {
       "match_id": "wpll::Football_Match::e00d7067a71543ef922a8cf9313cfd35",
@@ -108,7 +108,7 @@
       "away_opponent_team_total_0_5": null,
       "source": "Pinnacle",
       "method": "opponent_team_total_under_0.5_devig",
-      "market_updated_at": "2026-11-15T18:30:41.792Z"
+      "market_updated_at": "2026-11-16T20:35:48.509Z"
     }
   ]
 }
