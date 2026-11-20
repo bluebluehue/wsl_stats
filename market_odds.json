@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "generated_at_utc": "2026-11-19T16:36:42+00:00",
+    "generated_at_utc": "2026-11-20T16:12:07+00:00",
     "source": "Pinnacle via OddsPapi",
     "method": "Opponent team total Under 0.5, de-vigged against Over 0.5",
     "tournament_id": 1044,
@@ -42,7 +42,7 @@
         "overround": 0.061976,
         "fair_under_probability": 0.375156,
         "main_line": true,
-        "bookmaker_market_id": "line/29/8713/1640481891/3809820373/0/teamTotal",
+        "bookmaker_market_id": "line/29/8713/1640481891/3810877468/0/teamTotal",
         "market_type": "teamTotal",
         "period": "full_match",
         "team_total_side": "home",
@@ -70,7 +70,7 @@
         "overround": 0.066,
         "fair_under_probability": 0.555409,
         "main_line": true,
-        "bookmaker_market_id": "line/29/8713/1640511571/3808202901/0/teamTotal",
+        "bookmaker_market_id": "line/29/8713/1640511571/3810877479/0/teamTotal",
         "market_type": "teamTotal",
         "period": "full_match",
         "team_total_side": "away",
@@ -90,16 +90,16 @@
       "away_team": "WHU",
       "home_name": "Arsenal",
       "away_name": "West Ham United",
-      "home_market_cs_probability": 0.512682,
+      "home_market_cs_probability": 0.519425,
       "away_market_cs_probability": null,
       "home_opponent_team_total_0_5": {
-        "over_odds": 1.9,
+        "over_odds": 1.952,
         "under_odds": 1.806,
         "raw_under_probability": 0.55371,
-        "overround": 0.080026,
-        "fair_under_probability": 0.512682,
+        "overround": 0.066005,
+        "fair_under_probability": 0.519425,
         "main_line": true,
-        "bookmaker_market_id": "line/29/8713/1640529240/3807117616/0/teamTotal",
+        "bookmaker_market_id": "line/29/8713/1640529240/3811178064/0/teamTotal",
         "market_type": "teamTotal",
         "period": "full_match",
         "team_total_side": "away",
@@ -108,7 +108,7 @@
       "away_opponent_team_total_0_5": null,
       "source": "Pinnacle",
       "method": "opponent_team_total_under_0.5_devig",
-      "market_updated_at": "2026-11-16T20:35:48.509Z"
+      "market_updated_at": "2026-11-19T23:54:37.016Z"
     }
   ]
 }
