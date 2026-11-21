@@ -1,12 +1,29 @@
 {
   "metadata": {
-    "generated_at": "2026-11-21T06:56:37.362936Z",
+    "generated_at": "2026-11-21T12:41:58.761623Z",
     "refresh_interval_minutes": 15,
-    "candidate_match_count": 0,
-    "match_count": 0,
+    "candidate_match_count": 1,
+    "match_count": 1,
     "failures": [],
     "scoring_note": "Rules/Opta-derived involvement values reconciled against the official WSL Fantasy player-match feed.",
     "bonus_note": "bonus_rank is the official WSL Fantasy matchBonus rank. Live values are provisional."
   },
-  "matches": []
+  "matches": [
+    {
+      "match_id": "wpll::Football_Match::b5dad0723a7d4a2bbf0f873783ac4f99",
+      "date": "2026-11-21T12:45:00",
+      "opta_match_id": "1o7w5ccyg0wi6g1nyep2fjnro",
+      "home_id": "LIV",
+      "away_id": "CHE",
+      "competition_id": "wpll::Football_Competition::e32284e8a1214f1ca83a3245d690b336",
+      "league_game_week": "11",
+      "fantasy_game_week": "11",
+      "description": "Liverpool vs Chelsea",
+      "match_status": "Fixture",
+      "in_progress": true,
+      "minute": 0,
+      "players": [],
+      "event_count": 2
+    }
+  ]
 }
