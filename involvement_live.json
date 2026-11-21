@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "generated_at": "2026-11-21T14:38:33.173760Z",
+    "generated_at": "2026-11-21T14:41:45.307258Z",
     "refresh_interval_minutes": 15,
     "candidate_match_count": 1,
     "match_count": 1,
@@ -90,13 +90,13 @@
           "interceptions": 3,
           "clearances": 3,
           "blocks": 1,
-          "recoveries": 7,
+          "recoveries": 6,
           "keeper_claims": 0,
           "keeper_punches": 0,
           "keeper_pickups": 0,
           "attacking_actions": 3,
           "attacking_points": 0,
-          "defensive_actions": 15,
+          "defensive_actions": 14,
           "defensive_points": 1,
           "involvement_points": 1,
           "bonus_rank": null
@@ -662,13 +662,13 @@
           "interceptions": 0,
           "clearances": 0,
           "blocks": 0,
-          "recoveries": 3,
+          "recoveries": 4,
           "keeper_claims": 0,
           "keeper_punches": 0,
           "keeper_pickups": 0,
           "attacking_actions": 0,
           "attacking_points": 0,
-          "defensive_actions": 3,
+          "defensive_actions": 4,
           "defensive_points": 0,
           "involvement_points": 0,
           "bonus_rank": null
@@ -778,7 +778,7 @@
           "bonus_rank": null
         }
       ],
-      "event_count": 1733
+      "event_count": 1737
     }
   ]
 }
