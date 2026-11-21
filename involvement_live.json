@@ -1,8 +1,8 @@
 {
   "metadata": {
-    "generated_at": "2026-11-21T21:05:09.676648Z",
+    "generated_at": "2026-11-21T23:57:14.224356Z",
     "refresh_interval_minutes": 15,
-    "candidate_match_count": 1,
+    "candidate_match_count": 0,
     "match_count": 1,
     "failures": [],
     "scoring_note": "Rules/Opta-derived involvement values reconciled against the official WSL Fantasy player-match feed.",
@@ -856,7 +856,8 @@
           "bonus_rank": 20
         }
       ],
-      "event_count": 1655
+      "event_count": 1655,
+      "carried_forward": true
     }
   ]
 }
